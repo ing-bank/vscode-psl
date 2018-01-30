@@ -1,0 +1,719 @@
+{
+  "name": "vscode-psl",
+  "displayName": "vscode-psl",
+  "description": "",
+  "version": "0.0.1",
+  "publisher": "me",
+  "engines": {
+    "vscode": "^1.17.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "workspaceContains:dataqwik",
+    "workspaceContains:.vscode/environment.json",
+    "onCommand:psl.getElement",
+    "onCommand:psl.refreshElement",
+    "onCommand:psl.getTable",
+    "onCommand:psl.testCompile",
+    "onCommand:psl.configureEnvironment",
+    "onCommand:psl.sendElement",
+    "onCommand:psl.compileAndLink"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "languages": [
+      {
+        "id": "profileTable",
+        "aliases": [
+          "Profile Table Definition"
+        ],
+        "extensions": [
+          ".TBL"
+        ],
+        "configuration": "./def-language-configuration.json"
+      },
+      {
+        "id": "profileColumn",
+        "aliases": [
+          "Profile Column Definition"
+        ],
+        "extensions": [
+          ".COL"
+        ],
+        "configuration": "./def-language-configuration.json"
+      },
+      {
+        "id": "profileData",
+        "aliases": [
+          "Profile Data Item"
+        ],
+        "extensions": [
+          ".DAT"
+        ]
+      },
+      {
+        "id": "psl",
+        "aliases": [
+          "Profile Scripting Language",
+          "psl"
+        ],
+        "extensions": [
+          ".PROC",
+          ".PSL",
+          ".psl"
+        ],
+        "configuration": "./psl-language-configuration.json"
+      },
+      {
+        "id": "profileBatch",
+        "aliases": [
+          "Profile Batch Definition"
+        ],
+        "extensions": [
+          ".BATCH"
+        ],
+        "configuration": "./psl-language-configuration.json"
+      },
+      {
+        "id": "profileTrigger",
+        "aliases": [
+          "Profile Trigger Definition"
+        ],
+        "extensions": [
+          ".TRIG"
+        ],
+        "configuration": "./psl-language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "psl",
+        "scopeName": "source.psl",
+        "path": "./syntaxes/psl.tmLanguage.json"
+      },
+      {
+        "language": "profileBatch",
+        "scopeName": "source.psl",
+        "path": "./syntaxes/psl.tmLanguage.json"
+      },
+      {
+        "language": "profileTrigger",
+        "scopeName": "source.psl",
+        "path": "./syntaxes/psl.tmLanguage.json"
+      },
+      {
+        "language": "profileTable",
+        "scopeName": "source.json",
+        "path": "./syntaxes/JSON.tmLanguage"
+      },
+      {
+        "language": "profileColumn",
+        "scopeName": "source.json",
+        "path": "./syntaxes/JSON.tmLanguage"
+      }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "environment.json",
+        "url": "./schemas/environmentSchema.json"
+      },
+      {
+        "fileMatch": "environments.json",
+        "url": "./schemas/environmentsSchema.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "psl",
+        "path": "./snippets/psl.json"
+      }
+    ],
+    "configurationDefaults": {
+      "[psl]": {
+        "editor.snippetSuggestions": "bottom",
+        "editor.insertSpaces": false,
+        "editor.wordSeparators": "`~!@^&*()-=+[{]}\\|;:'\",.<>/?_$"
+      },
+      "[profileBatch]": {
+        "editor.snippetSuggestions": "bottom",
+        "editor.insertSpaces": false,
+        "editor.wordSeparators": "`~!@^&*()-=+[{]}\\|;:'\",.<>/?_$"
+      },
+      "[profileTrigger]": {
+        "editor.snippetSuggestions": "bottom",
+        "editor.insertSpaces": false,
+        "editor.wordSeparators": "`~!@^&*()-=+[{]}\\|;:'\",.<>/?_$"
+      },
+      "[profileColumn]": {
+        "editor.insertSpaces": false
+      },
+      "[profileData]": {
+        "editor.insertSpaces": false,
+        "editor.renderWhitespace": "boundary",
+        "diffEditor.ignoreTrimWhitespace": false
+      },
+      "[profileTable]": {
+        "editor.insertSpaces": false
+      }
+    },
+    "commands": [
+      {
+        "command": "psl.launchHostTerminal",
+        "title": "Launch Host Terminal",
+        "category": "PSL"
+      },
+      {
+        "command": "psl.getElement",
+        "title": "Get Element from Host",
+        "category": "PSL"
+      },
+      {
+        "command": "psl.refreshElement",
+        "title": "Refresh from Host",
+        "category": "PSL",
+        "icon": {
+          "dark": "icons/dark/sync.svg",
+          "light": "icons/light/sync.svg"
+        }
+      },
+      {
+        "command": "psl.getTable",
+        "title": "Table Get from Host",
+        "category": "PSL"
+      },
+      {
+        "command": "psl.testCompile",
+        "title": "Test Compile",
+        "category": "PSL",
+        "icon": {
+          "dark": "icons/dark/gear.svg",
+          "light": "icons/light/gear.svg"
+        }
+      },
+      {
+        "command": "psl.configureEnvironment",
+        "title": "Configure Environment",
+        "category": "PSL"
+      },
+      {
+        "command": "psl.sendElement",
+        "title": "Send to Host",
+        "category": "PSL",
+        "icon": {
+          "dark": "icons/dark/arrow-up.svg",
+          "light": "icons/light/arrow-up.svg"
+        }
+      },
+      {
+        "command": "psl.compileAndLink",
+        "title": "Compile and Link",
+        "category": "PSL",
+        "icon": {
+          "dark": "icons/dark/link.svg",
+          "light": "icons/light/link.svg"
+        }
+      },
+      {
+        "command": "psl.runPSL",
+        "title": "Run PSL",
+        "category": "PSL",
+        "icon": {
+          "dark": "icons/dark/triangle-right.svg",
+          "light": "icons/light/triangle-right.svg"
+        }
+      },
+      {
+        "command": "psl.sendTable",
+        "title": "Table Send to Host",
+        "category": "PSL"
+      },
+      {
+        "command": "psl.refreshTable",
+        "title": "Table Refresh from Host",
+        "category": "PSL"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "explorerResourceIsFolder",
+          "command": "psl.getElement",
+          "group": "PSL.3"
+        },
+        {
+          "when": "explorerResourceIsFolder",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "explorerResourceIsFolder",
+          "command": "psl.getTable",
+          "group": "PSL.3"
+        },
+        {
+          "when": "explorerResourceIsFolder",
+          "command": "psl.testCompile",
+          "group": "PSL.2"
+        },
+        {
+          "when": "explorerResourceIsFolder",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "explorerResourceIsFolder",
+          "command": "psl.runPSL",
+          "group": "PSL.2"
+        },
+        {
+          "when": "explorerResourceIsFolder",
+          "command": "psl.compileAndLink",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == psl && !explorerResourceIsFolder",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileData && !explorerResourceIsFolder",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileTable && !explorerResourceIsFolder",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileColumn && !explorerResourceIsFolder",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileBatch && !explorerResourceIsFolder",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileTrigger && !explorerResourceIsFolder",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == psl && !explorerResourceIsFolder",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileData && !explorerResourceIsFolder",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileTable && !explorerResourceIsFolder",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileColumn && !explorerResourceIsFolder",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileBatch && !explorerResourceIsFolder",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileTrigger && !explorerResourceIsFolder",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == psl && !explorerResourceIsFolder",
+          "command": "psl.runPSL",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == psl && !explorerResourceIsFolder",
+          "command": "psl.compileAndLink",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileTable && !explorerResourceIsFolder",
+          "command": "psl.compileAndLink",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == psl && !explorerResourceIsFolder",
+          "command": "psl.testCompile",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileTable && !explorerResourceIsFolder",
+          "command": "psl.sendTable",
+          "group": "PSL.1"
+        },
+        {
+          "when": "resourceLangId == profileColumn && !explorerResourceIsFolder",
+          "command": "psl.sendTable",
+          "group": "PSL.1"
+        },
+        {
+          "when": "resourceLangId == profileTable && !explorerResourceIsFolder",
+          "command": "psl.refreshTable",
+          "group": "PSL.1"
+        },
+        {
+          "when": "resourceLangId == profileColumn && !explorerResourceIsFolder",
+          "command": "psl.refreshTable",
+          "group": "PSL.1"
+        },
+        {
+          "command": "psl.configureEnvironment",
+          "group": "PSL.4"
+        }
+      ],
+      "editor/context": [
+        {
+          "when": "resourceLangId == psl",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileData",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileTable",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileColumn",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileBatch",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileTrigger",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "psl.isProfileElement",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == psl",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileData",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileTable",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileColumn",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileBatch",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileTrigger",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "psl.isProfileElement",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == psl",
+          "command": "psl.getElement",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceLangId == profileData",
+          "command": "psl.getElement",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceLangId == profileTable",
+          "command": "psl.getElement",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceLangId == profileColumn",
+          "command": "psl.getElement",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceLangId == profileBatch",
+          "command": "psl.getElement",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceLangId == profileTrigger",
+          "command": "psl.getElement",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceLangId == psl",
+          "command": "psl.getTable",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceLangId == profileData",
+          "command": "psl.getTable",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceLangId == profileTable",
+          "command": "psl.getTable",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceLangId == profileColumn",
+          "command": "psl.getTable",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceLangId == profileBatch",
+          "command": "psl.getTable",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceLangId == profileTrigger",
+          "command": "psl.getTable",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceLangId == psl",
+          "command": "psl.testCompile",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == psl",
+          "command": "psl.runPSL",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == psl",
+          "command": "psl.compileAndLink",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileTable",
+          "command": "psl.compileAndLink",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileTable",
+          "command": "psl.sendTable",
+          "group": "PSL.1"
+        },
+        {
+          "when": "resourceLangId == profileColumn",
+          "command": "psl.sendTable",
+          "group": "PSL.1"
+        },
+        {
+          "when": "resourceLangId == profileTable",
+          "command": "psl.refreshTable",
+          "group": "PSL.1"
+        },
+        {
+          "when": "resourceLangId == profileColumn",
+          "command": "psl.refreshTable",
+          "group": "PSL.1"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "psl.refreshElement",
+          "group": "navigation@-205",
+          "when": "resourceLangId == profileData"
+        },
+        {
+          "command": "psl.refreshElement",
+          "group": "navigation@-205",
+          "when": "resourceLangId == profileBatch"
+        },
+        {
+          "command": "psl.refreshElement",
+          "group": "navigation@-205",
+          "when": "resourceLangId == profileTrigger"
+        },
+        {
+          "command": "psl.refreshElement",
+          "group": "navigation@-205",
+          "when": "resourceLangId == psl"
+        },
+        {
+          "command": "psl.refreshElement",
+          "group": "navigation@-205",
+          "when": "psl.isProfileElement"
+        },
+        {
+          "command": "psl.refreshElement",
+          "group": "navigation@-205",
+          "when": "resourceLangId == profileTable"
+        },
+        {
+          "command": "psl.refreshElement",
+          "group": "navigation@-205",
+          "when": "resourceLangId == profileColumn"
+        },
+        {
+          "command": "psl.testCompile",
+          "group": "navigation@-204",
+          "when": "resourceLangId == psl"
+        },
+        {
+          "command": "psl.sendElement",
+          "group": "navigation@-203",
+          "when": "resourceLangId == profileBatch"
+        },
+        {
+          "command": "psl.sendElement",
+          "group": "navigation@-203",
+          "when": "resourceLangId == profileTrigger"
+        },
+        {
+          "command": "psl.sendElement",
+          "group": "navigation@-203",
+          "when": "resourceLangId == profileData"
+        },
+        {
+          "command": "psl.sendElement",
+          "group": "navigation@-203",
+          "when": "resourceLangId == psl"
+        },
+        {
+          "command": "psl.sendElement",
+          "group": "navigation@-203",
+          "when": "psl.isProfileElement"
+        },
+        {
+          "command": "psl.sendElement",
+          "group": "navigation@-203",
+          "when": "resourceLangId == profileTable"
+        },
+        {
+          "command": "psl.sendElement",
+          "group": "navigation@-203",
+          "when": "resourceLangId == profileColumn"
+        },
+        {
+          "command": "psl.compileAndLink",
+          "group": "navigation@-202",
+          "when": "resourceLangId == psl"
+        },
+        {
+          "command": "psl.compileAndLink",
+          "group": "navigation@-202",
+          "when": "resourceLangId == profileTable"
+        },
+        {
+          "command": "psl.runPSL",
+          "group": "navigation@-201",
+          "when": "resourceLangId == psl"
+        }
+      ],
+      "commandPalette": [
+        {
+          "when": "resourceLangId == profileTable",
+          "command": "psl.sendTable",
+          "group": "PSL"
+        },
+        {
+          "when": "resourceLangId == profileColumn",
+          "command": "psl.sendTable",
+          "group": "PSL"
+        },
+        {
+          "when": "resourceLangId == profileTable",
+          "command": "psl.refreshTable",
+          "group": "PSL"
+        },
+        {
+          "when": "resourceLangId == profileColumn",
+          "command": "psl.refreshTable",
+          "group": "PSL"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "when": "resourceLangId == psl",
+        "command": "psl.testCompile",
+        "key": "Ctrl+Shift+B"
+      },
+      {
+        "command": "psl.launchHostTerminal",
+        "key": "win+oem_3"
+      },
+      {
+        "key": "Ctrl+E",
+        "command": "psl.stepOut",
+        "when": "terminalFocus && psl.hasHostTerminal"
+      },
+      {
+        "key": "Ctrl+Q",
+        "command": "psl.stepIn",
+        "when": "terminalFocus && psl.hasHostTerminal"
+      },
+      {
+        "key": "Ctrl+W",
+        "command": "psl.stepOver",
+        "when": "terminalFocus && psl.hasHostTerminal"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ing-bank/vscode-psl"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^5.0.0",
+    "@types/jest": "^22.1.0",
+    "@types/node": "^9.4.0",
+    "jest": "^22.1.4",
+    "ts-jest": "^22.0.2",
+    "tslint": "^5.9.1",
+    "typescript": "^2.6.2",
+    "vscode": "^1.1.10"
+  },
+  "dependencies": {
+    "fs-extra": "^5.0.0",
+    "jsonc-parser": "^1.0.0",
+    "vscode-json-languageservice": "^3.0.4"
+  }
+}

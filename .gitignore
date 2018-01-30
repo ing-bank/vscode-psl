@@ -1,0 +1,9 @@
+*.jrnl
+*.log
+out
+node_modules
+*.vsix
+.project
+.settings
+src/hostif/target/*
+.classpath
