@@ -75,7 +75,7 @@ export function getFullContext(context: ExtensionCommandContext | undefined): Ho
 }
 
 export async function executeWithProgress(message: string, task: () => Promise<any>) {
-	return vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: message }, async (progress) => {
+	return vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: message }, async () => {
 		await task();
 		return;
 	})

@@ -62,7 +62,7 @@ export async function testCompile(fsPath: string) {
 			let connection = await utils.getConnection(env);
 			let output = await connection.test(fsPath);
 			connection.close();
-			let pslDiagnostics = parseCompilerOutput(output, textDocument, env.name);
+			let pslDiagnostics = parseCompilerOutput(output, textDocument);
 			testCompileSucceeded = pslDiagnostics.filter(d => d.severity === vscode.DiagnosticSeverity.Error).length === 0;
 			let testCompileWarning = pslDiagnostics.filter(d => d.severity === vscode.DiagnosticSeverity.Warning).length > 0;
 			if (!testCompileSucceeded) {
@@ -82,7 +82,7 @@ export async function testCompile(fsPath: string) {
 	}
 }
 
-function parseCompilerOutput(compilerOutput: string, document: vscode.TextDocument, envName: string): PSLDiagnostic[] {
+function parseCompilerOutput(compilerOutput: string, document: vscode.TextDocument): PSLDiagnostic[] {
 	/*
 	ZFeatureToggleUtilities.PROC compiled at 15:31 on 29-05-17
     Source: ZFeatureToggleUtilities.PROC

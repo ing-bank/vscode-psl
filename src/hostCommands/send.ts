@@ -62,18 +62,18 @@ export async function sendTableHandler(context: utils.ExtensionCommandContext): 
 	return;
 }
 
-async function sendDirectory(targetDir: string) {
-	let fileNames = await fs.readdir(targetDir);
-	let word = fileNames.length === 1 ? 'file' : 'files';
-	let resp = await vscode.window.showInformationMessage(`Send contents of ${targetDir} (${fileNames.length} ${word})?`, { modal: true }, 'Yes');
-	if (resp !== 'Yes') return;
-	fileNames.sort(tableFirst);
-	for (let index = 0; index < fileNames.length; index++) {
-		let fileName = fileNames[index];
-		// TODO what if element is a directory?
-		await sendElement(path.join(targetDir, fileName));
-	}
-}
+// async function sendDirectory(targetDir: string) {
+// 	let fileNames = await fs.readdir(targetDir);
+// 	let word = fileNames.length === 1 ? 'file' : 'files';
+// 	let resp = await vscode.window.showInformationMessage(`Send contents of ${targetDir} (${fileNames.length} ${word})?`, { modal: true }, 'Yes');
+// 	if (resp !== 'Yes') return;
+// 	fileNames.sort(tableFirst);
+// 	for (let index = 0; index < fileNames.length; index++) {
+// 		let fileName = fileNames[index];
+// 		// TODO what if element is a directory?
+// 		await sendElement(path.join(targetDir, fileName));
+// 	}
+// }
 
 async function sendElement(fsPath: string) {
 	if (!fs.statSync(fsPath).isFile()) return

@@ -78,7 +78,6 @@ export function lvFormat(messagString: String): string {
  * @returns {Buffer[]} A buffer array
  */
 export function lv2vFormat(messageString: Buffer): Buffer[] {
-		let loopWhile: boolean = true;
 		let returnString: Buffer[] = [];
 		let messageLength = messageString.length;
 
@@ -98,7 +97,6 @@ export function lv2vFormat(messageString: Buffer): Buffer[] {
 				numberOfBufferedLine = messageString.readUInt8(bytePointer + 1);
 				bytePointer = bytePointer + 2;
 				if (numberOfBufferedLine === 0) {
-					loopWhile = false;
 					continue;
 				}
 				byteCalcNumber = 1;

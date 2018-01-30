@@ -8,7 +8,6 @@ import { testCompileHandler } from './testCompile';
 import { compileAndLinkHandler } from './compileAndLink';
 import { sendElementHandler, sendTableHandler } from './send';
 import { runPSLHandler } from './run';
-import * as utils from './hostCommandUtils';
 
 const PROFILE_ELEMENTS = [
 	'.FKY',
@@ -103,35 +102,35 @@ export function activate(context: ExtensionContext) {
 }
 
 
-async function testSendLinkHandler (context: utils.ExtensionCommandContext): Promise<void> {
-	let c = utils.getFullContext(context);
-	if (c.mode === utils.ContextMode.FILE) {
-		let success = await testCompileHandler(context);
-		if (success) {
-			await sendElementHandler(context);
-			await compileAndLinkHandler(context);
-		}
-	}
-	else {
-		// let fileUris = await vscode.window.showOpenDialog({canSelectMany: true, openLabel: 'Test Send Link'})
-		// if (!fileUris) return;
-		// let successFiles: string[] = await fileUris.map(uri => uri.fsPath)
-		// 	.filter(async fsPath => (await fs.lstat(fsPath)).isFile())
+// async function testSendLinkHandler (context: utils.ExtensionCommandContext): Promise<void> {
+// 	let c = utils.getFullContext(context);
+// 	if (c.mode === utils.ContextMode.FILE) {
+// 		let success = await testCompileHandler(context);
+// 		if (success) {
+// 			await sendElementHandler(context);
+// 			await compileAndLinkHandler(context);
+// 		}
+// 	}
+// 	else {
+// 		let fileUris = await vscode.window.showOpenDialog({canSelectMany: true, openLabel: 'Test Send Link'})
+// 		if (!fileUris) return;
+// 		let successFiles: string[] = await fileUris.map(uri => uri.fsPath)
+// 			.filter(async fsPath => (await fs.lstat(fsPath)).isFile())
 
-		// successFiles = await successFiles.filter(async fsPath => {
-		// 		let success = await testCompileHandler({fsPath, dialog: false})
-		// 		return success;
-		// 	})
+// 		successFiles = await successFiles.filter(async fsPath => {
+// 				let success = await testCompileHandler({fsPath, dialog: false})
+// 				return success;
+// 			})
 
-		// for (let fsPath of successFiles) {
-		// 	await sendElementHandler({fsPath, dialog: false});
-		// }
+// 		for (let fsPath of successFiles) {
+// 			await sendElementHandler({fsPath, dialog: false});
+// 		}
 
-		// for (let fsPath of successFiles) {
-		// 	await compileAndLinkHandler({fsPath, dialog: false});
-		// }
-	}
-}
+// 		for (let fsPath of successFiles) {
+// 			await compileAndLinkHandler({fsPath, dialog: false});
+// 		}
+// 	}
+// }
 
 export async function hostCommandHandler() {
 	let choice = await vscode.window.showQuickPick([

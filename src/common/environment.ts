@@ -4,8 +4,6 @@ import * as path from 'path';
 import * as jsonc from 'jsonc-parser';
 import * as os from 'os';
 
-import * as contextUtils from '../common/context';
-
 const GLOBAL_ENV_PATH = (() => {
 	const envFileName = 'environments.json';
 	const appdata = process.env.APPDATA || (process.platform === 'darwin' ? process.env.HOME + '/Library/Application Support' : '/var/local');
@@ -155,7 +153,7 @@ function getEnvironmentContext(fsPath: string): EnvironmentContext {
 	return {fsPath, workspaceFolder, environmentPath};
 }
 
-async function configureEnvironmentHandler(context?: contextUtils.ExtensionCommandContext) {
+async function configureEnvironmentHandler() {
 	let workspace = await workspaceQuickPick();
 	if (!workspace) return;
 	environmentQuickPick(workspace.description);
