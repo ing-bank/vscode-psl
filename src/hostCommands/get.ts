@@ -203,7 +203,8 @@ async function promptUserForComponent() {
 
 async function promptUserForTable() {
 	let inputOptions: vscode.InputBoxOptions = {
-		prompt: 'Name of Table (no extension)', validateInput: (value: string) => {
+		prompt: 'Name of Table (no extension)', 
+		validateInput: (value: string) => {
 			if (!value) return;
 			if (value.includes('.')) return 'Do not include the extension';
 		}
