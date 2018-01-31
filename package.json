@@ -42,7 +42,7 @@
         "extensions": [
           ".COL"
         ],
-        "configuration": "./def-language-configuration.json"
+        "configuration": "./languages/def-language-configuration.json"
       },
       {
         "id": "profileData",
@@ -64,7 +64,7 @@
           ".PSL",
           ".psl"
         ],
-        "configuration": "./psl-language-configuration.json"
+        "configuration": "./languages/psl-language-configuration.json"
       },
       {
         "id": "profileBatch",
@@ -74,7 +74,7 @@
         "extensions": [
           ".BATCH"
         ],
-        "configuration": "./psl-language-configuration.json"
+        "configuration": "./languages/psl-language-configuration.json"
       },
       {
         "id": "profileTrigger",
@@ -84,7 +84,7 @@
         "extensions": [
           ".TRIG"
         ],
-        "configuration": "./psl-language-configuration.json"
+        "configuration": "./languages/psl-language-configuration.json"
       }
     ],
     "grammars": [
