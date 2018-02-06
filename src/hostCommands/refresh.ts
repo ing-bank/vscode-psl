@@ -22,7 +22,7 @@ export async function refreshElementHandler(context: utils.ExtensionCommandConte
 		let quickPick = await environment.workspaceQuickPick();
 		if (!quickPick) return;
 		let chosenEnv = quickPick;
-		let files = await vscode.window.showOpenDialog({defaultUri: vscode.Uri.file(chosenEnv.description), canSelectMany: true, openLabel: 'Refresh'})
+		let files = await vscode.window.showOpenDialog({defaultUri: vscode.Uri.file(chosenEnv.fsPath), canSelectMany: true, openLabel: 'Refresh'})
 		if (!files) return;
 		for (let fsPath of files.map(file => file.fsPath)) {
 			await refreshElement(fsPath).catch(() => {})
@@ -91,7 +91,7 @@ export async function refreshTableHandler(context: utils.ExtensionCommandContext
 async function refreshTable(tableName: string, targetDirectory: string) {
 	let env;
 	await utils.executeWithProgress(`${icon} ${tableName} TABLE REFRESH`, async () => {
-		let envs = await environment.getEnvironmentObjects(targetDirectory);
+		let envs = await utils.getEnvironment(targetDirectory);
 		let choice = await utils.getCommandenvConfigQuickPick(envs);
 		if (!choice) return;
 		env = choice;

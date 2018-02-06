@@ -51,10 +51,10 @@ export async function getElementHandler(context: utils.ExtensionCommandContext):
 		let target
 		let defaultDir = DIR_MAPPINGS[extension];
 		if (defaultDir) {
-			target = { fsPath: path.join(chosenEnv.description, defaultDir, input) }
+			target = { fsPath: path.join(chosenEnv.fsPath, defaultDir, input) }
 		}
 		else {
-			let defaultUri = vscode.Uri.file(path.join(chosenEnv.description, input))
+			let defaultUri = vscode.Uri.file(path.join(chosenEnv.fsPath, input))
 			target = await vscode.window.showSaveDialog({ defaultUri, filters: filters });
 		}
 		if (!target) return;

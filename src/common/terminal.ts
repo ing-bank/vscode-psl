@@ -65,8 +65,8 @@ async function getLaunchLogins() {
 		throw new Error('No configuration present.');
 	}
 	let logins: environment.LaunchQuickPick[] = []
-	let allEnvironments = await environment.getAllEnvironments();
-	for (let env of allEnvironments) {
+	let allEnvironments = await environment.GlobalFile.read();
+	for (let env of allEnvironments.environments) {
 		let login: environment.LaunchQuickPick;
 		try {
 			let label = env.sshLogin ? `${env.sshLogin}@${env.host}` : `${env.host}`

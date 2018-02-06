@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import * as utils from './hostCommandUtils';
 import * as path from 'path';
 import * as fs from 'fs-extra';
+
+import * as utils from './hostCommandUtils';
 import * as environment from '../common/environment'
 
 const icon = utils.icons.LINK;
@@ -22,7 +23,7 @@ export async function compileAndLinkHandler(context: utils.ExtensionCommandConte
 		let quickPick = await environment.workspaceQuickPick();
 		if (!quickPick) return;
 		let chosenEnv = quickPick;
-		let files = await vscode.window.showOpenDialog({ defaultUri: vscode.Uri.file(chosenEnv.description), canSelectMany: true, openLabel: 'Compile and Link' })
+		let files = await vscode.window.showOpenDialog({ defaultUri: vscode.Uri.file(chosenEnv.fsPath), canSelectMany: true, openLabel: 'Compile and Link' })
 		if (!files) return;
 		for (let fsPath of files.map(file => file.fsPath)) {
 			await compileAndLink(fsPath).catch(() => { });

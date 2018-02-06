@@ -94,8 +94,9 @@ export async function getConnection(env: environment.EnvironmentConfig): Promise
 }
 
 export async function getEnvironment(fsPath: string): Promise<environment.EnvironmentConfig[]> {
+	let workspaceFile = new environment.WorkspaceFile(fsPath);
 	try {
-		let envs = await environment.getEnvironmentObjects(fsPath);
+		let envs = await workspaceFile.environmentObjects
 		envs.forEach(env => {
 			if (!env.host || !env.port || !env.user || !env.password) {
 				throw new Error();
@@ -104,7 +105,7 @@ export async function getEnvironment(fsPath: string): Promise<environment.Enviro
 		return envs;
 	}
 	catch (e) {
-		let workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(fsPath))
+		let workspaceFolder = workspaceFile.workspaceFolder;
 		if (workspaceFolder) {
 			throw new Error(`Invalid configuration for Workspace Folder ${workspaceFolder.name}`);
 		}

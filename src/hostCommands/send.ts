@@ -12,7 +12,7 @@ export async function sendElementHandler(context: utils.ExtensionCommandContext)
 		let quickPick = await environment.workspaceQuickPick();
 		if (!quickPick) return;
 		let chosenEnv = quickPick;
-		let files = await vscode.window.showOpenDialog({ defaultUri: vscode.Uri.file(chosenEnv.description), canSelectMany: true, openLabel: 'Send' })
+		let files = await vscode.window.showOpenDialog({ defaultUri: vscode.Uri.file(chosenEnv.fsPath), canSelectMany: true, openLabel: 'Send' })
 		if (!files) return;
 		for (let fsPath of files.map(file => file.fsPath).sort(tableFirst)) {
 			await sendElement(fsPath).catch(() => { });

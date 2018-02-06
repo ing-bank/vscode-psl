@@ -26,7 +26,7 @@ export async function testCompileHandler(context: utils.ExtensionCommandContext)
 		let quickPick = await environment.workspaceQuickPick();
 		if (!quickPick) return;
 		let chosenEnv = quickPick;
-		let files = await vscode.window.showOpenDialog({ defaultUri: vscode.Uri.file(chosenEnv.description), canSelectMany: true, openLabel: 'Test Compile' })
+		let files = await vscode.window.showOpenDialog({ defaultUri: vscode.Uri.file(chosenEnv.fsPath), canSelectMany: true, openLabel: 'Test Compile' })
 		if (!files) return;
 		for (let fsPath of files.map(file => file.fsPath)) {
 			let result = await testCompile(fsPath);
