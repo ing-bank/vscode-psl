@@ -1,0 +1,19 @@
+{
+	"Table Definition": {
+		"prefix": "tabledefinition",
+		"body": [
+			"{",
+			"\t\"FID\" : ${1:tableName},",
+			"\t\"ACCKEYS\" : ${2:keys},",
+			"\t\"DEL\" : ${3:delimiterInteger},",
+			"\t\"DES\" : ${4:description},",
+			"\t\"FILETYP\" : ${5:fileTypeInteger},",
+			"\t\"GLOBAL\" : ${6:globalName},",
+			"\t\"PSLPACKAGE\" : ${7:packageName},",
+			"\t\"RECTYP\" : ${8:recordTypeIntege}",
+			"}",
+			"${9:Table documentation (do not exceed 80 character margin)}"
+		],
+		"description": "Table Definition"
+	}
+}

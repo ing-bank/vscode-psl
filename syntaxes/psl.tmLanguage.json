@@ -1,0 +1,287 @@
+{
+	"name": "Profile Scripting Language",
+	"patterns": [
+		{
+			"include": "#section"
+		},
+		{
+			"include": "#methods"
+		},
+		{
+			"include": "#classes"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#hovers"
+		},
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#constants-and-special-vars"
+		},
+		{
+			"include": "#comments-inline"
+		},
+		{
+			"include": "#strings"
+		}
+	],
+	"repository": {
+		"hovers": {
+			"patterns": [
+				{
+					"match": "^\\(parameter\\) (%?\\w+)",
+					"captures": {
+						"1": {
+							"name": "entity.name.class"
+						}
+					}
+				}
+			]
+		},
+		"methods": {
+			"patterns": [
+				{
+					"name": "entity.name.function.psl",
+					"match": "((?<=\\S\\.)[\\s\\n\\r]*[\\w]+)[\\s\\n\\r]*(?=\\(.*\\))"
+				},
+				{
+					"name": "entity.name.function.psl",
+					"match": "\\$\\$(%?[A-Za-z0-9]+)?"
+				},
+				{
+					"name": "entity.name.function.psl",
+					"match": "(?:\\b|(?<=_))([A-Za-z0-9]+)(?=\\^)"
+				},
+				{
+					"match": "(?=^\\S)(%?\\w+)\\s+(set|do|if|quit|for)\\b",
+					"captures": {
+						"1": {
+							"name": "entity.name.function.psl"
+						},
+						"2": {
+							"patterns": [
+								{
+									"include": "#keywords"
+								}
+							]
+						}
+					}
+				},
+				{
+					"match": "^((((%?\\w+)\\s+)*)(%?\\w+)\\s+)*(%?\\w+)\\b",
+					"captures": {
+						"2": {
+							"patterns": [
+								{
+									"include": "#keywords"
+								}
+							]
+						},
+						"5": {
+							"patterns": [
+								{
+									"include": "#keywords"
+								},
+								{
+									"match": "%?\\w+",
+									"name": "entity.name.class.psl"
+								}
+							]
+						},
+						"6": {
+							"name": "entity.name.function.psl"
+						}
+					}
+				}
+			]
+		},
+		"classes": {
+			"patterns": [
+				{
+					"name": "entity.name.class",
+					"match": "(?:\\b|(?<=_))(void|Boolean|ByteString|Class|Column|Date|Db|DbSet|Error|Host|Integer|IO|List|Number|Object|Primitive|PSL|PslColumnChange|PslJsonObject|Reference|ResultSet|Row|RowSet|Runtime|String|Time|DbsMakerCheckerDlgt|FwkAuthenticate|FwkHostSTF|FwkRestriction|FwkRestrictionOvr|PslDateDlgt|PslMapDlgt|PslMapPathsDlgt|PslNumberDlgt|DBARCHIVE|DbsFunc|DbsFuncUcls|DbsValueDescriptions|FwkErrorLogger|FwkErrorLogReport|FwkEvent|FwkInstCompile|FwkInstTypeInterface|FwkMessage|FwkNotification|FwkStringUtil|PbsPjiCore|PbsPjiProxyVerify|PslMap|PslMapPaths|PslUtAssert|PslUtTestCase|PslUtTestCase4Pbs|PslUtTestSuite|PslUtTestResult|PslUtPbsInterface|Record[A-Za-z0-9]*)(?=\\b|_)"
+				},
+				{
+					"name": "entity.name.class",
+					"match": "(?<=\\^)%?[A-Za-z0-9]+"
+				},
+				{
+					"match": "(^\\s+(type\\s*)(public\\s*|literal\\s*|private\\s*|static\\s*|final\\s*|new\\s*)*)(%?\\w+)?",
+					"captures": {
+						"1": {
+							"patterns": [
+								{
+									"include": "#keywords"
+								}
+							]
+						},
+						"4": {
+							"name": "entity.name.class.psl"
+						}
+					}
+				}
+			]
+		},
+		"constants-and-special-vars": {
+			"patterns": [
+				{
+					"name": "constant.language.psl",
+					"match": "(?:\\b|(?<=_))(true|false)(?=\\b|_)|^\\s+#\\w+"
+				},
+				{
+					"name": "constant.language.psl",
+					"match": "(%BatchExit|%BatchRestart|%CompanyName|%CurrentDate|%CurrentTime|%EffectiveDate|%Identifier|%ModuleName|%ProcessID|%SessionID|%SystemCurrency|%SystemDate|%UserClass|%UserDirectory|%UserID|%UserName|%UserStation)"
+				},
+				{
+					"name": "constant.numeric.integer.psl",
+					"match": "(?:\\b|(?<=_))[0-9]+(?=\\b|_)"
+				},
+				{
+					"name": "constant.numeric.decimal.psl",
+					"match": "(?:\\b|(?<=_))[0-9]*\\.[0-9]+(?=\\b|_)"
+				},
+				{
+					"match": "(?:\\b|(?<=_))(this|super)(?=\\b|_)",
+					"name": "variable.language.psl"
+				}
+			]
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.psl",
+					"match": "\\b(job|read|write)\\b"
+				},
+				{
+					"name": "storage.modifier.psl",
+					"match": "\\b(set|type|final|literal|new|private|readonly|protected|public|req|ret|static|super|kill|lock|unlock)\\b"
+				},
+				{
+					"name": "keyword.control.psl",
+					"match": "\\b(if|else|while|for|return|quit|do|catch|throw|halt|hang)\\b"
+				},
+				{
+					"name": "keyword.operator.psl",
+					"match": "\\_|\\.|\\'|\\^|\\+|\\-|\\*|\\;|\\=|\\<|\\>|\\!|\\[|\\b(and|not|or)\\b"
+				}
+			]
+		},
+		"comments": {
+			"patterns": [
+				{
+					"captures": {
+						"0": {
+							"name": "punctuation.definition.comment.psl"
+						}
+					},
+					"match": "/\\*\\*/",
+					"name": "comment.block.empty.psl"
+				},
+				{
+					"include": "#comments-inline"
+				}
+			]
+		},
+		"section": {
+			"repository": {
+				"section-marker": {
+					"name": "comment.psl",
+					"begin": "^----------",
+					"end": "------ Section marker",
+					"patterns": [
+						{
+							"match": "\\w+",
+							"name": "entity.name.function.psl"
+						}
+					]
+				}
+			},
+			"patterns": [
+				{
+					"name": "comment.block.psl",
+					"begin": "^---------- REVHIST ------ Section marker",
+					"end": "^---------- OPEN ------ Section marker",
+					"captures": {
+						"0": {"patterns":[{"include": "#section-marker"}]}
+					}
+				},
+				{
+					"include": "#section-marker"
+				}
+			]
+		},
+		"comments-inline": {
+			"patterns": [
+				{
+					"begin": "/\\*",
+					"captures": {
+						"0": {
+							"name": "punctuation.definition.comment.psl"
+						}
+					},
+					"patterns": [
+						{
+							"match": "@(throws|return)",
+							"name": "storage.type.class.jsdoc"
+						},
+						{
+							"match": "(@param)(\\s+)(%?\\w+)",
+							"captures": {
+								"1": {
+									"name": "storage.type.class.jsdoc"
+								},
+								"3": {
+									"name": "variable.other.jsdoc"
+								}
+							}
+						}
+					],
+					"end": "\\*/",
+					"name": "comment.block.psl"
+				},
+				{
+					"begin": "(^[ \\t]+)?(?=//)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.whitespace.comment.leading.psl"
+						}
+					},
+					"end": "(?!\\G)",
+					"patterns": [
+						{
+							"begin": "//",
+							"beginCaptures": {
+								"0": {
+									"name": "punctuation.definition.comment.psl"
+								}
+							},
+							"end": "\\n",
+							"name": "comment.line.double-slash.psl"
+						}
+					]
+				},
+				{
+					"match": "^\\s+(#ACCEPT)(.*)",
+					"captures": {
+						"1": {
+							"name": "constant.language.psl"
+						},
+						"2": {
+							"name": "comment.inline.psl"
+						}
+					}
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.psl",
+			"begin": "\"",
+			"end": "\""
+		}
+	},
+	"scopeName": "source.psl"
+}

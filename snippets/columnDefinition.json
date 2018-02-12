@@ -1,0 +1,19 @@
+{
+	"Column Definition": {
+		"prefix": "columndefinition",
+		"body": [
+			"{",
+			"\t\"FID\" : ${1:tableName},",
+			"\t\"DI\" : ${2:columnName},",
+			"\t\"TYP\" : ${3:dataType},",
+			"\t\"LEN\" : ${4:lengthInteger},",
+			"\t\"NOD\" : ${5:nodeIdentifier},",
+			"\t\"POS\" : ${6:positionInteger},",
+			"\t\"DES\" : ${7:description},",
+			"\t\"RHD\" : ${8:reportHeader}",
+			"}",
+			"${9:Column documentation (do not exceed 80-character margin)}"
+		],
+		"description": "Column Definition"
+	}
+}
