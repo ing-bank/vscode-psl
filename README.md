@@ -1,6 +1,6 @@
 # vscode-psl
 
-Master [![Build Status](https://travis-ci.org/ing-bank/vscode-psl.svg?branch=master)](https://travis-ci.org/ing-bank/vscode-psl)
+[![Build Status](https://travis-ci.org/ing-bank/vscode-psl.svg?branch=master)](https://travis-ci.org/ing-bank/vscode-psl)
 
 Profile Scripting Language functionality for Visual Studio Code.
 
