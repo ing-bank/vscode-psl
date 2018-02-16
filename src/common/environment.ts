@@ -119,7 +119,7 @@ async function environmentQuickPick(workspaceFile: WorkspaceFile) {
 	}
 
 	try {
-		await workspaceFile.environment;
+		workspaceEnvironments = await workspaceFile.environment;
 	}
 	catch (e) {
 		if (!workspaceFile.environmentPath) {
