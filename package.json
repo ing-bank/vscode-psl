@@ -1,9 +1,9 @@
 {
   "name": "vscode-psl",
   "displayName": "vscode-psl",
-  "description": "",
+  "description": "Profile Scripting Language support",
   "version": "0.0.1",
-  "publisher": "me",
+  "publisher": "ing-bank",
   "engines": {
     "vscode": "^1.17.0"
   },
