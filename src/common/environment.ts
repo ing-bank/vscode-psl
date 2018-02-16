@@ -106,8 +106,12 @@ async function environmentQuickPick(workspaceFile: WorkspaceFile) {
 		globalConfig = await GlobalFile.read();
 	}
 	catch (e) {
-		let choice = await vscode.window.showWarningMessage('Environments have not been properly configured.', 'Configure')
-		if (!choice) return;
+		if (e === GlobalFile.INVALID_CONFIG) {
+				await GlobalFile.show();
+		}
+		else {
+			
+		}
 		let defaultConfig: GlobalConfig = { environments: [{ name: '', host: '', port: 0, user: '', password: '', sshLogin: '' }] }
 		await GlobalFile.write(defaultConfig);
 		await GlobalFile.show();
@@ -238,11 +242,11 @@ export class WorkspaceFile {
 	 */
 	get environmentObjects(): Promise<EnvironmentConfig[]> {
 		if (this._environmentObjects) return Promise.resolve(this._environmentObjects);
-		return new Promise(async () => {
+		return new Promise(async (resolve) => {
 			let environment = await this.environment;
 			let globalEnv = await this.getEnvironmentFromGlobalConfig(environment.names);
 			this._environmentObjects = globalEnv;
-			return globalEnv;
+			resolve(this._environmentObjects);
 		})
 	}
 
@@ -311,6 +315,8 @@ export class GlobalFile {
 		return envPath;
 	})();
 
+	static readonly INVALID_CONFIG = new Error('Missing environments in global config.');
+
 	/**
 	 * Reads and returns the contents of the file.
 	 * 
@@ -318,7 +324,7 @@ export class GlobalFile {
 	 */
 	static async read(): Promise<GlobalConfig> {
 		let globalConfig = jsonc.parse((await fs.readFile(this.path)).toString());
-		if (!globalConfig.environments) throw new Error('Missing environments in global config.');
+		if (!globalConfig.environments) throw this.INVALID_CONFIG;
 		return globalConfig;
 	}
 

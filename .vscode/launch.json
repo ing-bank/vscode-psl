@@ -15,7 +15,7 @@
             "outFiles": [
                 "${workspaceRoot}/out/src/**/*.js"
             ],
-            "preLaunchTask": "compile"
+            "preLaunchTask": "watch"
         },
         {
             "type": "node",
@@ -29,7 +29,7 @@
             "outFiles": [
                 "${workspaceRoot}/out/**/*"
             ],
-            "preLaunchTask": "compile"
+            "preLaunchTask": "watch"
         },
         {
             "name": "Launch Tests",
@@ -46,7 +46,7 @@
             "outFiles": [
                 "${workspaceRoot}/out/test/**/*.js"
             ],
-            "preLaunchTask": "compile"
+            "preLaunchTask": "watch"
         }
     ]
 }
