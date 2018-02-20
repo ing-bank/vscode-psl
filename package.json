@@ -19,7 +19,8 @@
     "onCommand:psl.testCompile",
     "onCommand:psl.configureEnvironment",
     "onCommand:psl.sendElement",
-    "onCommand:psl.compileAndLink"
+    "onCommand:psl.compileAndLink",
+    "onCommand:psl.runPSL"
   ],
   "main": "./out/src/extension",
   "contributes": {
@@ -716,5 +717,18 @@
     "fs-extra": "^5.0.0",
     "jsonc-parser": "^1.0.0",
     "vscode-json-languageservice": "^3.0.4"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": ".*?/__tests__/.*(\\.ts|\\.js)",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json",
+      "jsx"
+    ]
   }
 }
