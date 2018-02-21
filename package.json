@@ -2,14 +2,18 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "ing-bank",
   "engines": {
     "vscode": "^1.17.0"
   },
   "categories": [
-    "Other"
+    "Languages"
   ],
+  "license": {
+    "type": "MIT",
+    "url": "https://www.opensource.org/licenses/mit-license.php"
+  },
   "activationEvents": [
     "workspaceContains:dataqwik",
     "workspaceContains:.vscode/environment.json",
