@@ -27,7 +27,7 @@ Locate the button at the bottom-right corner titled `Configure Environments`. If
 ```
 Here you can store a global array of configurations. Any project can read from this configuration. Use auto-complete and hover suggestions for hints about using the configuration file.
 
-Once the global configuration is saved, environments can be activated by using the `Configure Environments` button at the bottom. Note that multiple environments can be selected, allowing for simultaneous interaction with hosts.
+Once the global configuration is saved, environments can be activated by using the `Configure Environments` button at the bottom. Multiple environments can be selected, allowing for simultaneous interactions with hosts.
 
 ## Features
 
