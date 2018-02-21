@@ -52,8 +52,6 @@ export async function workspaceQuickPick(): Promise<WorkspaceQuickPick | undefin
 		await GlobalFile.read();
 	}
 	catch (e) {
-		let choice = await vscode.window.showInformationMessage('Environments have not been properly configured.', 'Configure')
-		if (!choice) return;
 		let defaultConfig: GlobalConfig = { environments: [{ name: '', host: '', port: 0, user: '', password: '', sshLogin: '' }] }
 		await GlobalFile.write(defaultConfig);
 		await GlobalFile.show();
