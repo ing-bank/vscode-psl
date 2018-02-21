@@ -42,11 +42,13 @@ These commands can be executed via the Command Pallette (<kbd>F1</kbd> or <kbd>C
 
 > Please note that the Host Commands are executed *asynchronously*, meaning that vscode will not require you to wait to finish one action before you start another. This may have unintended consequences if you do not wait. For example, you must wait for sending to finish before you compile and link.
 
-Basic language features also exist for PSL, DAT, and TBL and COL files, including:
+Basic language features also exist for files written in PSL, data configuration, and table files. 
+
+These features include:
 * Syntax coloring
-* Property and Label outline (access by <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> or with [this extension](https://marketplace.visualstudio.com/items?itemName=patrys.vscode-code-outline))
-* Auto-complete for Record objects (activated by the `.` operator or by <kbd>Ctrl</kbd>+<kbd>Space</kbd>)
-* Highlighting and Hover information for editing DAT configuration files
+* Property and Label outline for PSL files (access by <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> or with [this extension](https://marketplace.visualstudio.com/items?itemName=patrys.vscode-code-outline))
+* Auto-complete for Record objects in PSL (activated by the `.` operator or by <kbd>Ctrl</kbd>+<kbd>Space</kbd>)
+* Highlighting and Hover information for editing data configuration files
 
 ## Development
 
