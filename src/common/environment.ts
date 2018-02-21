@@ -84,7 +84,7 @@ export async function workspaceQuickPick(): Promise<WorkspaceQuickPick | undefin
 	if (items.length === 1) return items[0];
 	let configureEnvironments = '\u270E Edit Environments...';
 	items.push({ label: configureEnvironments, description: '', fsPath: '' });
-	let choice = await vscode.window.showQuickPick(items, { placeHolder: 'Select a Workspace.' , ignoreFocusOut: true})
+	let choice = await vscode.window.showQuickPick(items, { placeHolder: 'Select a Workspace.' })
 	if (!choice) return;
 	if (choice.label === configureEnvironments) {
 		await GlobalFile.show();
@@ -139,7 +139,7 @@ async function environmentQuickPick(workspaceFile: WorkspaceFile) {
 		if (vscode.workspace.workspaceFolders.length > 1) {
 			items.push({ label: back, description: '' })
 		}
-		choice = await vscode.window.showQuickPick(items, { placeHolder: `Enable environments for ${workspaceFile.workspaceFolder.name}`, ignoreFocusOut: true });
+		choice = await vscode.window.showQuickPick(items, { placeHolder: `Enable environments for ${workspaceFile.workspaceFolder.name}` });
 		if (choice) {
 			if (choice.label === configureEnvironments) {
 				GlobalFile.show();
