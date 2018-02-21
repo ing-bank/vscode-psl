@@ -153,9 +153,9 @@ async function environmentQuickPick(workspaceFile: WorkspaceFile) {
 			}
 			else names.push(choice.label);
 			workspaceFile.writeLocalEnv(workspaceEnvironments);
-			await changeTextEditorHandler(vscode.window.activeTextEditor);
 		}
 	} while (choice);
+	await changeTextEditorHandler(vscode.window.activeTextEditor);
 }
 
 async function changeTextEditorHandler(textEditor: vscode.TextEditor | undefined) {
