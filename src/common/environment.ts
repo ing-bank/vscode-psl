@@ -52,8 +52,6 @@ export async function workspaceQuickPick(): Promise<WorkspaceQuickPick | undefin
 		await GlobalFile.read();
 	}
 	catch (e) {
-		let choice = await vscode.window.showInformationMessage('Environments have not been properly configured.', 'Configure')
-		if (!choice) return;
 		let defaultConfig: GlobalConfig = { environments: [{ name: '', host: '', port: 0, user: '', password: '', sshLogin: '' }] }
 		await GlobalFile.write(defaultConfig);
 		await GlobalFile.show();
@@ -85,6 +83,7 @@ export async function workspaceQuickPick(): Promise<WorkspaceQuickPick | undefin
 	let configureEnvironments = '\u270E Edit Environments...';
 	items.push({ label: configureEnvironments, description: '', fsPath: '' });
 	let choice = await vscode.window.showQuickPick(items, { placeHolder: 'Select a Workspace.' })
+	if (!choice) return;
 	if (choice.label === configureEnvironments) {
 		await GlobalFile.show();
 		return;
@@ -122,9 +121,7 @@ async function environmentQuickPick(workspaceFile: WorkspaceFile) {
 		workspaceEnvironments = await workspaceFile.environment;
 	}
 	catch (e) {
-		if (!workspaceFile.environmentPath) {
-			await workspaceFile.writeLocalEnv({'names': []});
-		}
+		await workspaceFile.writeLocalEnv({'names': []});
 	}
 	let names = workspaceEnvironments.names
 	do {
@@ -242,12 +239,14 @@ export class WorkspaceFile {
 	 */
 	get environmentObjects(): Promise<EnvironmentConfig[]> {
 		if (this._environmentObjects) return Promise.resolve(this._environmentObjects);
-		return new Promise(async (resolve) => {
-			let environment = await this.environment;
-			let globalEnv = await this.getEnvironmentFromGlobalConfig(environment.names);
-			this._environmentObjects = globalEnv;
-			resolve(this._environmentObjects);
-		})
+		return this.getEnvironmentObjects();
+	}
+
+	private async getEnvironmentObjects() {
+		let environment = await this.environment;
+		let globalEnv = await this.getEnvironmentFromGlobalConfig(environment.names);
+		this._environmentObjects = globalEnv;
+		return this._environmentObjects;
 	}
 
 	/**

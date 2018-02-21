@@ -25,19 +25,30 @@ Locate the button at the bottom-right corner titled `Configure Environments`. If
 	]
 }
 ```
-Here you can store a global array of configurations. Use auto-complete and hover suggestions for hints about using the configuration file.
+Here you can store a global array of configurations. Any project can read from this configuration. Use auto-complete and hover suggestions for hints about using the configuration file.
+
+Once the global configuration is saved, environments can be activated by using the `Configure Environments` button at the bottom. Multiple environments can be selected, allowing for simultaneous interactions with hosts.
 
 ## Features
 
-The extension is able to communicate with Host via MRPC121. It can Get/Refresh from Host, Test Compile, Send to Host, Compile and Link, and Run PSL. 
+The extension is able to communicate with Host via MRPC121 to do the following:
+* Get/Refresh elements and entire tables from Host
+* Send elements and entire tables to Host
+* Test Compile .PROC and .PSL files
+* Compile and Link .PROC and .PSL files
+* Run .PROC and .PSL files
 
-These commands can be executed via:
-*  The Command Pallette (<kbd>F1</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>)
-*  Icons at the top-right corner of the document
-*  Right-clicking the document
-*  Right-clicking the file in the Side Bar Explorer
+These commands can be executed via the Command Pallette (<kbd>F1</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>), icons at the top-right corner of the document, right-clicking the document, or right-clicking the file in the Side Bar Explorer.
 
-Please note that the Host Commands are executed *asynchronously*, meaning that vscode will not require you to wait to finish one action before you start another. This may have unintended consequences if you do not wait. For example, you must wait for sending to finish before you compile and link.
+> Please note that the Host Commands are executed *asynchronously*, meaning that vscode will not require you to wait to finish one action before you start another. This may have unintended consequences if you do not wait. For example, you must wait for sending to finish before you compile and link.
+
+Basic language features also exist for files written in PSL, data configuration, and table files. 
+
+These features include:
+* Syntax coloring
+* Property and Label outline for PSL files (access by <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> or with [this extension](https://marketplace.visualstudio.com/items?itemName=patrys.vscode-code-outline))
+* Auto-complete for Record objects in PSL (activated by the `.` operator or by <kbd>Ctrl</kbd>+<kbd>Space</kbd>)
+* Highlighting and Hover information for editing data configuration files
 
 ## Development
 
