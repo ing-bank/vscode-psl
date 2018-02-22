@@ -1,5 +1,5 @@
 import vscode = require('vscode');
-import {Parser, Member} from '../parser/parser';
+import {Document, Member} from '../parser/parser';
 import {Token, Type} from '../parser/tokenizer';
 
 export interface Query {
@@ -11,17 +11,17 @@ export interface Query {
 /**
  * Search the parsed document for a particular member
  */
-export function searchParser(parser: Parser, token: Token): Member {
+export function searchParser(parsedDoc: Document, token: Token): Member {
 	let line = token.position.line;
 	let identifier = token.value;
-	let methods = parser.methods.filter(method => line >= method.id.position.line)
+	let methods = parsedDoc.methods.filter(method => line >= method.id.position.line)
 	if (methods.length > 0) {
 		let method = methods[methods.length - 1];
 		for (let variable of method.declarations.reverse()) {
 			if (line < variable.id.position.line) continue;
 			if (identifier === variable.id.value) return variable;
 		}
-		for (let otherMethod of parser.methods) {
+		for (let otherMethod of parsedDoc.methods) {
 			let id = otherMethod.id;
 			if (id.value === identifier) return otherMethod;
 		}
@@ -29,7 +29,7 @@ export function searchParser(parser: Parser, token: Token): Member {
 			if (identifier === variable.id.value) return variable;
 		}
 	}
-	return parser.properties.find(property => property.id.value === identifier);
+	return parsedDoc.properties.find(property => property.id.value === identifier);
 }
 
 
