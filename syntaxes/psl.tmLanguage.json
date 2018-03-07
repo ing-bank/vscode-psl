@@ -27,6 +27,9 @@
 		},
 		{
 			"include": "#strings"
+		},
+		{
+			"include": "#accept"
 		}
 	],
 	"repository": {
@@ -173,18 +176,82 @@
 		"comments": {
 			"patterns": [
 				{
-					"captures": {
-						"0": {
-							"name": "punctuation.definition.comment.psl"
-						}
-					},
-					"match": "/\\*\\*/",
-					"name": "comment.block.empty.psl"
+					"include": "#comments-inline"
 				},
 				{
-					"include": "#comments-inline"
+					"include": "#comments-block"
 				}
 			]
+		},
+		"comments-block": {
+			"begin": "/\\*",
+			"end": "\\*/",
+			"name": "comment.block.psl",
+			"captures": {
+				"0": {
+					"name": "punctuation.definition.comment.psl"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#doc-params"
+				},
+				{
+					"include": "#todo"
+				}
+			]
+		},
+		"comments-inline": {
+			"begin": "//",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.comment.psl"
+				}
+			},
+			"end": "\\n",
+			"name": "comment.line.double-slash.psl",
+			"patterns": [
+				{
+					"include": "#doc-params"
+				},
+				{
+					"include": "#todo"
+				}
+			]
+		},
+		"accept": {
+			"match": "^\\s+(#ACCEPT)(.*)",
+			"captures": {
+				"1": {
+					"name": "constant.language.psl"
+				},
+				"2": {
+					"name": "comment.inline.psl"
+				}
+			}
+		},
+		"doc-params": {
+			"patterns": [
+				{
+					"match": "@(throws|return)",
+					"name": "storage.type.class.jsdoc"
+				},
+				{
+					"match": "(@(param|publicnew|public))(\\s+)?(%?\\w+)?",
+					"captures": {
+						"1": {
+							"name": "storage.type.class.jsdoc"
+						},
+						"4": {
+							"name": "variable.other.jsdoc"
+						}
+					}
+				}
+			]
+		},
+		"todo": {
+			"match": "TODO:?",
+			"name": "storage.type.class.jsdoc"
 		},
 		"section": {
 			"repository": {
@@ -206,74 +273,17 @@
 					"begin": "^---------- REVHIST ------ Section marker",
 					"end": "^---------- OPEN ------ Section marker",
 					"captures": {
-						"0": {"patterns":[{"include": "#section-marker"}]}
+						"0": {
+							"patterns": [
+								{
+									"include": "#section-marker"
+								}
+							]
+						}
 					}
 				},
 				{
 					"include": "#section-marker"
-				}
-			]
-		},
-		"comments-inline": {
-			"patterns": [
-				{
-					"begin": "/\\*",
-					"captures": {
-						"0": {
-							"name": "punctuation.definition.comment.psl"
-						}
-					},
-					"patterns": [
-						{
-							"match": "@(throws|return)",
-							"name": "storage.type.class.jsdoc"
-						},
-						{
-							"match": "(@param)(\\s+)(%?\\w+)",
-							"captures": {
-								"1": {
-									"name": "storage.type.class.jsdoc"
-								},
-								"3": {
-									"name": "variable.other.jsdoc"
-								}
-							}
-						}
-					],
-					"end": "\\*/",
-					"name": "comment.block.psl"
-				},
-				{
-					"begin": "(^[ \\t]+)?(?=//)",
-					"beginCaptures": {
-						"1": {
-							"name": "punctuation.whitespace.comment.leading.psl"
-						}
-					},
-					"end": "(?!\\G)",
-					"patterns": [
-						{
-							"begin": "//",
-							"beginCaptures": {
-								"0": {
-									"name": "punctuation.definition.comment.psl"
-								}
-							},
-							"end": "\\n",
-							"name": "comment.line.double-slash.psl"
-						}
-					]
-				},
-				{
-					"match": "^\\s+(#ACCEPT)(.*)",
-					"captures": {
-						"1": {
-							"name": "constant.language.psl"
-						},
-						"2": {
-							"name": "comment.inline.psl"
-						}
-					}
 				}
 			]
 		},

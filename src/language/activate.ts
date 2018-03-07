@@ -4,7 +4,8 @@ import { PSL_MODE, BATCH_MODE, TRIG_MODE, DATA_MODE } from '../extension';
 
 import { PSLDocumentSymbolProvider } from './pslDocument';
 import { DataHoverProvider, DataDocumentHighlightProvider } from './dataItem';
-import {PSLCompletionItemProvider} from './pslSuggest';
+import { PSLCompletionItemProvider } from './pslSuggest';
+import { getTokens, Type } from '../parser/tokenizer';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -58,9 +59,64 @@ export async function activate(context: vscode.ExtensionContext) {
 		)
 	);
 
+
+	let todoDiagnostics = vscode.languages.createDiagnosticCollection('psl-todo');
+	context.subscriptions.push(todoDiagnostics);
+	if (vscode.window.activeTextEditor) {
+		parseForTodo(vscode.window.activeTextEditor.document, todoDiagnostics)
+	}
+	vscode.workspace.onDidOpenTextDocument((textDocument) => parseForTodo(textDocument, todoDiagnostics))
+	vscode.workspace.onDidChangeTextDocument((e) => parseForTodo(e.document, todoDiagnostics))
+
+
 	// Language Configuration
 	const wordPattern = /(-?\d*\.\d[a-zA-Z0-9\%\#]*)|([^\`\~\!\@\^\&\*\(\)\-\=\+\[\{\]\}\\\|\"\;\:\'\'\,\.\<\>\/\?\s_]+)/g;
 	vscode.languages.setLanguageConfiguration('psl', { wordPattern });
 	vscode.languages.setLanguageConfiguration('profileBatch', { wordPattern });
 	vscode.languages.setLanguageConfiguration('profileTrigger', { wordPattern });
+}
+
+async function parseForTodo(textDocument: vscode.TextDocument, todoDiagnostics: vscode.DiagnosticCollection) {
+	if (!vscode.languages.match(PSL_MODE, textDocument)) return;
+	let tokens = getTokens(textDocument.getText());
+	let diagnostics = [];
+
+	for (let token of tokens) {
+		let startLine = token.position.line;
+		let startChar = token.position.character;
+		if (token.type === Type.BlockComment || token.type === Type.LineComment) {
+			let subTokens = getTokens(token.value);
+			let range: vscode.Range = undefined;
+			let text = '';
+			let colon = false;
+			for (let subToken of subTokens) {
+				if (subToken.value === 'TODO') {
+					let line = startLine + subToken.position.line;
+					let startPosition = !subToken.position.line ? startChar + subToken.position.character : subToken.position.character;
+					let endPosition = startPosition + subToken.value.length;
+					range = new vscode.Range(line, startPosition, line, endPosition);
+				}
+				else if (range) {
+					if (subToken.type === Type.NewLine) break;
+					if (!text && subToken.value === ':' && !colon) {
+						range = new vscode.Range(range.start, range.end.translate(0,1));
+						colon = true;
+						continue;
+					}
+					text += subToken.value;
+				}
+			}
+			if (range) {
+				let diagnostic = new vscode.Diagnostic(range, text.trim(), vscode.DiagnosticSeverity.Information)
+				diagnostic.source = 'TODO';
+				diagnostics.push(diagnostic)
+
+			}
+		}
+	}
+	todoDiagnostics.set(vscode.Uri.file(textDocument.fileName), diagnostics);
+	vscode.workspace.onDidCloseTextDocument((textDocument) => {
+		let uri = textDocument.uri;
+		todoDiagnostics.delete(uri);
+	})
 }
