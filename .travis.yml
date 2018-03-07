@@ -14,5 +14,3 @@ script:
 
 addons:
   artifacts: true
-  paths:
-    - *.vsix
