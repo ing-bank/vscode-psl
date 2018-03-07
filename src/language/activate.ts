@@ -76,42 +76,48 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.languages.setLanguageConfiguration('profileTrigger', { wordPattern });
 }
 
+interface Todo {
+	range: vscode.Range
+	text: string
+}
+
 async function parseForTodo(textDocument: vscode.TextDocument, todoDiagnostics: vscode.DiagnosticCollection) {
 	if (!vscode.languages.match(PSL_MODE, textDocument)) return;
 	let tokens = getTokens(textDocument.getText());
 	let diagnostics = [];
 
 	for (let token of tokens) {
+		let todos: Todo[] = [];
 		let startLine = token.position.line;
 		let startChar = token.position.character;
 		if (token.type === Type.BlockComment || token.type === Type.LineComment) {
 			let subTokens = getTokens(token.value);
 			let range: vscode.Range = undefined;
 			let text = '';
-			let colon = false;
 			for (let subToken of subTokens) {
 				if (subToken.value === 'TODO') {
 					let line = startLine + subToken.position.line;
 					let startPosition = !subToken.position.line ? startChar + subToken.position.character : subToken.position.character;
-					let endPosition = startPosition + subToken.value.length;
+					let endPosition = textDocument.lineAt(line).text.length;
 					range = new vscode.Range(line, startPosition, line, endPosition);
 				}
 				else if (range) {
-					if (subToken.type === Type.NewLine) break;
-					if (!text && subToken.value === ':' && !colon) {
-						range = new vscode.Range(range.start, range.end.translate(0,1));
-						colon = true;
+					if (subToken.type === Type.NewLine) {
+						todos.push({ range, text });
+						range = undefined;
+						text = '';
 						continue;
 					}
 					text += subToken.value;
 				}
 			}
-			if (range) {
-				let diagnostic = new vscode.Diagnostic(range, text.trim(), vscode.DiagnosticSeverity.Information)
+			if (range) todos.push({ range, text })
+			todos.forEach(todo => {
+				let diagnostic = new vscode.Diagnostic(todo.range, todo.text.trim(), vscode.DiagnosticSeverity.Information)
 				diagnostic.source = 'TODO';
 				diagnostics.push(diagnostic)
 
-			}
+			})
 		}
 	}
 	todoDiagnostics.set(vscode.Uri.file(textDocument.fileName), diagnostics);

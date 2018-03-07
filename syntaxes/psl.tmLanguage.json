@@ -237,7 +237,7 @@
 					"name": "storage.type.class.jsdoc"
 				},
 				{
-					"match": "(@(param|publicnew|public))(\\s+)?(%?\\w+)?",
+					"match": "(@(param|publicnew|public))(\\s+)(%?\\w+)?",
 					"captures": {
 						"1": {
 							"name": "storage.type.class.jsdoc"
@@ -250,8 +250,15 @@
 			]
 		},
 		"todo": {
-			"match": "TODO:?",
-			"name": "storage.type.class.jsdoc"
+			"begin": "TODO",
+			"end": "(?=\\n)",
+			"name": "variable.other.jsdoc",
+			"patterns": [
+				{
+					"match": "@\\w+",
+					"name": "storage.type.class.jsdoc"
+				}
+			]
 		},
 		"section": {
 			"repository": {
