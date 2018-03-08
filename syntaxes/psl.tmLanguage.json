@@ -11,6 +11,9 @@
 			"include": "#classes"
 		},
 		{
+			"include": "#accept"
+		},
+		{
 			"include": "#keywords"
 		},
 		{
@@ -27,9 +30,6 @@
 		},
 		{
 			"include": "#strings"
-		},
-		{
-			"include": "#accept"
 		}
 	],
 	"repository": {
@@ -250,7 +250,7 @@
 			]
 		},
 		"todo": {
-			"begin": "TODO",
+			"begin": "\\bTODO\\b",
 			"end": "(?=\\n)",
 			"name": "variable.other.jsdoc",
 			"patterns": [

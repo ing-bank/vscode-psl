@@ -113,7 +113,9 @@ async function parseForTodo(textDocument: vscode.TextDocument, todoDiagnostics: 
 			}
 			if (range) todos.push({ range, text })
 			todos.forEach(todo => {
-				let diagnostic = new vscode.Diagnostic(todo.range, todo.text.trim(), vscode.DiagnosticSeverity.Information)
+				let message = todo.text.trim().replace(/^:/gm,'').trim();
+				if (!message) message = `TODO on line ${range.start.line+1}`;
+				let diagnostic = new vscode.Diagnostic(todo.range, message, vscode.DiagnosticSeverity.Information)
 				diagnostic.source = 'TODO';
 				diagnostics.push(diagnostic)
 
