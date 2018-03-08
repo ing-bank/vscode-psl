@@ -194,6 +194,9 @@
 			},
 			"patterns": [
 				{
+					"include": "#comments-inline"
+				},
+				{
 					"include": "#doc-params"
 				},
 				{
@@ -211,6 +214,9 @@
 			"end": "\\n",
 			"name": "comment.line.double-slash.psl",
 			"patterns": [
+				{
+					"include": "#comments-block"
+				},
 				{
 					"include": "#doc-params"
 				},
@@ -251,7 +257,7 @@
 		},
 		"todo": {
 			"begin": "\\bTODO\\b",
-			"end": "(?=\\n)",
+			"end": "(?=\\n|\\*/)",
 			"name": "variable.other.jsdoc",
 			"patterns": [
 				{

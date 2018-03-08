@@ -78,53 +78,58 @@ export async function activate(context: vscode.ExtensionContext) {
 
 interface Todo {
 	range: vscode.Range
-	text: string
+	message: string
 }
 
 async function parseForTodo(textDocument: vscode.TextDocument, todoDiagnostics: vscode.DiagnosticCollection) {
 	if (!vscode.languages.match(PSL_MODE, textDocument)) return;
 	let tokens = getTokens(textDocument.getText());
-	let diagnostics = [];
+	let todos: Todo[] = [];
 
 	for (let token of tokens) {
-		let todos: Todo[] = [];
 		let startLine = token.position.line;
 		let startChar = token.position.character;
 		if (token.type === Type.BlockComment || token.type === Type.LineComment) {
-			let subTokens = getTokens(token.value);
-			let range: vscode.Range = undefined;
-			let text = '';
-			for (let subToken of subTokens) {
-				if (subToken.value === 'TODO') {
-					let line = startLine + subToken.position.line;
-					let startPosition = !subToken.position.line ? startChar + subToken.position.character : subToken.position.character;
-					let endPosition = textDocument.lineAt(line).text.length;
-					range = new vscode.Range(line, startPosition, line, endPosition);
-				}
-				else if (range) {
-					if (subToken.type === Type.NewLine) {
-						todos.push({ range, text });
-						range = undefined;
-						text = '';
-						continue;
-					}
-					text += subToken.value;
-				}
-			}
-			if (range) todos.push({ range, text })
-			todos.forEach(todo => {
-				let message = todo.text.trim().replace(/^:/gm,'').trim();
-				if (!message) message = `TODO on line ${range.start.line+1}`;
-				let diagnostic = new vscode.Diagnostic(todo.range, message, vscode.DiagnosticSeverity.Information)
-				diagnostic.source = 'TODO';
-				diagnostics.push(diagnostic)
-
-			})
+			todos = todos.concat(getTodos(token.value, startLine, startChar, textDocument));
 		}
 	}
-	todoDiagnostics.set(vscode.Uri.file(textDocument.fileName), diagnostics);
-	vscode.workspace.onDidCloseTextDocument((textDocument) => {
-		let uri = textDocument.uri;
-		todoDiagnostics.delete(uri);
+
+	let diagnostics = todos.map(todo => {
+		let message = todo.message.trim().replace(/^:/gm,'').trim();
+		if (!message) message = `TODO on line ${todo.range.start.line+1}`;
+		let diagnostic = new vscode.Diagnostic(todo.range, message, vscode.DiagnosticSeverity.Information)
+		diagnostic.source = 'TODO';
+		return diagnostic;
 	})
+	todoDiagnostics.set(vscode.Uri.file(textDocument.fileName), diagnostics);
+	vscode.workspace.onDidCloseTextDocument(textDocument => todoDiagnostics.delete(textDocument.uri));
+}
+
+function getTodos(text: string, startLine: number, startChar: number, textDocument: vscode.TextDocument): Todo[] {
+	let todos = [];
+	let tokens = getTokens(text);
+	let range: vscode.Range = undefined;
+	let message = '';
+	for (let token of tokens) {
+		let currentLine = startLine + token.position.line;
+		let currentChar = startLine === currentLine ? token.position.character + startChar : token.position.character;
+		if (token.type === Type.BlockComment || token.type === Type.LineComment) {
+			todos = todos.concat(getTodos(token.value, currentLine, currentChar, textDocument));
+		}
+		if (token.value === 'TODO') {
+		let endPosition = textDocument.lineAt(currentLine).text.trim().replace(/\*\/$/gm, '').trim().length + 1;
+			range = new vscode.Range(currentLine, currentChar, currentLine, endPosition);
+		}
+		else if (range) {
+			if (token.type === Type.NewLine) {
+				todos.push({ range, message });
+				range = undefined;
+				message = '';
+				continue;
+			}
+			message += token.value;
+		}
+	}
+	if (range) todos.push({ range, message })
+	return todos;
 }
