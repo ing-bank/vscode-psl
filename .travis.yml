@@ -11,6 +11,3 @@ script:
   - npm run compile
   - npm run test
   - vsce package
-
-addons:
-  artifacts: true
