@@ -61,10 +61,10 @@ function getTodos(text: string, startLine: number, startChar: number, textDocume
 			todos = todos.concat(getTodos(token.value, currentLine, currentChar, textDocument));
 		}
 		if (token.value === 'TODO') {
-			let trimmedLine = textDocument.lineAt(currentLine).text;
-			do {
+			let trimmedLine = textDocument.lineAt(currentLine).text.trimRight().replace(/\*\/$/g, '');
+			while (trimmedLine.match(/(\*\/|\s+)$/g)) {
 				trimmedLine = trimmedLine.trimRight().replace(/\*\/$/g, '');
-			} while (trimmedLine.match(/(\*\/|\s+)$/g));
+			}
 			range = new vscode.Range(currentLine, currentChar, currentLine, trimmedLine.length);
 		}
 		else if (range) {
