@@ -7,32 +7,21 @@ export function activate(context: vscode.ExtensionContext) {
 	let todoDiagnostics = vscode.languages.createDiagnosticCollection('psl-todo');
 	context.subscriptions.push(todoDiagnostics);
 	if (vscode.window.activeTextEditor) {
-		parseForTodo(vscode.window.activeTextEditor.document, todoDiagnostics)
+		todoHandler(vscode.window.activeTextEditor.document, todoDiagnostics)
 	}
-	vscode.workspace.onDidOpenTextDocument((textDocument) => parseForTodo(textDocument, todoDiagnostics))
-	vscode.workspace.onDidChangeTextDocument((e) => parseForTodo(e.document, todoDiagnostics))
-
-
+	vscode.workspace.onDidOpenTextDocument((textDocument) => todoHandler(textDocument, todoDiagnostics))
+	vscode.workspace.onDidChangeTextDocument((e) => todoHandler(e.document, todoDiagnostics))
 }
 
-
-interface Todo {
-	range: vscode.Range
-	message: string
+function isPSL(textDocument: vscode.TextDocument) {
+	return vscode.languages.match(PSL_MODE, textDocument) || vscode.languages.match(BATCH_MODE, textDocument) || vscode.languages.match(TRIG_MODE, textDocument);
 }
 
-async function parseForTodo(textDocument: vscode.TextDocument, todoDiagnostics: vscode.DiagnosticCollection) {
+function todoHandler(textDocument: vscode.TextDocument, todoDiagnostics: vscode.DiagnosticCollection) {
 	if (!isPSL(textDocument)) return;
-	let tokens = getTokens(textDocument.getText());
-	let todos: Todo[] = [];
 
-	for (let token of tokens) {
-		let startLine = token.position.line;
-		let startChar = token.position.character;
-		if (token.type === Type.BlockComment || token.type === Type.LineComment) {
-			todos = todos.concat(getTodos(token.value, startLine, startChar, textDocument));
-		}
-	}
+	let lineAt = (n: number): string => { return textDocument.lineAt(n).text; };
+	let todos = getTodos(textDocument.getText(), lineAt);
 
 	let diagnostics = todos.map(todo => {
 		let message = todo.message.trim().replace(/^:/gm, '').trim();
@@ -45,11 +34,25 @@ async function parseForTodo(textDocument: vscode.TextDocument, todoDiagnostics: 
 	vscode.workspace.onDidCloseTextDocument(textDocument => todoDiagnostics.delete(textDocument.uri));
 }
 
-function isPSL(textDocument: vscode.TextDocument) {
-	return vscode.languages.match(PSL_MODE, textDocument) || vscode.languages.match(BATCH_MODE, textDocument) || vscode.languages.match(TRIG_MODE, textDocument);
+interface Todo {
+	range: vscode.Range
+	message: string
 }
 
-function getTodos(text: string, startLine: number, startChar: number, textDocument: vscode.TextDocument): Todo[] {
+function getTodos(documentText: string, lineAt: (n: number) => string) {
+	let tokens = getTokens(documentText);
+	let todos: Todo[] = [];
+	for (let token of tokens) {
+		let startLine = token.position.line;
+		let startChar = token.position.character;
+		if (token.type === Type.BlockComment || token.type === Type.LineComment) {
+			todos = todos.concat(getTodosFromComment(token.value, startLine, startChar, lineAt));
+		}
+	}
+	return todos;
+}
+
+function getTodosFromComment(text: string, startLine: number, startChar: number, lineAt: (n: number) => string): Todo[] {
 	let todos = [];
 	let tokens = getTokens(text);
 	let range: vscode.Range = undefined;
@@ -58,10 +61,10 @@ function getTodos(text: string, startLine: number, startChar: number, textDocume
 		let currentLine = startLine + token.position.line;
 		let currentChar = startLine === currentLine ? token.position.character + startChar : token.position.character;
 		if (token.type === Type.BlockComment || token.type === Type.LineComment) {
-			todos = todos.concat(getTodos(token.value, currentLine, currentChar, textDocument));
+			todos = todos.concat(getTodosFromComment(token.value, currentLine, currentChar, lineAt));
 		}
 		if (token.value === 'TODO') {
-			let trimmedLine = textDocument.lineAt(currentLine).text.trimRight().replace(/\*\/$/g, '');
+			let trimmedLine = lineAt(currentLine).trimRight().replace(/\*\/$/g, '');
 			while (trimmedLine.match(/(\*\/|\s+)$/g)) {
 				trimmedLine = trimmedLine.trimRight().replace(/\*\/$/g, '');
 			}
