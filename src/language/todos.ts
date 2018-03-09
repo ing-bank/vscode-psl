@@ -19,9 +19,7 @@ function isPSL(textDocument: vscode.TextDocument) {
 
 function todoHandler(textDocument: vscode.TextDocument, todoDiagnostics: vscode.DiagnosticCollection) {
 	if (!isPSL(textDocument)) return;
-
-	let lineAt = (n: number): string => { return textDocument.lineAt(n).text; };
-	let todos = getTodos(textDocument.getText(), lineAt);
+	let todos = getTodos(textDocument.getText());
 
 	let diagnostics = todos.map(todo => {
 		let diagnostic = new vscode.Diagnostic(todo.range, todo.message, vscode.DiagnosticSeverity.Information)
@@ -37,20 +35,20 @@ interface Todo {
 	message: string
 }
 
-function getTodos(documentText: string, lineAt: (n: number) => string) {
+function getTodos(documentText: string) {
 	let tokens = getTokens(documentText);
 	let todos: Todo[] = [];
 	for (let token of tokens) {
 		let startLine = token.position.line;
 		let startChar = token.position.character;
 		if (token.type === Type.BlockComment || token.type === Type.LineComment) {
-			todos = todos.concat(getTodosFromComment(token.value, startLine, startChar, lineAt));
+			todos = todos.concat(getTodosFromComment(token.value, startLine, startChar));
 		}
 	}
 	return todos;
 }
 
-function getTodosFromComment(text: string, startLine: number, startChar: number, lineAt: (n: number) => string): Todo[] {
+function getTodosFromComment(text: string, startLine: number, startChar: number): Todo[] {
 	let todos = [];
 	let todo: Todo;
 	let tokens = getTokens(text);
@@ -70,7 +68,7 @@ function getTodosFromComment(text: string, startLine: number, startChar: number,
 		currentChar = startLine === currentLine ? token.position.character + startChar : token.position.character;
 
 		if (token.type === Type.BlockComment || token.type === Type.LineComment) {
-			todos = todos.concat(getTodosFromComment(token.value, currentLine, currentChar, lineAt));
+			todos = todos.concat(getTodosFromComment(token.value, currentLine, currentChar));
 		}
 		else if (token.value === 'TODO' && !todo) {
 			let range = new vscode.Range(currentLine, currentChar, currentLine, currentChar + 4);
