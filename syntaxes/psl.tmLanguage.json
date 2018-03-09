@@ -285,7 +285,7 @@
 					"name": "comment.block.psl",
 					"begin": "^---------- REVHIST ------ Section marker",
 					"end": "^---------- OPEN ------ Section marker",
-					"captures": {
+					"beginCaptures": {
 						"0": {
 							"patterns": [
 								{
@@ -293,10 +293,21 @@
 								}
 							]
 						}
-					}
-				},
-				{
-					"include": "#section-marker"
+					},
+					"endCaptures": {
+						"0": {
+							"patterns": [
+								{
+									"include": "#section-marker"
+								}
+							]
+						}
+					},
+					"patterns": [
+						{
+							"include": "#comments"
+						}
+					]
 				}
 			]
 		},
