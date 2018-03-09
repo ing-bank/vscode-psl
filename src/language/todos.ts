@@ -24,9 +24,7 @@ function todoHandler(textDocument: vscode.TextDocument, todoDiagnostics: vscode.
 	let todos = getTodos(textDocument.getText(), lineAt);
 
 	let diagnostics = todos.map(todo => {
-		let message = todo.message.trim().replace(/^:/gm, '').trim();
-		if (!message) message = `TODO on line ${todo.range.start.line + 1}`;
-		let diagnostic = new vscode.Diagnostic(todo.range, message, vscode.DiagnosticSeverity.Information)
+		let diagnostic = new vscode.Diagnostic(todo.range, todo.message, vscode.DiagnosticSeverity.Information)
 		diagnostic.source = 'TODO';
 		return diagnostic;
 	})
@@ -54,32 +52,36 @@ function getTodos(documentText: string, lineAt: (n: number) => string) {
 
 function getTodosFromComment(text: string, startLine: number, startChar: number, lineAt: (n: number) => string): Todo[] {
 	let todos = [];
+	let todo: Todo;
 	let tokens = getTokens(text);
-	let range: vscode.Range = undefined;
-	let message = '';
+	let currentLine: number;
+	let currentChar: number;
+
+	let finalize = (newTodo: Todo) => {
+		newTodo.range = newTodo.range.with({ end: new vscode.Position(currentLine, newTodo.range.end.character + newTodo.message.trimRight().length) })
+		newTodo.message = todo.message.trim().replace(/^:/gm, '').trim();
+		if (!newTodo.message) newTodo.message = `TODO on line ${todo.range.start.line + 1}`;
+		todos.push(newTodo);
+		todo = undefined;
+	}
+
 	for (let token of tokens) {
-		let currentLine = startLine + token.position.line;
-		let currentChar = startLine === currentLine ? token.position.character + startChar : token.position.character;
+		currentLine = startLine + token.position.line;
+		currentChar = startLine === currentLine ? token.position.character + startChar : token.position.character;
+
 		if (token.type === Type.BlockComment || token.type === Type.LineComment) {
 			todos = todos.concat(getTodosFromComment(token.value, currentLine, currentChar, lineAt));
 		}
-		if (token.value === 'TODO') {
-			let trimmedLine = lineAt(currentLine).trimRight().replace(/\*\/$/g, '');
-			while (trimmedLine.match(/(\*\/|\s+)$/g)) {
-				trimmedLine = trimmedLine.trimRight().replace(/\*\/$/g, '');
-			}
-			range = new vscode.Range(currentLine, currentChar, currentLine, trimmedLine.length);
+		else if (token.value === 'TODO' && !todo) {
+			let range = new vscode.Range(currentLine, currentChar, currentLine, currentChar + 4);
+			let message = '';
+			todo = { range, message };
 		}
-		else if (range) {
-			if (token.type === Type.NewLine) {
-				todos.push({ range, message });
-				range = undefined;
-				message = '';
-				continue;
-			}
-			message += token.value;
+		else if (todo) {
+			if (token.type === Type.NewLine) finalize(todo);
+			else todo.message += token.value;
 		}
 	}
-	if (range) todos.push({ range, message })
+	if (todo) finalize(todo);
 	return todos;
 }
