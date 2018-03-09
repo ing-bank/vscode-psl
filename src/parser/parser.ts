@@ -14,6 +14,7 @@ export interface Member {
 }
 
 export class Method implements Member {
+	closeParen: Token;
 	id: Token
 	types: Token[]
 	modifiers: Token[]
@@ -31,7 +32,7 @@ export class Method implements Member {
 		this.line = -1;
 		this.declarations = [];
 		this.endLine = -1;
-		this.memberClass = MemberClass.method
+		this.memberClass = MemberClass.method;
 	}
 }
 
@@ -48,6 +49,7 @@ export class Parameter implements Member {
 	literal: boolean
 	id: Token
 	memberClass: MemberClass
+	comment: Token
 
 	constructor() {
 		this.req = false
@@ -308,7 +310,7 @@ export class Parser {
 			if (this.activeToken.type === Type.Tab || this.activeToken.type === Type.Space) continue;
 			else if (this.activeToken.type === Type.NewLine) break;
 			else if (this.activeToken.type === Type.OpenParen) {
-				let proccesed = this.proccessArgs();
+				let proccesed = this.proccessArgs(method);
 				if (!proccesed) return undefined;
 				method.parameters = proccesed;
 				break;
@@ -330,6 +332,11 @@ export class Parser {
 				continue;
 			}
 			else if (this.activeToken.value === '\r') continue;
+			else if (this.activeToken.type === Type.CloseParen) {
+				if (!method.closeParen){ 
+					method.closeParen = this.activeToken;
+				}
+			}
 			else {
 				this.throwAwayTokensTil(Type.NewLine);
 				if (method.modifiers.length > 1) {
@@ -359,7 +366,7 @@ export class Parser {
 		return method;
 	}
 
-	proccessArgs(): Parameter[] | undefined {
+	proccessArgs(method: Method): Parameter[] | undefined {
 		let args: Parameter[] = [];
 		let arg: Parameter | undefined;
 		let open = false;
@@ -375,6 +382,7 @@ export class Parser {
 			}
 			else if (this.activeToken.type === Type.CloseParen) {
 				open = false;
+				method.closeParen = this.activeToken;
 				if (!arg) break;
 				if (arg.types.length === 1 && !arg.id) {
 					arg.id = arg.types[0]
@@ -395,7 +403,12 @@ export class Parser {
 				}
 			}
 			else if (this.activeToken.type === Type.LineComment) {
-
+				if (arg) {
+					arg.comment = this.activeToken
+				}
+				else if (args.length >= 1) {
+					args[args.length - 1].comment = this.activeToken;
+				}
 			}
 			else if (this.activeToken.type === Type.Comma) {
 				if (!arg) return undefined;
