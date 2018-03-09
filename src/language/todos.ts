@@ -48,21 +48,21 @@ function getTodos(documentText: string) {
 	return todos;
 }
 
-function getTodosFromComment(text: string, startLine: number, startChar: number): Todo[] {
+function getTodosFromComment(commentText: string, startLine: number, startChar: number): Todo[] {
 	let todos = [];
 	let todo: Todo;
-	let tokens = getTokens(text);
 	let currentLine: number;
 	let currentChar: number;
 
-	let finalize = (newTodo: Todo) => {
-		newTodo.range = newTodo.range.with({ end: new vscode.Position(currentLine, newTodo.range.end.character + newTodo.message.trimRight().length) })
-		newTodo.message = todo.message.trim().replace(/^:/gm, '').trim();
-		if (!newTodo.message) newTodo.message = `TODO on line ${todo.range.start.line + 1}`;
-		todos.push(newTodo);
+	let finalize = () => {
+		todo.range = todo.range.with({ end: new vscode.Position(currentLine, todo.range.end.character + todo.message.trimRight().length) })
+		todo.message = todo.message.trim().replace(/^:/gm, '').trim();
+		if (!todo.message) todo.message = `TODO on line ${todo.range.start.line + 1}`;
+		todos.push(todo);
 		todo = undefined;
 	}
-
+	
+	let tokens = getTokens(commentText);
 	for (let token of tokens) {
 		currentLine = startLine + token.position.line;
 		currentChar = startLine === currentLine ? token.position.character + startChar : token.position.character;
@@ -76,10 +76,10 @@ function getTodosFromComment(text: string, startLine: number, startChar: number)
 			todo = { range, message };
 		}
 		else if (todo) {
-			if (token.type === Type.NewLine) finalize(todo);
+			if (token.type === Type.NewLine) finalize();
 			else todo.message += token.value;
 		}
 	}
-	if (todo) finalize(todo);
+	if (todo) finalize();
 	return todos;
 }
