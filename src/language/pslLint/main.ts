@@ -1,0 +1,72 @@
+import { Parser, Diagnostic, Rule, DiagnosticSeverity } from './api';
+import { ParametersOnNewLine } from './parameters';
+import { TodoInfo } from './todos';
+import * as fs from 'fs-extra';
+import * as path from 'path';
+
+function registerRules(rules: Rule[]) {
+	rules.push(new ParametersOnNewLine());
+
+	rules.push(new TodoInfo());
+}
+
+export function getDiagnostics(parser: Parser, textDocument: string) {
+	let rules: Rule[] = [];
+	let diagnostics: Diagnostic[] = []
+	registerRules(rules);
+	rules.forEach(rule => {
+		diagnostics = diagnostics.concat(rule.report(parser, textDocument));
+	})
+	return diagnostics;
+}
+
+
+async function readFile(filename: string) {
+	if (path.extname(filename) !== '.PROC') return;
+	let value = await fs.readFile(filename)
+	let textDocument = value.toString();
+	let parser = new Parser();
+	parser.parseDocument(textDocument);
+	let diagnostics = getDiagnostics(parser, textDocument);
+	let Reset = "\x1b[0m"
+	let color = (v) => {
+		if (v === DiagnosticSeverity.Error) return "\x1b[31m";
+		if (v === DiagnosticSeverity.Information) return "\x1b[32m";
+		if (v === DiagnosticSeverity.Warning) return "\x1b[33m";
+		if (v === DiagnosticSeverity.Hint) return "\x1b[34m";
+	}
+
+	diagnostics.forEach(d => {
+		let fileNameAndRange = `${filename}(${d.range.start.line},${d.range.start.character})`;
+		let severity = `${color(d.severity)}[${DiagnosticSeverity[d.severity].substr(0, 4).toUpperCase()}]${Reset}`
+		console.log(`${fileNameAndRange} ${severity}[${d.source}] ${d.message}`)
+	})
+}
+
+async function cli(fsPath: string) {
+
+	let stat = await fs.lstat(fsPath);
+	if (stat.isDirectory()) {
+		let files = await fs.readdir(fsPath);
+		files.forEach(file => {
+			cli(path.join(fsPath, file));
+		})
+	}
+	else if (stat.isFile()) {
+		try {
+			readFile(fsPath);
+		}
+		catch (e) {
+			if (e.message) console.error(e.message);
+			else console.error(e);
+		}
+	}
+}
+
+if (require.main === module) {
+	if (!process.argv[2]) {
+		console.error('Please enter a filename.');
+		process.exit(1);
+	}
+	cli(process.argv[2]);
+}
