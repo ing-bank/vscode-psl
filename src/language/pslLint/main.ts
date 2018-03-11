@@ -37,28 +37,31 @@ async function readFile(filename: string) {
 	}
 
 	diagnostics.forEach(d => {
-		let fileNameAndRange = `${filename}(${d.range.start.line},${d.range.start.character})`;
+		let fileNameAndRange = `${filename}(${d.range.start.line+1},${d.range.start.character+1})`;
 		let severity = `${color(d.severity)}[${DiagnosticSeverity[d.severity].substr(0, 4).toUpperCase()}]${Reset}`
 		console.log(`${fileNameAndRange} ${severity}[${d.source}] ${d.message}`)
 	})
 }
 
-async function cli(fsPath: string) {
-
-	let stat = await fs.lstat(fsPath);
-	if (stat.isDirectory()) {
-		let files = await fs.readdir(fsPath);
-		files.forEach(file => {
-			cli(path.join(fsPath, file));
-		})
-	}
-	else if (stat.isFile()) {
-		try {
-			readFile(fsPath);
+async function cli(fileString: string) {
+	let files = fileString.split(';');
+	for (let index = 0; index < files.length; index++) {
+		const fsPath = files[index];
+		let stat = await fs.lstat(fsPath);
+		if (stat.isDirectory()) {
+			let files = await fs.readdir(fsPath);
+			files.forEach(file => {
+				cli(path.join(fsPath, file));
+			})
 		}
-		catch (e) {
-			if (e.message) console.error(e.message);
-			else console.error(e);
+		else if (stat.isFile()) {
+			try {
+				readFile(fsPath);
+			}
+			catch (e) {
+				if (e.message) console.error(e.message);
+				else console.error(e);
+			}
 		}
 	}
 }
