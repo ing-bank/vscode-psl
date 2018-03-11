@@ -2,11 +2,12 @@ import * as vscode from 'vscode';
 import * as fsExtra from 'fs-extra';
 import * as path from 'path';
 import * as utils from '../parser/utillities'
-import { Parser, Member } from '../parser/parser';
+import { parseText, Member } from '../parser/parser';
 
 interface PSLCompletionItem extends vscode.CompletionItem {
 	pslType: string
 }
+
 
 export class PSLCompletionItemProvider implements vscode.CompletionItemProvider {
 
@@ -27,13 +28,10 @@ export class PSLCompletionItemProvider implements vscode.CompletionItemProvider 
 	}
 
 	public async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position): Promise<PSLCompletionItem[]> {
-		let parser = new Parser();
-
-		// parse the document
-		parser.parseDocument(document.getText());
+		let parsedDoc = parseText(document.getText());
 
 		// get tokens on line and current token
-		let result = utils.searchTokens(parser.tokens, position);
+		let result = utils.searchTokens(parsedDoc.tokens, position);
 		if (!result) return [];
 		let { tokensOnLine, index } = result;
 
@@ -42,7 +40,7 @@ export class PSLCompletionItemProvider implements vscode.CompletionItemProvider 
 		if (!reference) return;
 
 		// find parser member (method, declaration, etc) of reference
-		let parserMember = utils.searchParser(parser, reference);
+		let parserMember = utils.searchParser(parsedDoc, reference);
 		if (!parserMember) return [];
 
 		// Record completion

@@ -1,4 +1,5 @@
 import { getTokens, Token, Type } from './tokenizer';
+import * as fs from 'fs';
 
 export enum MemberClass {
 	method = 1,
@@ -48,6 +49,7 @@ export class Parameter implements Member {
 	ret: boolean
 	literal: boolean
 	id: Token
+	// doc: string
 	memberClass: MemberClass
 	comment: Token
 
@@ -59,7 +61,7 @@ export class Parameter implements Member {
 	}
 }
 
-interface Declaration extends Member {
+export interface Declaration extends Member {
 	id: Token,
 	types: Token[],
 }
@@ -68,14 +70,41 @@ const NON_METHOD_KEYWORDS = [
 	'do', 'set', 'if', 'for', 'while'
 ]
 
-export class Parser {
-	tokenizer: IterableIterator<Token>;
-	activeToken: Token;
-	methods: Method[];
-	properties: Property[];
+export interface Document {
 	declarations: Declaration[];
-	activeMethod: Method;
+	properties: Property[];
+	methods: Method[];
 	tokens: Token[];
+	extending: Token;
+}
+
+export function parseText(sourceText: string): Document {
+	let parser = new Parser();
+	return parser.parseDocument(sourceText);
+}
+
+export function parseFile(sourcePath: string): Promise<Document> {
+	return new Promise((resolve, reject) => {
+		fs.readFile(sourcePath, (err, data) => {
+			if (err) {
+				reject(err);
+			}
+			let parser = new Parser();
+			resolve(parser.parseDocument(data.toString()));
+		})
+	})
+}
+
+class Parser {
+
+	private tokenizer: IterableIterator<Token>;
+	private activeToken: Token;
+	private methods: Method[];
+	private properties: Property[];
+	private declarations: Declaration[];
+	private activeMethod: Method;
+	private tokens: Token[];
+	private extending: Token;
 
 	constructor(tokenizer?: IterableIterator<Token>) {
 		this.methods = [];
@@ -85,13 +114,13 @@ export class Parser {
 		if (tokenizer) this.tokenizer = tokenizer;
 	}
 
-	next(): boolean {
+	private next(): boolean {
 		this.activeToken = this.tokenizer.next().value;
 		if (this.activeToken) this.tokens.push(this.activeToken);
 		return this.activeToken !== undefined;
 	}
 
-	parseDocument(documentText: string) {
+	parseDocument(documentText: string): Document {
 		this.tokenizer = getTokens(documentText);
 		while (this.next()) {
 			if (this.activeToken.type === Type.Alphanumeric || this.activeToken.type === Type.MinusSign) {
@@ -105,21 +134,30 @@ export class Parser {
 				let propertyDef = this.lookForPropertyDef(tokenBuffer);
 				if (propertyDef) {
 					if (propertyDef.id) this.properties.push(propertyDef);
+					continue;
 				}
-				else {
-					let typeDec = this.lookForTypeDeclaration(tokenBuffer);
-					if (!typeDec) continue;
+				let typeDec = this.lookForTypeDeclaration(tokenBuffer);
+				if (typeDec.length > 0) {
 					let activeDeclarations = this.activeMethod ? this.activeMethod.declarations : this.declarations;
 					for (let dec of typeDec) activeDeclarations.push(dec);
+					continue;
 				}
+				let extending = this.checkForExtends(tokenBuffer);
+				if (extending) this.extending = extending;
 			}
 			else if (this.activeToken.type === Type.NewLine) continue;
 			else this.throwAwayTokensTil(Type.NewLine);
 		}
-		return this.tokens;
+		return {
+			declarations: this.declarations,
+			properties: this.properties,
+			methods: this.methods,
+			tokens: this.tokens,
+			extending: this.extending
+		}
 	}
 
-	lookForTypeDeclaration(tokenBuffer: Token[]): Declaration[] | undefined {
+	private lookForTypeDeclaration(tokenBuffer: Token[]): Declaration[] | undefined {
 		let i = 0;
 		let modifiers: Token[] = [];
 		while (i < tokenBuffer.length) {
@@ -129,7 +167,7 @@ export class Parser {
 				continue;
 			}
 			if (token.type === Type.Alphanumeric && token.value === 'type') {
-				for (let j = i; j < tokenBuffer.length; j++) {
+				for (let j = i + 1; j < tokenBuffer.length; j++) {
 					let loadToken = tokenBuffer[j];
 					if (loadToken.type === Type.Space || loadToken.type === Type.Tab) continue;
 					// if (loadToken.type === Type.EqualSign) break;
@@ -219,7 +257,50 @@ export class Parser {
 		return declarations;
 	}
 
-	skipToNextDeclaration(identifiers: Token[], tokenIndex: number): number {
+	private checkForExtends(tokenBuffer: Token[]): Token {
+		let i = 0;
+		let classDef = false;
+		let extending = false;
+		let equals = false;
+		while (i < tokenBuffer.length) {
+			let token = tokenBuffer[i];
+			if (token.type === Type.Tab || token.type === Type.Space) {
+				i++;
+				continue;
+			}
+			else if (token.type === Type.NumberSign && !classDef) {
+				let nextToken;
+				try {
+					nextToken = tokenBuffer[i + 1];
+				}
+				catch (e) {
+					return;
+				}
+				if (nextToken.value === 'CLASSDEF') {
+					classDef = true;
+					i += 2;
+				}
+				else break;
+			}
+			else if (token.value === 'extends' && !extending) {
+				extending = true;
+				i++
+			}
+			else if (token.type === Type.EqualSign && !equals) {
+				equals = true;
+				i++
+			}
+			else if (token.type === Type.Alphanumeric && classDef && extending && equals) {
+				return token;
+			}
+			else {
+				break;
+			}
+		}
+		return;
+	}
+
+	private skipToNextDeclaration(identifiers: Token[], tokenIndex: number): number {
 		let parenStack = 0;
 		while (tokenIndex < identifiers.length) {
 			let token = identifiers[tokenIndex]
@@ -237,17 +318,17 @@ export class Parser {
 		return tokenIndex;
 	}
 
-	isDeclarationKeyword(token: Token) {
+	private isDeclarationKeyword(token: Token) {
 		if (token.type !== Type.Alphanumeric) return false;
-		let keywords = ['type', 'public', 'private', 'new', 'literal']
+		let keywords = ['public', 'private', 'new', 'literal']
 		return keywords.indexOf(token.value) !== -1;
 	}
 
-	throwAwayTokensTil(type: Type) {
+	private throwAwayTokensTil(type: Type) {
 		do { } while (this.next() && this.activeToken.type !== type)
 	}
 
-	loadTokenBuffer() {
+	private loadTokenBuffer() {
 		let tokenBuffer = []
 		while (this.next() && this.activeToken.type !== Type.NewLine) {
 			tokenBuffer.push(this.activeToken);
@@ -255,7 +336,7 @@ export class Parser {
 		return tokenBuffer;
 
 	}
-	lookForPropertyDef(tokenBuffer: Token[]): Property | undefined {
+	private lookForPropertyDef(tokenBuffer: Token[]): Property | undefined {
 		let i = 0;
 		// TODO better loop
 		while (i < tokenBuffer.length) {
@@ -293,16 +374,16 @@ export class Parser {
 
 	}
 
-	loadIdentifiers(): Token[] {
-		let modifiers: Token[] = [];
-		while (this.next() && this.activeToken.type !== Type.NewLine) {
-			if (this.activeToken.type === Type.Tab || this.activeToken.type === Type.Space) continue;
-			modifiers.push(this.activeToken);
-		}
-		return modifiers;
-	}
+	// private loadIdentifiers(): Token[] {
+	// 	let modifiers: Token[] = [];
+	// 	while (this.next() && this.activeToken.type !== Type.NewLine) {
+	// 		if (this.activeToken.type === Type.Tab || this.activeToken.type === Type.Space) continue;
+	// 		modifiers.push(this.activeToken);
+	// 	}
+	// 	return modifiers;
+	// }
 
-	parseMethod(): Method | undefined {
+	private parseMethod(): Method | undefined {
 		let batchLabel = false;
 		let method: Method = new Method();
 		do {
@@ -349,7 +430,7 @@ export class Parser {
 		return this.finalizeMethod(method);
 	}
 
-	finalizeMethod(method: Method) {
+	private finalizeMethod(method: Method) {
 		for (let keyword of NON_METHOD_KEYWORDS) {
 			let index = method.modifiers.map(i => i.value).indexOf(keyword)
 			if (index > -1 && index < method.modifiers.length - 1) {
@@ -366,7 +447,8 @@ export class Parser {
 		return method;
 	}
 
-	proccessArgs(method: Method): Parameter[] | undefined {
+	private proccessArgs(method: Method): Parameter[] | undefined {
+
 		let args: Parameter[] = [];
 		let arg: Parameter | undefined;
 		let open = false;
@@ -424,7 +506,7 @@ export class Parser {
 		return args;
 	}
 
-	proccessObjectArgs(): Token[] | undefined {
+	private proccessObjectArgs(): Token[] | undefined {
 		let types: Token[] = [];
 		let found = false;
 		while (this.next()) {
