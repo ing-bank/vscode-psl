@@ -1,9 +1,9 @@
-import { Diagnostic, Range, Position, DiagnosticSeverity, Rule, Parser, getTokens, Type } from './api';
+import { Diagnostic, Range, Position, DiagnosticSeverity, Rule, Document, getTokens, Type } from './api';
 
 export class TodoInfo implements Rule {
-	report(parser: Parser): Diagnostic[] {
+	report(parsedDocument: Document): Diagnostic[] {
 		let todos: Todo[] = [];
-		for (let token of parser.tokens) {
+		for (let token of parsedDocument.tokens) {
 			let startLine = token.position.line;
 			let startChar = token.position.character;
 			if (token.type === Type.BlockComment || token.type === Type.LineComment) {
@@ -38,7 +38,7 @@ function getTodosFromComment(commentText: string, startLine: number, startChar: 
 		todos.push(todo);
 		todo = undefined;
 	}
-	
+
 	let tokens = getTokens(commentText);
 	for (let token of tokens) {
 		currentLine = startLine + token.position.line;

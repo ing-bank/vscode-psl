@@ -3,7 +3,7 @@ import * as parser from '../parser/parser';
 import { PSL_MODE } from '../extension';
 
 export function activate(context: vscode.ExtensionContext) {
-	
+
 	context.subscriptions.push(
 		vscode.languages.registerDocumentFormattingEditProvider(
 			PSL_MODE, new PSLFormatProvider()
@@ -16,8 +16,7 @@ export class PSLFormatProvider implements vscode.DocumentFormattingEditProvider 
 	provideDocumentFormattingEdits(document: vscode.TextDocument): Promise<vscode.TextEdit[]> {
 		let textEdits: vscode.TextEdit[] = [];
 		return new Promise(resolve => {
-			let p = new parser.Parser();
-			p.parseDocument(document.getText());
+			let p = parser.parseText(document.getText());
 			p.methods.forEach(method => {
 				if (!method.closeParen) return;
 				if (method.parameters.length < 2) return;

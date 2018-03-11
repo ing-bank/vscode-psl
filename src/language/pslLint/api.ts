@@ -1,4 +1,4 @@
-import {Parser} from '../../parser/parser';
+import { Document, parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter } from '../../parser/parser';
 
 export enum DiagnosticSeverity {
 
@@ -103,7 +103,7 @@ export class Range {
 	constructor(startLine: number, startCharacter: number, endLine: number, endCharacter: number);
 
 	constructor(a, b, c?, d?) {
-        if (typeof a === 'number' && typeof b == 'number' && typeof c == 'number' && typeof d == 'number') {
+		if (typeof a === 'number' && typeof b == 'number' && typeof c == 'number' && typeof d == 'number') {
 			this.start = new Position(a, b);
 			this.end = new Position(c, d);
 		}
@@ -138,8 +138,16 @@ export class Position {
 }
 
 export interface Rule {
-	report(parser: Parser, textDocument: string): Diagnostic[];
+	report(parsedDocument: Document, textDocument: string, ...args: any[]): Diagnostic[];
 }
 
-export {Parser};
+export interface MethodRule extends Rule {
+	report(parsedDocument: Document, textDocument: string, method: Method): Diagnostic[];
+}
+
+export interface DeclarationRule extends Rule {
+	report(parsedDocument: Document, textDocument: string, declaration: Declaration): Diagnostic[];
+}
+
+export { Document, parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter };
 export * from '../../parser/tokenizer';

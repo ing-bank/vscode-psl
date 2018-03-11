@@ -1,9 +1,9 @@
-import { Diagnostic, Range, DiagnosticSeverity, Rule, Parser } from './api';
+import { Diagnostic, Range, DiagnosticSeverity, Rule, Document } from './api';
 
 export class ParametersOnNewLine implements Rule {
-    report(parser: Parser): Diagnostic[] {
+    report(parsedDocument: Document): Diagnostic[] {
         let diagnostics: Diagnostic[] = []
-        parser.methods.forEach(method => {
+        parsedDocument.methods.forEach(method => {
             let methodLine = method.id.position.line;
             method.parameters.forEach(param => {
                 let paramPosition = param.id.position;
