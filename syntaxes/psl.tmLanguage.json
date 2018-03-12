@@ -308,6 +308,9 @@
 							"include": "#comments"
 						}
 					]
+				},
+				{
+					"include": "#section-marker"
 				}
 			]
 		},

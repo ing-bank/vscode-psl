@@ -1,28 +1,11 @@
-import { Document, parseText, Diagnostic, Rule, DiagnosticSeverity } from './api';
-import { ParametersOnNewLine } from './parameters';
-import { TodoInfo } from './todos';
+#!/usr/bin/env node
 import * as fs from 'fs-extra';
 import * as path from 'path';
-
-function registerRules(rules: Rule[]) {
-	rules.push(new ParametersOnNewLine());
-
-	rules.push(new TodoInfo());
-}
-
-export function getDiagnostics(parsedDocument: Document, textDocument: string) {
-	let rules: Rule[] = [];
-	let diagnostics: Diagnostic[] = []
-	registerRules(rules);
-	rules.forEach(rule => {
-		diagnostics = diagnostics.concat(rule.report(parsedDocument, textDocument));
-	})
-	return diagnostics;
-}
-
+import { getDiagnostics } from '../activate'
+import { parseText, DiagnosticSeverity } from '../api';
 
 async function readFile(filename: string) {
-	if (path.extname(filename) !== '.PROC' && path.extname(filename).toUpperCase() !== '.PSL') return;
+	if (path.extname(filename) !== '.PROC' && path.extname(filename) !== '.BATCH' && path.extname(filename).toUpperCase() !== '.PSL') return;
 	let value = await fs.readFile(filename)
 	let textDocument = value.toString();
 	let document = parseText(textDocument);
@@ -34,6 +17,7 @@ async function readFile(filename: string) {
 		console.log(`${path.resolve(filename)}(${range}) [${severity}][${d.source}] ${d.message}`)
 	})
 }
+
 
 async function cli(fileString: string) {
 	let files = fileString.split(';');
@@ -63,3 +47,5 @@ if (require.main === module) {
 	}
 	cli(process.argv[2]);
 }
+
+// psl-lint $(git diff master... --name-only | tr "\n" ";")

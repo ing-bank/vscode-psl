@@ -4,6 +4,7 @@ export class ParametersOnNewLine implements Rule {
     report(parsedDocument: Document): Diagnostic[] {
         let diagnostics: Diagnostic[] = []
         parsedDocument.methods.forEach(method => {
+            if (method.batch) return;
             let methodLine = method.id.position.line;
             method.parameters.forEach(param => {
                 let paramPosition = param.id.position;
