@@ -19,7 +19,6 @@ export class PSLFormatProvider implements vscode.DocumentFormattingEditProvider 
 			let p = parser.parseText(document.getText());
 			p.methods.forEach(method => {
 				if (!method.closeParen) return;
-				if (method.parameters.length < 2) return;
 				method.memberClass
 				let methodLine = method.id.position.line;
 				let closePosition = method.closeParen.position;
@@ -31,14 +30,20 @@ export class PSLFormatProvider implements vscode.DocumentFormattingEditProvider 
 	}
 }
 
+interface Param {
+	parameter: string
+	comment: string
+}
+
 function buildText(method: parser.Method): string {
 	let methodString = '';
 	if (method.modifiers.length > 0) {
 		methodString += method.modifiers.map(m => m.value).join(' ') + ' ';
 	}
 
-	methodString += `${method.id.value}(\n`;
-	let parameterStrings: string[] = method.parameters.map(p => {
+	methodString += `${method.id.value}(`;
+	let parameterStrings: Param[] = method.parameters.map(p => {
+		let param = {parameter: '', comment: ''}
 		let parameterString = '';
 		if (p.req) {
 			parameterString += 'req ';
@@ -54,12 +59,21 @@ function buildText(method: parser.Method): string {
 			parameterString += `( ${p.types.map(t => t.value).slice(1).join(', ')})`;
 		}
 		if (p.comment) {
-			parameterString += `\t// ${p.comment.value.trim()}`
+			param.comment = `\t// ${p.comment.value.trim()}`
 		}
-		return parameterString;
+		param.parameter = parameterString
+		return param;
 	})
-	methodString += '\t\t  ' + parameterStrings.join('\n\t\t, ');
-	methodString += '\n\t\t)'
+	if (parameterStrings.length === 0) {
+		methodString += ')';
+	}
+	else if (parameterStrings.length === 1) {
+		methodString += parameterStrings[0].parameter + ')' + parameterStrings[0].comment;
+	}
+	else {
+		methodString += '\n\t\t  ' + parameterStrings.map(p => p.parameter + p.comment).join('\n\t\t, ');
+		methodString += '\n\t\t)'
+	}
 
 	return methodString;
 }

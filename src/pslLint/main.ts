@@ -22,23 +22,16 @@ export function getDiagnostics(parsedDocument: Document, textDocument: string) {
 
 
 async function readFile(filename: string) {
-	if (path.extname(filename) !== '.PROC') return;
+	if (path.extname(filename) !== '.PROC' && path.extname(filename).toUpperCase() !== '.PSL') return;
 	let value = await fs.readFile(filename)
 	let textDocument = value.toString();
 	let document = parseText(textDocument);
 	let diagnostics = getDiagnostics(document, textDocument);
-	let Reset = "\x1b[0m"
-	let color = (v) => {
-		if (v === DiagnosticSeverity.Error) return "\x1b[31m";
-		if (v === DiagnosticSeverity.Information) return "\x1b[32m";
-		if (v === DiagnosticSeverity.Warning) return "\x1b[33m";
-		if (v === DiagnosticSeverity.Hint) return "\x1b[34m";
-	}
 
 	diagnostics.forEach(d => {
-		let fileNameAndRange = `${filename}(${d.range.start.line + 1},${d.range.start.character + 1})`;
-		let severity = `${color(d.severity)}[${DiagnosticSeverity[d.severity].substr(0, 4).toUpperCase()}]${Reset}`
-		console.log(`${fileNameAndRange} ${severity}[${d.source}] ${d.message}`)
+		let range = `${d.range.start.line + 1},${d.range.start.character + 1}`;
+		let severity = `${DiagnosticSeverity[d.severity].substr(0, 4).toUpperCase()}`
+		console.log(`${path.resolve(filename)}(${range}) [${severity}][${d.source}] ${d.message}`)
 	})
 }
 
@@ -46,6 +39,7 @@ async function cli(fileString: string) {
 	let files = fileString.split(';');
 	for (let index = 0; index < files.length; index++) {
 		const fsPath = files[index];
+		if (!fsPath) continue;
 		let stat = await fs.lstat(fsPath);
 		if (stat.isDirectory()) {
 			let files = await fs.readdir(fsPath);
@@ -54,13 +48,10 @@ async function cli(fileString: string) {
 			})
 		}
 		else if (stat.isFile()) {
-			try {
-				readFile(fsPath);
-			}
-			catch (e) {
-				if (e.message) console.error(e.message);
-				else console.error(e);
-			}
+			readFile(fsPath).catch(e => {
+				if (e.message) console.error(fsPath, e.message);
+				else console.error(fsPath, e);
+			})
 		}
 	}
 }

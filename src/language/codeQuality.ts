@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import * as format from './pslFormat';
 import * as parser from '../parser/parser';
-import { getDiagnostics } from './pslLint/main';
-import { Diagnostic } from './pslLint/api';
+import { getDiagnostics } from '../pslLint/main';
+import { Diagnostic } from '../pslLint/api';
 import { PSL_MODE, BATCH_MODE, TRIG_MODE } from '../extension';
 
 export async function activate(context: vscode.ExtensionContext) {

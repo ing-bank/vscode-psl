@@ -457,6 +457,10 @@ class Parser {
 			else if (this.activeToken.type === Type.OpenParen) {
 				open = true;
 				if (!arg) return undefined;
+				if (arg.types.length === 1 && !arg.id) {
+					arg.id = arg.types[0];
+					arg.types[0] = this.getDummy();
+				}
 				let objectArgs = this.proccessObjectArgs();
 				if (!objectArgs) return undefined;
 				arg.types = arg.types.concat(objectArgs);
@@ -468,7 +472,7 @@ class Parser {
 				if (!arg) break;
 				if (arg.types.length === 1 && !arg.id) {
 					arg.id = arg.types[0]
-					arg.types[0] = { value: 'void', type: Type.Alphanumeric, position: { character: 0, line: 0 } }
+					arg.types[0] = this.getDummy();
 				}
 				args.push(arg);
 				break;
@@ -496,7 +500,7 @@ class Parser {
 				if (!arg) return undefined;
 				if (arg.types.length === 1 && !arg.id) {
 					arg.id = arg.types[0]
-					arg.types[0] = { value: 'void', type: Type.Alphanumeric, position: { character: 0, line: 0 } }
+					arg.types[0] = this.getDummy();
 				}
 				args.push(arg)
 				arg = undefined;
@@ -510,8 +514,10 @@ class Parser {
 		let types: Token[] = [];
 		let found = false;
 		while (this.next()) {
+			let dummy = this.getDummy();
 			if (this.activeToken.type === Type.Tab || this.activeToken.type === Type.Space) continue;
 			else if (this.activeToken.type === Type.CloseParen) {
+				if (types.length === 0) types.push(dummy);
 				return types;
 			}
 			else if (this.activeToken.type === Type.Alphanumeric) {
@@ -522,10 +528,19 @@ class Parser {
 				else return undefined;
 			}
 			else if (this.activeToken.type === Type.Comma) {
+				if (!found) {
+					if (types.length === 0) {
+						types.push(dummy);
+					}
+					types.push(dummy);
+				}
 				found = false;
 				continue;
 			}
 		}
 		return undefined;
+	}
+	private getDummy() {
+		return {type: Type.Undefined, position: this.activeToken.position, value: ''};
 	}
 }

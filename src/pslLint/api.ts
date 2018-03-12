@@ -1,4 +1,4 @@
-import { Document, parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter } from '../../parser/parser';
+import { Document, parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter } from './../parser/parser';
 
 export enum DiagnosticSeverity {
 
@@ -150,4 +150,4 @@ export interface DeclarationRule extends Rule {
 }
 
 export { Document, parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter };
-export * from '../../parser/tokenizer';
+export * from './../parser/tokenizer';

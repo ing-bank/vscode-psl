@@ -1,6 +1,5 @@
-import vscode = require('vscode');
 import {Document, Member} from '../parser/parser';
-import {Token, Type} from '../parser/tokenizer';
+import {Token, Type, Position} from '../parser/tokenizer';
 
 export interface Query {
 	identifier: string
@@ -36,13 +35,13 @@ export function searchParser(parsedDoc: Document, token: Token): Member {
 /**
  * Get the tokens on the line of position, as well as the specific index of the token at position
  */
-export function searchTokens(tokens: Token[], position: vscode.Position) {
+export function searchTokens(tokens: Token[], position: Position) {
 	let tokensOnLine = tokens.filter(t => t.position.line === position.line);
 	if (tokensOnLine.length === 0) return undefined;
 	let index = tokensOnLine.findIndex(t => {
-		let start = new vscode.Position(t.position.line, t.position.character);
-		let end = new vscode.Position(t.position.line, t.position.character + t.value.length);
-		return start.isBeforeOrEqual(position) && end.isAfterOrEqual(position);
+		let start: Position = {line: t.position.line, character: t.position.character}
+		let end: Position = {line: t.position.line, character: t.position.character + t.value.length};
+		return isBetween(start, position, end);
 	});
 	return {tokensOnLine, index};
 }
@@ -61,4 +60,8 @@ export function dotCompletion(tokensOnLine: Token[], index: number): {reference:
 		return {reference, attribute};
 	}
 	return {reference: undefined};
+}
+
+function isBetween(lb: Position, t: Position, ub: Position): boolean {
+	return lb.line <= t.line && lb.character <= t.line && ub.line >= t.line && lb.character >= ub.line;
 }
