@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fsExtra from 'fs-extra';
 import * as path from 'path';
 import * as utils from '../parser/utillities'
-import { parseText, Member } from '../parser/parser';
+import { parseText, IMember } from '../parser/parser';
 
 interface PSLCompletionItem extends vscode.CompletionItem {
 	pslType: string
@@ -54,7 +54,7 @@ export class PSLCompletionItemProvider implements vscode.CompletionItemProvider 
 
 module RecordCompletion {
 
-	export async function getCompletionItems(recordMember: Member, columnName?: string): Promise<PSLCompletionItem[]> {
+	export async function getCompletionItems(recordMember: IMember, columnName?: string): Promise<PSLCompletionItem[]> {
 		let columns: PSLCompletionItem[] = await getColumnItems(recordMember.types[0].value);
 		if (columnName) {
 			columns = columns.filter(c => c.label.startsWith(columnName))

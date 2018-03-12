@@ -1,4 +1,4 @@
-import { Document, parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter } from './../parser/parser';
+import { IDocument, parseFile, parseText, IDeclaration, IMember, MemberClass, IMethod, IProperty, IParameter } from './../parser/parser';
 
 export enum DiagnosticSeverity {
 
@@ -138,16 +138,16 @@ export class Position {
 }
 
 export interface Rule {
-	report(parsedDocument: Document, textDocument: string, ...args: any[]): Diagnostic[];
+	report(parsedDocument: IDocument, textDocument: string, ...args: any[]): Diagnostic[];
 }
 
 export interface MethodRule extends Rule {
-	report(parsedDocument: Document, textDocument: string, method: Method): Diagnostic[];
+	report(parsedDocument: IDocument, textDocument: string, method: IMethod): Diagnostic[];
 }
 
 export interface DeclarationRule extends Rule {
-	report(parsedDocument: Document, textDocument: string, declaration: Declaration): Diagnostic[];
+	report(parsedDocument: IDocument, textDocument: string, declaration: IDeclaration): Diagnostic[];
 }
 
-export { Document, parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter };
+export { IDocument, parseFile, parseText, IDeclaration, IMember, MemberClass, IMethod, IProperty, IParameter };
 export * from './../parser/tokenizer';

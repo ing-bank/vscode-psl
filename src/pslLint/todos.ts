@@ -1,7 +1,7 @@
-import { Diagnostic, Range, Position, DiagnosticSeverity, Rule, Document, getTokens, Type } from './api';
+import { Diagnostic, Range, Position, DiagnosticSeverity, Rule, IDocument, getTokens, Type } from './api';
 
 export class TodoInfo implements Rule {
-	report(parsedDocument: Document): Diagnostic[] {
+	report(parsedDocument: IDocument): Diagnostic[] {
 		let todos: Todo[] = [];
 		for (let token of parsedDocument.tokens) {
 			let startLine = token.position.line;

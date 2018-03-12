@@ -1,6 +1,9 @@
 import { getTokens, Token, Type } from './tokenizer';
 import * as fs from 'fs';
 
+/**
+ * Used for checking the type of Member at runtime
+ */
 export enum MemberClass {
 	method = 1,
 	parameter = 2,
@@ -8,23 +11,172 @@ export enum MemberClass {
 	declaration = 4
 }
 
-export interface Member {
+/**
+ * A generic type that abstracts Method, Parameter, Declaration, etc
+ */
+export interface IMember {
+
+	/**
+	 * The Token representing the name of the member.
+	 */
 	id: Token
+
+	/**
+	 * An array of types. The 0 index represents the 0 node type.
+	 * For trees the type of the nth node will be found at index n.
+	 */
 	types: Token[]
+
+	/**
+	 * The memeber class to determine the type at runtime
+	 */
 	memberClass: MemberClass
 }
 
-export class Method implements Member {
-	closeParen: Token;
-	id: Token
+/**
+ * Contains information about a Method
+ */
+export interface IMethod extends IMember {
+
+	/**
+	 * The Token of the closing parenthesis after the declaration of all the Method's parameters.
+	 */
+	closeParen: Token
+
+	/**
+	 * Currently unused for Methods.
+	 */
 	types: Token[]
+
+	/**
+	 * All the modifiers before the Method id, like "public", "static", "void", "String", etc.
+	 */
 	modifiers: Token[]
+
+	/**
+	 * The parameters of the Method, each with their own typing and comment information.
+	 */
 	parameters: Parameter[]
-	declarations: Declaration[];
+
+	/**
+	 * The "type" delcarations found within the body of the method. Only the location where they are declared is referenced.
+	 */
+	declarations: IDeclaration[]
+
+	/**
+	 * The zero-based line where the Method begins
+	 */
 	line: number
+
+	/**
+	 * The last line of the Method, right before the start of a new Method
+	 */
 	endLine: number
+
+	/**
+	 * Whether the Method (label) is a batch label, such as "OPEN" or "EXEC"
+	 */
+	batch: boolean
+
+}
+
+/**
+ * A PROPERTYDEF declaration
+ */
+export interface IProperty extends IMember {
+
+	/**
+	 * The other Tokens in the declaration, currently unparsed.
+	 */
+	modifiers: Token[]
+}
+
+/**
+ * Represents a parameter, always belonging to a Method
+ */
+export interface IParameter extends IMember {
+
+	/**
+	 * If the req keyword is used
+	 */
+	req: boolean
+
+	/**
+	 * If the ret keyword is used
+	 */
+	ret: boolean
+
+	/**
+	 * If the literal keyword is used.
+	 */
+	literal: boolean
+
+	/**
+	 * The contents of the comment for the parameter, i.e.
+	 * ```
+	 * public String name(
+	 * 		String p1 // a comment
+	 * 		)
+	 * ```
+	 */
+	comment: Token
+}
+
+/**
+ * A type declaration, typically found within a method.
+ */
+export interface IDeclaration extends IMember {
+
+	/**
+	 * The other Tokens in the declaration, currently unparsed.
+	 */
+	modifiers: Token[]
+}
+
+/**
+ * An abstract syntax tree of a PSL document
+ */
+export interface IDocument {
+
+	/**
+	 * An array of Declarations that are not contained within a method.
+	 * This will be empty for valid Profile 7.6 code but is maintained for compatability.
+	 */
+	declarations: IDeclaration[]
+
+	/**
+	 * An array of PROPERTYDEFs
+	 */
+	properties: IProperty[]
+
+	/**
+	 * An array of the methods in the document
+	 */
+	methods: IMethod[]
+
+	/**
+	 * All the tokens in the document, for reference.
+	 */
+	tokens: Token[]
+
+	/**
+	 * The Token that represents the parent class.
+	 */
+	extending: Token
+}
+
+class Method implements IMethod {
+
+	closeParen: Token;
+	id: Token;
+	types: Token[];
+	modifiers: Token[];
+	parameters: Parameter[]
+	declarations: IDeclaration[];
+	line: number;
+	endLine: number;
 	batch: boolean;
-	memberClass: MemberClass
+	memberClass: MemberClass;
 
 	constructor() {
 		this.types = []
@@ -37,19 +189,12 @@ export class Method implements Member {
 	}
 }
 
-
-export interface Property extends Member {
-	id: Token
-	modifiers: Token[]
-}
-
-export class Parameter implements Member {
+class Parameter implements IParameter {
 	types: Token[]
 	req: boolean
 	ret: boolean
 	literal: boolean
 	id: Token
-	// doc: string
 	memberClass: MemberClass
 	comment: Token
 
@@ -61,29 +206,16 @@ export class Parameter implements Member {
 	}
 }
 
-export interface Declaration extends Member {
-	id: Token,
-	types: Token[],
-}
-
 const NON_METHOD_KEYWORDS = [
 	'do', 'set', 'if', 'for', 'while'
 ]
 
-export interface Document {
-	declarations: Declaration[];
-	properties: Property[];
-	methods: Method[];
-	tokens: Token[];
-	extending: Token;
-}
-
-export function parseText(sourceText: string): Document {
+export function parseText(sourceText: string): IDocument {
 	let parser = new Parser();
 	return parser.parseDocument(sourceText);
 }
 
-export function parseFile(sourcePath: string): Promise<Document> {
+export function parseFile(sourcePath: string): Promise<IDocument> {
 	return new Promise((resolve, reject) => {
 		fs.readFile(sourcePath, (err, data) => {
 			if (err) {
@@ -100,8 +232,8 @@ class Parser {
 	private tokenizer: IterableIterator<Token>;
 	private activeToken: Token;
 	private methods: Method[];
-	private properties: Property[];
-	private declarations: Declaration[];
+	private properties: IProperty[];
+	private declarations: IDeclaration[];
 	private activeMethod: Method;
 	private tokens: Token[];
 	private extending: Token;
@@ -120,7 +252,7 @@ class Parser {
 		return this.activeToken !== undefined;
 	}
 
-	parseDocument(documentText: string): Document {
+	parseDocument(documentText: string): IDocument {
 		this.tokenizer = getTokens(documentText);
 		while (this.next()) {
 			if (this.activeToken.type === Type.Alphanumeric || this.activeToken.type === Type.MinusSign) {
@@ -157,9 +289,9 @@ class Parser {
 		}
 	}
 
-	private lookForTypeDeclaration(tokenBuffer: Token[]): Declaration[] | undefined {
+	private lookForTypeDeclaration(tokenBuffer: Token[]): IDeclaration[] | undefined {
 		let i = 0;
-		let modifiers: Token[] = [];
+		let tokens: Token[] = [];
 		while (i < tokenBuffer.length) {
 			let token = tokenBuffer[i];
 			if (token.type === Type.Tab || token.type === Type.Space) {
@@ -171,7 +303,7 @@ class Parser {
 					let loadToken = tokenBuffer[j];
 					if (loadToken.type === Type.Space || loadToken.type === Type.Tab) continue;
 					// if (loadToken.type === Type.EqualSign) break;
-					modifiers.push(loadToken);
+					tokens.push(loadToken);
 				}
 			}
 			else if (token.type === Type.Alphanumeric && token.value === 'catch') {
@@ -179,23 +311,27 @@ class Parser {
 					let loadToken = tokenBuffer[j];
 					if (loadToken.type === Type.Space || loadToken.type === Type.Tab) continue;
 					// if (loadToken.type === Type.EqualSign) break;
-					modifiers.push({ type: Type.Alphanumeric, value: 'Error', position: { character: 0, line: 0 } });
-					modifiers.push(loadToken);
+					tokens.push({ type: Type.Alphanumeric, value: 'Error', position: { character: 0, line: 0 } });
+					tokens.push(loadToken);
 					break;
 				}
 			}
 			break;
 		}
 		let memberClass = MemberClass.declaration
-		let declarations: Declaration[] = [];
+		let declarations: IDeclaration[] = [];
 		let type;
 		let tokenIndex = 0;
 		let id;
 		let hasType;
-		while (tokenIndex < modifiers.length) {
-			let token = modifiers[tokenIndex];
+		let modifiers: Token[] = [];
+		while (tokenIndex < tokens.length) {
+			let token = tokens[tokenIndex];
 			tokenIndex++;
-			if (this.isDeclarationKeyword(token)) continue;
+			if (this.isDeclarationKeyword(token)) {
+				modifiers.push(token);
+				continue;
+			};
 			if (!hasType) {
 				if (token.type !== Type.Alphanumeric) break;
 				if (token.value === 'static') hasType = true;
@@ -211,15 +347,15 @@ class Parser {
 				// declarations.push({types: [type], identifier});
 			}
 			else if (token.type === Type.EqualSign) {
-				tokenIndex = this.skipToNextDeclaration(modifiers, tokenIndex)
-				if (id && type) declarations.push({ types: [type], id, memberClass });
+				tokenIndex = this.skipToNextDeclaration(tokens, tokenIndex)
+				if (id && type) declarations.push({ types: [type], id, memberClass, modifiers });
 				id = undefined;
 			}
 			else if (token.type === Type.OpenParen) {
 				let types = [];
-				let myIdentifier = modifiers[tokenIndex - 2];
-				while (tokenIndex < modifiers.length) {
-					let token = modifiers[tokenIndex];
+				let myIdentifier = tokens[tokenIndex - 2];
+				while (tokenIndex < tokens.length) {
+					let token = tokens[tokenIndex];
 					tokenIndex++;
 					if (token.type === Type.OpenParen) continue;
 					else if (token.type === Type.Alphanumeric) {
@@ -229,7 +365,7 @@ class Parser {
 						continue;
 					}
 					else if (token.type === Type.CloseParen) {
-						if (type) declarations.push({ id: myIdentifier, types: [type].concat(types), memberClass })
+						if (type) declarations.push({ id: myIdentifier, types: [type].concat(types), memberClass, modifiers })
 						id = undefined;
 						break;
 					}
@@ -238,7 +374,7 @@ class Parser {
 			// Cheating!!
 			// else if (token.type === Type.PercentSign) continue;
 			else if (token.type === Type.Comma) {
-				if (id && type) declarations.push({ types: [type], id, memberClass });
+				if (id && type) declarations.push({ types: [type], id, memberClass, modifiers });
 				id = undefined;
 				continue;
 			}
@@ -247,13 +383,13 @@ class Parser {
 			else if (token.type === Type.BlockCommentInit) continue;
 			else if (token.type === Type.BlockCommentTerm) continue;
 			else if (token.type === Type.NewLine) {
-				if (id && type) declarations.push({ types: [type], id, memberClass });
+				if (id && type) declarations.push({ types: [type], id, memberClass, modifiers });
 				id = undefined;
 				break
 			}
 			else break;
 		}
-		if (id && type) declarations.push({ types: [type], id, memberClass });
+		if (id && type) declarations.push({ types: [type], id, memberClass, modifiers });
 		return declarations;
 	}
 
@@ -336,7 +472,7 @@ class Parser {
 		return tokenBuffer;
 
 	}
-	private lookForPropertyDef(tokenBuffer: Token[]): Property | undefined {
+	private lookForPropertyDef(tokenBuffer: Token[]): IProperty | undefined {
 		let i = 0;
 		// TODO better loop
 		while (i < tokenBuffer.length) {
@@ -414,7 +550,7 @@ class Parser {
 			}
 			else if (this.activeToken.value === '\r') continue;
 			else if (this.activeToken.type === Type.CloseParen) {
-				if (!method.closeParen){ 
+				if (!method.closeParen) {
 					method.closeParen = this.activeToken;
 				}
 			}
@@ -541,6 +677,6 @@ class Parser {
 		return undefined;
 	}
 	private getDummy() {
-		return {type: Type.Undefined, position: this.activeToken.position, value: ''};
+		return { type: Type.Undefined, position: this.activeToken.position, value: '' };
 	}
 }

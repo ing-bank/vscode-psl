@@ -2,11 +2,11 @@ import * as tokenizer from '../src/parser/tokenizer';
 import * as parser from '../src/parser/parser';
 
 
-function getMethod(methodString: string): parser.Method | undefined {
+function getMethod(methodString: string): parser.IMethod | undefined {
 	let d  = parser.parseText(methodString)
 	return d.methods[0];
 }
-function getParsedDoc(documentString: string): parser.Document {
+function getParsedDoc(documentString: string): parser.IDocument {
 	return parser.parseText(documentString);
 }
 
@@ -14,11 +14,11 @@ function toValues(tokens: tokenizer.Token[]): string[] {
 	return tokens.map(t => t.value);
 }
 
-function argsToValues(args: parser.Parameter[]): string[][] {
+function argsToValues(args: parser.IParameter[]): string[][] {
 	return args.map(a => a.types).map(ts => toValues(ts));
 }
 
-function argsToNames(args: parser.Parameter[]): string[] {
+function argsToNames(args: parser.IParameter[]): string[] {
 	return toValues(args.map(a => a.id));
 }
 

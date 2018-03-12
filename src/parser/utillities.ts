@@ -1,4 +1,4 @@
-import {Document, Member} from '../parser/parser';
+import {IDocument, IMember} from '../parser/parser';
 import {Token, Type, Position} from '../parser/tokenizer';
 
 export interface Query {
@@ -10,7 +10,7 @@ export interface Query {
 /**
  * Search the parsed document for a particular member
  */
-export function searchParser(parsedDoc: Document, token: Token): Member {
+export function searchParser(parsedDoc: IDocument, token: Token): IMember {
 	let line = token.position.line;
 	let identifier = token.value;
 	let methods = parsedDoc.methods.filter(method => line >= method.id.position.line)

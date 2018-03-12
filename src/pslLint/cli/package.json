@@ -14,5 +14,8 @@
   "license": "ISC",
   "dependencies": {
     "fs-extra": "^5.0.0"
+  },
+  "bundleDependencies": {
+    "fs-extra": "^5.0.0"
   }
 }

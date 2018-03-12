@@ -2,7 +2,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { getDiagnostics } from '../activate'
-import { parseText, DiagnosticSeverity } from '../api';
+import { DiagnosticSeverity, parseText } from '../api';
 
 async function readFile(filename: string) {
 	if (path.extname(filename) !== '.PROC' && path.extname(filename) !== '.BATCH' && path.extname(filename).toUpperCase() !== '.PSL') return;
