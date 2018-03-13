@@ -13,5 +13,5 @@ Tests can be found in the `__tests__` directory at the root of the vscode-psl pr
 ## TODO
 
 * Specific rules for specific members, i.e. `MethodRule` and `DeclarationRule`
-* Tests more tests
+* More tests
 * Build/Deploy/Integrate
