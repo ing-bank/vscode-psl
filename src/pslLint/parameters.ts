@@ -1,7 +1,12 @@
 import { Diagnostic, Range, DiagnosticSeverity, Rule, IDocument } from './api';
 
+/**
+ * Checks if multiple parameters are written on the same line as the method declaration.
+ */
 export class ParametersOnNewLine implements Rule {
+
     report(parsedDocument: IDocument): Diagnostic[] {
+
         let diagnostics: Diagnostic[] = []
         parsedDocument.methods.forEach(method => {
             if (method.batch) return;
