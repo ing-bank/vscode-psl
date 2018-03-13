@@ -137,7 +137,16 @@ export class Position {
 	}
 }
 
+
+/**
+ * An interface for writing new rules
+ */
 export interface Rule {
+	/**
+	 * 
+	 * @param parsedDocument An abstract representation of a PSL document
+	 * @param textDocument The whole text of the document, as a string.
+	 */
 	report(parsedDocument: IDocument, textDocument: string, ...args: any[]): Diagnostic[];
 }
 

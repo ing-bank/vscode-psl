@@ -8,7 +8,10 @@ To add a rule, create a class implementing the `Rule` interface. Then, add an in
 
 Rules will have a parsed document at their disposal. Auto-complete can guide you to using the parsed document effectively. Use the `todo.ts` and `parameters.ts` modules as examples.
 
+Tests can be found in the `__tests__` directory at the root of the vscode-psl project. Use `parameters-tests.ts` as an example.
+
 ## TODO
 
 * Specific rules for specific members, i.e. `MethodRule` and `DeclarationRule`
-* Tests...
+* Tests more tests
+* Build/Deploy/Integrate
