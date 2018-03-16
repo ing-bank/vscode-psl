@@ -13,9 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "fs-extra": "^5.0.0"
-  },
-  "bundleDependencies": {
+    "commander": "^2.15.0",
     "fs-extra": "^5.0.0"
   }
 }
