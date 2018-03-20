@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import * as commander from 'commander';
 import * as path from 'path';
 import { getDiagnostics } from '../activate'
-import { DiagnosticSeverity, parseText, Diagnostic } from '../api';
+import { DiagnosticSeverity, parseText } from '../api';
 
 const version = require(path.resolve('package.json')).version;
 
