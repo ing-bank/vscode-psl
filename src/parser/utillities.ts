@@ -1,6 +1,5 @@
-import vscode = require('vscode');
-import {Parser, Member} from '../parser/parser';
-import {Token, Type} from '../parser/tokenizer';
+import {IDocument, IMember} from '../parser/parser';
+import {Token, Type, Position} from '../parser/tokenizer';
 
 export interface Query {
 	identifier: string
@@ -11,17 +10,17 @@ export interface Query {
 /**
  * Search the parsed document for a particular member
  */
-export function searchParser(parser: Parser, token: Token): Member {
+export function searchParser(parsedDoc: IDocument, token: Token): IMember {
 	let line = token.position.line;
 	let identifier = token.value;
-	let methods = parser.methods.filter(method => line >= method.id.position.line)
+	let methods = parsedDoc.methods.filter(method => line >= method.id.position.line)
 	if (methods.length > 0) {
 		let method = methods[methods.length - 1];
 		for (let variable of method.declarations.reverse()) {
 			if (line < variable.id.position.line) continue;
 			if (identifier === variable.id.value) return variable;
 		}
-		for (let otherMethod of parser.methods) {
+		for (let otherMethod of parsedDoc.methods) {
 			let id = otherMethod.id;
 			if (id.value === identifier) return otherMethod;
 		}
@@ -29,20 +28,20 @@ export function searchParser(parser: Parser, token: Token): Member {
 			if (identifier === variable.id.value) return variable;
 		}
 	}
-	return parser.properties.find(property => property.id.value === identifier);
+	return parsedDoc.properties.find(property => property.id.value === identifier);
 }
 
 
 /**
  * Get the tokens on the line of position, as well as the specific index of the token at position
  */
-export function searchTokens(tokens: Token[], position: vscode.Position) {
+export function searchTokens(tokens: Token[], position: Position) {
 	let tokensOnLine = tokens.filter(t => t.position.line === position.line);
 	if (tokensOnLine.length === 0) return undefined;
 	let index = tokensOnLine.findIndex(t => {
-		let start = new vscode.Position(t.position.line, t.position.character);
-		let end = new vscode.Position(t.position.line, t.position.character + t.value.length);
-		return start.isBeforeOrEqual(position) && end.isAfterOrEqual(position);
+		let start: Position = {line: t.position.line, character: t.position.character}
+		let end: Position = {line: t.position.line, character: t.position.character + t.value.length};
+		return isBetween(start, position, end);
 	});
 	return {tokensOnLine, index};
 }
@@ -61,4 +60,8 @@ export function dotCompletion(tokensOnLine: Token[], index: number): {reference:
 		return {reference, attribute};
 	}
 	return {reference: undefined};
+}
+
+function isBetween(lb: Position, t: Position, ub: Position): boolean {
+	return lb.line <= t.line && lb.character <= t.line && ub.line >= t.line && lb.character >= ub.line;
 }

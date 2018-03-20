@@ -1,6 +1,6 @@
 import HostSocket from './hostSocket';
 import * as utils from './utils';
-import * as fs from 'fs-extra';
+import * as fs from 'fs';
 
 /*
 	socket.serviceClass:
@@ -152,7 +152,7 @@ export class MtmConnection {
 
 	private async sendToProfile(filename: string) {
 		let returnString: string;
-		let fileString: Buffer = await fs.readFile(filename);
+		let fileString: Buffer = await readFileAsync(filename);
 		let fileContentLength: number = fileString.length;
 		let totalLoop: number = Math.ceil(fileContentLength / 1024);
 		let codeToken: string = '';
@@ -338,6 +338,17 @@ export class MtmConnection {
 	}
 }
 
+function readFileAsync(file: string, options?): Promise<Buffer> {
+	return new Promise((resolve, reject) => {
+		fs.readFile(file, options, (err, data) => {
+			if (err) {
+				reject(err);
+			} else {
+				resolve(data);
+			}
+		});
+	});
+}
 
 /*
 ======================================================================

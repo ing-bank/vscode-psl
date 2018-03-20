@@ -6,10 +6,9 @@ export class PSLDocumentSymbolProvider implements vscode.DocumentSymbolProvider 
 
 	public provideDocumentSymbols(document: vscode.TextDocument): Promise<vscode.SymbolInformation[]> {
 		return new Promise(resolve => {
-			let p = new parser.Parser();
-			p.parseDocument(document.getText());
+			let parsedDoc = parser.parseText(document.getText());
 			let symbols: vscode.SymbolInformation[] = [];
-			p.methods.forEach(method => {
+			parsedDoc.methods.forEach(method => {
 				let methodToken = this.getMethodNameToken(method);
 				let name = methodToken.value;
 				let containerName = '';
@@ -23,7 +22,7 @@ export class PSLDocumentSymbolProvider implements vscode.DocumentSymbolProvider 
 				let kind = method.batch ? vscode.SymbolKind.File : vscode.SymbolKind.Function
 				symbols.push(new vscode.SymbolInformation(name, kind, containerName, methodRange));
 			})
-			p.properties.forEach(property => {
+			parsedDoc.properties.forEach(property => {
 				let propertyNameToken = property.id;
 				let name = propertyNameToken.value;
 				let containerName = '';
@@ -35,7 +34,7 @@ export class PSLDocumentSymbolProvider implements vscode.DocumentSymbolProvider 
 		})
 	}
 
-	getMethodNameToken(method: parser.Method): tokenizer.Token {
+	getMethodNameToken(method: parser.IMethod): tokenizer.Token {
 		return method.id;
 	}
 }

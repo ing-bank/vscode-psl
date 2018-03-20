@@ -1,0 +1,19 @@
+{
+  "name": "psl-lint",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./lib/pslLint/cli/cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "psl-lint": "./lib/pslLint/cli/cli.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^2.15.0",
+    "fs-extra": "^5.0.0"
+  }
+}

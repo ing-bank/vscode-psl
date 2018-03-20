@@ -7,3 +7,4 @@ node_modules
 .settings
 src/hostif/target/*
 .classpath
+src/pslLint/cli/lib/*

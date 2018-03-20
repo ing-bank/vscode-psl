@@ -5,7 +5,8 @@ import { PSL_MODE, BATCH_MODE, TRIG_MODE, DATA_MODE } from '../extension';
 import { PSLDocumentSymbolProvider } from './pslDocument';
 import { DataHoverProvider, DataDocumentHighlightProvider } from './dataItem';
 import { PSLCompletionItemProvider } from './pslSuggest';
-import * as todos from './todos';
+import * as codeQuality from './codeQuality';
+
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -59,8 +60,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		)
 	);
 
-	// TODOs
-	todos.activate(context);
+	// Code quality
+	codeQuality.activate(context);
 
 	// Language Configuration
 	const wordPattern = /(-?\d*\.\d[a-zA-Z0-9\%\#]*)|([^\`\~\!\@\^\&\*\(\)\-\=\+\[\{\]\}\\\|\"\;\:\'\'\,\.\<\>\/\?\s_]+)/g;
@@ -68,3 +69,4 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.languages.setLanguageConfiguration('profileBatch', { wordPattern });
 	vscode.languages.setLanguageConfiguration('profileTrigger', { wordPattern });
 }
+
