@@ -13,3 +13,4 @@ vsc-extension-quickstart.md
 !src/python/**
 python_scripts/**
 images/**
+package-lock.json
