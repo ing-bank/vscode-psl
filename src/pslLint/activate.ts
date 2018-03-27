@@ -8,6 +8,8 @@ import { TodoInfo } from './todos';
 function registerRules(rules: Rule[]) {
 	rules.push(new ParametersOnNewLine());
 
+	// add a new rule here
+
 	rules.push(new TodoInfo());
 }
 
