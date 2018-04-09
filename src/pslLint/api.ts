@@ -160,3 +160,4 @@ export interface DeclarationRule extends Rule {
 
 export { IDocument, parseFile, parseText, IDeclaration, IMember, MemberClass, IMethod, IProperty, IParameter };
 export * from './../parser/tokenizer';
+export * from './../parser/utillities';

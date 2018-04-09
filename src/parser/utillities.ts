@@ -62,6 +62,16 @@ export function dotCompletion(tokensOnLine: Token[], index: number): {reference:
 	return {reference: undefined};
 }
 
+export function getLineContent(parsedDoc: IDocument, lineNumber: number): string {
+	let tokensOnLine: Token[] = parsedDoc.tokens.filter(t => t.position.line === lineNumber);
+	let values: string[] = tokensOnLine.map(t => t.value);
+	let lineString: string = values.join('');
+	return lineString;
+}
+
 function isBetween(lb: Position, t: Position, ub: Position): boolean {
-	return lb.line <= t.line && lb.character <= t.line && ub.line >= t.line && lb.character >= ub.line;
+	return lb.line <= t.line &&
+		   lb.character <= t.character &&
+		   ub.line >= t.line &&
+		   ub.character >= t.character;
 }
