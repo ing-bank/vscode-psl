@@ -75,8 +75,18 @@ export interface IMethod extends IMember {
 
 	/**
 	 * Whether the Method (label) is a batch label, such as "OPEN" or "EXEC"
-	 */
+	 */	
 	batch: boolean
+
+	/**
+	 * Next Line of a method implementation"
+	 */	
+	nextLine: number
+	
+	/**
+	 * Previous Line of a method implementation"
+	 */	
+	prevLine: number;
 
 }
 
@@ -167,6 +177,8 @@ export interface IDocument {
 
 class Method implements IMethod {
 
+	nextLine: number;
+	prevLine: number;
 	closeParen: Token;
 	id: Token;
 	types: Token[];
@@ -538,7 +550,11 @@ class Parser {
 					method.batch = true;
 					break;
 				}
-				if (method.line === -1) method.line = this.activeToken.position.line;
+				if (method.line === -1) {
+					method.line = this.activeToken.position.line;
+					method.prevLine = this.activeToken.position.line-1;
+					method.nextLine = this.activeToken.position.line+1;
+				}
 				method.modifiers.push(this.activeToken);
 			}
 			else if (this.activeToken.type === Type.MinusSign) {
@@ -552,6 +568,7 @@ class Parser {
 			else if (this.activeToken.type === Type.CloseParen) {
 				if (!method.closeParen) {
 					method.closeParen = this.activeToken;
+					method.nextLine = this.activeToken.position.line+1;
 				}
 			}
 			else {
@@ -605,6 +622,7 @@ class Parser {
 			else if (this.activeToken.type === Type.CloseParen) {
 				open = false;
 				method.closeParen = this.activeToken;
+				method.nextLine = this.activeToken.position.line+1;
 				if (!arg) break;
 				if (arg.types.length === 1 && !arg.id) {
 					arg.id = arg.types[0]
