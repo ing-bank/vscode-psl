@@ -19,15 +19,90 @@ export function* getTokens(documentContents: string): IterableIterator<Token> {
 	}
 }
 
-export interface Token {
-	type: Type,
-	value: string,
+export class Token {
+	type: Type;
+	value: string;
 	position: Position;
+
+	constructor(type: Type, value: string, position: Position) {
+		this.position = position;
+		this.value = value;
+		this.type = type;
+	}
+
+	getRange() {
+		let startPosition: Position = this.position;
+		let endPosition: Position = { line: this.position.line, character: this.position.character + this.value.length }
+		return new Range(startPosition, endPosition);
+	}
 }
 
-export interface Position {
-	line: number,
-	character: number;
+export class Range {
+
+	/**
+	 * The start position. It is before or equal to [end](#Range.end).
+	 */
+	readonly start: Position;
+
+	/**
+	 * The end position. It is after or equal to [start](#Range.start).
+	 */
+	readonly end: Position;
+
+	/**
+	 * Create a new range from two positions. If `start` is not
+	 * before or equal to `end`, the values will be swapped.
+	 *
+	 * @param start A position.
+	 * @param end A position.
+	 */
+	constructor(start: Position, end: Position);
+
+	/**
+	 * Create a new range from number coordinates. It is a shorter equivalent of
+	 * using `new Range(new Position(startLine, startCharacter), new Position(endLine, endCharacter))`
+	 *
+	 * @param startLine A zero-based line value.
+	 * @param startCharacter A zero-based character value.
+	 * @param endLine A zero-based line value.
+	 * @param endCharacter A zero-based character value.
+	 */
+	constructor(startLine: number, startCharacter: number, endLine: number, endCharacter: number);
+
+	constructor(a, b, c?, d?) {
+		if (typeof a === 'number' && typeof b == 'number' && typeof c == 'number' && typeof d == 'number') {
+			this.start = new Position(a, b);
+			this.end = new Position(c, d);
+		}
+		else {
+			this.start = a;
+			this.end = b;
+		}
+	}
+
+}
+
+
+export class Position {
+
+	/**
+	 * The zero-based line value.
+	 */
+	readonly line: number;
+
+	/**
+	 * The zero-based character value.
+	 */
+	readonly character: number;
+
+	/**
+	 * @param line A zero-based line value.
+	 * @param character A zero-based character value.
+	 */
+	constructor(line: number, character: number) {
+		this.line = line;
+		this.character = character;
+	}
 }
 
 class Tokenizer {
@@ -52,7 +127,7 @@ class Tokenizer {
 		this.charType = 0;
 		this.tokenType = 0;
 		this.tokenValue = '';
-		this.tokenPosition = {line: this.documentLine, character: this.documentColumn};
+		this.tokenPosition = { line: this.documentLine, character: this.documentColumn };
 
 		this.parsed = false;
 		this.stringOpen = false;
@@ -206,10 +281,10 @@ class Tokenizer {
 	}
 
 	finalizeToken(newType: number): void {
-		this.token = {type: this.tokenType, value: this.tokenValue, position: this.tokenPosition};
+		this.token = new Token(this.tokenType, this.tokenValue, this.tokenPosition);
 		this.tokenType = newType;
 		this.tokenValue = '';
-		this.tokenPosition = {line: this.documentLine, character: this.documentColumn};
+		this.tokenPosition = { line: this.documentLine, character: this.documentColumn };
 	}
 }
 
@@ -236,8 +311,8 @@ function getType(c: string): Type {
 		return Type.NumberSign;
 	} else if (charCode === 36) {
 		return Type.DollarSign;
-	// } else if (charCode === 37) {
-	// 	return Type.PercentSign;
+		// } else if (charCode === 37) {
+		// 	return Type.PercentSign;
 	} else if (charCode === 38) {
 		return Type.Ampersand;
 	} else if (charCode === 39) {
