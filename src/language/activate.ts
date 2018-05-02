@@ -5,6 +5,7 @@ import { PSL_MODE, BATCH_MODE, TRIG_MODE, DATA_MODE } from '../extension';
 import { PSLDocumentSymbolProvider } from './pslDocument';
 import { DataHoverProvider, DataDocumentHighlightProvider } from './dataItem';
 import { PSLCompletionItemProvider } from './pslSuggest';
+import { PSLDefinitionProvider } from './pslDefinitionProvider';
 import * as codeQuality from './codeQuality';
 
 
@@ -57,6 +58,18 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.languages.registerDocumentHighlightProvider(
 			DATA_MODE, new DataDocumentHighlightProvider()
+		)
+	);
+
+	// Go-to Definitions
+	context.subscriptions.push(
+		vscode.languages.registerDefinitionProvider(
+			PSL_MODE, new PSLDefinitionProvider()
+		)
+	);
+	context.subscriptions.push(
+		vscode.languages.registerDefinitionProvider(
+			BATCH_MODE, new PSLDefinitionProvider()
 		)
 	);
 
