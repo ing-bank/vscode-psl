@@ -36,7 +36,7 @@ export class PSLCompletionItemProvider implements vscode.CompletionItemProvider 
 		let { tokensOnLine, index } = result;
 
 		// parse line for dot completion
-		let { reference, attribute } = utils.dotCompletion(tokensOnLine, index)
+		let { reference, attribute } = utils.completion(tokensOnLine, index)
 		if (!reference) return;
 
 		// find parser member (method, declaration, etc) of reference

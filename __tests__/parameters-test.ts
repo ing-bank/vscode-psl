@@ -1,18 +1,18 @@
 import { ParametersOnNewLine } from '../src/pslLint/parameters';
-import { Diagnostic } from '../src/pslLint/api';
+import * as api from '../src/pslLint/api';
 import { parseText } from '../src/parser/parser';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
 const testFilePath = path.resolve('__tests__', 'files', 'ZTestParams.PROC');
-let parametersReport: Diagnostic[];
+let parametersReport: api.Diagnostic[];
 
 /**
  * 
  * @param reports The reports to filter
  * @param lineNumber Zero-based line number to check, i.e. line 1 of the document is lineNumber 0.
  */
-function reportsOnLine(lineNumber: number, reports?: Diagnostic[]) {
+function reportsOnLine(lineNumber: number, reports?: api.Diagnostic[]) {
 	if (!reports) {
 		return parametersReport.filter(r => r.range.start.line === lineNumber).length;
 	}
@@ -22,8 +22,8 @@ function reportsOnLine(lineNumber: number, reports?: Diagnostic[]) {
 describe('Parameter tests', () => {
 	beforeAll(async () => {
 		let text = await fs.readFile(testFilePath).then(b => b.toString());
-		let document = parseText(text);
-		parametersReport = new ParametersOnNewLine().report(document)
+		let returnDoc = new api.Document(parseText(text));
+		parametersReport = new ParametersOnNewLine().report(returnDoc);
 	})
 
 	test('No report for no params', () => {

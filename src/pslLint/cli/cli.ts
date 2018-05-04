@@ -3,26 +3,28 @@ import * as fs from 'fs-extra';
 import * as commander from 'commander';
 import * as path from 'path';
 import { getDiagnostics } from '../activate'
-import { DiagnosticSeverity, parseText } from '../api';
-
-const version = require(path.resolve('package.json')).version;
+import * as api from '../api';
 
 async function readFile(filename: string): Promise<number> {
 	if (path.extname(filename) !== '.PROC' && path.extname(filename) !== '.BATCH' && path.extname(filename).toUpperCase() !== '.PSL') return;
 	let value = await fs.readFile(filename)
 	let textDocument = value.toString();
-	let document = parseText(textDocument);
-	let diagnostics = getDiagnostics(document, textDocument);
+	let parsedDocument = prepareDocument(textDocument);
+	let diagnostics = getDiagnostics(parsedDocument, textDocument);
 	let exitCode = 0;
 	diagnostics.forEach(d => {
 		let range = `${d.range.start.line + 1},${d.range.start.character + 1}`;
-		let severity = `${DiagnosticSeverity[d.severity].substr(0, 4).toUpperCase()}`
-		if (d.severity === DiagnosticSeverity.Warning || d.severity === DiagnosticSeverity.Error) exitCode = 1;
-		console.log(`${path.resolve(filename)}(${range}) [${severity}][${d.source}] ${d.message}`)
+		let severity = `${api.DiagnosticSeverity[d.severity].substr(0, 4).toUpperCase()}`
+		if (d.severity === api.DiagnosticSeverity.Warning || d.severity === api.DiagnosticSeverity.Error) exitCode = 1;
+		console.log(`${filename}(${range}) [${severity}][${d.source}] ${d.message}`)
 	})
 	return exitCode;
 }
 
+function prepareDocument(textDocument: string): api.Document {
+	let parsedDocument = api.parseText(textDocument);
+	return new api.Document(parsedDocument);
+}
 
 async function cli(fileString: string) {
 	let files = fileString.split(';');
@@ -53,12 +55,12 @@ async function cli(fileString: string) {
 }
 
 if (require.main === module) {
-	commander.version(version, '-v, --version')
-	.name('psl-lint')
-	.usage('<filestring>')
-	.description('filestring    a ; delimited string of file paths')
-	.parse(process.argv);
-	
+	commander
+		.name('psl-lint')
+		.usage('<filestring>')
+		.description('filestring    a ; delimited string of file paths')
+		.parse(process.argv);
+
 	if (commander.args[0]) {
 		console.log('Starting lint.')
 		cli(commander.args[0]).then(exitCode => {
