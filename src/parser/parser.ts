@@ -323,7 +323,7 @@ class Parser {
 					let loadToken = tokenBuffer[j];
 					if (loadToken.type === Type.Space || loadToken.type === Type.Tab) continue;
 					// if (loadToken.type === Type.EqualSign) break;
-					tokens.push({ type: Type.Alphanumeric, value: 'Error', position: { character: 0, line: 0 } });
+					tokens.push(new Token(Type.Alphanumeric, 'Error', { character: 0, line: 0 }));
 					tokens.push(loadToken);
 					break;
 				}
@@ -695,6 +695,6 @@ class Parser {
 		return undefined;
 	}
 	private getDummy() {
-		return { type: Type.Undefined, position: this.activeToken.position, value: '' };
+		return new Token(Type.Undefined, '', this.activeToken.position);
 	}
 }

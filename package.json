@@ -691,7 +691,19 @@
         "command": "psl.stepOver",
         "when": "terminalFocus && psl.hasHostTerminal"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "PSL Configuration",
+      "properties": {
+        "psl.lint": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to lint files written in PSL."
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
