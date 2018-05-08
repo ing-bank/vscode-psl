@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
+## v1.1.0
+Implementation of the psl-lint code quality checker. Enable it by adding the setting `"psl.lint" : true` to your settings.json.
+
 ## v1.0.1
 Fix a small bug where the Configure Environments button does not update properly.
 
