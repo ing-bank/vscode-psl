@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es2017",
+        "outDir": "lib",
+        "sourceMap": false,
+        "rootDir": "./../.."
+    },
+    "formatCodeOptions": {
+        "newLine": "LF"
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}

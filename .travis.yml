@@ -5,7 +5,9 @@ node_js:
 
 install:
   - npm install
+  - npm install -g vsce
 
 script:
   - npm run compile
   - npm run test
+  - vsce package

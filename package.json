@@ -10,10 +10,7 @@
   "categories": [
     "Languages"
   ],
-  "license": {
-    "type": "MIT",
-    "url": "https://www.opensource.org/licenses/mit-license.php"
-  },
+  "license": "MIT",
   "activationEvents": [
     "workspaceContains:dataqwik",
     "workspaceContains:.vscode/environment.json",
@@ -694,13 +691,24 @@
         "command": "psl.stepOver",
         "when": "terminalFocus && psl.hasHostTerminal"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "PSL Configuration",
+      "properties": {
+        "psl.lint": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to lint files written in PSL."
+        }
+      }
+    }
   },
   "scripts": {
-    "vscode:prepublish": "tsc -p ./",
     "compile": "tsc -p ./",
+    "compile-lint": "tsc -p ./src/pslLint/cli",
     "watch": "npm run compile -- -watch",
-    "postinstall": "node ./node_modules/vscode/bin/install",
     "test": "jest"
   },
   "repository": {

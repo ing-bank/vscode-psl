@@ -1,6 +1,5 @@
-import vscode = require('vscode');
-import {Parser, Member} from '../parser/parser';
-import {Token, Type} from '../parser/tokenizer';
+import { IDocument, IMember } from '../parser/parser';
+import { Token, Type, Position } from '../parser/tokenizer';
 
 export interface Query {
 	identifier: string
@@ -11,17 +10,17 @@ export interface Query {
 /**
  * Search the parsed document for a particular member
  */
-export function searchParser(parser: Parser, token: Token): Member {
+export function searchParser(parsedDoc: IDocument, token: Token): IMember {
 	let line = token.position.line;
 	let identifier = token.value;
-	let methods = parser.methods.filter(method => line >= method.id.position.line)
+	let methods = parsedDoc.methods.filter(method => line >= method.id.position.line)
 	if (methods.length > 0) {
 		let method = methods[methods.length - 1];
 		for (let variable of method.declarations.reverse()) {
 			if (line < variable.id.position.line) continue;
 			if (identifier === variable.id.value) return variable;
 		}
-		for (let otherMethod of parser.methods) {
+		for (let otherMethod of parsedDoc.methods) {
 			let id = otherMethod.id;
 			if (id.value === identifier) return otherMethod;
 		}
@@ -29,36 +28,53 @@ export function searchParser(parser: Parser, token: Token): Member {
 			if (identifier === variable.id.value) return variable;
 		}
 	}
-	return parser.properties.find(property => property.id.value === identifier);
+	return parsedDoc.properties.find(property => property.id.value === identifier);
 }
 
 
 /**
  * Get the tokens on the line of position, as well as the specific index of the token at position
  */
-export function searchTokens(tokens: Token[], position: vscode.Position) {
+export function searchTokens(tokens: Token[], position: Position) {
 	let tokensOnLine = tokens.filter(t => t.position.line === position.line);
 	if (tokensOnLine.length === 0) return undefined;
 	let index = tokensOnLine.findIndex(t => {
-		let start = new vscode.Position(t.position.line, t.position.character);
-		let end = new vscode.Position(t.position.line, t.position.character + t.value.length);
-		return start.isBeforeOrEqual(position) && end.isAfterOrEqual(position);
+		let start: Position = { line: t.position.line, character: t.position.character }
+		let end: Position = { line: t.position.line, character: t.position.character + t.value.length };
+		return isBetween(start, position, end);
 	});
-	return {tokensOnLine, index};
+	return { tokensOnLine, index };
 }
 
-export function dotCompletion(tokensOnLine: Token[], index: number): {reference: Token, attribute?: Token} {
+export function completion(tokensOnLine: Token[], index: number): { reference: Token, attribute?: Token } {
 	let currentToken = tokensOnLine[index];
 	let reference: Token;
 	let attribute: Token;
-	if (currentToken.type === Type.Period && tokensOnLine[index - 1].type === Type.Alphanumeric) {
-		reference = tokensOnLine[index - 1];
-		return {reference}
+	if (index >= 1) {
+		if (currentToken.type === Type.Period && tokensOnLine[index - 1].type === Type.Alphanumeric) {
+			reference = tokensOnLine[index - 1];
+			return { reference }
+		}
+		else if (currentToken.type === Type.Alphanumeric && tokensOnLine[index - 1].type === Type.Period && tokensOnLine[index - 2].type === Type.Alphanumeric) {
+			reference = tokensOnLine[index - 2];
+			attribute = currentToken;
+			return { reference, attribute };
+		}
 	}
-	else if (currentToken.type === Type.Alphanumeric && tokensOnLine[index - 1].type === Type.Period && tokensOnLine[index - 2].type === Type.Alphanumeric) {
-		reference = tokensOnLine[index - 2];
-		attribute = currentToken;
-		return {reference, attribute};
-	}
-	return {reference: undefined};
+
+	return { reference: undefined };
+}
+
+export function getLineContent(parsedDoc: IDocument, lineNumber: number): string {
+	let tokensOnLine: Token[] = parsedDoc.tokens.filter(t => t.position.line === lineNumber);
+	let values: string[] = tokensOnLine.map(t => t.value);
+	let lineString: string = values.join('');
+	return lineString;
+}
+
+function isBetween(lb: Position, t: Position, ub: Position): boolean {
+	return lb.line <= t.line &&
+		lb.character <= t.character &&
+		ub.line >= t.line &&
+		ub.character >= t.character;
 }
