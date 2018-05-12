@@ -1,9 +1,9 @@
-import { Diagnostic, Range, Position, DiagnosticSeverity, Rule, Document, getTokens } from './api';
+import { Diagnostic, Range, Position, DiagnosticSeverity, Rule, PslDocument, getTokens } from './api';
 
 export class TodoInfo implements Rule {
-	report(doc: Document): Diagnostic[] {
+	report(pslDocument: PslDocument): Diagnostic[] {
 		let todos: Todo[] = [];
-		for (let token of doc.parsedDocument.tokens) {
+		for (let token of pslDocument.parsedDocument.tokens) {
 			let startLine = token.position.line;
 			let startChar = token.position.character;
 			if (token.isBlockComment() || token.isLineComment()) {

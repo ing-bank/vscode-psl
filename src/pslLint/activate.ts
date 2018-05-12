@@ -1,4 +1,4 @@
-import { Document, Diagnostic, Rule } from './api';
+import { PslDocument, Diagnostic, Rule } from './api';
 
 /**
  * Import rules here.
@@ -16,12 +16,12 @@ function registerRules(rules: Rule[]) {
 	rules.push(new TodoInfo());
 }
 
-export function getDiagnostics(parsedDocument: Document, textDocument: string) {
+export function getDiagnostics(pslDocument: PslDocument, textDocument: string) {
 	let rules: Rule[] = [];
 	let diagnostics: Diagnostic[] = [];
 	registerRules(rules);
 	rules.forEach(rule => {
-		diagnostics = diagnostics.concat(rule.report(parsedDocument, textDocument));
+		diagnostics = diagnostics.concat(rule.report(pslDocument, textDocument));
 	});
 	return diagnostics;
 }

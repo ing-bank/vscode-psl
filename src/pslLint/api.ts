@@ -1,4 +1,4 @@
-import { IDocument, parseFile, parseText, IDeclaration, IMember, MemberClass, IMethod, IProperty, IParameter } from './../parser/parser';
+import { ParsedDocument, parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter } from './../parser/parser';
 import { Range } from './../parser/tokenizer'
 
 export enum DiagnosticSeverity {
@@ -77,39 +77,44 @@ export class Diagnostic {
 export interface Rule {
 	/**
 	 * 
-	 * @param parsedDocument An abstract representation of a PSL document
+	 * @param pslDocument An abstract representation of a PSL document
 	 * @param textDocument The whole text of the document, as a string.
 	 */
-	report(parsedDocument: Document, textDocument: string, ...args: any[]): Diagnostic[];
+	report(pslDocument: PslDocument, textDocument: string, ...args: any[]): Diagnostic[];
 }
 
 export interface MethodRule extends Rule {
-	report(parsedDocument: Document, textDocument: string, method: IMethod): Diagnostic[];
+	report(pslDocument: PslDocument, textDocument: string, method: Method): Diagnostic[];
 }
 
 export interface DeclarationRule extends Rule {
-	report(parsedDocument: Document, textDocument: string, declaration: IDeclaration): Diagnostic[];
+	report(pslDocument: PslDocument, textDocument: string, declaration: Declaration): Diagnostic[];
 }
 
-export class Document {
+interface GetTextMethod {
+	(lineNumber: number): string;
+}
 
-	parsedDocument: IDocument;
+export class PslDocument {
 
-	constructor(parsedDocument: IDocument) {
+	parsedDocument: ParsedDocument;
+
+	constructor(parsedDocument: ParsedDocument, getTextAtLine?: GetTextMethod) {
 		this.parsedDocument = parsedDocument;
+		if (getTextAtLine) this.getTextAtLine = getTextAtLine;
 	}
 
 	/**
 	 * A utility method to get the text at a specified line of the document.
 	 * @param lineNumber The zero-based line number of the document where the text is.
 	 */
-	getTextAtLine(lineNumber: number) {
+	getTextAtLine(lineNumber: number): string {
 		return this.parsedDocument.tokens.filter(t => {
 			return t.position.line === lineNumber;
 		}).map(t => t.value).join('');
 	}
 }
 
-export { parseFile, parseText, IDeclaration, IMember, MemberClass, IMethod, IProperty, IParameter };
+export { parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter };
 export * from './../parser/tokenizer';
 export * from './../parser/utillities';

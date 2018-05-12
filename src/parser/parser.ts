@@ -14,7 +14,7 @@ export enum MemberClass {
 /**
  * A generic type that abstracts Method, Parameter, Declaration, etc
  */
-export interface IMember {
+export interface Member {
 
 	/**
 	 * The Token representing the name of the member.
@@ -36,7 +36,7 @@ export interface IMember {
 /**
  * Contains information about a Method
  */
-export interface IMethod extends IMember {
+export interface Method extends Member {
 
 	/**
 	 * The Token of the closing parenthesis after the declaration of all the Method's parameters.
@@ -61,7 +61,7 @@ export interface IMethod extends IMember {
 	/**
 	 * The "type" delcarations found within the body of the method. Only the location where they are declared is referenced.
 	 */
-	declarations: IDeclaration[]
+	declarations: Declaration[]
 
 	/**
 	 * The zero-based line where the Method begins
@@ -93,7 +93,7 @@ export interface IMethod extends IMember {
 /**
  * A PROPERTYDEF declaration
  */
-export interface IProperty extends IMember {
+export interface Property extends Member {
 
 	/**
 	 * The other Tokens in the declaration, currently unparsed.
@@ -104,7 +104,7 @@ export interface IProperty extends IMember {
 /**
  * Represents a parameter, always belonging to a Method
  */
-export interface IParameter extends IMember {
+export interface Parameter extends Member {
 
 	/**
 	 * If the req keyword is used
@@ -135,7 +135,7 @@ export interface IParameter extends IMember {
 /**
  * A type declaration, typically found within a method.
  */
-export interface IDeclaration extends IMember {
+export interface Declaration extends Member {
 
 	/**
 	 * The other Tokens in the declaration, currently unparsed.
@@ -146,23 +146,23 @@ export interface IDeclaration extends IMember {
 /**
  * An abstract syntax tree of a PSL document
  */
-export interface IDocument {
+export interface ParsedDocument {
 
 	/**
 	 * An array of Declarations that are not contained within a method.
 	 * This will be empty for valid Profile 7.6 code but is maintained for compatability.
 	 */
-	declarations: IDeclaration[]
+	declarations: Declaration[]
 
 	/**
 	 * An array of PROPERTYDEFs
 	 */
-	properties: IProperty[]
+	properties: Property[]
 
 	/**
 	 * An array of the methods in the document
 	 */
-	methods: IMethod[]
+	methods: Method[]
 
 	/**
 	 * All the tokens in the document, for reference.
@@ -175,7 +175,7 @@ export interface IDocument {
 	extending: Token
 }
 
-class Method implements IMethod {
+class _Method implements Method {
 
 	nextLine: number;
 	prevLine: number;
@@ -183,8 +183,8 @@ class Method implements IMethod {
 	id: Token;
 	types: Token[];
 	modifiers: Token[];
-	parameters: Parameter[]
-	declarations: IDeclaration[];
+	parameters: _Parameter[]
+	declarations: Declaration[];
 	line: number;
 	endLine: number;
 	batch: boolean;
@@ -201,7 +201,7 @@ class Method implements IMethod {
 	}
 }
 
-class Parameter implements IParameter {
+class _Parameter implements Parameter {
 	types: Token[]
 	req: boolean
 	ret: boolean
@@ -222,12 +222,12 @@ const NON_METHOD_KEYWORDS = [
 	'do', 'set', 'if', 'for', 'while'
 ]
 
-export function parseText(sourceText: string): IDocument {
+export function parseText(sourceText: string): ParsedDocument {
 	let parser = new Parser();
 	return parser.parseDocument(sourceText);
 }
 
-export function parseFile(sourcePath: string): Promise<IDocument> {
+export function parseFile(sourcePath: string): Promise<ParsedDocument> {
 	return new Promise((resolve, reject) => {
 		fs.readFile(sourcePath, (err, data) => {
 			if (err) {
@@ -243,10 +243,10 @@ class Parser {
 
 	private tokenizer: IterableIterator<Token>;
 	private activeToken: Token;
-	private methods: Method[];
-	private properties: IProperty[];
-	private declarations: IDeclaration[];
-	private activeMethod: Method;
+	private methods: _Method[];
+	private properties: Property[];
+	private declarations: Declaration[];
+	private activeMethod: _Method;
 	private tokens: Token[];
 	private extending: Token;
 
@@ -264,7 +264,7 @@ class Parser {
 		return this.activeToken !== undefined;
 	}
 
-	parseDocument(documentText: string): IDocument {
+	parseDocument(documentText: string): ParsedDocument {
 		this.tokenizer = getTokens(documentText);
 		while (this.next()) {
 			if (this.activeToken.isAlphanumeric() || this.activeToken.isMinusSign()) {
@@ -301,7 +301,7 @@ class Parser {
 		}
 	}
 
-	private lookForTypeDeclaration(tokenBuffer: Token[]): IDeclaration[] | undefined {
+	private lookForTypeDeclaration(tokenBuffer: Token[]): Declaration[] | undefined {
 		let i = 0;
 		let tokens: Token[] = [];
 		while (i < tokenBuffer.length) {
@@ -331,7 +331,7 @@ class Parser {
 			break;
 		}
 		let memberClass = MemberClass.declaration
-		let declarations: IDeclaration[] = [];
+		let declarations: Declaration[] = [];
 		let type;
 		let tokenIndex = 0;
 		let id;
@@ -484,7 +484,8 @@ class Parser {
 		return tokenBuffer;
 
 	}
-	private lookForPropertyDef(tokenBuffer: Token[]): IProperty | undefined {
+
+	private lookForPropertyDef(tokenBuffer: Token[]): Property | undefined {
 		let i = 0;
 		// TODO better loop
 		while (i < tokenBuffer.length) {
@@ -522,18 +523,9 @@ class Parser {
 
 	}
 
-	// private loadIdentifiers(): Token[] {
-	// 	let modifiers: Token[] = [];
-	// 	while (this.next() && this.activeToken.type !== Type.NewLine) {
-	// 		if (this.activeToken.isTab() || this.activeToken.isSpace()) continue;
-	// 		modifiers.push(this.activeToken);
-	// 	}
-	// 	return modifiers;
-	// }
-
-	private parseMethod(): Method | undefined {
+	private parseMethod(): _Method | undefined {
 		let batchLabel = false;
-		let method: Method = new Method();
+		let method: _Method = new _Method();
 		do {
 			if (!this.activeToken) continue;
 			if (this.activeToken.isTab() || this.activeToken.isSpace()) continue;
@@ -583,7 +575,7 @@ class Parser {
 		return this.finalizeMethod(method);
 	}
 
-	private finalizeMethod(method: Method) {
+	private finalizeMethod(method: _Method) {
 		for (let keyword of NON_METHOD_KEYWORDS) {
 			let index = method.modifiers.map(i => i.value).indexOf(keyword)
 			if (index > -1 && index < method.modifiers.length - 1) {
@@ -600,10 +592,10 @@ class Parser {
 		return method;
 	}
 
-	private proccessArgs(method: Method): Parameter[] | undefined {
+	private proccessArgs(method: _Method): _Parameter[] | undefined {
 
-		let args: Parameter[] = [];
-		let arg: Parameter | undefined;
+		let args: _Parameter[] = [];
+		let arg: _Parameter | undefined;
 		let open = false;
 		while (this.next()) {
 			if (this.activeToken.isTab() || this.activeToken.isSpace() || this.activeToken.isNewLine()) continue;
@@ -632,7 +624,7 @@ class Parser {
 				break;
 			}
 			else if (this.activeToken.isAlphanumeric()) {
-				if (!arg) arg = new Parameter();
+				if (!arg) arg = new _Parameter();
 				// let value = this.activeToken.value;
 				if (this.activeToken.value === 'req') arg.req = true;
 				else if (this.activeToken.value === 'ret') arg.ret = true;
@@ -694,6 +686,7 @@ class Parser {
 		}
 		return undefined;
 	}
+
 	private getDummy() {
 		return new Token(Type.Undefined, '', this.activeToken.position);
 	}

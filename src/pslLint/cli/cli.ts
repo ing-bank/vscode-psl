@@ -21,9 +21,9 @@ async function readFile(filename: string): Promise<number> {
 	return exitCode;
 }
 
-function prepareDocument(textDocument: string): api.Document {
+function prepareDocument(textDocument: string): api.PslDocument {
 	let parsedDocument = api.parseText(textDocument);
-	return new api.Document(parsedDocument);
+	return new api.PslDocument(parsedDocument);
 }
 
 async function cli(fileString: string) {

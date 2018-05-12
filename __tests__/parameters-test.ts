@@ -22,8 +22,8 @@ function reportsOnLine(lineNumber: number, reports?: api.Diagnostic[]) {
 describe('Parameter tests', () => {
 	beforeAll(async () => {
 		let text = await fs.readFile(testFilePath).then(b => b.toString());
-		let returnDoc = new api.Document(parseText(text));
-		parametersReport = new ParametersOnNewLine().report(returnDoc);
+		let pslDocument = new api.PslDocument(parseText(text));
+		parametersReport = new ParametersOnNewLine().report(pslDocument);
 	})
 
 	test('No report for no params', () => {

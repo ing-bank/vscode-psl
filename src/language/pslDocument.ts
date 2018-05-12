@@ -34,7 +34,7 @@ export class PSLDocumentSymbolProvider implements vscode.DocumentSymbolProvider 
 		})
 	}
 
-	getMethodNameToken(method: parser.IMethod): tokenizer.Token {
+	getMethodNameToken(method: parser.Method): tokenizer.Token {
 		return method.id;
 	}
 }

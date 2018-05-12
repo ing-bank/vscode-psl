@@ -37,8 +37,8 @@ function prepareRules(textDocument: vscode.TextDocument, lintDiagnostics: vscode
 	process.nextTick(() => {
 		if (!cancellationToken.isCancellationRequested) {
 			let documentText = textDocument.getText();
-			let parsedDocument: api.Document = prepareDocument(documentText, textDocument);
-			let diagnostics = getDiagnostics(parsedDocument, documentText);
+			let pslDocument: api.PslDocument = prepareDocument(documentText, textDocument);
+			let diagnostics = getDiagnostics(pslDocument, documentText);
 			let vscodeDiagnostics = transform(diagnostics);
 			process.nextTick(() => {
 				if (!cancellationToken.isCancellationRequested) {
@@ -53,9 +53,8 @@ function prepareRules(textDocument: vscode.TextDocument, lintDiagnostics: vscode
 function prepareDocument(documentText: string, textDocument: vscode.TextDocument) {
 	let parsedDocument = parser.parseText(documentText);
 	let getTextAtLine = (n: number) => textDocument.lineAt(n).text;
-	let returnDoc = new api.Document(parsedDocument);
-	returnDoc.getTextAtLine = (getTextAtLine);
-	return returnDoc;
+	let pslDocument = new api.PslDocument(parsedDocument, getTextAtLine);
+	return pslDocument;
 }
 
 function transform(diagnostics: api.Diagnostic[]): vscode.Diagnostic[] {

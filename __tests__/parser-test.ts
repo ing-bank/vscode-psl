@@ -2,11 +2,11 @@ import * as tokenizer from '../src/parser/tokenizer';
 import * as parser from '../src/parser/parser';
 
 
-function getMethod(methodString: string): parser.IMethod | undefined {
-	let d  = parser.parseText(methodString)
+function getMethod(methodString: string): parser.Method | undefined {
+	let d = parser.parseText(methodString)
 	return d.methods[0];
 }
-function getParsedDoc(documentString: string): parser.IDocument {
+function getParsedDoc(documentString: string): parser.ParsedDocument {
 	return parser.parseText(documentString);
 }
 
@@ -14,11 +14,11 @@ function toValues(tokens: tokenizer.Token[]): string[] {
 	return tokens.map(t => t.value);
 }
 
-function argsToValues(args: parser.IParameter[]): string[][] {
+function argsToValues(args: parser.Parameter[]): string[][] {
 	return args.map(a => a.types).map(ts => toValues(ts));
 }
 
-function argsToNames(args: parser.IParameter[]): string[] {
+function argsToNames(args: parser.Parameter[]): string[] {
 	return toValues(args.map(a => a.id));
 }
 
@@ -701,7 +701,7 @@ describe('type declarations', () => {
 		expect(doc.declarations[0].id.value).toEqual('type')
 	})
 
-	test ('method declarations', () => {
+	test('method declarations', () => {
 		let documentString = `
 public static void main()
 	type String x

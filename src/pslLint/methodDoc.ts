@@ -1,17 +1,17 @@
-import { Diagnostic, DiagnosticSeverity, Rule, Document } from './api';
+import { Diagnostic, DiagnosticSeverity, Rule, PslDocument } from './api';
 
 /**
  * Checks if multiple parameters are written on the same line as the method declaration.
  */
 export class MethodDocumentation implements Rule {
 
-	report(doc: Document): Diagnostic[] {
+	report(pslDocument: PslDocument): Diagnostic[] {
 
 		let diagnostics: Diagnostic[] = [];
-		doc.parsedDocument.methods.forEach(method => {
+		pslDocument.parsedDocument.methods.forEach(method => {
 			if (method.batch) return;
-			let nextLineContent: string = doc.getTextAtLine(method.nextLine);
-			let prevLineContent: string = doc.getTextAtLine(method.prevLine);
+			let nextLineContent: string = pslDocument.getTextAtLine(method.nextLine);
+			let prevLineContent: string = pslDocument.getTextAtLine(method.prevLine);
 			let idToken = method.id;
 
 			if (!(prevLineContent.trim().startsWith('//'))) {

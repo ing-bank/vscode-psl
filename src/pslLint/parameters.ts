@@ -1,14 +1,14 @@
-import { Diagnostic, DiagnosticSeverity, Rule, Document } from './api';
+import { Diagnostic, DiagnosticSeverity, Rule, PslDocument } from './api';
 
 /**
  * Checks if multiple parameters are written on the same line as the method declaration.
  */
 export class ParametersOnNewLine implements Rule {
 
-    report(parsedDocument: Document): Diagnostic[] {
+    report(pslDocument: PslDocument): Diagnostic[] {
 
         let diagnostics: Diagnostic[] = []
-        parsedDocument.parsedDocument.methods.forEach(method => {
+        pslDocument.parsedDocument.methods.forEach(method => {
             if (method.batch) return;
             let methodLine = method.id.position.line;
             method.parameters.forEach(param => {
