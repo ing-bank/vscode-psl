@@ -1,9 +1,11 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as parser from '../parser/parser';
 import * as utils from '../parser/utillities';
 
-const pslPaths = ['dataqwik/procedure/', 'test/utgood/', 'test/stgood/', '.vscode/pslcls/'];
+const pslCls = '.vscode/pslcls/'
+const pslPaths = ['dataqwik/procedure/', 'test/utgood/', 'test/stgood/'];
 
 export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 
@@ -20,56 +22,70 @@ export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 		const workspaceDirectory = vscode.workspace.getWorkspaceFolder(document.uri);
 		if (!workspaceDirectory) return;
 
-		const fullPslPaths = pslPaths.map(pslPath => path.join(workspaceDirectory.uri.fsPath, pslPath));
+		const fullPslClsDir = path.join(workspaceDirectory.uri.fsPath, pslCls);
+		const fullPslPaths = pslPaths.concat(pslCls).map(pslPath => path.join(workspaceDirectory.uri.fsPath, pslPath));
 
 		let callTokens = utils.getCallTokens(tokensOnLine, index);
 		if (callTokens.length === 0) return;
 		if (callTokens.length === 1) {
 			let finder = new utils.ParsedDocFinder(parsedDoc, document.fileName, fullPslPaths);
 			let result = await finder.searchParser(callTokens[0]);
-			if (!result) return;
+			
+			// check for core class
+			if (!result) {
+				let pslClsNames = await getPslClsNames(fullPslClsDir);
+				if (pslClsNames.indexOf(callTokens[0].value) >= 0) {
+					finder = await finder.newFinder(callTokens[0].value);
+					return new vscode.Location(vscode.Uri.file(finder.fsPath), new vscode.Position(0, 0));
+				}
+			}
+			
+			// handle static types
+			else if (result.member.types[0] === callTokens[0]) {
+				finder = await finder.newFinder(result.member.id.value);
+				return new vscode.Location(vscode.Uri.file(finder.fsPath), new vscode.Position(0, 0));
+			}
+		
+			// also handle records?
+		
 			return getLocation(result);
 		}
 		else {
-			if (callTokens[0].value === 'this' || callTokens[0].value === procName) {
-				let finder = new utils.ParsedDocFinder(parsedDoc, document.fileName, fullPslPaths);
-				let result = await finder.searchParser(callTokens[1]);
+			let finder: utils.ParsedDocFinder | undefined = new utils.ParsedDocFinder(parsedDoc, document.fileName, fullPslPaths);
+			let result;
+			for (let index = 0; index < callTokens.length; index++) {
+				const token = callTokens[index];
+
+				if (index === 0) {
+					// handle core class					
+					let pslClsNames = await getPslClsNames(fullPslClsDir);
+					if (pslClsNames.indexOf(token.value) >= 0) {
+						finder = await finder.newFinder(token.value);
+						continue;
+					}
+					// skip over 'this'
+					else if (token.value === 'this' || token.value === procName) {
+						continue;
+					}
+					else {
+						result = await finder.searchParser(token);
+					}
+				}
+
+				if (!result) result = await finder.searchInDocument(token);
 				if (!result) return;
-				if (result.member.id === callTokens[0]) {
-					// TODO
-				}
-				return getLocation(result);
-			}
-			else {
-				let finder: utils.ParsedDocFinder | undefined = new utils.ParsedDocFinder(parsedDoc, document.fileName, fullPslPaths);
-				for (let index = 0; index < callTokens.length; index++) {
-					const token = callTokens[index];
-					let result = await finder.searchParser(token);
-					if (!result) return;
-					if (!callTokens[index + 1]) return getLocation(result);
-					finder = await finder.newFinder(result.member.types[0].value);
-				}
-				// const finder = new utils.ParsedDocFinder(parsedDoc, path.basename(document.fileName).split('.')[0], pslPaths);
-				// finder.getWorkspaceDocumentText = () => {
-				// 	finder.pslPaths;
-				// }
-				// let variable = utils.searchParser(parsedDoc, tokensOnLine[index], pslPaths);
-				// if (!variable) return;
-				// if (variable.types[0] && variable.id.value === variable.types[0].value) {
-				// 	let classPath = path.join(getEnvBase(document.fileName), 'dataqwik', 'procedure', variable.id.value + '.PROC');
-				// 	if (fs.existsSync(classPath)) {
-				// 		return new vscode.Location(vscode.Uri.file(classPath), new vscode.Position(0, 0));
-				// 	}
-				// }
-				// else {
-				// 	let variableRange = variable.id.getRange();
-				// 	let vscodeRange = new vscode.Range(variableRange.start.line, variableRange.start.character, variableRange.end.line, variableRange.end.character);
-				// 	return new vscode.Location(document.uri, vscodeRange);
-				// }
+				if (!callTokens[index + 1]) return getLocation(result);
+				finder = await finder.newFinder(result.member.types[0].value);
+				result = undefined;
 			}
 		}
 
 	}
+}
+
+async function getPslClsNames(dir: string) {
+	let names = await fs.readdir(dir);
+	return names.map(name => name.split('.')[0]);
 }
 
 function getLocation(result: utils.FinderResult): vscode.Location {

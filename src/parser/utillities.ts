@@ -56,7 +56,7 @@ export class ParsedDocFinder {
 		return this.searchInDocument(queriedToken);
 	}
 
-	private async searchInDocument(queriedToken: Token): Promise<FinderResult | undefined> {
+	async searchInDocument(queriedToken: Token): Promise<FinderResult | undefined> {
 		const foundProperty = this.parsedDocument.properties.find(p => p.id.value === queriedToken.value);
 		if (foundProperty) return { member: foundProperty, fsPath: this.fsPath };
 
@@ -107,7 +107,7 @@ export function searchTokens(tokens: Token[], position: Position) {
 	const tokensOnLine = tokens.filter(t => t.position.line === position.line);
 	if (tokensOnLine.length === 0) return undefined;
 	const index = tokensOnLine.findIndex(t => {
-		const start: Position = { line: t.position.line, character: t.position.character }
+		const start: Position = t.position;
 		const end: Position = { line: t.position.line, character: t.position.character + t.value.length };
 		return isBetween(start, position, end);
 	});
