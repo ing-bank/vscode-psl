@@ -1,5 +1,5 @@
-import { ParsedDocument, parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter } from './../parser/parser';
-import { Range } from './../parser/tokenizer'
+import { Declaration, Member, MemberClass, Method, Parameter, ParsedDocument, Property, parseFile, parseText } from './../parser/parser';
+import { Range } from './../parser/tokenizer';
 
 export enum DiagnosticSeverity {
 
@@ -41,19 +41,19 @@ export class Diagnostic {
 	 * A human-readable string describing the source of this
 	 * diagnostic, e.g. 'typescript' or 'super lint'.
 	 */
-	source: string;
+	source?: string;
 
 	/**
 	 * The severity, default is [error](#DiagnosticSeverity.Error).
 	 */
-	severity: DiagnosticSeverity;
+	severity?: DiagnosticSeverity;
 
 	/**
 	 * A code or identifier for this diagnostics. Will not be surfaced
 	 * to the user, but should be used for later processing, e.g. when
 	 * providing [code actions](#CodeActionContext).
 	 */
-	code: string | number;
+	code?: string | number;
 
 	/**
 	 * Creates a new diagnostic object.
@@ -65,10 +65,8 @@ export class Diagnostic {
 	constructor(range: Range, message: string, severity?: DiagnosticSeverity) {
 		this.range = range
 		this.message = message
-		this.severity = severity
+		if (severity) this.severity = severity
 	}
-
-
 }
 
 /**
