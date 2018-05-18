@@ -40,7 +40,7 @@ export class PSLCompletionItemProvider implements vscode.CompletionItemProvider 
 		if (!reference) return;
 
 		// find parser member (method, declaration, etc) of reference
-		let parserMember = utils.searchParser(parsedDoc, reference);
+		let parserMember;
 		if (!parserMember) return [];
 
 		// Record completion

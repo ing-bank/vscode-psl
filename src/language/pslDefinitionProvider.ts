@@ -4,8 +4,9 @@ import * as path from 'path';
 import * as parser from '../parser/parser';
 import * as utils from '../parser/utillities';
 
-const pslCls = '.vscode/pslcls/'
+const pslCls = '.vscode/pslcls/';
 const pslPaths = ['dataqwik/procedure/', 'test/utgood/', 'test/stgood/'];
+const tablePath = 'dataqwik/table/'
 
 export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 
@@ -30,24 +31,26 @@ export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 		if (callTokens.length === 1) {
 			let finder = new utils.ParsedDocFinder(parsedDoc, document.fileName, fullPslPaths);
 			let result = await finder.searchParser(callTokens[0]);
-			
-			// check for core class
+
+			// check for core class or tables
 			if (!result) {
 				let pslClsNames = await getPslClsNames(fullPslClsDir);
 				if (pslClsNames.indexOf(callTokens[0].value) >= 0) {
 					finder = await finder.newFinder(callTokens[0].value);
 					return new vscode.Location(vscode.Uri.file(finder.fsPath), new vscode.Position(0, 0));
 				}
+				let tableName = callTokens[0].value.replace('Record', '');
+				let tableLocation = path.join(workspaceDirectory.uri.fsPath, tablePath, tableName.toLowerCase(), tableName.toUpperCase() + '.TBL');
+				let tableLocationExists = await fs.pathExists(tableLocation);
+				if (tableLocationExists) return new vscode.Location(vscode.Uri.file(tableLocation), new vscode.Position(0, 0));
 			}
-			
+
 			// handle static types
 			else if (result.member.types[0] === callTokens[0]) {
 				finder = await finder.newFinder(result.member.id.value);
 				return new vscode.Location(vscode.Uri.file(finder.fsPath), new vscode.Position(0, 0));
 			}
-		
-			// also handle records?
-		
+
 			return getLocation(result);
 		}
 		else {
