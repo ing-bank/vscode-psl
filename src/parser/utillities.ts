@@ -125,80 +125,8 @@ export class ParsedDocFinder {
 	private async getWorkspaceDocumentText(fsPath: string): Promise<string> {
 		return fs.readFile(fsPath).then(b => b.toString()).catch(() => '');
 	}
-	
-	async resolveResult(callTokens) {
-		let finder: ParsedDocFinder = this;
-		if (callTokens.length === 1) {
-			let result = await finder.searchParser(callTokens[0]);
-	
-			// check for core class or tables
-			if (!result) {
-				return;
-				let pslClsNames = await getPslClsNames(fullPslClsDir);
-				if (pslClsNames.indexOf(callTokens[0].value) >= 0) {
-					finder = await finder.newFinder(callTokens[0].value);
-					// return new vscode.Location(vscode.Uri.file(finder.fsPath), new vscode.Position(0, 0));
-				}
-				let tableName = callTokens[0].value.replace('Record', '');
-				let tableLocation = path.join(fullTablePath, tableName.toLowerCase(), tableName.toUpperCase() + '.TBL');
-				let tableLocationExists = await fs.pathExists(tableLocation);
-				// if (tableLocationExists) return new vscode.Location(vscode.Uri.file(tableLocation), new vscode.Position(0, 0));
-			}
-	
-			// handle static types
-			else if (result.member.types[0] === callTokens[0]) {
-				finder = await finder.newFinder(result.member.id.value);
-				// return new vscode.Location(vscode.Uri.file(finder.fsPath), new vscode.Position(0, 0));
-				return;
-			}
-	
-			return result;
-		}
-		else {
-			let result: FinderResult;
-			for (let index = 0; index < callTokens.length; index++) {
-				const token = callTokens[index];
-	
-				if (index === 0) {
-					// handle core class					
-					let pslClsNames = await getPslClsNames(fullPslClsDir);
-					if (pslClsNames.indexOf(token.value) >= 0) {
-						finder = await finder.newFinder(token.value);
-						continue;
-					}
-					// skip over 'this'
-					else if (token.value === 'this' || token.value === procName) {
-						continue;
-					}
-					else {
-						result = await finder.searchParser(token);
-					}
-				}
-	
-				if (!result) result = await finder.searchInDocument(token.value);
-				if (!result) return;
-				if (!callTokens[index + 1]) return result;
-				let type = result.member.types[0].value;
-				if (type === 'void') type = 'Primitive';
-				finder = await finder.newFinder(type);
-				result = undefined;
-			}
-		}
 }
 
-
-
-}
-
-async function getPslClsNames(dir: string) {
-	try {
-		let names = await fs.readdir(dir);
-		return names.map(name => name.split('.')[0]);
-	}
-	catch {
-		return [];
-	}
-}
 
 /**
  * Get the tokens on the line of position, as well as the specific index of the token at position
