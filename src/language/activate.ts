@@ -6,6 +6,7 @@ import { PSLDocumentSymbolProvider } from './pslDocument';
 import { DataHoverProvider, DataDocumentHighlightProvider } from './dataItem';
 import { PSLCompletionItemProvider } from './pslSuggest';
 import { PSLDefinitionProvider } from './pslDefinitionProvider';
+import { PSLHoverProvider } from './pslHoverProvider';
 import * as codeQuality from './codeQuality';
 
 
@@ -70,6 +71,18 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.languages.registerDefinitionProvider(
 			BATCH_MODE, new PSLDefinitionProvider()
+		)
+	);
+
+	// Go-to Definitions
+	context.subscriptions.push(
+		vscode.languages.registerHoverProvider(
+			PSL_MODE, new PSLHoverProvider()
+		)
+	);
+	context.subscriptions.push(
+		vscode.languages.registerHoverProvider(
+			BATCH_MODE, new PSLHoverProvider()
 		)
 	);
 

@@ -31,6 +31,8 @@ export interface Member {
 	 * The memeber class to determine the type at runtime
 	 */
 	memberClass: MemberClass
+	
+	documentation?: string;
 }
 
 /**
@@ -79,12 +81,12 @@ export interface Method extends Member {
 	batch: boolean
 
 	/**
-	 * Next Line of a method implementation"
+	 * Next Line of a method implementation
 	 */
 	nextLine: number
 
 	/**
-	 * Previous Line of a method implementation"
+	 * Previous Line of a method implementation
 	 */
 	prevLine: number;
 
@@ -189,6 +191,7 @@ class _Method implements Method {
 	endLine: number;
 	batch: boolean;
 	memberClass: MemberClass;
+	documentation;
 
 	constructor() {
 		this.types = []
@@ -198,6 +201,7 @@ class _Method implements Method {
 		this.declarations = [];
 		this.endLine = -1;
 		this.memberClass = MemberClass.method;
+		this.documentation = '';
 	}
 }
 
@@ -247,6 +251,7 @@ class Parser {
 	private properties: Property[];
 	private declarations: Declaration[];
 	private activeMethod: _Method;
+	private activeProperty: Property;
 	private tokens: Token[];
 	private extending: Token;
 
@@ -274,10 +279,12 @@ class Parser {
 				this.activeMethod = method;
 			}
 			else if (this.activeToken.isTab() || this.activeToken.isSpace()) {
+				let lineNumber = this.activeToken.position.line;
 				let tokenBuffer = this.loadTokenBuffer();
 				let propertyDef = this.lookForPropertyDef(tokenBuffer);
 				if (propertyDef) {
 					if (propertyDef.id) this.properties.push(propertyDef);
+					this.activeProperty = propertyDef;
 					continue;
 				}
 				let typeDec = this.lookForTypeDeclaration(tokenBuffer);
@@ -288,6 +295,15 @@ class Parser {
 				}
 				let extending = this.checkForExtends(tokenBuffer);
 				if (extending) this.extending = extending;
+				
+				if (this.activeProperty && this.activeProperty.id.position.line + 1 === lineNumber) {
+					let documentation = this.checkForDocumentation(tokenBuffer);
+					if (documentation) this.activeProperty.documentation = documentation;
+				}
+				else if (this.activeMethod && this.activeMethod.nextLine === lineNumber) {
+					let documentation = this.checkForDocumentation(tokenBuffer);
+					if (documentation) this.activeMethod.documentation = documentation;
+				}
 			}
 			else if (this.activeToken.isNewLine()) continue;
 			else this.throwAwayTokensTil(Type.NewLine);
@@ -298,6 +314,21 @@ class Parser {
 			methods: this.methods,
 			tokens: this.tokens,
 			extending: this.extending
+		}
+	}
+
+	private checkForDocumentation(tokenBuffer: Token[]): string {
+		let i = 0;
+		while (i < tokenBuffer.length) {
+			let token = tokenBuffer[i];
+			if (token.isTab() || token.isSpace()) {
+				i++;
+				continue;
+			}
+			if (token.isBlockCommentInit() && tokenBuffer[i+1] && tokenBuffer[i+1].isBlockComment()) {
+				return tokenBuffer[i+1].value;
+			}
+			return '';
 		}
 	}
 
