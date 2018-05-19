@@ -94,8 +94,13 @@ export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 }
 
 async function getPslClsNames(dir: string) {
-	let names = await fs.readdir(dir);
-	return names.map(name => name.split('.')[0]);
+	try {
+		let names = await fs.readdir(dir);
+		return names.map(name => name.split('.')[0]);
+	}
+	catch {
+		return [];
+	}
 }
 
 function getLocation(result: utils.FinderResult): vscode.Location {

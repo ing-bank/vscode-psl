@@ -87,7 +87,9 @@ export class PSLHoverProvider implements vscode.HoverProvider {
 				if (!result) result = await finder.searchInDocument(token.value);
 				if (!result) return;
 				if (!callTokens[index + 1]) return getHover(result);
-				finder = await finder.newFinder(result.member.types[0].value);
+				let type = result.member.types[0].value;
+				if (type === 'void') type = 'Primitive';
+				finder = await finder.newFinder(type);
 				result = undefined;
 			}
 		}
@@ -96,13 +98,58 @@ export class PSLHoverProvider implements vscode.HoverProvider {
 }
 
 async function getPslClsNames(dir: string) {
-	let names = await fs.readdir(dir);
-	return names.map(name => name.split('.')[0]);
+	try {
+		let names = await fs.readdir(dir);
+		return names.map(name => name.split('.')[0]);
+	}
+	catch {
+		return [];
+	}
 }
 
 function getHover(result: utils.FinderResult): vscode.Hover {
-	if (!result.member.documentation) return undefined;
-	let clean = result.member.documentation.replace(/\s*(DOC)?\s*\-+/g, '').replace(/\*+\s+ENDDOC/, '').trim();
-	clean = clean.split(/\r?\n/g).map(l => l.trim()).join('\n').replace(/\n{2,}/g, '\n\n').replace(/(^|[^\n])\n(?!\n)/g, '$1 ').replace(/\t{2,}/g, ' ').replace(/ {2,}/g, ' ').replace(/(@\w+)\s+(\w+)/g, '*$1* `$2`');
-	return new vscode.Hover(new vscode.MarkdownString(clean));
+	let markdownString: vscode.MarkdownString = new vscode.MarkdownString();
+	markdownString.appendCodeblock(getSignature(result.member), 'psl');
+	if (!result.member.documentation) return new vscode.Hover(markdownString);
+
+	let clean = result.member.documentation.replace(/\s*(DOC)?\s*\-+/, '').replace(/\*+\s+ENDDOC/, '').trim();
+	clean = clean.split(/\r?\n/g).map(l => l.trim()).join('\n').replace(/\n{2,}/g, '\n\n').replace(/(^|[^\n])\n(?!\n)/g, '$1 ').replace(/\t{2,}/g, ' ').replace(/ {2,}/g, ' ').replace(/(@\w+)\s+([A-Za-z\-0-9%_\.]+)/g, '*$1* `$2`');
+	let documentation = new vscode.MarkdownString().appendMarkdown(clean);
+	return new vscode.Hover([markdownString, documentation]);
+}
+
+
+function getSignature(member: parser.Member): string {
+	if (member.memberClass === parser.MemberClass.method) {
+		let method = member as parser.Method
+
+		let sig = `${method.modifiers.map(i => i.value).join(' ')} ${method.id.value}`;
+		let argString: string = method.parameters.map((param: parser.Parameter) => `${param.types[0].value} ${param.id.value}`).join('\n , ');
+		if (method.parameters.length === 0) return `${sig}(${argString})`;
+		return `${sig}(\n   ${argString}\n )`
+	}
+	else {
+		let hoverString: string = '';
+		if (member.types.length === 0) hoverString = `void ${member.id.value}`;
+		else if (member.types.length === 1) {
+			if (member.types[0] === member.id) hoverString = `static ${member.id.value}`
+			else hoverString = `${member.types[0].value} ${member.id.value}`
+		}
+		else {
+			hoverString = `${member.types[0].value} ${member.id.value}( ${member.types.slice(1).map((t: any) => t.value).join(', ')})`
+		}
+		if (!hoverString) return;
+		switch (member.memberClass) {
+			case parser.MemberClass.declaration:
+				return ' type ' + hoverString;
+			case parser.MemberClass.parameter:
+				return '(param) ' + hoverString;
+			case parser.MemberClass.property:
+				return '(property) ' + hoverString;
+			case parser.MemberClass.column:
+				return '(column) ' + hoverString;
+			default:
+				return '';
+		}
+	}
 }

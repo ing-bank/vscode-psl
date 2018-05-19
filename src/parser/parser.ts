@@ -8,7 +8,8 @@ export enum MemberClass {
 	method = 1,
 	parameter = 2,
 	property = 3,
-	declaration = 4
+	declaration = 4,
+	column = 5
 }
 
 /**
@@ -224,6 +225,10 @@ class _Parameter implements Parameter {
 
 const NON_METHOD_KEYWORDS = [
 	'do', 'set', 'if', 'for', 'while'
+]
+
+const NON_TYPE_MODIFIERS = [
+	'public', 'static', 'private',
 ]
 
 export function parseText(sourceText: string): ParsedDocument {
@@ -539,7 +544,12 @@ class Parser {
 						return t.type !== Type.Space && t.type !== Type.Tab
 					}
 					)
-					return { id: tokens[0], modifiers: tokens.slice(1), types: [], memberClass: MemberClass.property }
+					let classTypes: Token[] = [];
+					let classIndex = tokens.findIndex(t => t.value === 'class');
+					if (tokens[classIndex+1] && tokens[classIndex+1].value === '=' && tokens[classIndex+2] && tokens[classIndex+2].isAlphanumeric()) {
+						classTypes.push(tokens[classIndex+2]);
+					}
+					return { id: tokens[0], modifiers: tokens.slice(1), types: classTypes, memberClass: MemberClass.property }
 
 				}
 				else {
@@ -618,6 +628,10 @@ class Parser {
 		method.id = method.modifiers.pop();
 		if (this.activeMethod) {
 			this.activeMethod.endLine = method.id.position.line - 1;
+		}
+		const lastModifier = method.modifiers[method.modifiers.length-1];
+		if (lastModifier && NON_TYPE_MODIFIERS.indexOf(lastModifier.value) < 0) {
+			method.types = [lastModifier];
 		}
 		this.activeMethod = method;
 		return method;

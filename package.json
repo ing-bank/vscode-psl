@@ -5,10 +5,10 @@
   "version": "1.1.0",
   "publisher": "ing-bank",
   "engines": {
-    "vscode": "^1.17.0"
+    "vscode": "^1.23.0"
   },
   "categories": [
-    "Languages"
+    "Programming Languages"
   ],
   "license": "MIT",
   "activationEvents": [
