@@ -9,7 +9,8 @@ export enum MemberClass {
 	parameter = 2,
 	property = 3,
 	declaration = 4,
-	column = 5
+	column = 5,
+	table = 6,
 }
 
 /**

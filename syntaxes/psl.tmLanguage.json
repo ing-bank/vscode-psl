@@ -233,11 +233,7 @@
 		"doc-params": {
 			"patterns": [
 				{
-					"match": "@(throws|return)",
-					"name": "storage.type.class.jsdoc"
-				},
-				{
-					"match": "(@(param|publicnew|public))(\\s+)?(%?\\w+)?",
+					"match": "(@(param|publicnew|public|throws?))(\\s+)?([A-Za-z\\-0-9%_\\.]+)?",
 					"captures": {
 						"1": {
 							"name": "storage.type.class.jsdoc"
@@ -246,6 +242,10 @@
 							"name": "variable.other.jsdoc"
 						}
 					}
+				},
+				{
+					"match": "^\\s+@\\w+",
+					"name": "storage.type.class.jsdoc"
 				}
 			]
 		},

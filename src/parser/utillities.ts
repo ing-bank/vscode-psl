@@ -9,58 +9,134 @@ export interface Query {
 	character: number
 }
 
-export class FinderResult {
-	member: Member;
+export interface FinderResult {
 	fsPath: string;
+	member?: Member;
 }
+
+export interface FinderPaths {
+	routine: string;
+	projectPsl: string[];
+	corePsl: string;
+	table: string
+}
+export const dummyPosition = new Position(0, 0);
 
 export class ParsedDocFinder {
 
 	parsedDocument: ParsedDocument;
-	fsPath: string;
-	pslPaths: string[];
-	tablePath: string;
+	paths: FinderPaths;
+	procName: string;
 
 	private heirachy: string[] = [];
 
-	constructor(parsedDocument: ParsedDocument, fsPath: string, pslPaths: string[], tablePath: string, getWorkspaceDocumentText?: (fsPath: string) => Promise<string>) {
+	constructor(parsedDocument: ParsedDocument, paths: FinderPaths, getWorkspaceDocumentText?: (fsPath: string) => Promise<string>) {
 		this.parsedDocument = parsedDocument;
-		this.fsPath = fsPath;
-		this.pslPaths = pslPaths;
-		this.tablePath = tablePath;
+		this.paths = paths;
 		if (getWorkspaceDocumentText) this.getWorkspaceDocumentText = getWorkspaceDocumentText;
+		this.procName = path.basename(this.paths.routine).split('.')[0];
 	}
 
+	async resolveResult(callTokens: Token[]): Promise<FinderResult> {
+		let finder: ParsedDocFinder = this;
+
+		if (callTokens.length === 1) {
+			let result = await finder.searchParser(callTokens[0]);
+
+			// check for core class or tables
+			if (!result) {
+				let pslClsNames = await getPslClsNames(this.paths.corePsl);
+				if (pslClsNames.indexOf(callTokens[0].value) >= 0) {
+					finder = await finder.newFinder(callTokens[0].value);
+					return {
+						fsPath: finder.paths.routine,
+						// member: { types: [], id: new Token(Type.Alphanumeric, callTokens[0].value, dummyPosition), memberClass: MemberClass.table }
+					};
+				}
+				let tableName = callTokens[0].value.replace('Record', '');
+				let tableLocation = path.join(this.paths.table, tableName.toLowerCase(), tableName.toUpperCase() + '.TBL');
+				let tableLocationExists = await fs.pathExists(tableLocation);
+				if (tableLocationExists) return {
+					fsPath: tableLocation,
+					// member: { types: [], id: new Token(Type.Alphanumeric, tableName, dummyPosition), memberClass: MemberClass.table }
+				};
+			}
+
+			// handle static types
+			else if (result.member.types[0] === callTokens[0]) {
+				finder = await finder.newFinder(result.member.id.value);
+				return {
+					fsPath: finder.paths.routine,
+					// member: { types: [], id: new Token(Type.Alphanumeric, callTokens[0].value, dummyPosition), memberClass: MemberClass.table }
+				};
+			}
+
+			return result;
+		}
+		else {
+			let result: FinderResult;
+			for (let index = 0; index < callTokens.length; index++) {
+				const token = callTokens[index];
+
+				if (index === 0) {
+					// handle core class					
+					let pslClsNames = await getPslClsNames(this.paths.corePsl);
+					if (pslClsNames.indexOf(token.value) >= 0) {
+						finder = await finder.newFinder(token.value);
+						continue;
+					}
+					// skip over 'this'
+					else if (token.value === 'this' || token.value === this.procName) {
+						continue;
+					}
+					else {
+						result = await finder.searchParser(token);
+					}
+				}
+
+				if (!result) result = await finder.searchInDocument(token.value);
+				if (!result) return;
+				if (!callTokens[index + 1]) return result;
+				let type = result.member.types[0].value;
+				if (type === 'void') type = 'Primitive'; // TODO whack hack
+				finder = await finder.newFinder(type);
+				result = undefined;
+			}
+		}
+	}
 
 	async newFinder(routineName: string): Promise<ParsedDocFinder | undefined> {
-		let dummyPosition = new Position(0,0);
+
 		if (routineName.startsWith('Record') && routineName !== 'Record') {
 			let tableName = routineName.replace('Record', '');
-			let tableDirectory = path.join(this.tablePath, tableName.toLowerCase());
+			let tableDirectory = path.join(this.paths.table, tableName.toLowerCase());
 			let tableLocationExists = await fs.pathExists(tableDirectory);
 			if (!tableLocationExists) return;
 			let columns: Property[] = (await fs.readdir(tableDirectory)).filter(file => file.endsWith('.COL')).map(col => {
 				let colName = col.replace(`${tableName}-`, '').replace('.COL', '');
 				let ret: Property = {
-					id : new Token(Type.Alphanumeric, colName, dummyPosition),
-					memberClass : MemberClass.column,
-					types : [new Token(Type.Alphanumeric, 'String', dummyPosition)],
+					id: new Token(Type.Alphanumeric, colName, dummyPosition),
+					memberClass: MemberClass.column,
+					types: [new Token(Type.Alphanumeric, 'String', dummyPosition)],
 					modifiers: []
 				}
 				return ret;
 			})
-			let parsedDocument: ParsedDocument = {extending: new Token(Type.Alphanumeric, 'Record', dummyPosition), properties: columns, tokens: [], methods: [], declarations: []};
-			return new ParsedDocFinder(parsedDocument, tableDirectory, this.pslPaths, this.tablePath, this.getWorkspaceDocumentText);
+			let parsedDocument: ParsedDocument = { extending: new Token(Type.Alphanumeric, 'Record', dummyPosition), properties: columns, tokens: [], methods: [], declarations: [] };
+			const newPaths: FinderPaths = Object.create(this.paths);
+			newPaths.routine = tableDirectory;
+			return new ParsedDocFinder(parsedDocument, newPaths, this.getWorkspaceDocumentText);
 		}
-		const pathsWithoutExtensions: string[] = this.pslPaths.map(pslPath => path.join(pslPath, routineName));
+		const pathsWithoutExtensions: string[] = this.paths.projectPsl.map(pslPath => path.join(pslPath, routineName));
 
 		for (const pathWithoutExtension of pathsWithoutExtensions) {
 			for (const extension of ['.PROC', '.psl', '.PSL']) {
 				const possiblePath = pathWithoutExtension + extension
 				const routineText = await this.getWorkspaceDocumentText(possiblePath);
 				if (!routineText) continue;
-				const newPath = possiblePath;
-				return new ParsedDocFinder(parseText(routineText), newPath, this.pslPaths, this.tablePath, this.getWorkspaceDocumentText);
+				const newPaths: FinderPaths = Object.create(this.paths);
+				newPaths.routine = possiblePath;
+				return new ParsedDocFinder(parseText(routineText), newPaths, this.getWorkspaceDocumentText);
 			}
 		}
 	}
@@ -72,24 +148,24 @@ export class ParsedDocFinder {
 		let activeMethod = this.findActiveMethod(queriedToken);
 		if (activeMethod) {
 			const variable = this.searchInMethod(activeMethod, queriedToken);
-			if (variable) return { member: variable, fsPath: this.fsPath };
+			if (variable) return { member: variable, fsPath: this.paths.routine };
 		}
 		return this.searchInDocument(queriedToken.value);
 	}
 
 	async searchInDocument(queriedId: string): Promise<FinderResult | undefined> {
-		if (path.relative(this.fsPath, this.tablePath) === '..') {
+		if (path.relative(this.paths.routine, this.paths.table) === '..') {
 			const foundProperty = this.parsedDocument.properties.find(p => p.id.value.toLowerCase() === queriedId.toLowerCase());
 			if (foundProperty) {
-				let tableName = path.basename(this.fsPath).toUpperCase();
-				return { member: foundProperty, fsPath: path.join(this.fsPath, `${tableName}-${foundProperty.id.value}.COL`)};
+				let tableName = path.basename(this.paths.routine).toUpperCase();
+				return { member: foundProperty, fsPath: path.join(this.paths.routine, `${tableName}-${foundProperty.id.value}.COL`) };
 			}
 		}
 		const foundProperty = this.parsedDocument.properties.find(p => p.id.value === queriedId);
-		if (foundProperty) return { member: foundProperty, fsPath: this.fsPath };
+		if (foundProperty) return { member: foundProperty, fsPath: this.paths.routine };
 
 		const foundMethod = this.parsedDocument.methods.find(p => p.id.value === queriedId);
-		if (foundMethod) return { member: foundMethod, fsPath: this.fsPath };
+		if (foundMethod) return { member: foundMethod, fsPath: this.paths.routine };
 
 		if (this.parsedDocument.extending) {
 			const parentRoutineName = this.parsedDocument.extending.value;
@@ -103,7 +179,7 @@ export class ParsedDocFinder {
 	private async searchForParent(parentRoutineName: string): Promise<ParsedDocFinder | undefined> {
 		const parentFinder = await this.newFinder(parentRoutineName);
 		if (!parentFinder) return;
-		parentFinder.heirachy = this.heirachy.concat(this.fsPath);
+		parentFinder.heirachy = this.heirachy.concat(this.paths.routine);
 		return parentFinder;
 	}
 
@@ -125,8 +201,19 @@ export class ParsedDocFinder {
 	private async getWorkspaceDocumentText(fsPath: string): Promise<string> {
 		return fs.readFile(fsPath).then(b => b.toString()).catch(() => '');
 	}
+
+
 }
 
+async function getPslClsNames(dir: string) {
+	try {
+		let names = await fs.readdir(dir);
+		return names.map(name => name.split('.')[0]);
+	}
+	catch {
+		return [];
+	}
+}
 
 /**
  * Get the tokens on the line of position, as well as the specific index of the token at position
