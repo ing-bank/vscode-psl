@@ -16,20 +16,27 @@ export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 		let procName = path.basename(document.fileName).split('.')[0];
 
 		// get tokens on line and current token
-		let result = utils.searchTokens(parsedDoc.tokens, position);
-		if (!result) return [];
-		let { tokensOnLine, index } = result;
+		let tokenSearchResults = utils.searchTokens(parsedDoc.tokens, position);
+		if (!tokenSearchResults) return [];
+		let { tokensOnLine, index } = tokenSearchResults;
 
 		const workspaceDirectory = vscode.workspace.getWorkspaceFolder(document.uri);
 		if (!workspaceDirectory) return;
 
 		const fullPslClsDir = path.join(workspaceDirectory.uri.fsPath, pslCls);
 		const fullPslPaths = pslPaths.concat(pslCls).map(pslPath => path.join(workspaceDirectory.uri.fsPath, pslPath));
+		const fullTablePath = path.join(workspaceDirectory.uri.fsPath, tablePath);
+
+		const getWorkspaceDocumentText = async (fsPath: string): Promise<string> => {
+			return fs.stat(fsPath).then(() => {
+				return vscode.workspace.openTextDocument(fsPath).then(textDocument => textDocument.getText(), () => '');
+			}).catch(() => '')
+		}
 
 		let callTokens = utils.getCallTokens(tokensOnLine, index);
 		if (callTokens.length === 0) return;
 		if (callTokens.length === 1) {
-			let finder = new utils.ParsedDocFinder(parsedDoc, document.fileName, fullPslPaths);
+			let finder = new utils.ParsedDocFinder(parsedDoc, document.fileName, fullPslPaths, tablePath, getWorkspaceDocumentText);
 			let result = await finder.searchParser(callTokens[0]);
 
 			// check for core class or tables
@@ -40,7 +47,7 @@ export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 					return new vscode.Location(vscode.Uri.file(finder.fsPath), new vscode.Position(0, 0));
 				}
 				let tableName = callTokens[0].value.replace('Record', '');
-				let tableLocation = path.join(workspaceDirectory.uri.fsPath, tablePath, tableName.toLowerCase(), tableName.toUpperCase() + '.TBL');
+				let tableLocation = path.join(fullTablePath, tableName.toLowerCase(), tableName.toUpperCase() + '.TBL');
 				let tableLocationExists = await fs.pathExists(tableLocation);
 				if (tableLocationExists) return new vscode.Location(vscode.Uri.file(tableLocation), new vscode.Position(0, 0));
 			}
@@ -54,8 +61,8 @@ export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 			return getLocation(result);
 		}
 		else {
-			let finder: utils.ParsedDocFinder | undefined = new utils.ParsedDocFinder(parsedDoc, document.fileName, fullPslPaths);
-			let result;
+			let finder: utils.ParsedDocFinder | undefined = new utils.ParsedDocFinder(parsedDoc, document.fileName, fullPslPaths, fullTablePath, getWorkspaceDocumentText);
+			let result: utils.FinderResult;
 			for (let index = 0; index < callTokens.length; index++) {
 				const token = callTokens[index];
 
@@ -75,7 +82,7 @@ export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 					}
 				}
 
-				if (!result) result = await finder.searchInDocument(token);
+				if (!result) result = await finder.searchInDocument(token.value);
 				if (!result) return;
 				if (!callTokens[index + 1]) return getLocation(result);
 				finder = await finder.newFinder(result.member.types[0].value);
