@@ -60,6 +60,13 @@ export class ParsedDocFinder {
 					fsPath: tableLocation,
 					// member: { types: [], id: new Token(Type.Alphanumeric, tableName, dummyPosition), memberClass: MemberClass.table }
 				};
+				else if (callTokens[0] === this.parsedDocument.extending) {
+					finder = await finder.newFinder(callTokens[0].value);
+					return {
+						fsPath: finder.paths.routine,
+						// member: { types: [], id: new Token(Type.Alphanumeric, callTokens[0].value, dummyPosition), memberClass: MemberClass.table }
+					};
+				}
 			}
 
 			// handle static types

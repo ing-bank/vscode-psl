@@ -40,84 +40,114 @@ export class PSLHoverProvider implements vscode.HoverProvider {
 		}
 		let finder = new utils.ParsedDocFinder(parsedDoc, paths, getWorkspaceDocumentText);
 		let resolvedResult = await finder.resolveResult(callTokens);
-		if (resolvedResult && resolvedResult.member) return getHover(resolvedResult);
+		if (resolvedResult) return getHover(resolvedResult, paths.table);
 	}
 }
 
 
 
-async function getHover(result: utils.FinderResult): Promise<vscode.Hover> {
-	let markdownString: vscode.MarkdownString = new vscode.MarkdownString();
-	markdownString.appendCodeblock(getSignature(result.member), 'psl');
-	if (result.member.memberClass === parser.MemberClass.column) {
-		return getColumnDocumentation(result);
-	}
-	if (!result.member.documentation) return new vscode.Hover(markdownString);
+async function getHover(result: utils.FinderResult, tableDirectory): Promise<vscode.Hover> {
+	let { code, markdown } = await getDocumentation(result, tableDirectory);
 
-	let clean = result.member.documentation.replace(/\s*(DOC)?\s*\-+/, '').replace(/\*+\s+ENDDOC/, '').trim();
+	let clean = markdown.replace(/\s*(DOC)?\s*\-+/, '').replace(/\*+\s+ENDDOC/, '').trim();
 	clean = clean
 		.split(/\r?\n/g).map(l => l.trim()).join('\n')
 		.replace(/(@\w+)/g, '*$1*')
 		.replace(/(\*(@(param|publicnew|public|throws?))\*)\s+([A-Za-z\-0-9%_\.]+)/g, '$1 `$4`');
-	let documentation = new vscode.MarkdownString().appendMarkdown(clean);
-	return new vscode.Hover([markdownString, documentation]);
+
+	return new vscode.Hover([new vscode.MarkdownString().appendCodeblock(code), new vscode.MarkdownString().appendMarkdown(clean)]);
 }
 
-async function getColumnDocumentation(columnResult: utils.FinderResult): Promise<vscode.Hover> {
-	let typs = {
-		'T': ['String', 'column type: T (Text)'],
-		'U': ['String', 'column type: U (Uppercase text)'],
-		'N': ['Number', 'column type: N (Number)'],
-		'$': ['Number', 'column type: $ (Currency)'],
-		'L': ['Boolean', 'column type: L (Logical)'],
-		'D': ['Date', 'column type: D (Date)'],
-		'C': ['Number', 'column type: C (Time)'],
-		'F': ['Number', 'column type: F (Frequency)'],
-		'M': ['String', 'column type: M (Memo)'],
-		'B': ['String', 'column type: B (Blob)'],
+interface Documentation {
+	code: string;
+	markdown: string;
+}
+
+async function getDocumentation(result: utils.FinderResult, tableDirectory: string): Promise<Documentation> {
+	let { fsPath, member } = result;
+	if (!member) {
+		// handle tables here
+		if (fsPath.endsWith('.TBL')) {
+			let text = await getWorkspaceDocumentText(fsPath);
+			let parsed = jsonc.parse(text);
+			let doc = text.split('}')[1];
+			let tableName = path.basename(fsPath).split('.')[0];
+	
+			return {code: '(table) ' + tableName, markdown: `${parsed.DES}\n\n${doc}`};
+		}
 	}
-	let text = await getWorkspaceDocumentText(columnResult.fsPath);
-	let parsed = jsonc.parse(text);
-	let typ = parsed.TYP;
-	let doc = text.split('}')[1];
+	else if (member.memberClass === parser.MemberClass.column) {
+		let typs = {
+			'T': ['String', 'column type: T (Text)'],
+			'U': ['String', 'column type: U (Uppercase text)'],
+			'N': ['Number', 'column type: N (Number)'],
+			'$': ['Number', 'column type: $ (Currency)'],
+			'L': ['Boolean', 'column type: L (Logical)'],
+			'D': ['Date', 'column type: D (Date)'],
+			'C': ['Number', 'column type: C (Time)'],
+			'F': ['Number', 'column type: F (Frequency)'],
+			'M': ['String', 'column type: M (Memo)'],
+			'B': ['String', 'column type: B (Blob)'],
+		}
+		let text = await getWorkspaceDocumentText(fsPath);
+		let parsed = jsonc.parse(text);
+		let typ = parsed.TYP;
+		let doc = text.split('}')[1];
 
-	let header = new vscode.MarkdownString().appendCodeblock(`(column) ${typs[typ][0]} ${columnResult.member.id.value}`);
-	let footer = new vscode.MarkdownString().appendMarkdown(`${parsed.DES}\n\n${typs[typ][1]}\n\n${doc}`)
-	return new vscode.Hover([header, footer]);
-}
-
-
-function getSignature(member: parser.Member): string {
-	if (member.memberClass === parser.MemberClass.method) {
+		return {
+			code: `(column) ${typs[typ][0]} ${member.id.value}`,
+			markdown: `${parsed.DES}\n\n${typs[typ][1]}\n\n${doc}`
+		}
+	}
+	else if (member.memberClass === parser.MemberClass.method) {
 		let method = member as parser.Method
 
 		let sig = `${method.modifiers.map(i => i.value).join(' ')} ${method.id.value}`;
 		let argString: string = method.parameters.map((param: parser.Parameter) => `${param.types[0].value} ${param.id.value}`).join('\n , ');
-		if (method.parameters.length === 0) return `${sig}(${argString})`;
-		return `${sig}(\n   ${argString}\n )`
+		let code = '';
+		if (method.parameters.length === 0) code = `${sig}(${argString})`;
+		else code = `${sig}(\n   ${argString}\n )`;
+		let markdown = method.documentation ? method.documentation : '';
+		return { code, markdown };
 	}
 	else {
-		let hoverString: string = '';
-		if (member.types.length === 0) hoverString = `void ${member.id.value}`;
+		let code = '';
+
+		if (member.types.length === 0) code = `void ${member.id.value}`;
 		else if (member.types.length === 1) {
-			if (member.types[0] === member.id) hoverString = `static ${member.id.value}`
-			else hoverString = `${member.types[0].value} ${member.id.value}`
+			if (member.types[0] === member.id) code = `static ${member.id.value}`
+			else code = `${member.types[0].value} ${member.id.value}`
 		}
 		else {
-			hoverString = `${member.types[0].value} ${member.id.value}( ${member.types.slice(1).map((t: any) => t.value).join(', ')})`
+			code = `${member.types[0].value} ${member.id.value}( ${member.types.slice(1).map((t: any) => t.value).join(', ')})`
 		}
-		if (!hoverString) return;
+
 		switch (member.memberClass) {
 			case parser.MemberClass.declaration:
-				return ' type ' + hoverString;
+				code = ' type ' + code;
+				break;
 			case parser.MemberClass.parameter:
-				return '(param) ' + hoverString;
+				code = '(parameter) ' + code;
+				break;
 			case parser.MemberClass.property:
-				return '(property) ' + hoverString;
-			case parser.MemberClass.column:
-				return '(column) ' + hoverString;
+				code = ' #PROPERTYDEF ' + code;
+				break;
 			default:
-				return '';
+				return;
 		}
+
+		let markdown = result.member.documentation ? result.member.documentation : '';
+
+		if (member.types[0].value.startsWith('Record')) {
+			let tableName = member.types[0].value.replace('Record', '');
+			let tableLocation = path.join(tableDirectory, tableName.toLowerCase(), tableName.toUpperCase() + '.TBL');
+			let text = await getWorkspaceDocumentText(tableLocation);
+			let parsed = jsonc.parse(text);
+			let doc = text.split('}')[1];
+	
+			markdown = `${parsed.DES}\n\n${doc}`;
+		}
+		return { code, markdown };
 	}
+
 }
