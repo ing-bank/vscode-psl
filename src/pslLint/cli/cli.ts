@@ -7,10 +7,10 @@ import * as api from '../api';
 
 async function readFile(filename: string): Promise<number> {
 	if (path.extname(filename) !== '.PROC' && path.extname(filename) !== '.BATCH' && path.extname(filename).toUpperCase() !== '.PSL') return;
-	let value = await fs.readFile(filename)
-	let textDocument = value.toString();
-	let parsedDocument = prepareDocument(textDocument);
-	let diagnostics = getDiagnostics(parsedDocument, textDocument);
+	let fileBuffer = await fs.readFile(filename)
+	let textDocument = fileBuffer.toString();
+	let parsedDocument = prepareDocument(textDocument, filename);
+	let diagnostics = getDiagnostics(parsedDocument);
 	let exitCode = 0;
 	diagnostics.forEach(d => {
 		let range = `${d.range.start.line + 1},${d.range.start.character + 1}`;
@@ -21,9 +21,9 @@ async function readFile(filename: string): Promise<number> {
 	return exitCode;
 }
 
-function prepareDocument(textDocument: string): api.PslDocument {
+function prepareDocument(textDocument: string, filename: string): api.PslDocument {
 	let parsedDocument = api.parseText(textDocument);
-	return new api.PslDocument(parsedDocument);
+	return new api.PslDocument(parsedDocument, textDocument, filename);
 }
 
 async function cli(fileString: string) {

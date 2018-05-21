@@ -1,6 +1,6 @@
-import { Diagnostic, Range, Position, DiagnosticSeverity, Rule, PslDocument, getTokens } from './api';
+import { Diagnostic, Range, Position, DiagnosticSeverity, DocumentRule, PslDocument, getTokens } from './api';
 
-export class TodoInfo implements Rule {
+export class TodoInfo implements DocumentRule {
 	report(pslDocument: PslDocument): Diagnostic[] {
 		let todos: Todo[] = [];
 		for (let token of pslDocument.parsedDocument.tokens) {

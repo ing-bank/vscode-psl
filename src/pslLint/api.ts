@@ -55,6 +55,8 @@ export class Diagnostic {
 	 */
 	code?: string | number;
 
+	member?: Member;
+
 	/**
 	 * Creates a new diagnostic object.
 	 *
@@ -62,32 +64,47 @@ export class Diagnostic {
 	 * @param message The human-readable message.
 	 * @param severity The severity, default is [error](#DiagnosticSeverity.Error).
 	 */
-	constructor(range: Range, message: string, severity?: DiagnosticSeverity) {
+	constructor(range: Range, message: string, severity?: DiagnosticSeverity, member?: Member) {
 		this.range = range
 		this.message = message
 		if (severity) this.severity = severity
+		if (member) this.member = member
 	}
 }
 
 /**
  * An interface for writing new rules
  */
-export interface Rule {
+export interface DocumentRule {
 	/**
 	 * 
 	 * @param pslDocument An abstract representation of a PSL document
 	 * @param textDocument The whole text of the document, as a string.
 	 */
-	report(pslDocument: PslDocument, textDocument: string, ...args: any[]): Diagnostic[];
+	report(pslDocument: PslDocument, ...args: any[]): Diagnostic[];
 }
 
-export interface MethodRule extends Rule {
-	report(pslDocument: PslDocument, textDocument: string, method: Method): Diagnostic[];
+
+export interface MemberRule extends DocumentRule {
+	report(pslDocument: PslDocument, member: Member): Diagnostic[];
 }
 
-export interface DeclarationRule extends Rule {
-	report(pslDocument: PslDocument, textDocument: string, declaration: Declaration): Diagnostic[];
+export interface PropertyRule extends DocumentRule {
+	report(pslDocument: PslDocument, property: Property): Diagnostic[];
 }
+
+export interface MethodRule extends DocumentRule {
+	report(pslDocument: PslDocument, method: Method): Diagnostic[];
+}
+
+export interface ParameterRule extends DocumentRule {
+	report(pslDocument: PslDocument, parameter: Parameter, method: Method): Diagnostic[];
+}
+
+export interface DeclarationRule extends DocumentRule {
+	report(pslDocument: PslDocument, declaration: Declaration, method: Method): Diagnostic[];
+}
+
 
 interface GetTextMethod {
 	(lineNumber: number): string;
@@ -96,9 +113,13 @@ interface GetTextMethod {
 export class PslDocument {
 
 	parsedDocument: ParsedDocument;
+	textDocument: string;
+	fsPath: string;
 
-	constructor(parsedDocument: ParsedDocument, getTextAtLine?: GetTextMethod) {
+	constructor(parsedDocument: ParsedDocument, textDocument: string, fsPath: string, getTextAtLine?: GetTextMethod) {
 		this.parsedDocument = parsedDocument;
+		this.textDocument = textDocument;
+		this.fsPath = fsPath;
 		if (getTextAtLine) this.getTextAtLine = getTextAtLine;
 	}
 
