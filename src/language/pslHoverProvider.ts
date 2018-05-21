@@ -3,10 +3,18 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as parser from '../parser/parser';
 import * as utils from '../parser/utillities';
+import * as jsonc from 'jsonc-parser';
 
 const relativeCorePath = '.vscode/pslcls/';
 const relativeProjectPath = ['dataqwik/procedure/', 'test/utgood/', 'test/stgood/'];
 const relativeTablePath = 'dataqwik/table/';
+
+
+const getWorkspaceDocumentText = async (fsPath: string): Promise<string> => {
+	return fs.stat(fsPath).then(() => {
+		return vscode.workspace.openTextDocument(fsPath).then(textDocument => textDocument.getText(), () => '');
+	}).catch(() => '')
+}
 
 export class PSLHoverProvider implements vscode.HoverProvider {
 
@@ -21,12 +29,6 @@ export class PSLHoverProvider implements vscode.HoverProvider {
 
 		const workspaceDirectory = vscode.workspace.getWorkspaceFolder(document.uri);
 		if (!workspaceDirectory) return;
-
-		const getWorkspaceDocumentText = async (fsPath: string): Promise<string> => {
-			return fs.stat(fsPath).then(() => {
-				return vscode.workspace.openTextDocument(fsPath).then(textDocument => textDocument.getText(), () => '');
-			}).catch(() => '')
-		}
 
 		let callTokens = utils.getCallTokens(tokensOnLine, index);
 		if (callTokens.length === 0) return;
@@ -44,9 +46,12 @@ export class PSLHoverProvider implements vscode.HoverProvider {
 
 
 
-function getHover(result: utils.FinderResult): vscode.Hover {
+async function getHover(result: utils.FinderResult): Promise<vscode.Hover> {
 	let markdownString: vscode.MarkdownString = new vscode.MarkdownString();
 	markdownString.appendCodeblock(getSignature(result.member), 'psl');
+	if (result.member.memberClass === parser.MemberClass.column) {
+		return getColumnDocumentation(result);
+	}
 	if (!result.member.documentation) return new vscode.Hover(markdownString);
 
 	let clean = result.member.documentation.replace(/\s*(DOC)?\s*\-+/, '').replace(/\*+\s+ENDDOC/, '').trim();
@@ -56,6 +61,29 @@ function getHover(result: utils.FinderResult): vscode.Hover {
 		.replace(/(\*(@(param|publicnew|public|throws?))\*)\s+([A-Za-z\-0-9%_\.]+)/g, '$1 `$4`');
 	let documentation = new vscode.MarkdownString().appendMarkdown(clean);
 	return new vscode.Hover([markdownString, documentation]);
+}
+
+async function getColumnDocumentation(columnResult: utils.FinderResult): Promise<vscode.Hover> {
+	let typs = {
+		'T': ['String', 'column type: T (Text)'],
+		'U': ['String', 'column type: U (Uppercase text)'],
+		'N': ['Number', 'column type: N (Number)'],
+		'$': ['Number', 'column type: $ (Currency)'],
+		'L': ['Boolean', 'column type: L (Logical)'],
+		'D': ['Date', 'column type: D (Date)'],
+		'C': ['Number', 'column type: C (Time)'],
+		'F': ['Number', 'column type: F (Frequency)'],
+		'M': ['String', 'column type: M (Memo)'],
+		'B': ['String', 'column type: B (Blob)'],
+	}
+	let text = await getWorkspaceDocumentText(columnResult.fsPath);
+	let parsed = jsonc.parse(text);
+	let typ = parsed.TYP;
+	let doc = text.split('}')[1];
+
+	let header = new vscode.MarkdownString().appendCodeblock(`(column) ${typs[typ][0]} ${columnResult.member.id.value}`);
+	let footer = new vscode.MarkdownString().appendMarkdown(`${parsed.DES}\n\n${typs[typ][1]}\n\n${doc}`)
+	return new vscode.Hover([header, footer]);
 }
 
 
