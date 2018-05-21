@@ -11,6 +11,7 @@ export enum MemberClass {
 	declaration = 4,
 	column = 5,
 	table = 6,
+	proc = 7,
 }
 
 /**

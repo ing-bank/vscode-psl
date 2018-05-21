@@ -1,12 +1,8 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs-extra';
+import * as lang from './lang';
 import * as path from 'path';
 import * as parser from '../parser/parser';
 import * as utils from '../parser/utillities';
-
-const relativeCorePath = '.vscode/pslcls/';
-const relativeProjectPath = ['dataqwik/procedure/', 'test/psl/utgood/', 'test/psl/stgood/'];
-const relativeTablePath = 'dataqwik/table/';
 
 export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 
@@ -22,22 +18,15 @@ export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 		const workspaceDirectory = vscode.workspace.getWorkspaceFolder(document.uri);
 		if (!workspaceDirectory) return;
 
-
-		const getWorkspaceDocumentText = async (fsPath: string): Promise<string> => {
-			return fs.stat(fsPath).then(() => {
-				return vscode.workspace.openTextDocument(fsPath).then(textDocument => textDocument.getText(), () => '');
-			}).catch(() => '')
-		}
-
 		let callTokens = utils.getCallTokens(tokensOnLine, index);
 		if (callTokens.length === 0) return;
 		let paths: utils.FinderPaths = {
 			routine: document.fileName,
-			corePsl: path.join(workspaceDirectory.uri.fsPath, relativeCorePath),
-			projectPsl: relativeProjectPath.concat(relativeCorePath).map(pslPath => path.join(workspaceDirectory.uri.fsPath, pslPath)),
-			table: path.join(workspaceDirectory.uri.fsPath, relativeTablePath),
+			corePsl: path.join(workspaceDirectory.uri.fsPath, lang.relativeCorePath),
+			projectPsl: lang.relativeProjectPath.concat(lang.relativeCorePath).map(pslPath => path.join(workspaceDirectory.uri.fsPath, pslPath)),
+			table: path.join(workspaceDirectory.uri.fsPath, lang.relativeTablePath),
 		}
-		let finder = new utils.ParsedDocFinder(parsedDoc, paths, getWorkspaceDocumentText);
+		let finder = new utils.ParsedDocFinder(parsedDoc, paths, lang.getWorkspaceDocumentText);
 		let resolvedResult = await finder.resolveResult(callTokens);
 		if (resolvedResult) return getLocation(resolvedResult);
 	}

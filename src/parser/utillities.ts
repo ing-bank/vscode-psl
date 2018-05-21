@@ -67,6 +67,12 @@ export class ParsedDocFinder {
 						// member: { types: [], id: new Token(Type.Alphanumeric, callTokens[0].value, dummyPosition), memberClass: MemberClass.table }
 					};
 				}
+				// else if (callTokens[0].value === 'this' || callTokens[0].value === this.procName) {
+				// 	return {
+				// 		member: { id: callTokens[0], types: [new Token(Type.Alphanumeric, this.procName, dummyPosition)], memberClass: MemberClass.proc },
+				// 		fsPath: this.paths.routine
+				// 	};
+				// }
 			}
 
 			// handle static types
@@ -94,6 +100,10 @@ export class ParsedDocFinder {
 					}
 					// skip over 'this'
 					else if (token.value === 'this' || token.value === this.procName) {
+						// result = {
+						// 	member: { id: token, types: [new Token(Type.Alphanumeric, this.procName, dummyPosition)], memberClass: MemberClass.proc },
+						// 	fsPath: this.paths.routine
+						// };
 						continue;
 					}
 					else {
@@ -182,6 +192,33 @@ export class ParsedDocFinder {
 			return parentFinder.searchInDocument(queriedId);
 		}
 	}
+
+	// async findAll(): Promise<Map<string, FinderResult> | undefined> {
+	// 	const search = async (members: Map<string, FinderResult>) => {
+	// 		this.parsedDocument.properties.forEach(p => {
+	// 			if (!members.has(p.id.value)) {
+	// 				members.set(p.id.value, { member: p, fsPath: this.paths.routine });
+	// 			}
+	// 		});
+	// 		this.parsedDocument.methods.forEach(m => {
+	// 			if (!members.has(m.id.value)) {
+	// 				members.set(m.id.value, { member: m, fsPath: this.paths.routine });
+	// 			}
+	// 		});
+
+	// 		if (this.parsedDocument.extending) {
+	// 			const parentRoutineName = this.parsedDocument.extending.value;
+	// 			if (this.heirachy.indexOf(parentRoutineName) > -1) return;
+	// 			let parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
+	// 			if (!parentFinder) return;
+	// 			search(members);
+	// 		}
+	// 		return members;
+	// 	}
+
+	// 	let ret = new Map<string, FinderResult>();
+	// 	return search(ret);
+	// }
 
 	private async searchForParent(parentRoutineName: string): Promise<ParsedDocFinder | undefined> {
 		const parentFinder = await this.newFinder(parentRoutineName);
