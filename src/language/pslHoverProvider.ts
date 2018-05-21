@@ -6,7 +6,7 @@ import * as utils from '../parser/utillities';
 import * as jsonc from 'jsonc-parser';
 
 const relativeCorePath = '.vscode/pslcls/';
-const relativeProjectPath = ['dataqwik/procedure/', 'test/utgood/', 'test/stgood/'];
+const relativeProjectPath = ['dataqwik/procedure/', 'test/psl/utgood/', 'test/psl/stgood/'];
 const relativeTablePath = 'dataqwik/table/';
 
 

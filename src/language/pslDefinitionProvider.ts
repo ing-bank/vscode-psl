@@ -5,7 +5,7 @@ import * as parser from '../parser/parser';
 import * as utils from '../parser/utillities';
 
 const relativeCorePath = '.vscode/pslcls/';
-const relativeProjectPath = ['dataqwik/procedure/', 'test/utgood/', 'test/stgood/'];
+const relativeProjectPath = ['dataqwik/procedure/', 'test/psl/utgood/', 'test/psl/stgood/'];
 const relativeTablePath = 'dataqwik/table/';
 
 export class PSLDefinitionProvider implements vscode.DefinitionProvider {
