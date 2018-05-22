@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
+## v1.1.1 (preview)
+
+Introduced toggle to enable preview features (`"psl.previewFeatures" : true`). Restart after configuring to enable.
+
+#### release candidate 0
+- Hover and go-to definitions.
+- Actions for missing separator and documentation on methods.
+
 ## v1.1.0
 Implementation of the psl-lint code quality checker. Enable it by adding the setting `"psl.lint" : true` to your settings.json.
 
