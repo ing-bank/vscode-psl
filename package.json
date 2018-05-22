@@ -2,13 +2,14 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "1.0.1",
+  "version": "1.1.1-rc.0",
+  "preview": true,
   "publisher": "ing-bank",
   "engines": {
-    "vscode": "^1.17.0"
+    "vscode": "^1.23.0"
   },
   "categories": [
-    "Languages"
+    "Programming Languages"
   ],
   "license": "MIT",
   "activationEvents": [
@@ -701,6 +702,12 @@
           "type": "boolean",
           "default": false,
           "description": "Whether to lint files written in PSL."
+        },
+        "psl.previewFeatures": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": false,
+          "description": "Set true to enable the latest developing features (requires restart)."
         }
       }
     }

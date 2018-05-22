@@ -3,6 +3,7 @@ import * as api from '../src/pslLint/api';
 import { parseText } from '../src/parser/parser';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as activate from '../src/pslLint/activate';
 
 const testFilePath = path.resolve('__tests__', 'files', 'ZTestParams.PROC');
 let parametersReport: api.Diagnostic[];
@@ -22,8 +23,13 @@ function reportsOnLine(lineNumber: number, reports?: api.Diagnostic[]) {
 describe('Parameter tests', () => {
 	beforeAll(async () => {
 		let text = await fs.readFile(testFilePath).then(b => b.toString());
-		let returnDoc = new api.Document(parseText(text));
-		parametersReport = new ParametersOnNewLine().report(returnDoc);
+
+		let pslDocument = new api.PslDocument(parseText(text), text, testFilePath);
+		let ruleSubscriptions = new activate.RuleSubscription(pslDocument);
+		ruleSubscriptions.addMethodRules(new ParametersOnNewLine());
+		activate.reportRules(ruleSubscriptions);
+		parametersReport = ruleSubscriptions.diagnostics;
+		
 	})
 
 	test('No report for no params', () => {

@@ -1,5 +1,5 @@
-import { IDocument, parseFile, parseText, IDeclaration, IMember, MemberClass, IMethod, IProperty, IParameter } from './../parser/parser';
-import { Range } from './../parser/tokenizer'
+import { Declaration, Member, MemberClass, Method, Parameter, ParsedDocument, Property, parseFile, parseText } from './../parser/parser';
+import { Range } from './../parser/tokenizer';
 
 export enum DiagnosticSeverity {
 
@@ -41,19 +41,21 @@ export class Diagnostic {
 	 * A human-readable string describing the source of this
 	 * diagnostic, e.g. 'typescript' or 'super lint'.
 	 */
-	source: string;
+	source?: string;
 
 	/**
 	 * The severity, default is [error](#DiagnosticSeverity.Error).
 	 */
-	severity: DiagnosticSeverity;
+	severity?: DiagnosticSeverity;
 
 	/**
 	 * A code or identifier for this diagnostics. Will not be surfaced
 	 * to the user, but should be used for later processing, e.g. when
 	 * providing [code actions](#CodeActionContext).
 	 */
-	code: string | number;
+	code?: string | number;
+
+	member?: Member;
 
 	/**
 	 * Creates a new diagnostic object.
@@ -62,54 +64,76 @@ export class Diagnostic {
 	 * @param message The human-readable message.
 	 * @param severity The severity, default is [error](#DiagnosticSeverity.Error).
 	 */
-	constructor(range: Range, message: string, severity?: DiagnosticSeverity) {
+	constructor(range: Range, message: string, severity?: DiagnosticSeverity, member?: Member) {
 		this.range = range
 		this.message = message
-		this.severity = severity
+		if (severity) this.severity = severity
+		if (member) this.member = member
 	}
-
-
 }
 
 /**
  * An interface for writing new rules
  */
-export interface Rule {
+export interface DocumentRule {
 	/**
 	 * 
-	 * @param parsedDocument An abstract representation of a PSL document
+	 * @param pslDocument An abstract representation of a PSL document
 	 * @param textDocument The whole text of the document, as a string.
 	 */
-	report(parsedDocument: Document, textDocument: string, ...args: any[]): Diagnostic[];
+	report(pslDocument: PslDocument, ...args: any[]): Diagnostic[];
 }
 
-export interface MethodRule extends Rule {
-	report(parsedDocument: Document, textDocument: string, method: IMethod): Diagnostic[];
+
+export interface MemberRule extends DocumentRule {
+	report(pslDocument: PslDocument, member: Member): Diagnostic[];
 }
 
-export interface DeclarationRule extends Rule {
-	report(parsedDocument: Document, textDocument: string, declaration: IDeclaration): Diagnostic[];
+export interface PropertyRule extends DocumentRule {
+	report(pslDocument: PslDocument, property: Property): Diagnostic[];
 }
 
-export class Document {
+export interface MethodRule extends DocumentRule {
+	report(pslDocument: PslDocument, method: Method): Diagnostic[];
+}
 
-	parsedDocument: IDocument;
+export interface ParameterRule extends DocumentRule {
+	report(pslDocument: PslDocument, parameter: Parameter, method: Method): Diagnostic[];
+}
 
-	constructor(parsedDocument: IDocument) {
+export interface DeclarationRule extends DocumentRule {
+	report(pslDocument: PslDocument, declaration: Declaration, method: Method): Diagnostic[];
+}
+
+
+interface GetTextMethod {
+	(lineNumber: number): string;
+}
+
+export class PslDocument {
+
+	parsedDocument: ParsedDocument;
+	textDocument: string;
+	fsPath: string;
+
+	constructor(parsedDocument: ParsedDocument, textDocument: string, fsPath: string, getTextAtLine?: GetTextMethod) {
 		this.parsedDocument = parsedDocument;
+		this.textDocument = textDocument;
+		this.fsPath = fsPath;
+		if (getTextAtLine) this.getTextAtLine = getTextAtLine;
 	}
 
 	/**
 	 * A utility method to get the text at a specified line of the document.
 	 * @param lineNumber The zero-based line number of the document where the text is.
 	 */
-	getTextAtLine(lineNumber: number) {
+	getTextAtLine(lineNumber: number): string {
 		return this.parsedDocument.tokens.filter(t => {
 			return t.position.line === lineNumber;
 		}).map(t => t.value).join('');
 	}
 }
 
-export { parseFile, parseText, IDeclaration, IMember, MemberClass, IMethod, IProperty, IParameter };
+export { parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter };
 export * from './../parser/tokenizer';
 export * from './../parser/utillities';

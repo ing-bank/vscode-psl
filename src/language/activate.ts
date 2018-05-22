@@ -5,6 +5,8 @@ import { PSL_MODE, BATCH_MODE, TRIG_MODE, DATA_MODE } from '../extension';
 import { PSLDocumentSymbolProvider } from './pslDocument';
 import { DataHoverProvider, DataDocumentHighlightProvider } from './dataItem';
 import { PSLCompletionItemProvider } from './pslSuggest';
+import { PSLDefinitionProvider } from './pslDefinitionProvider';
+import { PSLHoverProvider } from './pslHoverProvider';
 import * as codeQuality from './codeQuality';
 
 
@@ -59,6 +61,34 @@ export async function activate(context: vscode.ExtensionContext) {
 			DATA_MODE, new DataDocumentHighlightProvider()
 		)
 	);
+	let preview: boolean = vscode.workspace.getConfiguration('psl', null).get('previewFeatures');
+
+	if (preview) {
+		// Go-to Definitions
+		context.subscriptions.push(
+			vscode.languages.registerDefinitionProvider(
+				PSL_MODE, new PSLDefinitionProvider()
+			)
+		);
+		context.subscriptions.push(
+			vscode.languages.registerDefinitionProvider(
+				BATCH_MODE, new PSLDefinitionProvider()
+			)
+		);
+
+		// Go-to Definitions
+		context.subscriptions.push(
+			vscode.languages.registerHoverProvider(
+				PSL_MODE, new PSLHoverProvider()
+			)
+		);
+		context.subscriptions.push(
+			vscode.languages.registerHoverProvider(
+				BATCH_MODE, new PSLHoverProvider()
+			)
+		);
+
+	}
 
 	// Code quality
 	codeQuality.activate(context);

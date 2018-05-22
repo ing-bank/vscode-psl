@@ -1,35 +1,38 @@
-import { Diagnostic, DiagnosticSeverity, Rule, Document } from './api';
+import { Diagnostic, DiagnosticSeverity, MethodRule, PslDocument, Method } from './api';
 
 /**
  * Checks if multiple parameters are written on the same line as the method declaration.
  */
-export class MethodDocumentation implements Rule {
+export class MethodDocumentation implements MethodRule {
 
-	report(doc: Document): Diagnostic[] {
-
+	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
+		
+		if (method.batch) return;
+		
 		let diagnostics: Diagnostic[] = [];
-		doc.parsedDocument.methods.forEach(method => {
-			if (method.batch) return;
-			let nextLineContent: string = doc.getTextAtLine(method.nextLine);
-			let prevLineContent: string = doc.getTextAtLine(method.prevLine);
-			let idToken = method.id;
 
-			if (!(prevLineContent.trim().startsWith('//'))) {
-				let message = `Seperator missing for label "${idToken.value}"`;
-				let range = idToken.getRange();
-				let diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Warning);
-				diagnostic.source = 'lint';
-				diagnostics.push(diagnostic);
-			}
+		let nextLineContent: string = pslDocument.getTextAtLine(method.nextLine);
+		let prevLineContent: string = pslDocument.getTextAtLine(method.prevLine);
+		let idToken = method.id;
 
-			if (!(nextLineContent.trim().startsWith('/*'))) {
-				let message = `Documentation missing for label "${idToken.value}"`;
-				let range = idToken.getRange();
-				let diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Warning);
-				diagnostic.source = 'lint';
-				diagnostics.push(diagnostic);
-			}
-		});
+		if (!(prevLineContent.trim().startsWith('//'))) {
+			let message = `Separator missing for label "${idToken.value}"`;
+			let range = idToken.getRange();
+			let diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Warning);
+			diagnostic.source = 'lint';
+			diagnostic.member = method;
+			diagnostics.push(diagnostic);
+		}
+
+		if (!(nextLineContent.trim().startsWith('/*'))) {
+			let message = `Documentation missing for label "${idToken.value}"`;
+			let range = idToken.getRange();
+			let diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Warning);
+			diagnostic.source = 'lint';
+			diagnostic.member = method;
+			diagnostics.push(diagnostic);
+		}
+
 		return diagnostics;
 	}
 }

@@ -35,6 +35,132 @@ export class Token {
 		let endPosition: Position = { line: this.position.line, character: this.position.character + this.value.length }
 		return new Range(startPosition, endPosition);
 	}
+	isAlphanumeric() {
+		return this.type === Type.Alphanumeric;
+	}
+	isNumeric() {
+		return this.type === Type.Numeric;
+	}
+	isLineComment() {
+		return this.type === Type.LineComment;
+	}
+	isBlockComment() {
+		return this.type === Type.BlockComment;
+	}
+	isString() {
+		return this.type === Type.String;
+	}
+	isLineCommentInit() {
+		return this.type === Type.LineCommentInit;
+	}
+	isBlockCommentInit() {
+		return this.type === Type.BlockCommentInit;
+	}
+	isBlockCommentTerm() {
+		return this.type === Type.BlockCommentTerm;
+	}
+	isDoubleQuotes() {
+		return this.type === Type.DoubleQuotes;
+	}
+	isSlash() {
+		return this.type === Type.Slash;
+	}
+	isTab() {
+		return this.type === Type.Tab;
+	}
+	isNewLine() {
+		return this.type === Type.NewLine;
+	}
+	isSpace() {
+		return this.type === Type.Space;
+	}
+	isExclamationMark() {
+		return this.type === Type.ExclamationMark;
+	}
+	isNumberSign() {
+		return this.type === Type.NumberSign;
+	}
+	isDollarSign() {
+		return this.type === Type.DollarSign;
+	}
+	isAmpersand() {
+		return this.type === Type.Ampersand;
+	}
+	isSingleQuote() {
+		return this.type === Type.SingleQuote;
+	}
+	isOpenParen() {
+		return this.type === Type.OpenParen;
+	}
+	isCloseParen() {
+		return this.type === Type.CloseParen;
+	}
+	isAsterisk() {
+		return this.type === Type.Asterisk;
+	}
+	isPlusSign() {
+		return this.type === Type.PlusSign;
+	}
+	isComma() {
+		return this.type === Type.Comma;
+	}
+	isMinusSign() {
+		return this.type === Type.MinusSign;
+	}
+	isPeriod() {
+		return this.type === Type.Period;
+	}
+	isColon() {
+		return this.type === Type.Colon;
+	}
+	isSemiColon() {
+		return this.type === Type.SemiColon;
+	}
+	isLessThan() {
+		return this.type === Type.LessThan;
+	}
+	isEqualSign() {
+		return this.type === Type.EqualSign;
+	}
+	isGreaterThan() {
+		return this.type === Type.GreaterThan;
+	}
+	isQuestionMark() {
+		return this.type === Type.QuestionMark;
+	}
+	isAtSymbol() {
+		return this.type === Type.AtSymbol;
+	}
+	isOpenBracket() {
+		return this.type === Type.OpenBracket;
+	}
+	isBackslash() {
+		return this.type === Type.Backslash;
+	}
+	isCloseBracket() {
+		return this.type === Type.CloseBracket;
+	}
+	isCaret() {
+		return this.type === Type.Caret;
+	}
+	isUnderscore() {
+		return this.type === Type.Underscore;
+	}
+	isBackQuote() {
+		return this.type === Type.BackQuote;
+	}
+	isOpenBrace() {
+		return this.type === Type.OpenBrace;
+	}
+	isPipe() {
+		return this.type === Type.Pipe;
+	}
+	isCloseBrace() {
+		return this.type === Type.CloseBrace;
+	}
+	isTilde() {
+		return this.type === Type.Tilde;
+	}
 }
 
 export class Range {

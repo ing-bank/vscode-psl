@@ -1,12 +1,12 @@
-import { Diagnostic, Range, Position, DiagnosticSeverity, Rule, Document, getTokens, Type } from './api';
+import { Diagnostic, Range, Position, DiagnosticSeverity, DocumentRule, PslDocument, getTokens } from './api';
 
-export class TodoInfo implements Rule {
-	report(doc: Document): Diagnostic[] {
+export class TodoInfo implements DocumentRule {
+	report(pslDocument: PslDocument): Diagnostic[] {
 		let todos: Todo[] = [];
-		for (let token of doc.parsedDocument.tokens) {
+		for (let token of pslDocument.parsedDocument.tokens) {
 			let startLine = token.position.line;
 			let startChar = token.position.character;
-			if (token.type === Type.BlockComment || token.type === Type.LineComment) {
+			if (token.isBlockComment() || token.isLineComment()) {
 				todos = todos.concat(getTodosFromComment(token.value, startLine, startChar));
 			}
 		}
@@ -43,8 +43,8 @@ function getTodosFromComment(commentText: string, startLine: number, startChar: 
 	for (let token of tokens) {
 		currentLine = startLine + token.position.line;
 		currentChar = startLine === currentLine ? token.position.character + startChar : token.position.character;
-		if (token.type === Type.BlockCommentInit || token.type === Type.LineCommentInit) continue;
-		else if (token.type === Type.BlockComment || token.type === Type.LineComment) {
+		if (token.isBlockCommentInit() || token.isLineCommentInit()) continue;
+		else if (token.isBlockComment() || token.isLineComment()) {
 			todos = todos.concat(getTodosFromComment(token.value, currentLine, currentChar));
 		}
 		else if (token.value === 'TODO' && !todo) {
@@ -53,7 +53,7 @@ function getTodosFromComment(commentText: string, startLine: number, startChar: 
 			todo = { range, message };
 		}
 		else if (todo) {
-			if (token.type === Type.NewLine) finalize();
+			if (token.isNewLine()) finalize();
 			else todo.message += token.value;
 		}
 	}
