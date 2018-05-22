@@ -24,7 +24,10 @@ function addRules(subscription: RuleSubscription) {
 	)
 }
 
-function reportRules(subscription: RuleSubscription) {
+export function reportRules(subscription: RuleSubscription) {
+
+	subscription.reportDocumentRules();
+
 	for (const property of subscription.pslDocument.parsedDocument.properties) {
 		subscription.reportPropertyRules(property);
 		subscription.reportMemberRules(property);
@@ -58,7 +61,7 @@ export function getDiagnostics(pslDocument: PslDocument) {
 /**
  * Interface for adding and executing rules.
  */
-class RuleSubscription {
+export class RuleSubscription {
 
 	pslDocument: PslDocument;
 

@@ -106,7 +106,7 @@ describe('completion', () => {
 })
 
 describe('ParsedDocFinder', () => {
-    let pslPaths: string[];
+    let filesDir: string;
 
     let parentFilePath: string;
     let childFilePath: string;
@@ -115,9 +115,7 @@ describe('ParsedDocFinder', () => {
     let parsedChild: ParsedDocument;
 
     beforeAll(async () => {
-        const filesDir = path.resolve('__tests__', 'files');
-
-        pslPaths = [filesDir];
+        filesDir = path.resolve('__tests__', 'files');
 
         parentFilePath = path.join(filesDir, 'ZParent.PROC');
         childFilePath = path.join(filesDir, 'ZChild.PROC');
@@ -127,7 +125,13 @@ describe('ParsedDocFinder', () => {
     });
 
     test('Find dummy in child', async () => {
-        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, childFilePath, pslPaths);
+        let paths: utilities.FinderPaths = {
+            corePsl: '',
+            projectPsl: [filesDir],
+            routine: childFilePath,
+            table: ''
+        }
+        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
         let result = await finder.searchParser(new tokenizer.Token(tokenizer.Type.Alphanumeric, 'dummy', { character: 0, line: 0 }));
         expect(result.member.memberClass).toBe(MemberClass.property);
         expect(result.member.id.value).toBe('dummy');
@@ -135,7 +139,13 @@ describe('ParsedDocFinder', () => {
     });
 
     test('Find property in child', async () => {
-        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, childFilePath, pslPaths);
+        let paths: utilities.FinderPaths = {
+            corePsl: '',
+            projectPsl: [filesDir],
+            routine: childFilePath,
+            table: ''
+        }
+        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
         let result = await finder.searchParser(new tokenizer.Token(tokenizer.Type.Alphanumeric, 'propInChild', { character: 0, line: 0 }));
         expect(result.member.memberClass).toBe(MemberClass.property);
         expect(result.member.id.value).toBe('propInChild');
@@ -143,7 +153,13 @@ describe('ParsedDocFinder', () => {
     });
 
     test('Find method in child', async () => {
-        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, childFilePath, pslPaths);
+        let paths: utilities.FinderPaths = {
+            corePsl: '',
+            projectPsl: [filesDir],
+            routine: childFilePath,
+            table: ''
+        }
+        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
         let result = await finder.searchParser(new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodInChild', { character: 0, line: 0 }));
         expect(result.member.memberClass).toBe(MemberClass.method);
         expect(result.member.id.value).toBe('methodInChild');
@@ -151,7 +167,13 @@ describe('ParsedDocFinder', () => {
     })
 
     test('Find method overriden method in child', async () => {
-        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, childFilePath, pslPaths);
+        let paths: utilities.FinderPaths = {
+            corePsl: '',
+            projectPsl: [filesDir],
+            routine: childFilePath,
+            table: ''
+        }
+        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
         let result = await finder.searchParser(new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodInParentAndChild', { character: 0, line: 0 }));
         expect(result.member.memberClass).toBe(MemberClass.method);
         expect(result.member.id.value).toBe('methodInParentAndChild');
@@ -159,7 +181,13 @@ describe('ParsedDocFinder', () => {
     });
 
     test('Find method inherited method in parent', async () => {
-        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, childFilePath, pslPaths);
+        let paths: utilities.FinderPaths = {
+            corePsl: '',
+            projectPsl: [filesDir],
+            routine: childFilePath,
+            table: ''
+        }
+        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
         let result = await finder.searchParser(new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodInParent', { character: 0, line: 0 }));
         expect(result.member.memberClass).toBe(MemberClass.method);
         expect(result.member.id.value).toBe('methodInParent');
@@ -167,7 +195,13 @@ describe('ParsedDocFinder', () => {
     });
 
     test('Find method in parent', async () => {
-        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedParent, parentFilePath, pslPaths);
+        let paths: utilities.FinderPaths = {
+            corePsl: '',
+            projectPsl: [filesDir],
+            routine: parentFilePath,
+            table: ''
+        }
+        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedParent, paths);
         let result = await finder.searchParser(new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodInParent', { character: 0, line: 0 }));
         expect(result.member.memberClass).toBe(MemberClass.method);
         expect(result.member.id.value).toBe('methodInParent');
@@ -175,7 +209,13 @@ describe('ParsedDocFinder', () => {
     });
 
     test('Find y in methodInChild', async () => {
-        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, childFilePath, pslPaths);
+        let paths: utilities.FinderPaths = {
+            corePsl: '',
+            projectPsl: [filesDir],
+            routine: childFilePath,
+            table: ''
+        }
+        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
         let result = await finder.searchParser(new tokenizer.Token(tokenizer.Type.Alphanumeric, 'y', { character: 0, line: 12 }));
         expect(result.member.memberClass).toBe(MemberClass.declaration);
         expect(result.member.id.value).toBe('y');
@@ -183,19 +223,37 @@ describe('ParsedDocFinder', () => {
     });
 
     test('Do not find x', async () => {
-        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, childFilePath, pslPaths);
+        let paths: utilities.FinderPaths = {
+            corePsl: '',
+            projectPsl: [filesDir],
+            routine: childFilePath,
+            table: ''
+        }
+        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
         let result = await finder.searchParser(new tokenizer.Token(tokenizer.Type.Alphanumeric, 'x', { character: 0, line: 12 }));
         expect(result).toBeUndefined();
     });
 
     test('Do not find reallySpecificName', async () => {
-        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, childFilePath, pslPaths);
+        let paths: utilities.FinderPaths = {
+            corePsl: '',
+            projectPsl: [filesDir],
+            routine: childFilePath,
+            table: ''
+        }
+        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
         let result = await finder.searchParser(new tokenizer.Token(tokenizer.Type.Alphanumeric, 'reallySpecificName', { character: 0, line: 10 }));
         expect(result).toBeUndefined();
     });
 
     test('Do find reallySpecificName', async () => {
-        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedParent, parentFilePath, pslPaths);
+        let paths: utilities.FinderPaths = {
+            corePsl: '',
+            projectPsl: [filesDir],
+            routine: parentFilePath,
+            table: ''
+        }
+        let finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedParent, paths);
         let result = await finder.searchParser(new tokenizer.Token(tokenizer.Type.Alphanumeric, 'reallySpecificName', { character: 0, line: 10 }));
         expect(result.member.memberClass).toBe(MemberClass.declaration);
         expect(result.member.id.value).toBe('reallySpecificName');

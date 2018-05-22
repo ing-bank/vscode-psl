@@ -16,7 +16,7 @@ export class MethodDocumentation implements MethodRule {
 		let idToken = method.id;
 
 		if (!(prevLineContent.trim().startsWith('//'))) {
-			let message = `Seperator missing for label "${idToken.value}"`;
+			let message = `Separator missing for label "${idToken.value}"`;
 			let range = idToken.getRange();
 			let diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Warning);
 			diagnostic.source = 'lint';

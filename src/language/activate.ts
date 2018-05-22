@@ -61,30 +61,34 @@ export async function activate(context: vscode.ExtensionContext) {
 			DATA_MODE, new DataDocumentHighlightProvider()
 		)
 	);
+	let preview: boolean = vscode.workspace.getConfiguration('psl', null).get('previewFeatures');
 
-	// Go-to Definitions
-	context.subscriptions.push(
-		vscode.languages.registerDefinitionProvider(
-			PSL_MODE, new PSLDefinitionProvider()
-		)
-	);
-	context.subscriptions.push(
-		vscode.languages.registerDefinitionProvider(
-			BATCH_MODE, new PSLDefinitionProvider()
-		)
-	);
+	if (preview) {
+		// Go-to Definitions
+		context.subscriptions.push(
+			vscode.languages.registerDefinitionProvider(
+				PSL_MODE, new PSLDefinitionProvider()
+			)
+		);
+		context.subscriptions.push(
+			vscode.languages.registerDefinitionProvider(
+				BATCH_MODE, new PSLDefinitionProvider()
+			)
+		);
 
-	// Go-to Definitions
-	context.subscriptions.push(
-		vscode.languages.registerHoverProvider(
-			PSL_MODE, new PSLHoverProvider()
-		)
-	);
-	context.subscriptions.push(
-		vscode.languages.registerHoverProvider(
-			BATCH_MODE, new PSLHoverProvider()
-		)
-	);
+		// Go-to Definitions
+		context.subscriptions.push(
+			vscode.languages.registerHoverProvider(
+				PSL_MODE, new PSLHoverProvider()
+			)
+		);
+		context.subscriptions.push(
+			vscode.languages.registerHoverProvider(
+				BATCH_MODE, new PSLHoverProvider()
+			)
+		);
+
+	}
 
 	// Code quality
 	codeQuality.activate(context);

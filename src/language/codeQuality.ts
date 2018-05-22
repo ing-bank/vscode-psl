@@ -51,23 +51,23 @@ class PSLActionProvider implements vscode.CodeActionProvider {
 		let actions: vscode.CodeAction[] = [];
 		let allDiagnostics: MemberDiagnostic[] = [];
 		let allTextEdits: vscode.TextEdit[] = [];
-		
+
 		let fixAll: vscode.CodeAction = initializeAction('Fix all.');
 
-		
+
 		for (const diagnostic of context.diagnostics) {
 			if (!diagnostic.member) continue;
-			
+
 			let method = diagnostic.member as parser.Method;
-			
-			if (diagnostic.message.startsWith('Seperator')) {				
-				let seperatorAction = initializeAction('Add sepeartor.', diagnostic);
+
+			if (diagnostic.message.startsWith('Separator')) {
+				let separatorAction = initializeAction('Add separator.', diagnostic);
 
 				let textEdit = vscode.TextEdit.insert(new vscode.Position(method.prevLine, 0), '\t// --------------------------------------------------------------------')
-				
-				seperatorAction.edit.set(document.uri, [textEdit]);
-				actions.push(seperatorAction);
-				
+
+				separatorAction.edit.set(document.uri, [textEdit]);
+				actions.push(separatorAction);
+
 				allDiagnostics.push(diagnostic);
 				allTextEdits.push(textEdit)
 			}
@@ -77,7 +77,7 @@ class PSLActionProvider implements vscode.CodeActionProvider {
 				let docText = `\t/* DOC ----------------------------------------------------------------\n\tTODO: description of label ${method.id.value}\n\n`;
 				let terminator = `\t** ENDDOC */\n`;
 				if (method.parameters.length > 0) {
-					let spacing = method.parameters.sort((p1, p2): number => {
+					let spacing = method.parameters.slice().sort((p1, p2): number => {
 						return p2.id.value.length - p1.id.value.length;
 					})[0].id.value.length + 2;
 
