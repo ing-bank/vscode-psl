@@ -40,10 +40,17 @@ export class MemberConventionChecker implements MemberRule {
 	memberCase(member: Member, diagnostics: Diagnostic[]): void {
 		const isLiteralProperty = (member.memberClass === MemberClass.property) &&
 			(member.modifiers.findIndex(x => x.value === "literal") > -1);
+		var isStaticDeclaration = false
+		member.types.forEach(type => {
+			if (type.value === member.id.value) {
+				isStaticDeclaration = true
+			} 
+		});
+
 
 		if (member.id.value.charAt(0) > 'z' || member.id.value.charAt(0) < 'a') {
 			// exception for literal properties
-			if (isLiteralProperty) return;
+			if (isLiteralProperty || isStaticDeclaration) return;
 			diagnostics.push(createDiagnostic(member, "doesn't start with lowercase"));
 		}
 	}
@@ -62,7 +69,7 @@ export class MemberConventionChecker implements MemberRule {
 }
 
 function createDiagnostic(member: Member, message: String): Diagnostic {
-	let diagnostic = new Diagnostic(member.id.getRange(), `${printEnum(member.memberClass)} ${member.id.value} ${message}`, DiagnosticSeverity.Warning);
+	let diagnostic = new Diagnostic(member.id.getRange(), `${printEnum(member.memberClass)} "${member.id.value}" ${message}`, DiagnosticSeverity.Warning);
 	diagnostic.source = 'lint';
 	return diagnostic;
 }
@@ -74,6 +81,6 @@ function startsWithZ(member: Member, diagnostics: Diagnostic[]) {
 }
 function printEnum(memberClass: MemberClass): String {
 	let enumName = MemberClass[memberClass];
-	return enumName.charAt(0).toUpperCase() + enumName.slice(1); //capitalize
+	return enumName === 'Method' ? 'Label' : enumName.charAt(0).toUpperCase() + enumName.slice(1); //capitalize
 }
 
