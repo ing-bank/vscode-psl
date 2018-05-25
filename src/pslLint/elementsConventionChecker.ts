@@ -62,7 +62,7 @@ export class MemberConventionChecker implements MemberRule {
 }
 
 function createDiagnostic(member: Member, message: String): Diagnostic {
-	let diagnostic = new Diagnostic(member.id.getRange(), "[" + member.memberClass + "]" + member.id.value + " -> " + message, DiagnosticSeverity.Warning);
+	let diagnostic = new Diagnostic(member.id.getRange(), `${printEnum(member.memberClass)} ${member.id.value} ${message}`, DiagnosticSeverity.Warning);
 	diagnostic.source = 'lint';
 	return diagnostic;
 }
@@ -71,5 +71,9 @@ function startsWithZ(member: Member, diagnostics: Diagnostic[]) {
 	if (member.id.value.charAt(0) == 'z' || member.id.value.charAt(0) == 'Z') {
 		diagnostics.push(createDiagnostic(member, `starts with 'Z'. (should avoid starting with "Z" or "z" to provide safe names for extending classes for customization. )`));
 	}
+}
+function printEnum(memberClass: MemberClass): String {
+	let enumName = MemberClass[memberClass];
+	return enumName.charAt(0).toUpperCase() + enumName.slice(1); //capitalize
 }
 

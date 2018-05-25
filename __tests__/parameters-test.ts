@@ -15,9 +15,9 @@ let parametersReport: api.Diagnostic[];
  */
 function reportsOnLine(lineNumber: number, reports?: api.Diagnostic[]) {
 	if (!reports) {
-		return parametersReport.filter(r => r.range.start.line === lineNumber).length;
+		return parametersReport.filter(r => r.range.start.line === lineNumber);
 	}
-	return reports.filter(r => r.range.start.line === lineNumber).length;
+	return reports.filter(r => r.range.start.line === lineNumber);
 }
 
 describe('Parameter tests', () => {
@@ -33,34 +33,34 @@ describe('Parameter tests', () => {
 	})
 
 	test('No report for no params', () => {
-		expect(reportsOnLine(2)).toBe(0)
+		expect(reportsOnLine(2).length).toBe(0)
 	})
 
 	test('No report for one param on same line', () => {
-		expect(reportsOnLine(7)).toBe(0)
+		expect(reportsOnLine(7).length).toBe(0)
 	})
 
 	test('Two reports for two params', () => {
-		expect(reportsOnLine(12)).toBe(2)
+		expect(reportsOnLine(12).length).toBe(2)
 	})
 
 	test('Catch label', () => {
-		expect(reportsOnLine(17)).toBe(3)
+		expect(reportsOnLine(17).length).toBe(3)
 	})
 
 	test('Catch no types on params', () => {
-		expect(reportsOnLine(22)).toBe(4)
+		expect(reportsOnLine(22).length).toBe(4)
 	})
 
 	test('Catch tree', () => {
-		expect(reportsOnLine(27)).toBe(2)
+		expect(reportsOnLine(27).length).toBe(2)
 	})
 
 	test('Catch tree with empty parens', () => {
-		expect(reportsOnLine(32)).toBe(2)
+		expect(reportsOnLine(32).length).toBe(2)
 	})
 
 	test('Catch tree with empty parens and commas', () => {
-		expect(reportsOnLine(37)).toBe(2)
+		expect(reportsOnLine(37).length).toBe(2)
 	})
 })
