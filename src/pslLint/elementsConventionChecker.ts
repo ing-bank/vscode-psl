@@ -11,18 +11,16 @@ export class MethodConventionChecker implements MethodRule {
 export class PropertyConventionChecker implements PropertyRule {
 	report(_parsedDocument: PslDocument, property: Property): Diagnostic[] {
 		let diagnostics: Diagnostic[] = [];
-
-		this.checkNonLiteralCase(property,diagnostics)
+		this.checkUpperCase(property,diagnostics)
 		startsWithZ(property,diagnostics)
 
 		return diagnostics
 	}
-
-	checkNonLiteralCase(property: Property, diagnostics: Diagnostic[]): void {
-		if (!(property.modifiers.findIndex(x => x.value === "literal") > -1)){
-			if(property.id.value.charAt(0) > 'z' || property.id.value.charAt(0) < 'a') {
-					diagnostics.push(createDiagnostic(property,"doesn't start with lowercase"));
-				}	
+	checkUpperCase(property: Property, diagnostics: Diagnostic[]): void {
+		if ((property.modifiers.findIndex(x => x.value === "literal") > -1)){
+			if(property.id.value!==property.id.value.toUpperCase()){
+				diagnostics.push(createDiagnostic(property,"is not upper case"));
+			}	
 		}
 	}
 }
@@ -71,6 +69,7 @@ export class MemberConventionChecker implements MemberRule {
 function createDiagnostic(member: Member, message: String): Diagnostic {
 	let diagnostic = new Diagnostic(member.id.getRange(), `${printEnum(member.memberClass)} "${member.id.value}" ${message}`, DiagnosticSeverity.Warning);
 	diagnostic.source = 'lint';
+	diagnostic.member=member;
 	return diagnostic;
 }
 

@@ -28,7 +28,7 @@ export class ParsedDocFinder {
 	paths: FinderPaths;
 	procName: string;
 
-	private heirachy: string[] = [];
+	private hierarchy: string[] = [];
 
 	constructor(parsedDocument: ParsedDocument, paths: FinderPaths, getWorkspaceDocumentText?: (fsPath: string) => Promise<string>) {
 		this.parsedDocument = parsedDocument;
@@ -186,7 +186,7 @@ export class ParsedDocFinder {
 
 		if (this.parsedDocument.extending) {
 			const parentRoutineName = this.parsedDocument.extending.value;
-			if (this.heirachy.indexOf(parentRoutineName) > -1) return;
+			if (this.hierarchy.indexOf(parentRoutineName) > -1) return;
 			let parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
 			if (!parentFinder) return;
 			return parentFinder.searchInDocument(queriedId);
@@ -223,7 +223,7 @@ export class ParsedDocFinder {
 	private async searchForParent(parentRoutineName: string): Promise<ParsedDocFinder | undefined> {
 		const parentFinder = await this.newFinder(parentRoutineName);
 		if (!parentFinder) return;
-		parentFinder.heirachy = this.heirachy.concat(this.paths.routine);
+		parentFinder.hierarchy = this.hierarchy.concat(this.paths.routine);
 		return parentFinder;
 	}
 
