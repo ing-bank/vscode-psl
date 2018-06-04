@@ -16,7 +16,7 @@ export class ParametersOnNewLine implements MethodRule {
             let paramPosition = param.id.position;
 
             if (paramPosition.line === methodLine && method.parameters.length > 1) {
-                let message = `param "${param.id.value}" on same line as label "${method.id.value}"`
+                let message = `Parameter "${param.id.value}" on same line as label "${method.id.value}"`
                 let diagnostic = new Diagnostic(param.id.getRange(), message, DiagnosticSeverity.Warning);
                 diagnostic.source = 'lint';
                 diagnostics.push(diagnostic);

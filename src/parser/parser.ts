@@ -30,8 +30,10 @@ export interface Member {
 	 */
 	types: Token[]
 
+	modifiers: Token[];
+
 	/**
-	 * The memeber class to determine the type at runtime
+	 * The member class to determine the type at runtime
 	 */
 	memberClass: MemberClass
 	
@@ -64,7 +66,7 @@ export interface Method extends Member {
 	parameters: Parameter[]
 
 	/**
-	 * The "type" delcarations found within the body of the method. Only the location where they are declared is referenced.
+	 * The "type" declarations found within the body of the method. Only the location where they are declared is referenced.
 	 */
 	declarations: Declaration[]
 
@@ -155,7 +157,7 @@ export interface ParsedDocument {
 
 	/**
 	 * An array of Declarations that are not contained within a method.
-	 * This will be empty for valid Profile 7.6 code but is maintained for compatability.
+	 * This will be empty for valid Profile 7.6 code but is maintained for compatibility.
 	 */
 	declarations: Declaration[]
 
@@ -216,8 +218,10 @@ class _Parameter implements Parameter {
 	id: Token
 	memberClass: MemberClass
 	comment: Token
+	modifiers: Token[];
 
 	constructor() {
+		this.modifiers = [];
 		this.req = false
 		this.ret = false
 		this.literal = false
@@ -574,9 +578,9 @@ class Parser {
 			if (this.activeToken.isTab() || this.activeToken.isSpace()) continue;
 			else if (this.activeToken.isNewLine()) break;
 			else if (this.activeToken.isOpenParen()) {
-				let proccesed = this.proccessArgs(method);
-				if (!proccesed) return undefined;
-				method.parameters = proccesed;
+				let processed = this.processParameters(method);
+				if (!processed) return undefined;
+				method.parameters = processed;
 				break;
 			}
 			else if (this.activeToken.isAlphanumeric() || this.activeToken.isNumeric()) {
@@ -639,71 +643,80 @@ class Parser {
 		return method;
 	}
 
-	private proccessArgs(method: _Method): _Parameter[] | undefined {
+	private processParameters(method: _Method): _Parameter[] | undefined {
 
 		let args: _Parameter[] = [];
-		let arg: _Parameter | undefined;
+		let param: _Parameter | undefined;
 		let open = false;
 		while (this.next()) {
 			if (this.activeToken.isTab() || this.activeToken.isSpace() || this.activeToken.isNewLine()) continue;
 			else if (this.activeToken.isOpenParen()) {
 				open = true;
-				if (!arg) return undefined;
-				if (arg.types.length === 1 && !arg.id) {
-					arg.id = arg.types[0];
-					arg.types[0] = this.getDummy();
+				if (!param) return undefined;
+				if (param.types.length === 1 && !param.id) {
+					param.id = param.types[0];
+					param.types[0] = this.getDummy();
 				}
-				let objectArgs = this.proccessObjectArgs();
+				let objectArgs = this.processObjectArgs();
 				if (!objectArgs) return undefined;
-				arg.types = arg.types.concat(objectArgs);
+				param.types = param.types.concat(objectArgs);
 				continue;
 			}
 			else if (this.activeToken.isCloseParen()) {
 				open = false;
 				method.closeParen = this.activeToken;
 				method.nextLine = this.activeToken.position.line + 1;
-				if (!arg) break;
-				if (arg.types.length === 1 && !arg.id) {
-					arg.id = arg.types[0]
-					arg.types[0] = this.getDummy();
+				if (!param) break;
+				if (param.types.length === 1 && !param.id) {
+					param.id = param.types[0]
+					param.types[0] = this.getDummy();
 				}
-				args.push(arg);
+				args.push(param);
 				break;
 			}
 			else if (this.activeToken.isAlphanumeric()) {
-				if (!arg) arg = new _Parameter();
+				if (!param) param = new _Parameter();
 				// let value = this.activeToken.value;
-				if (this.activeToken.value === 'req') arg.req = true;
-				else if (this.activeToken.value === 'ret') arg.ret = true;
-				else if (this.activeToken.value === 'literal') arg.literal = true;
-				else if (!arg.types) arg.types = [this.activeToken];
+				if (this.activeToken.value === 'req') {
+					param.modifiers.push(this.activeToken);
+					param.req = true;
+				}
+				else if (this.activeToken.value === 'ret') {
+					param.modifiers.push(this.activeToken);
+					param.ret = true;
+				}
+				else if (this.activeToken.value === 'literal') {
+					param.modifiers.push(this.activeToken);
+					param.literal = true;
+				}
+				else if (!param.types) param.types = [this.activeToken];
 				else {
-					arg.id = this.activeToken;
+					param.id = this.activeToken;
 				}
 			}
 			else if (this.activeToken.isLineComment()) {
-				if (arg) {
-					arg.comment = this.activeToken
+				if (param) {
+					param.comment = this.activeToken
 				}
 				else if (args.length >= 1) {
 					args[args.length - 1].comment = this.activeToken;
 				}
 			}
 			else if (this.activeToken.isComma()) {
-				if (!arg) return undefined;
-				if (arg.types.length === 1 && !arg.id) {
-					arg.id = arg.types[0]
-					arg.types[0] = this.getDummy();
+				if (!param) return undefined;
+				if (param.types.length === 1 && !param.id) {
+					param.id = param.types[0]
+					param.types[0] = this.getDummy();
 				}
-				args.push(arg)
-				arg = undefined;
+				args.push(param)
+				param = undefined;
 			}
 		}
 		if (open) return undefined;
 		return args;
 	}
 
-	private proccessObjectArgs(): Token[] | undefined {
+	private processObjectArgs(): Token[] | undefined {
 		let types: Token[] = [];
 		let found = false;
 		while (this.next()) {

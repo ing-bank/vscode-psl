@@ -6,8 +6,7 @@ import { Declaration, DeclarationRule, Diagnostic, DocumentRule, Member, MemberR
 import { MethodDocumentation } from './methodDoc';
 import { ParametersOnNewLine } from './parameters';
 import { TodoInfo } from './todos';
-
-
+import { MemberConventionChecker,MethodConventionChecker,PropertyConventionChecker } from './elementsConventionChecker';
 
 /**
  * Add new rules here to have them checked at the appropriate time.
@@ -21,7 +20,17 @@ function addRules(subscription: RuleSubscription) {
 	subscription.addMethodRules(
 		new MethodDocumentation(),
 		new ParametersOnNewLine(),
+		new MethodConventionChecker(),
 	)
+
+	subscription.addMemberRules(
+		new MemberConventionChecker(),
+	)
+	
+	subscription.addPropertyRules(
+		new PropertyConventionChecker(),
+	)
+
 }
 
 export function reportRules(subscription: RuleSubscription) {
