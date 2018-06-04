@@ -7,7 +7,7 @@ export class MethodDocumentation implements MethodRule {
 
 	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
 		
-		if (method.batch) return;
+		if (method.batch) return [];
 		
 		let diagnostics: Diagnostic[] = [];
 

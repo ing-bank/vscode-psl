@@ -7,7 +7,7 @@ export class ParametersOnNewLine implements MethodRule {
 
     report(_pslDocument: PslDocument, method: Method): Diagnostic[] {
 
-        if (method.batch) return;
+        if (method.batch) return [];
 
         let diagnostics: Diagnostic[] = []
         let methodLine = method.id.position.line;
