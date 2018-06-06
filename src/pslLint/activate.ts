@@ -3,10 +3,10 @@ import { Declaration, DeclarationRule, Diagnostic, DocumentRule, Member, MemberR
 /**
  * Import rules here.
  */
-import { MethodDocumentation } from './methodDoc';
-import { ParametersOnNewLine } from './parameters';
+import { MethodDocumentation, MethodSeparator } from './methodDoc';
+import { MultipleParametersOnNewLine } from './parameters';
 import { TodoInfo } from './todos';
-import { MemberConventionChecker,MethodConventionChecker,PropertyConventionChecker } from './elementsConventionChecker';
+import { MethodStartsWithZ, PropertyLiteralCase, PropertyStartsWithZ, MemberCamelCase, MemberLength, MemberStartsWithV } from './elementsConventionChecker';
 
 /**
  * Add new rules here to have them checked at the appropriate time.
@@ -17,18 +17,22 @@ function addRules(subscription: RuleSubscription) {
 		new TodoInfo(),
 	)
 
-	subscription.addMethodRules(
-		new MethodDocumentation(),
-		new ParametersOnNewLine(),
-		new MethodConventionChecker(),
+	subscription.addMemberRules(
+		new MemberCamelCase(),
+		new MemberLength(),
+		new MemberStartsWithV(),
 	)
 
-	subscription.addMemberRules(
-		new MemberConventionChecker(),
+	subscription.addMethodRules(
+		new MethodDocumentation(),
+		new MethodSeparator(),
+		new MultipleParametersOnNewLine(),
+		new MethodStartsWithZ(),
 	)
-	
+
 	subscription.addPropertyRules(
-		new PropertyConventionChecker(),
+		new PropertyStartsWithZ(),
+		new PropertyLiteralCase(),
 	)
 
 }

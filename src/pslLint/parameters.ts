@@ -3,7 +3,7 @@ import { Diagnostic, DiagnosticSeverity, MethodRule, PslDocument, Method } from 
 /**
  * Checks if multiple parameters are written on the same line as the method declaration.
  */
-export class ParametersOnNewLine implements MethodRule {
+export class MultipleParametersOnNewLine implements MethodRule {
 
     report(_pslDocument: PslDocument, method: Method): Diagnostic[] {
 

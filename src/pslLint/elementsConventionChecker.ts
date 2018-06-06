@@ -1,48 +1,57 @@
 import { Diagnostic, DiagnosticSeverity, PslDocument, Member, MemberRule, MemberClass, Property, PropertyRule, MethodRule, Method } from './api';
-export class MethodConventionChecker implements MethodRule {
+
+export class MethodStartsWithZ implements MethodRule {
 	report(_parsedDocument: PslDocument, method: Method): Diagnostic[] {
 		let diagnostics: Diagnostic[] = [];
 
-		startsWithZ(method,diagnostics)
+		startsWithZ(method, diagnostics)
 
 		return diagnostics
 	}
 }
-export class PropertyConventionChecker implements PropertyRule {
+export class PropertyStartsWithZ implements PropertyRule {
 	report(_parsedDocument: PslDocument, property: Property): Diagnostic[] {
 		let diagnostics: Diagnostic[] = [];
-		this.checkUpperCase(property,diagnostics)
-		startsWithZ(property,diagnostics)
+
+		startsWithZ(property, diagnostics)
 
 		return diagnostics
 	}
+}
+
+export class PropertyLiteralCase implements PropertyRule {
+	report(_parsedDocument: PslDocument, property: Property): Diagnostic[] {
+		let diagnostics: Diagnostic[] = [];
+		this.checkUpperCase(property, diagnostics);
+		return diagnostics;
+	}
 	checkUpperCase(property: Property, diagnostics: Diagnostic[]): void {
-		if ((property.modifiers.findIndex(x => x.value === "literal") > -1)){
-			if(property.id.value!==property.id.value.toUpperCase()){
-				diagnostics.push(createDiagnostic(property,"is not upper case"));
-			}	
+		if ((property.modifiers.findIndex(x => x.value === "literal") > -1)) {
+			if (property.id.value !== property.id.value.toUpperCase()) {
+				diagnostics.push(createDiagnostic(property, "is not upper case"));
+			}
 		}
 	}
 }
-export class MemberConventionChecker implements MemberRule {
 
+export class MemberCamelCase implements MemberRule {
 	report(_parsedDocument: PslDocument, member: Member): Diagnostic[] {
 		let diagnostics: Diagnostic[] = [];
-	
+
 		this.memberCase(member, diagnostics)
-		this.checkMemberLength(member, diagnostics)
-		this.checkStartsWithV(member, diagnostics)
 
 		return diagnostics;
 	}
+
 	memberCase(member: Member, diagnostics: Diagnostic[]): void {
 		const isLiteralProperty = (member.memberClass === MemberClass.property) &&
 			(member.modifiers.findIndex(x => x.value === "literal") > -1);
-		var isStaticDeclaration = false
+		let isStaticDeclaration = false
+
 		member.types.forEach(type => {
 			if (type.value === member.id.value) {
 				isStaticDeclaration = true
-			} 
+			}
 		});
 
 
@@ -52,11 +61,32 @@ export class MemberConventionChecker implements MemberRule {
 			diagnostics.push(createDiagnostic(member, "doesn't start with lowercase"));
 		}
 	}
+}
+
+export class MemberLength implements MemberRule {
+	report(_parsedDocument: PslDocument, member: Member): Diagnostic[] {
+		let diagnostics: Diagnostic[] = [];
+
+		this.checkMemberLength(member, diagnostics)
+
+		return diagnostics;
+	}
 
 	checkMemberLength(member: Member, diagnostics: Diagnostic[]): void {
 		if (member.id.value.length > 25) {
 			diagnostics.push(createDiagnostic(member, "has more than 25 characters"));
 		}
+	}
+
+
+}
+export class MemberStartsWithV implements MemberRule {
+	report(_parsedDocument: PslDocument, member: Member): Diagnostic[] {
+		let diagnostics: Diagnostic[] = [];
+
+		this.checkStartsWithV(member, diagnostics)
+
+		return diagnostics;
 	}
 
 	checkStartsWithV(member: Member, diagnostics: Diagnostic[]): void {
@@ -69,7 +99,7 @@ export class MemberConventionChecker implements MemberRule {
 function createDiagnostic(member: Member, message: String): Diagnostic {
 	let diagnostic = new Diagnostic(member.id.getRange(), `${printEnum(member.memberClass)} "${member.id.value}" ${message}`, DiagnosticSeverity.Warning);
 	diagnostic.source = 'lint';
-	diagnostic.member=member;
+	diagnostic.member = member;
 	return diagnostic;
 }
 

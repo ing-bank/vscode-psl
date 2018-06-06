@@ -3,7 +3,7 @@ import { parseText } from '../src/parser/parser';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as activate from '../src/pslLint/activate';
-import { MethodConventionChecker, MemberConventionChecker, PropertyConventionChecker } from '../src/pslLint/elementsConventionChecker';
+import { MethodConventionChecker, MemberConventionChecker, PropertyLiteralCase } from '../src/pslLint/elementsConventionChecker';
 
 const testFilePath = path.resolve('__tests__', 'files', 'ZTestConvention.PROC');
 let membersReport: api.Diagnostic[];
@@ -28,7 +28,7 @@ describe('Members tests', () => {
 		let ruleSubscriptions = new activate.RuleSubscription(pslDocument);
 		ruleSubscriptions.addMethodRules(new MethodConventionChecker());
 		ruleSubscriptions.addMemberRules(new MemberConventionChecker());
-		ruleSubscriptions.addPropertyRules(new PropertyConventionChecker());
+		ruleSubscriptions.addPropertyRules(new PropertyLiteralCase());
 		
 		activate.reportRules(ruleSubscriptions);
 		membersReport = ruleSubscriptions.diagnostics;
