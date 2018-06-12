@@ -6,6 +6,8 @@ import { PSL_MODE, BATCH_MODE, TRIG_MODE } from '../extension';
 import { setConfig, removeConfig } from '../pslLint/config';
 import { PSLActionProvider } from '../hostCommands/codeAction';
 
+type lintOption = "none" | "all" | "config";
+
 export async function activate(context: vscode.ExtensionContext) {
 
 	await pslLintConfigurationWatchers(context);
@@ -62,22 +64,33 @@ export class MemberDiagnostic extends vscode.Diagnostic {
 
 function prepareRules(textDocument: vscode.TextDocument, lintDiagnostics: vscode.DiagnosticCollection, cancellationToken: vscode.CancellationToken) {
 	if (!isPSL(textDocument)) return;
-	let lint: boolean = vscode.workspace.getConfiguration('psl', textDocument.uri).get('lint');
-	if (!lint) return;
+
+	const lintConfigValue: lintOption = vscode.workspace.getConfiguration('psl', textDocument.uri).get('lint');
+
+	let useConfig = false;
+	if (lintConfigValue === 'config') {
+		useConfig = true;
+	}
+	else if (lintConfigValue !== 'all') return;
+
 	process.nextTick(() => {
 		if (!cancellationToken.isCancellationRequested) {
-			let documentText = textDocument.getText();
-			let pslDocument: api.PslDocument = prepareDocument(documentText, textDocument);
-			let diagnostics = getDiagnostics(pslDocument);
-			let vscodeDiagnostics = transform(diagnostics);
-			process.nextTick(() => {
-				if (!cancellationToken.isCancellationRequested) {
-					lintDiagnostics.set(vscode.Uri.file(textDocument.fileName), vscodeDiagnostics);
-					vscode.workspace.onDidCloseTextDocument(textDocument => lintDiagnostics.delete(textDocument.uri));
-				}
-			})
+			lint(textDocument, useConfig, cancellationToken, lintDiagnostics);
 		}
 	})
+}
+
+function lint(textDocument: vscode.TextDocument, useConfig: boolean, cancellationToken: vscode.CancellationToken, lintDiagnostics: vscode.DiagnosticCollection) {
+	let documentText = textDocument.getText();
+	let pslDocument: api.PslDocument = prepareDocument(documentText, textDocument);
+	let diagnostics = getDiagnostics(pslDocument, useConfig);
+	let vscodeDiagnostics = transform(diagnostics);
+	process.nextTick(() => {
+		if (!cancellationToken.isCancellationRequested) {
+			lintDiagnostics.set(vscode.Uri.file(textDocument.fileName), vscodeDiagnostics);
+			vscode.workspace.onDidCloseTextDocument(textDocument => lintDiagnostics.delete(textDocument.uri));
+		}
+	});
 }
 
 function prepareDocument(documentText: string, textDocument: vscode.TextDocument) {

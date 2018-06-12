@@ -699,8 +699,13 @@
       "properties": {
         "psl.lint": {
           "scope": "resource",
-          "type": "boolean",
-          "default": false,
+          "type": "string",
+          "default": "config",
+          "enum": [
+            "config",
+            "all",
+            "none"
+          ],
           "description": "Whether to lint files written in PSL."
         },
         "psl.previewFeatures": {
@@ -725,6 +730,7 @@
   "devDependencies": {
     "@types/fs-extra": "^5.0.0",
     "@types/jest": "^22.1.0",
+    "@types/minimatch": "^3.0.3",
     "@types/node": "^9.4.0",
     "jest": "^22.1.4",
     "ts-jest": "^22.0.2",
@@ -735,6 +741,7 @@
   "dependencies": {
     "fs-extra": "^5.0.0",
     "jsonc-parser": "^1.0.0",
+    "minimatch": "^3.0.4",
     "vscode-json-languageservice": "^3.0.4"
   },
   "jest": {
