@@ -3,7 +3,9 @@ import { Diagnostic, DiagnosticSeverity, MethodRule, PslDocument, Method } from 
 /**
  * Checks if multiple parameters are written on the same line as the method declaration.
  */
-export class MultipleParametersOnNewLine implements MethodRule {
+export class MethodParametersOnNewLine implements MethodRule {
+
+    ruleName = MethodParametersOnNewLine.name;
 
     report(_pslDocument: PslDocument, method: Method): Diagnostic[] {
 
@@ -16,7 +18,7 @@ export class MultipleParametersOnNewLine implements MethodRule {
             let paramPosition = param.id.position;
 
             if (paramPosition.line === methodLine && method.parameters.length > 1) {
-                let message = `Parameter "${param.id.value}" on same line as label "${method.id.value}"`
+                let message = `Parameter "${param.id.value}" on same line as label "${method.id.value}".`
                 let diagnostic = new Diagnostic(param.id.getRange(), message, DiagnosticSeverity.Warning);
                 diagnostic.source = 'lint';
                 diagnostics.push(diagnostic);

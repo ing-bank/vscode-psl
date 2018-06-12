@@ -76,6 +76,9 @@ export class Diagnostic {
  * An interface for writing new rules
  */
 export interface DocumentRule {
+
+	ruleName: string;
+
 	/**
 	 * 
 	 * @param pslDocument An abstract representation of a PSL document

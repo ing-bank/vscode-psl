@@ -1,6 +1,9 @@
 import { Diagnostic, Range, Position, DiagnosticSeverity, DocumentRule, PslDocument, getTokens } from './api';
 
 export class TodoInfo implements DocumentRule {
+
+	ruleName = TodoInfo.name;
+
 	report(pslDocument: PslDocument): Diagnostic[] {
 		let todos: Todo[] = [];
 		for (let token of pslDocument.parsedDocument.tokens) {
@@ -25,16 +28,17 @@ interface Todo {
 
 function getTodosFromComment(commentText: string, startLine: number, startChar: number): Todo[] {
 	let todos: Todo[] = [];
-	let todo: Todo;
+	let todo: Todo | undefined;
 	let currentLine: number;
 	let currentChar: number;
 
 	let finalize = () => {
+		if (!todo) return;
 		let start = todo.range.start;
 		let end = new Position(currentLine, todo.range.end.character + todo.message.trimRight().length);
 		todo.range = new Range(start, end);
 		todo.message = todo.message.trim().replace(/^:/gm, '').trim();
-		if (!todo.message) todo.message = `TODO on line ${todo.range.start.line + 1}`;
+		if (!todo.message) todo.message = `TODO on line ${todo.range.start.line + 1}.`;
 		todos.push(todo);
 		todo = undefined;
 	}

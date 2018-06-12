@@ -5,6 +5,8 @@ import { Diagnostic, DiagnosticSeverity, MethodRule, PslDocument, Method, Token 
  */
 export class MethodDocumentation implements MethodRule {
 
+	ruleName = MethodDocumentation.name;
+
 	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
 
 		if (method.batch) return [];
@@ -14,7 +16,7 @@ export class MethodDocumentation implements MethodRule {
 		let nextLineContent: string = pslDocument.getTextAtLine(method.nextLine);
 		let idToken = method.id;
 		if (!(nextLineContent.trim().startsWith('/*'))) {
-			let message = `Documentation missing for label "${idToken.value}"`;
+			let message = `Documentation missing for label "${idToken.value}".`;
 			diagnostics.push(addDiagnostic(idToken, method, message));
 		}
 
@@ -22,6 +24,8 @@ export class MethodDocumentation implements MethodRule {
 	}
 }
 export class MethodSeparator implements MethodRule {
+
+	ruleName = MethodSeparator.name;
 
 	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
 
@@ -33,7 +37,7 @@ export class MethodSeparator implements MethodRule {
 		let idToken = method.id;
 
 		if (!(prevLineContent.trim().startsWith('//'))) {
-			let message = `Separator missing for label "${idToken.value}"`;
+			let message = `Separator missing for label "${idToken.value}".`;
 			diagnostics.push(addDiagnostic(idToken, method, message));
 		}
 
