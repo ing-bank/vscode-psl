@@ -1,4 +1,4 @@
-import { Diagnostic, DiagnosticSeverity, MethodRule, PslDocument, Method } from './api';
+import { Diagnostic, DiagnosticSeverity, MethodRule, PslDocument, Method, Parameter } from './api';
 
 /**
  * Checks if multiple parameters are written on the same line as the method declaration.
@@ -14,16 +14,23 @@ export class MethodParametersOnNewLine implements MethodRule {
         let diagnostics: Diagnostic[] = []
         let methodLine = method.id.position.line;
 
-        method.parameters.forEach(param => {
-            let paramPosition = param.id.position;
-
-            if (paramPosition.line === methodLine && method.parameters.length > 1) {
-                let message = `Parameter "${param.id.value}" on same line as label "${method.id.value}".`
-                let diagnostic = new Diagnostic(param.id.getRange(), message, DiagnosticSeverity.Warning);
+        let previousParam: Parameter | undefined = undefined;
+        for (const param of method.parameters) {
+            const paramPosition = param.id.position;
+            if (previousParam && paramPosition.line === previousParam.id.position.line) {
+                const message = `Parameter "${param.id.value}" on same line as parameter "${previousParam.id.value}".`
+                const diagnostic = new Diagnostic(param.id.getRange(), message, DiagnosticSeverity.Warning);
                 diagnostic.source = 'lint';
                 diagnostics.push(diagnostic);
             }
-        });
+            else if (method.parameters.length > 1 && paramPosition.line === methodLine) {
+                const message = `Parameter "${param.id.value}" on same line as label "${method.id.value}".`
+                const diagnostic = new Diagnostic(param.id.getRange(), message, DiagnosticSeverity.Warning);
+                diagnostic.source = 'lint';
+                diagnostics.push(diagnostic);
+            }
+            previousParam = param;
+        }
 
         return diagnostics;
     }

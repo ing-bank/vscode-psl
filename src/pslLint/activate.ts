@@ -48,6 +48,11 @@ export function reportRules(subscription: RuleSubscription) {
 		subscription.reportMemberRules(property);
 	}
 
+	for (const declaration of subscription.pslDocument.parsedDocument.declarations) {
+		subscription.reportDeclarationRules(declaration);
+		subscription.reportMemberRules(declaration);
+	}
+
 	for (const method of subscription.pslDocument.parsedDocument.methods) {
 		subscription.reportMethodRules(method);
 		subscription.reportMemberRules(method);
@@ -64,8 +69,8 @@ export function reportRules(subscription: RuleSubscription) {
 	}
 }
 
-export function getDiagnostics(pslDocument: PslDocument) {
-	let ruleSubscriptions = new RuleSubscription(pslDocument);
+export function getDiagnostics(pslDocument: PslDocument, useConfig?: boolean) {
+	let ruleSubscriptions = new RuleSubscription(pslDocument, useConfig);
 
 	addRules(ruleSubscriptions);
 	reportRules(ruleSubscriptions);
@@ -112,7 +117,9 @@ export class RuleSubscription {
 	 */
 	private declarationRules: DeclarationRule[];
 
-	constructor(pslDocument: PslDocument) {
+	private useConfig: boolean | undefined;
+
+	constructor(pslDocument: PslDocument, useConfig?: boolean) {
 		this.pslDocument = pslDocument;
 		this.diagnostics = [];
 		this.documentRules = [];
@@ -121,6 +128,7 @@ export class RuleSubscription {
 		this.methodRules = [];
 		this.parameterRules = [];
 		this.declarationRules = [];
+		if (useConfig) this.useConfig = useConfig;
 	}
 
 
@@ -158,11 +166,12 @@ export class RuleSubscription {
 	reportParameterRules(parameter: Parameter, method: Method) {
 		this.parameterRules.filter(rule => this.checkConfig(rule)).forEach(parameterRule => { this.diagnostics = this.diagnostics.concat(parameterRule.report(this.pslDocument, parameter, method)) })
 	}
-	reportDeclarationRules(declaration: Declaration, method: Method) {
+	reportDeclarationRules(declaration: Declaration, method?: Method) {
 		this.declarationRules.filter(rule => this.checkConfig(rule)).forEach(declarationRule => { this.diagnostics = this.diagnostics.concat(declarationRule.report(this.pslDocument, declaration, method)) })
 	}
 
 	checkConfig(rule: DocumentRule): boolean {
+		if (!this.useConfig) return true;
 		const config = getConfig(this.pslDocument.fsPath);
 		return match(path.basename(this.pslDocument.fsPath), rule.ruleName, config);
 	}
