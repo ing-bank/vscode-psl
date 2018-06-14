@@ -3,7 +3,7 @@ All notable changes to the "vscode-psl" extension will be documented in this fil
 
 ## v1.2.0
 
-Linting in PSL now uses a configuration file. By default the setting `"psl.previewFeatures"` is now `"config"`. Other options are `"all"` or `"none"`.
+Linting in PSL now uses a configuration file. By default the setting `"psl.lint"` is now `"config"`. Other options are `"all"` or `"none"`.
 
 A file must be included in order to be checked. If it is then excluded, it will not be checked. Here is an example layout:
 
