@@ -196,7 +196,7 @@ class _Method implements Method {
 	endLine: number;
 	batch: boolean;
 	memberClass: MemberClass;
-	documentation;
+	documentation: string;
 
 	constructor() {
 		this.types = []
@@ -484,7 +484,7 @@ class Parser {
 				return token;
 			}
 			else {
-				break;
+				i++;
 			}
 		}
 		return;

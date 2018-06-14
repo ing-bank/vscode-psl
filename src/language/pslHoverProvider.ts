@@ -34,7 +34,7 @@ export class PSLHoverProvider implements vscode.HoverProvider {
 
 
 
-async function getHover(result: utils.FinderResult, tableDirectory): Promise<vscode.Hover> {
+async function getHover(result: utils.FinderResult, tableDirectory: string): Promise<vscode.Hover> {
 	let { code, markdown } = await lang.getDocumentation(result, tableDirectory);
 
 	let clean = markdown.replace(/\s*(DOC)?\s*\-+/, '').replace(/\*+\s+ENDDOC/, '').trim();

@@ -67,12 +67,11 @@ export class ParsedDocFinder {
 						// member: { types: [], id: new Token(Type.Alphanumeric, callTokens[0].value, dummyPosition), memberClass: MemberClass.table }
 					};
 				}
-				// else if (callTokens[0].value === 'this' || callTokens[0].value === this.procName) {
-				// 	return {
-				// 		member: { id: callTokens[0], types: [new Token(Type.Alphanumeric, this.procName, dummyPosition)], memberClass: MemberClass.proc },
-				// 		fsPath: this.paths.routine
-				// 	};
-				// }
+				else if (callTokens[0].value === 'this' || callTokens[0].value === this.procName) {
+					return {
+						fsPath: this.paths.routine
+					};
+				}
 			}
 
 			// handle static types
@@ -80,7 +79,6 @@ export class ParsedDocFinder {
 				finder = await finder.newFinder(result.member.id.value);
 				return {
 					fsPath: finder.paths.routine,
-					// member: { types: [], id: new Token(Type.Alphanumeric, callTokens[0].value, dummyPosition), memberClass: MemberClass.table }
 				};
 			}
 
@@ -100,10 +98,9 @@ export class ParsedDocFinder {
 					}
 					// skip over 'this'
 					else if (token.value === 'this' || token.value === this.procName) {
-						// result = {
-						// 	member: { id: token, types: [new Token(Type.Alphanumeric, this.procName, dummyPosition)], memberClass: MemberClass.proc },
-						// 	fsPath: this.paths.routine
-						// };
+						result = {
+							fsPath: this.paths.routine
+						};
 						continue;
 					}
 					else {
@@ -111,7 +108,7 @@ export class ParsedDocFinder {
 					}
 				}
 
-				if (!result) result = await finder.searchInDocument(token.value);
+				if (!result || (result.fsPath === this.paths.routine && !result.member)) result = await finder.searchInDocument(token.value);
 				if (!result) return;
 				if (!callTokens[index + 1]) return result;
 				let type = result.member.types[0].value;
@@ -193,32 +190,38 @@ export class ParsedDocFinder {
 		}
 	}
 
-	// async findAll(): Promise<Map<string, FinderResult> | undefined> {
-	// 	const search = async (members: Map<string, FinderResult>) => {
-	// 		this.parsedDocument.properties.forEach(p => {
-	// 			if (!members.has(p.id.value)) {
-	// 				members.set(p.id.value, { member: p, fsPath: this.paths.routine });
-	// 			}
-	// 		});
-	// 		this.parsedDocument.methods.forEach(m => {
-	// 			if (!members.has(m.id.value)) {
-	// 				members.set(m.id.value, { member: m, fsPath: this.paths.routine });
-	// 			}
-	// 		});
+	async findAllInDocument(results?: FinderResult[]): Promise<FinderResult[] | undefined> {
+		if (!results) results = [];
 
-	// 		if (this.parsedDocument.extending) {
-	// 			const parentRoutineName = this.parsedDocument.extending.value;
-	// 			if (this.heirachy.indexOf(parentRoutineName) > -1) return;
-	// 			let parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
-	// 			if (!parentFinder) return;
-	// 			search(members);
-	// 		}
-	// 		return members;
-	// 	}
+		const addToResults = (result: FinderResult) => {
+			if (!results.find(r => r.member.id.value === result.member.id.value)) {
+				results.push(result);
+			}
+		}
 
-	// 	let ret = new Map<string, FinderResult>();
-	// 	return search(ret);
-	// }
+		if (path.relative(this.paths.routine, this.paths.table) === '..') {
+			this.parsedDocument.properties.forEach(property => {
+				let tableName = path.basename(this.paths.routine).toUpperCase();
+				addToResults({ member: property, fsPath: path.join(this.paths.routine, `${tableName}-${property.id.value}.COL`) });
+			})
+		}
+		this.parsedDocument.properties.forEach(property => {
+			addToResults({ member: property, fsPath: this.paths.routine });
+		})
+
+		this.parsedDocument.methods.forEach(method => {
+			addToResults({ member: method, fsPath: this.paths.routine });
+		})
+
+		if (this.parsedDocument.extending) {
+			const parentRoutineName = this.parsedDocument.extending.value;
+			if (this.hierarchy.indexOf(parentRoutineName) > -1) return results;
+			let parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
+			if (!parentFinder) return results;
+			return parentFinder.findAllInDocument(results);
+		}
+		return results;
+	}
 
 	private async searchForParent(parentRoutineName: string): Promise<ParsedDocFinder | undefined> {
 		const parentFinder = await this.newFinder(parentRoutineName);
@@ -370,4 +373,33 @@ export function resolve(tokens: Token[]): number {
 		}
 	}
 	return -1;
+}
+
+interface Callable {
+	tokenBufferIndex: number;
+	parameterIndex: number;
+}
+
+export function findCallable(tokensOnLine: Token[], index: number) {
+	let callables: Callable[] = []
+	for (let tokenBufferIndex = 0; tokenBufferIndex <= index; tokenBufferIndex++) {
+		const token = tokensOnLine[tokenBufferIndex];
+		if (!tokenBufferIndex && !token.isTab() && !token.isSpace()) return;
+		if (token.isOpenParen()) {
+			callables.push({ tokenBufferIndex: tokenBufferIndex - 1, parameterIndex: 0 });
+		}
+		else if (token.isCloseParen()) {
+			if (callables.length) callables.pop();
+			else return;
+		}
+		else if (token.isComma() && callables.length) {
+			callables[callables.length - 1].parameterIndex += 1
+		}
+	}
+	if (!callables.length) return;
+	const activeCallable = callables[callables.length - 1];
+	return {
+		callTokens: getCallTokens(tokensOnLine, activeCallable.tokenBufferIndex),
+		parameterIndex: activeCallable.parameterIndex
+	};
 }

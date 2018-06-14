@@ -8,45 +8,21 @@ import { PSLCompletionItemProvider } from './pslSuggest';
 import { PSLDefinitionProvider } from './pslDefinitionProvider';
 import { PSLHoverProvider } from './pslHoverProvider';
 import * as codeQuality from './codeQuality';
+import { PSLSignatureHelpProvider } from './pslSignature';
 
 
 export async function activate(context: vscode.ExtensionContext) {
 
+	const PSL_MODES = [PSL_MODE, BATCH_MODE, TRIG_MODE];
+
 	// Document Symbol Outline
-	context.subscriptions.push(
-		vscode.languages.registerDocumentSymbolProvider(
-			PSL_MODE, new PSLDocumentSymbolProvider()
-		)
-	);
-
-	context.subscriptions.push(
-		vscode.languages.registerDocumentSymbolProvider(
-			BATCH_MODE, new PSLDocumentSymbolProvider()
-		)
-	);
-
-	context.subscriptions.push(
-		vscode.languages.registerDocumentSymbolProvider(
-			TRIG_MODE, new PSLDocumentSymbolProvider()
-		)
-	);
-
-	// Completition Items
-	context.subscriptions.push(
-		vscode.languages.registerCompletionItemProvider(
-			PSL_MODE, new PSLCompletionItemProvider(), '.'
-		)
-	);
-	context.subscriptions.push(
-		vscode.languages.registerCompletionItemProvider(
-			BATCH_MODE, new PSLCompletionItemProvider(), '.'
-		)
-	);
-	context.subscriptions.push(
-		vscode.languages.registerCompletionItemProvider(
-			TRIG_MODE, new PSLCompletionItemProvider(), '.'
-		)
-	);
+	PSL_MODES.forEach(mode => {
+		context.subscriptions.push(
+			vscode.languages.registerDocumentSymbolProvider(
+				mode, new PSLDocumentSymbolProvider()
+			)
+		);
+	})
 
 	// Hovers
 	context.subscriptions.push(
@@ -61,32 +37,42 @@ export async function activate(context: vscode.ExtensionContext) {
 			DATA_MODE, new DataDocumentHighlightProvider()
 		)
 	);
+
 	let preview: boolean = vscode.workspace.getConfiguration('psl', null).get('previewFeatures');
 
 	if (preview) {
-		// Go-to Definitions
-		context.subscriptions.push(
-			vscode.languages.registerDefinitionProvider(
-				PSL_MODE, new PSLDefinitionProvider()
-			)
-		);
-		context.subscriptions.push(
-			vscode.languages.registerDefinitionProvider(
-				BATCH_MODE, new PSLDefinitionProvider()
-			)
-		);
 
-		// Go-to Definitions
-		context.subscriptions.push(
-			vscode.languages.registerHoverProvider(
-				PSL_MODE, new PSLHoverProvider()
-			)
-		);
-		context.subscriptions.push(
-			vscode.languages.registerHoverProvider(
-				BATCH_MODE, new PSLHoverProvider()
-			)
-		);
+		PSL_MODES.forEach(mode => {
+
+			// Completion Items
+			context.subscriptions.push(
+				vscode.languages.registerCompletionItemProvider(
+					mode, new PSLCompletionItemProvider(), '.'
+				)
+			);
+
+			// Signature Help
+			context.subscriptions.push(
+				vscode.languages.registerSignatureHelpProvider(
+					mode, new PSLSignatureHelpProvider(), '(', ','
+				)
+			);
+
+			// Go-to Definitions
+			context.subscriptions.push(
+				vscode.languages.registerDefinitionProvider(
+					mode, new PSLDefinitionProvider()
+				)
+			);
+
+			// Hovers
+			context.subscriptions.push(
+				vscode.languages.registerHoverProvider(
+					mode, new PSLHoverProvider()
+				)
+			);
+
+		})
 
 	}
 

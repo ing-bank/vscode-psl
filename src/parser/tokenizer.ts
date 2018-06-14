@@ -195,14 +195,14 @@ export class Range {
 	 */
 	constructor(startLine: number, startCharacter: number, endLine: number, endCharacter: number);
 
-	constructor(a, b, c?, d?) {
+	constructor(a: number | Position, b: number | Position, c?: number, d?: number) {
 		if (typeof a === 'number' && typeof b == 'number' && typeof c == 'number' && typeof d == 'number') {
 			this.start = new Position(a, b);
 			this.end = new Position(c, d);
 		}
 		else {
-			this.start = a;
-			this.end = b;
+			this.start = a as Position;
+			this.end = b as Position;
 		}
 	}
 

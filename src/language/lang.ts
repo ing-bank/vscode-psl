@@ -54,10 +54,10 @@ export async function getDocumentation(result: utils.FinderResult, tableDirector
 		let method = member as parser.Method
 
 		let sig = `${method.modifiers.map(i => i.value).join(' ')} ${method.id.value}`;
-		let argString: string = method.parameters.map((param: parser.Parameter) => `${param.types[0].value} ${param.id.value}`).join('\n , ');
+		let argString: string = method.parameters.map((param: parser.Parameter) => `${param.types[0].value} ${param.id.value}`).join('\n\u200B , ');
 		let code = '';
 		if (method.parameters.length === 0) code = `${sig}(${argString})`;
-		else code = `${sig}(\n   ${argString}\n )`;
+		else code = `${sig}(\n\u200B \u200B \u200B ${argString}\n\u200B )`;
 		let markdown = method.documentation ? method.documentation : '';
 		return { code, markdown };
 	}
