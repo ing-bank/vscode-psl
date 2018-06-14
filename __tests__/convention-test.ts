@@ -3,7 +3,7 @@ import { parseText } from '../src/parser/parser';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as activate from '../src/pslLint/activate';
-import { MethodConventionChecker, MemberConventionChecker, PropertyLiteralCase } from '../src/pslLint/elementsConventionChecker';
+import { PropertyLiteralCase, MemberCamelCase, MemberLength, MemberStartsWithV, MethodStartsWithZ, PropertyStartsWithZ } from '../src/pslLint/elementsConventionChecker';
 
 const testFilePath = path.resolve('__tests__', 'files', 'ZTestConvention.PROC');
 let membersReport: api.Diagnostic[];
@@ -26,28 +26,32 @@ describe('Members tests', () => {
 
 		let pslDocument = new api.PslDocument(parseText(text), text, testFilePath);
 		let ruleSubscriptions = new activate.RuleSubscription(pslDocument);
-		ruleSubscriptions.addMethodRules(new MethodConventionChecker());
-		ruleSubscriptions.addMemberRules(new MemberConventionChecker());
+
+		ruleSubscriptions.addMemberRules(new MemberCamelCase());
+		ruleSubscriptions.addMemberRules(new MemberLength());
+		ruleSubscriptions.addMemberRules(new MemberStartsWithV());
+		ruleSubscriptions.addMethodRules(new MethodStartsWithZ());
 		ruleSubscriptions.addPropertyRules(new PropertyLiteralCase());
-		
+		ruleSubscriptions.addPropertyRules(new PropertyStartsWithZ());
+
 		activate.reportRules(ruleSubscriptions);
 		membersReport = ruleSubscriptions.diagnostics;
-		
+
 	})
 
 	test('Upper case literal report', () => {
 		expect(reportsOnLine(4).length).toBe(1)
 	})
-	
+
 	test('Camel case literal report', () => {
 		expect(reportsOnLine(5).length).toBe(1)
 	})
 
-	 test('Starting with z label', () => {
-        expect(reportsOnLine(10).length).toBe(1);
+	test('Starting with z label', () => {
+		expect(reportsOnLine(10).length).toBe(1);
 	})
 
 	test('More than 25 characters', () => {
-        expect(reportsOnLine(14).length).toBe(1);
-    })
+		expect(reportsOnLine(14).length).toBe(1);
+	})
 })

@@ -1,16 +1,26 @@
 #!/usr/bin/env node
 import * as fs from 'fs-extra';
 import * as commander from 'commander';
+import * as process from 'process';
 import * as path from 'path';
 import { getDiagnostics } from '../activate'
 import * as api from '../api';
+import { setConfig } from '../config';
 
 async function readFile(filename: string): Promise<number> {
 	if (path.extname(filename) !== '.PROC' && path.extname(filename) !== '.BATCH' && path.extname(filename).toUpperCase() !== '.PSL') return;
-	let fileBuffer = await fs.readFile(filename)
+	let filePath = path.join(process.cwd(), filename);
+	let fileBuffer = await fs.readFile(filePath)
 	let textDocument = fileBuffer.toString();
-	let parsedDocument = prepareDocument(textDocument, filename);
-	let diagnostics = getDiagnostics(parsedDocument);
+	let parsedDocument = prepareDocument(textDocument, filePath);
+	let configPath = path.join(process.cwd(),'psl-lint.json');
+	let configStat = await fs.lstat(configPath);
+	let useConfig = false;
+	if (configStat.isFile()) {
+		await setConfig(configPath);
+		useConfig = true;
+	}
+	let diagnostics = getDiagnostics(parsedDocument, useConfig);
 	let exitCode = 0;
 	diagnostics.forEach(d => {
 		let range = `${d.range.start.line + 1},${d.range.start.character + 1}`;

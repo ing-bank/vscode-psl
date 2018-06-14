@@ -1,4 +1,4 @@
-import { MultipleParametersOnNewLine } from '../src/pslLint/parameters';
+import { MethodParametersOnNewLine } from '../src/pslLint/parameters';
 import * as api from '../src/pslLint/api';
 import { parseText } from '../src/parser/parser';
 import * as fs from 'fs-extra';
@@ -26,7 +26,7 @@ describe('Parameter tests', () => {
 
 		let pslDocument = new api.PslDocument(parseText(text), text, testFilePath);
 		let ruleSubscriptions = new activate.RuleSubscription(pslDocument);
-		ruleSubscriptions.addMethodRules(new MultipleParametersOnNewLine());
+		ruleSubscriptions.addMethodRules(new MethodParametersOnNewLine());
 		activate.reportRules(ruleSubscriptions);
 		parametersReport = ruleSubscriptions.diagnostics;
 		

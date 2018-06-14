@@ -6,7 +6,7 @@ import { PSL_MODE, BATCH_MODE, TRIG_MODE } from '../extension';
 import { setConfig, removeConfig } from '../pslLint/config';
 import { PSLActionProvider } from '../hostCommands/codeAction';
 
-type lintOption = "none" | "all" | "config";
+type lintOption = "none" | "all" | "config" | true;
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -43,9 +43,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 async function pslLintConfigurationWatchers(context: vscode.ExtensionContext) {
 	return Promise.all(vscode.workspace.workspaceFolders.map(workspace => new vscode.RelativePattern(workspace, 'psl-lint.json')).map(async (pattern) => {
-		let uris = await vscode.workspace.findFiles(pattern);
-		if (!uris.length) return;
-		await setConfig(uris[0].fsPath);
 		let watcher = vscode.workspace.createFileSystemWatcher(pattern);
 		context.subscriptions.push(watcher.onDidChange(uri => {
 			setConfig(uri.fsPath);
@@ -55,6 +52,9 @@ async function pslLintConfigurationWatchers(context: vscode.ExtensionContext) {
 		watcher.onDidDelete(uri => {
 			removeConfig(uri.fsPath);
 		});
+		let uris = await vscode.workspace.findFiles(pattern);
+		if (!uris.length) return;
+		await setConfig(uris[0].fsPath);
 	}));
 }
 
@@ -71,7 +71,10 @@ function prepareRules(textDocument: vscode.TextDocument, lintDiagnostics: vscode
 	if (lintConfigValue === 'config') {
 		useConfig = true;
 	}
-	else if (lintConfigValue !== 'all') return;
+	else if (lintConfigValue !== 'all' && lintConfigValue !== true) {
+		lintDiagnostics.clear();
+		return;
+	}
 
 	process.nextTick(() => {
 		if (!cancellationToken.isCancellationRequested) {

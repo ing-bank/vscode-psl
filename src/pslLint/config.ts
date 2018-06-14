@@ -6,8 +6,8 @@ type ConfigBaseDir = string;
 export let activeConfigs: Map<ConfigBaseDir, Config> = new Map<ConfigBaseDir, Config>();
 
 export interface Config {
-	includes: ConfigSetting;
-	excludes: ConfigSetting;
+	include: ConfigSetting;
+	exclude: ConfigSetting;
 }
 type ConfigSetting = { [filePattern: string]: RulePattern[] };
 type RulePattern = string;
@@ -34,7 +34,6 @@ export function getConfig(fileName: string): Config | undefined {
 
 export function match(fileName: string, ruleName: string, configObj: Config) {
 	let matches: boolean = false;
-
 	const findMatch = (configSetting: ConfigSetting) => {
 		for (const filePattern in configSetting) {
 			let rulePatterns: RulePattern[] = configSetting[filePattern];
@@ -47,7 +46,7 @@ export function match(fileName: string, ruleName: string, configObj: Config) {
 		return false;
 	}
 
-	matches = findMatch(configObj.includes);
+	matches = findMatch(configObj.include);
 	if (!matches) return false;
-	return !findMatch(configObj.excludes);
+	return !findMatch(configObj.exclude);
 }
