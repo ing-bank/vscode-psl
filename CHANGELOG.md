@@ -1,11 +1,43 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
-## v1.1.1 (preview)
+## v1.2.0
+
+Linting in PSL now uses a configuration file. By default the setting `"psl.previewFeatures"` is now `"config"`. Other options are `"all"` or `"none"`.
+
+A file must be included in order to be checked. If it is then excluded, it will not be checked. Here is an example layout:
+
+```json
+{
+	"version": "0.1",
+	"include": {
+		"Z*": ["*"],
+		"*.psl": ["*"],
+		"*": ["TodoInfo"]
+	},
+	"exclude": {}
+}
+```
+
+This will lint files starting with a Z and all .psl files. All rules will be applied to these files. All files will have the TodoInfo rule applied to them.
+
+These are the current rules:
+- TodoInfo
+- MemberCamelCase
+- MemberLength
+- MemberStartsWithV
+- MethodDocumentation
+- MethodSeparator
+- MethodParametersOnNewLine
+- PropertyLiteralCase
+
+Additionally, this version also introduces Completion Items with Suggestions as another preview feature for the PSL language.
+
+## v1.1.1
 
 Introduced toggle to enable preview features (`"psl.previewFeatures" : true`). Restart after configuring to enable.
 
-#### release candidate 0
+Preview features include:
 - Hover and go-to definitions.
 - Actions for missing separator and documentation on methods.
 
