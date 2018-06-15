@@ -14,12 +14,15 @@ async function readFile(filename: string): Promise<number> {
 	let textDocument = fileBuffer.toString();
 	let parsedDocument = prepareDocument(textDocument, filePath);
 	let configPath = path.join(process.cwd(),'psl-lint.json');
-	let configStat = await fs.lstat(configPath);
-	let useConfig = false;
-	if (configStat.isFile()) {
+
+	let useConfig;
+	await fs.lstat(configPath).then(async () => {
 		await setConfig(configPath);
 		useConfig = true;
-	}
+	}).catch(() => {
+		useConfig = false;
+	});
+
 	let diagnostics = getDiagnostics(parsedDocument, useConfig);
 	let exitCode = 0;
 	diagnostics.forEach(d => {
@@ -72,14 +75,12 @@ if (require.main === module) {
 		.parse(process.argv);
 
 	if (commander.args[0]) {
-		console.log('Starting lint.')
 		cli(commander.args[0]).then(exitCode => {
-			console.log('Finished lint.')
 			process.exit(exitCode)
 		});
 	}
 	else {
-		console.log('Nothing to lint.')
+		console.log('Nothing to lint.');
 	}
 }
 
