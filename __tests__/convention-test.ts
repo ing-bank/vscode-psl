@@ -3,7 +3,7 @@ import { parseText } from '../src/parser/parser';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as activate from '../src/pslLint/activate';
-import { PropertyLiteralCase, MemberCamelCase, MemberLength, MemberStartsWithV, MethodStartsWithZ, PropertyStartsWithZ } from '../src/pslLint/elementsConventionChecker';
+import { MemberLiteralCase, MemberCamelCase, MemberLength, MemberStartsWithV, MethodStartsWithZ, PropertyStartsWithZ } from '../src/pslLint/elementsConventionChecker';
 
 const testFilePath = path.resolve('__tests__', 'files', 'ZTestConvention.PROC');
 let membersReport: api.Diagnostic[];
@@ -31,7 +31,7 @@ describe('Members tests', () => {
 		ruleSubscriptions.addMemberRules(new MemberLength());
 		ruleSubscriptions.addMemberRules(new MemberStartsWithV());
 		ruleSubscriptions.addMethodRules(new MethodStartsWithZ());
-		ruleSubscriptions.addPropertyRules(new PropertyLiteralCase());
+		ruleSubscriptions.addMemberRules(new MemberLiteralCase());
 		ruleSubscriptions.addPropertyRules(new PropertyStartsWithZ());
 
 		activate.reportRules(ruleSubscriptions);

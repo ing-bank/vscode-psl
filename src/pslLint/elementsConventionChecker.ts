@@ -25,23 +25,24 @@ export class PropertyStartsWithZ implements PropertyRule {
 	}
 }
 
-export class PropertyLiteralCase implements PropertyRule {
+export class MemberLiteralCase implements MemberRule {
 
-	ruleName = PropertyLiteralCase.name;
+	ruleName = MemberLiteralCase.name;
 
-	report(_parsedDocument: PslDocument, property: Property): Diagnostic[] {
+	report(_parsedDocument: PslDocument, member: Member): Diagnostic[] {
 		let diagnostics: Diagnostic[] = [];
-		this.checkUpperCase(property, diagnostics);
+		this.checkUpperCase(member, diagnostics);
 		return diagnostics;
 	}
-	checkUpperCase(property: Property, diagnostics: Diagnostic[]): void {
-		if ((property.modifiers.findIndex(x => x.value === 'literal') > -1)) {
-			if (property.id.value !== property.id.value.toUpperCase()) {
-				diagnostics.push(createDiagnostic(property, 'is literal but not upper case.'));
+	checkUpperCase(member: Property, diagnostics: Diagnostic[]): void {
+		if ((member.modifiers.findIndex(x => x.value === 'literal') > -1)) {
+			if (member.id.value !== member.id.value.toUpperCase()) {
+				diagnostics.push(createDiagnostic(member, 'is literal but not upper case.'));
 			}
 		}
 	}
 }
+
 
 export class MemberCamelCase implements MemberRule {
 
@@ -56,8 +57,7 @@ export class MemberCamelCase implements MemberRule {
 	}
 
 	memberCase(member: Member, diagnostics: Diagnostic[]): void {
-		const isLiteralProperty = (member.memberClass === MemberClass.property) &&
-			(member.modifiers.findIndex(x => x.value === 'literal') > -1);
+		const isLiteral = (member.modifiers.findIndex(x => x.value === 'literal') > -1);
 		let isStaticDeclaration = false
 
 		member.types.forEach(type => {
@@ -66,15 +66,29 @@ export class MemberCamelCase implements MemberRule {
 			}
 		});
 
+		// exception for variables starting with percentage
+		if (member.id.value.charAt(0) === '%') return;
+		// exception for literal properties
+		if (isLiteral || isStaticDeclaration) return;
+
+		if (member.memberClass === MemberClass.method) {
+			let method = member as Method;
+			if (method.batch) return;
+		}
+
+
+		const publicDeclartion = member.memberClass === MemberClass.declaration && member.modifiers.findIndex(x => x.value === 'public') > -1
 
 		if (member.id.value.charAt(0) > 'z' || member.id.value.charAt(0) < 'a') {
-			// exception for literal properties
-			if (isLiteralProperty || isStaticDeclaration) return;
-			if (member.memberClass === MemberClass.method) {
-				let method = member as Method;
-				if (method.batch) return;
+			if (publicDeclartion) {
+				let diagnostic = new Diagnostic(member.id.getRange(), `Declaration "${member.id.value}" is public and does not start with lower case.`, DiagnosticSeverity.Information);
+				diagnostic.source = 'lint';
+				diagnostic.member = member;
+				diagnostics.push(diagnostic)
 			}
-			diagnostics.push(createDiagnostic(member, 'does not start with lowercase.'));
+			else {
+				diagnostics.push(createDiagnostic(member, 'does not start with lowercase.'));
+			}
 		}
 	}
 }
