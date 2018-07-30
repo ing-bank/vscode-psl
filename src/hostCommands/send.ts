@@ -21,7 +21,6 @@ export async function sendElementHandler(context: utils.ExtensionCommandContext)
 	else if (c.mode === utils.ContextMode.DIRECTORY) {
 		let files = await vscode.window.showOpenDialog({ defaultUri: vscode.Uri.file(c.fsPath), canSelectMany: true, openLabel: 'Send' });
 		if (!files) return;
-		utils.logger.info(`[${files.map(f => f.toString()).join('|')}]`)
 		let sortedFiles = files.map(uri => uri.fsPath).sort(tableFirst);
 		for (let fsPath of sortedFiles) {
 			await sendElement(fsPath).catch(() => { });

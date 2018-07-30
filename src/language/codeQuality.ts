@@ -1,45 +1,116 @@
 import * as vscode from 'vscode';
-import * as format from './pslFormat';
 import * as parser from '../parser/parser';
 import { getDiagnostics } from '../pslLint/activate';
-import { Diagnostic } from '../pslLint/api';
+import * as api from '../pslLint/api';
 import { PSL_MODE, BATCH_MODE, TRIG_MODE } from '../extension';
+import { setConfig, removeConfig } from '../pslLint/config';
+import { PSLActionProvider } from '../hostCommands/codeAction';
+
+type lintOption = "none" | "all" | "config" | true;
 
 export async function activate(context: vscode.ExtensionContext) {
 
-	// Format Document
-	format.activate(context);
+	await pslLintConfigurationWatchers(context);
 
-	// lint rules
 	let lintDiagnostics = vscode.languages.createDiagnosticCollection('psl-lint');
 	context.subscriptions.push(lintDiagnostics);
+
+	// initial token
+	let tokenSource = new vscode.CancellationTokenSource();
+
 	if (vscode.window.activeTextEditor) {
-		prepareRules(vscode.window.activeTextEditor.document, lintDiagnostics)
+		prepareRules(vscode.window.activeTextEditor.document, lintDiagnostics, tokenSource.token)
 	}
-	vscode.workspace.onDidOpenTextDocument((textDocument) => prepareRules(textDocument, lintDiagnostics))
-	vscode.workspace.onDidChangeTextDocument((e) => prepareRules(e.document, lintDiagnostics))
+
+	vscode.window.onDidChangeActiveTextEditor(e => {
+		if (!e) return;
+		prepareRules(e.document, lintDiagnostics, tokenSource.token)
+	})
+
+	vscode.workspace.onDidChangeTextDocument(e => {
+		if (!e) return;
+		tokenSource.cancel();
+		tokenSource = new vscode.CancellationTokenSource();
+		prepareRules(e.document, lintDiagnostics, tokenSource.token)
+	})
+
+	context.subscriptions.push(
+		vscode.languages.registerCodeActionsProvider(
+			PSL_MODE, new PSLActionProvider(),
+		)
+	)
 }
 
+async function pslLintConfigurationWatchers(context: vscode.ExtensionContext) {
+	return Promise.all(vscode.workspace.workspaceFolders.map(workspace => new vscode.RelativePattern(workspace, 'psl-lint.json')).map(async (pattern) => {
+		let watcher = vscode.workspace.createFileSystemWatcher(pattern);
+		context.subscriptions.push(watcher.onDidChange(uri => {
+			setConfig(uri.fsPath);
+		}), watcher.onDidCreate(uri => {
+			setConfig(uri.fsPath);
+		}));
+		watcher.onDidDelete(uri => {
+			removeConfig(uri.fsPath);
+		});
+		let uris = await vscode.workspace.findFiles(pattern);
+		if (!uris.length) return;
+		await setConfig(uris[0].fsPath);
+	}));
+}
 
-function prepareRules(textDocument: vscode.TextDocument, formatDiagnostics: vscode.DiagnosticCollection) {
+export class MemberDiagnostic extends vscode.Diagnostic {
+	member: parser.Member;
+}
+
+function prepareRules(textDocument: vscode.TextDocument, lintDiagnostics: vscode.DiagnosticCollection, cancellationToken: vscode.CancellationToken) {
 	if (!isPSL(textDocument)) return;
-	let documentText = textDocument.getText();
-	let p = parser.parseText(documentText);
 
-	let diagnostics = getDiagnostics(p, documentText);
-	let vscodeDiagnostics = transform(diagnostics);
+	const lintConfigValue: lintOption = vscode.workspace.getConfiguration('psl', textDocument.uri).get('lint');
 
-	formatDiagnostics.set(vscode.Uri.file(textDocument.fileName), vscodeDiagnostics);
-	vscode.workspace.onDidCloseTextDocument(textDocument => formatDiagnostics.delete(textDocument.uri));
+	let useConfig = false;
+	if (lintConfigValue === 'config') {
+		useConfig = true;
+	}
+	else if (lintConfigValue !== 'all' && lintConfigValue !== true) {
+		lintDiagnostics.clear();
+		return;
+	}
+
+	process.nextTick(() => {
+		if (!cancellationToken.isCancellationRequested) {
+			lint(textDocument, useConfig, cancellationToken, lintDiagnostics);
+		}
+	})
 }
 
-function transform(diagnostics: Diagnostic[]): vscode.Diagnostic[] {
+function lint(textDocument: vscode.TextDocument, useConfig: boolean, cancellationToken: vscode.CancellationToken, lintDiagnostics: vscode.DiagnosticCollection) {
+	let documentText = textDocument.getText();
+	let pslDocument: api.PslDocument = prepareDocument(documentText, textDocument);
+	let diagnostics = getDiagnostics(pslDocument, useConfig);
+	let vscodeDiagnostics = transform(diagnostics);
+	process.nextTick(() => {
+		if (!cancellationToken.isCancellationRequested) {
+			lintDiagnostics.set(vscode.Uri.file(textDocument.fileName), vscodeDiagnostics);
+			vscode.workspace.onDidCloseTextDocument(textDocument => lintDiagnostics.delete(textDocument.uri));
+		}
+	});
+}
+
+function prepareDocument(documentText: string, textDocument: vscode.TextDocument) {
+	let parsedDocument = parser.parseText(documentText);
+	let getTextAtLine = (n: number) => textDocument.lineAt(n).text;
+	let pslDocument = new api.PslDocument(parsedDocument, documentText, textDocument.uri.fsPath, getTextAtLine);
+	return pslDocument;
+}
+
+function transform(diagnostics: api.Diagnostic[]): vscode.Diagnostic[] {
 	return diagnostics.map(d => {
 		let r = d.range;
 		let vscodeRange = new vscode.Range(r.start.line, r.start.character, r.end.line, r.end.character);
-		let vscodeDiagnostic = new vscode.Diagnostic(vscodeRange, d.message, d.severity);
+		let vscodeDiagnostic = new MemberDiagnostic(vscodeRange, d.message, d.severity);
 		vscodeDiagnostic.source = d.source;
 		vscodeDiagnostic.code = d.code;
+		if (d.member) vscodeDiagnostic.member = d.member;
 		return vscodeDiagnostic;
 	})
 }

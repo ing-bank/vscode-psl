@@ -1,27 +1,37 @@
-import { Diagnostic, Range, DiagnosticSeverity, Rule, IDocument } from './api';
+import { Diagnostic, DiagnosticSeverity, MethodRule, PslDocument, Method, Parameter } from './api';
 
 /**
  * Checks if multiple parameters are written on the same line as the method declaration.
  */
-export class ParametersOnNewLine implements Rule {
+export class MethodParametersOnNewLine implements MethodRule {
 
-    report(parsedDocument: IDocument): Diagnostic[] {
+    ruleName = MethodParametersOnNewLine.name;
+
+    report(_pslDocument: PslDocument, method: Method): Diagnostic[] {
+
+        if (method.batch) return [];
 
         let diagnostics: Diagnostic[] = []
-        parsedDocument.methods.forEach(method => {
-            if (method.batch) return;
-            let methodLine = method.id.position.line;
-            method.parameters.forEach(param => {
-                let paramPosition = param.id.position;
-                if (paramPosition.line === methodLine && method.parameters.length > 1) {
-                    let range = new Range(paramPosition.line, paramPosition.character, paramPosition.line, paramPosition.character + param.id.value.length);
-                    let message = `param "${param.id.value}" on same line as label "${method.id.value}"`
-                    let diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Warning);
-                    diagnostic.source = 'lint';
-                    diagnostics.push(diagnostic);
-                }
-            });
-        });
+        let methodLine = method.id.position.line;
+
+        let previousParam: Parameter | undefined = undefined;
+        for (const param of method.parameters) {
+            const paramPosition = param.id.position;
+            if (previousParam && paramPosition.line === previousParam.id.position.line) {
+                const message = `Parameter "${param.id.value}" on same line as parameter "${previousParam.id.value}".`
+                const diagnostic = new Diagnostic(param.id.getRange(), message, DiagnosticSeverity.Warning);
+                diagnostic.source = 'lint';
+                diagnostics.push(diagnostic);
+            }
+            else if (method.parameters.length > 1 && paramPosition.line === methodLine) {
+                const message = `Parameter "${param.id.value}" on same line as label "${method.id.value}".`
+                const diagnostic = new Diagnostic(param.id.getRange(), message, DiagnosticSeverity.Warning);
+                diagnostic.source = 'lint';
+                diagnostics.push(diagnostic);
+            }
+            previousParam = param;
+        }
+
         return diagnostics;
     }
 }

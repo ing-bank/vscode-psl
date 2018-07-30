@@ -19,15 +19,216 @@ export function* getTokens(documentContents: string): IterableIterator<Token> {
 	}
 }
 
-export interface Token {
-	type: Type,
-	value: string,
+export class Token {
+	type: Type;
+	value: string;
 	position: Position;
+
+	constructor(type: Type, value: string, position: Position) {
+		this.position = position;
+		this.value = value;
+		this.type = type;
+	}
+
+	getRange() {
+		let startPosition: Position = this.position;
+		let endPosition: Position = { line: this.position.line, character: this.position.character + this.value.length }
+		return new Range(startPosition, endPosition);
+	}
+	isAlphanumeric() {
+		return this.type === Type.Alphanumeric;
+	}
+	isNumeric() {
+		return this.type === Type.Numeric;
+	}
+	isLineComment() {
+		return this.type === Type.LineComment;
+	}
+	isBlockComment() {
+		return this.type === Type.BlockComment;
+	}
+	isString() {
+		return this.type === Type.String;
+	}
+	isLineCommentInit() {
+		return this.type === Type.LineCommentInit;
+	}
+	isBlockCommentInit() {
+		return this.type === Type.BlockCommentInit;
+	}
+	isBlockCommentTerm() {
+		return this.type === Type.BlockCommentTerm;
+	}
+	isDoubleQuotes() {
+		return this.type === Type.DoubleQuotes;
+	}
+	isSlash() {
+		return this.type === Type.Slash;
+	}
+	isTab() {
+		return this.type === Type.Tab;
+	}
+	isNewLine() {
+		return this.type === Type.NewLine;
+	}
+	isSpace() {
+		return this.type === Type.Space;
+	}
+	isExclamationMark() {
+		return this.type === Type.ExclamationMark;
+	}
+	isNumberSign() {
+		return this.type === Type.NumberSign;
+	}
+	isDollarSign() {
+		return this.type === Type.DollarSign;
+	}
+	isAmpersand() {
+		return this.type === Type.Ampersand;
+	}
+	isSingleQuote() {
+		return this.type === Type.SingleQuote;
+	}
+	isOpenParen() {
+		return this.type === Type.OpenParen;
+	}
+	isCloseParen() {
+		return this.type === Type.CloseParen;
+	}
+	isAsterisk() {
+		return this.type === Type.Asterisk;
+	}
+	isPlusSign() {
+		return this.type === Type.PlusSign;
+	}
+	isComma() {
+		return this.type === Type.Comma;
+	}
+	isMinusSign() {
+		return this.type === Type.MinusSign;
+	}
+	isPeriod() {
+		return this.type === Type.Period;
+	}
+	isColon() {
+		return this.type === Type.Colon;
+	}
+	isSemiColon() {
+		return this.type === Type.SemiColon;
+	}
+	isLessThan() {
+		return this.type === Type.LessThan;
+	}
+	isEqualSign() {
+		return this.type === Type.EqualSign;
+	}
+	isGreaterThan() {
+		return this.type === Type.GreaterThan;
+	}
+	isQuestionMark() {
+		return this.type === Type.QuestionMark;
+	}
+	isAtSymbol() {
+		return this.type === Type.AtSymbol;
+	}
+	isOpenBracket() {
+		return this.type === Type.OpenBracket;
+	}
+	isBackslash() {
+		return this.type === Type.Backslash;
+	}
+	isCloseBracket() {
+		return this.type === Type.CloseBracket;
+	}
+	isCaret() {
+		return this.type === Type.Caret;
+	}
+	isUnderscore() {
+		return this.type === Type.Underscore;
+	}
+	isBackQuote() {
+		return this.type === Type.BackQuote;
+	}
+	isOpenBrace() {
+		return this.type === Type.OpenBrace;
+	}
+	isPipe() {
+		return this.type === Type.Pipe;
+	}
+	isCloseBrace() {
+		return this.type === Type.CloseBrace;
+	}
+	isTilde() {
+		return this.type === Type.Tilde;
+	}
 }
 
-export interface Position {
-	line: number,
-	character: number;
+export class Range {
+
+	/**
+	 * The start position. It is before or equal to [end](#Range.end).
+	 */
+	readonly start: Position;
+
+	/**
+	 * The end position. It is after or equal to [start](#Range.start).
+	 */
+	readonly end: Position;
+
+	/**
+	 * Create a new range from two positions. If `start` is not
+	 * before or equal to `end`, the values will be swapped.
+	 *
+	 * @param start A position.
+	 * @param end A position.
+	 */
+	constructor(start: Position, end: Position);
+
+	/**
+	 * Create a new range from number coordinates. It is a shorter equivalent of
+	 * using `new Range(new Position(startLine, startCharacter), new Position(endLine, endCharacter))`
+	 *
+	 * @param startLine A zero-based line value.
+	 * @param startCharacter A zero-based character value.
+	 * @param endLine A zero-based line value.
+	 * @param endCharacter A zero-based character value.
+	 */
+	constructor(startLine: number, startCharacter: number, endLine: number, endCharacter: number);
+
+	constructor(a: number | Position, b: number | Position, c?: number, d?: number) {
+		if (typeof a === 'number' && typeof b == 'number' && typeof c == 'number' && typeof d == 'number') {
+			this.start = new Position(a, b);
+			this.end = new Position(c, d);
+		}
+		else {
+			this.start = a as Position;
+			this.end = b as Position;
+		}
+	}
+
+}
+
+
+export class Position {
+
+	/**
+	 * The zero-based line value.
+	 */
+	readonly line: number;
+
+	/**
+	 * The zero-based character value.
+	 */
+	readonly character: number;
+
+	/**
+	 * @param line A zero-based line value.
+	 * @param character A zero-based character value.
+	 */
+	constructor(line: number, character: number) {
+		this.line = line;
+		this.character = character;
+	}
 }
 
 class Tokenizer {
@@ -52,7 +253,7 @@ class Tokenizer {
 		this.charType = 0;
 		this.tokenType = 0;
 		this.tokenValue = '';
-		this.tokenPosition = {line: this.documentLine, character: this.documentColumn};
+		this.tokenPosition = { line: this.documentLine, character: this.documentColumn };
 
 		this.parsed = false;
 		this.stringOpen = false;
@@ -63,7 +264,7 @@ class Tokenizer {
 	parseCharacter(char: string): boolean {
 		if (this.tokenType === Type.Alphanumeric) {
 			if (this.charType === Type.Alphanumeric || this.charType === Type.Numeric) {
-				this.tokenValue = this.tokenValue + char;
+				this.tokenValue = this.tokenValue.concat(char);
 				this.parsed = true;
 				this.documentColumn++;
 				return false;
@@ -206,10 +407,10 @@ class Tokenizer {
 	}
 
 	finalizeToken(newType: number): void {
-		this.token = {type: this.tokenType, value: this.tokenValue, position: this.tokenPosition};
+		this.token = new Token(this.tokenType, this.tokenValue, this.tokenPosition);
 		this.tokenType = newType;
 		this.tokenValue = '';
-		this.tokenPosition = {line: this.documentLine, character: this.documentColumn};
+		this.tokenPosition = { line: this.documentLine, character: this.documentColumn };
 	}
 }
 
@@ -236,8 +437,8 @@ function getType(c: string): Type {
 		return Type.NumberSign;
 	} else if (charCode === 36) {
 		return Type.DollarSign;
-	// } else if (charCode === 37) {
-	// 	return Type.PercentSign;
+		// } else if (charCode === 37) {
+		// 	return Type.PercentSign;
 	} else if (charCode === 38) {
 		return Type.Ampersand;
 	} else if (charCode === 39) {

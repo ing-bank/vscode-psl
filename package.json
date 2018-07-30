@@ -2,13 +2,14 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "1.0.1",
+  "version": "1.3.0",
+  "preview": true,
   "publisher": "ing-bank",
   "engines": {
-    "vscode": "^1.17.0"
+    "vscode": "^1.23.0"
   },
   "categories": [
-    "Languages"
+    "Programming Languages"
   ],
   "license": "MIT",
   "activationEvents": [
@@ -691,7 +692,30 @@
         "command": "psl.stepOver",
         "when": "terminalFocus && psl.hasHostTerminal"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "PSL Configuration",
+      "properties": {
+        "psl.lint": {
+          "scope": "resource",
+          "type": "string",
+          "default": "config",
+          "enum": [
+            "config",
+            "all",
+            "none"
+          ],
+          "description": "Whether to lint files written in PSL."
+        },
+        "psl.previewFeatures": {
+          "scope": "resource",
+          "type": "boolean",
+          "default": false,
+          "description": "Set true to enable the latest developing features (requires restart)."
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
@@ -706,16 +730,18 @@
   "devDependencies": {
     "@types/fs-extra": "^5.0.0",
     "@types/jest": "^22.1.0",
+    "@types/minimatch": "^3.0.3",
     "@types/node": "^9.4.0",
     "jest": "^22.1.4",
     "ts-jest": "^22.0.2",
     "tslint": "^5.9.1",
-    "typescript": "^2.7.1",
-    "vscode": "^1.1.10"
+    "typescript": "^2.9.1",
+    "vscode": "^1.1.17"
   },
   "dependencies": {
     "fs-extra": "^5.0.0",
     "jsonc-parser": "^1.0.0",
+    "minimatch": "^3.0.4",
     "vscode-json-languageservice": "^3.0.4"
   },
   "jest": {
