@@ -1,6 +1,6 @@
 {
   "name": "psl-lint",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "description": "Code quality for PSL",
   "main": "./lib/pslLint/cli/cli.js",
   "bin": {
@@ -15,6 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "commander": "^2.15.0",
-    "fs-extra": "^5.0.0"
+    "fs-extra": "^5.0.0",
+    "minimatch": "^3.0.4"
   }
 }

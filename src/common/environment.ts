@@ -101,6 +101,7 @@ async function environmentQuickPick(workspaceFile: WorkspaceFile) {
 	let choice = undefined;
 	let workspaceEnvironments;
 	let globalConfig: GlobalConfig;
+	let names;
 	try {
 		globalConfig = await GlobalFile.read();
 	}
@@ -119,11 +120,13 @@ async function environmentQuickPick(workspaceFile: WorkspaceFile) {
 
 	try {
 		workspaceEnvironments = await workspaceFile.environment;
+		names = workspaceEnvironments.names
 	}
 	catch (e) {
 		await workspaceFile.writeLocalEnv({'names': []});
+		workspaceEnvironments = await workspaceFile.environment;
+		names = workspaceEnvironments.names;
 	}
-	let names = workspaceEnvironments.names
 	do {
 		let items: vscode.QuickPickItem[] = globalConfig.environments.map(env => {
 			if (names.indexOf(env.name) > -1) {
@@ -285,10 +288,6 @@ export class WorkspaceFile {
 		// TODO prune names
 		await fs.ensureFile(this.environmentPath);
 		await fs.writeFile(this.environmentPath, JSON.stringify(newLocalEnv, null, '\t'));
-	}
-
-	async localEnvExists(): Promise<boolean> {
-		return fs.pathExists(this.environmentPath);
 	}
 }
 

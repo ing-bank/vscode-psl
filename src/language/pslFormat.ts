@@ -35,7 +35,7 @@ interface Param {
 	comment: string
 }
 
-function buildText(method: parser.IMethod): string {
+function buildText(method: parser.Method): string {
 	let methodString = '';
 	if (method.modifiers.length > 0) {
 		methodString += method.modifiers.map(m => m.value).join(' ') + ' ';
@@ -43,7 +43,7 @@ function buildText(method: parser.IMethod): string {
 
 	methodString += `${method.id.value}(`;
 	let parameterStrings: Param[] = method.parameters.map(p => {
-		let param = {parameter: '', comment: ''}
+		let param = { parameter: '', comment: '' }
 		let parameterString = '';
 		if (p.req) {
 			parameterString += 'req ';
