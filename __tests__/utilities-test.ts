@@ -15,84 +15,84 @@ describe('completion', () => {
     test('empty', () => {
         let tokensOnLine: tokenizer.Token[] = [];
         let index = 0;
-        let result = utilities.getChildNode(tokensOnLine, index);
-        expect(result.token).toBeUndefined();
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result.length).toBe(0);
     })
     test('undefined', () => {
         let tokensOnLine: tokenizer.Token[] = getTokens('a()');
         let index = 1;
-        let result = utilities.getChildNode(tokensOnLine, index);
-        expect(result).toBeUndefined();
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result.length).toBe(0);
     })
     test('undefined 2', () => {
         let tokensOnLine: tokenizer.Token[] = getTokens('a()');
         let index = 2;
-        let result = utilities.getChildNode(tokensOnLine, index);
-        expect(result).toBeUndefined();
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result.length).toBe(0);
     })
     test('undefined 3', () => {
         let tokensOnLine: tokenizer.Token[] = getTokens('a ');
         let index = 1;
-        let result = utilities.getChildNode(tokensOnLine, index);
-        expect(result).toBeUndefined();
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result.length).toBe(0);
     })
     test('basic dot', () => {
         let tokensOnLine: tokenizer.Token[] = getTokens('a.b');
         let index = 2;
-        let result = utilities.getChildNode(tokensOnLine, index);
-        expect(result.token.value).toBe('b');
-        expect(result.parent.token.value).toBe('a');
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result[0].value).toBe('a');
+        expect(result[1].value).toBe('b');
     })
     test('two dots', () => {
         let tokensOnLine: tokenizer.Token[] = getTokens('a.b.c');
         let index = 4;
-        let result = utilities.getChildNode(tokensOnLine, index);
-        expect(result.token.value).toBe('c');
-        expect(result.parent.token.value).toBe('b');
-        expect(result.parent.parent.token.value).toBe('a');
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result[0].value).toBe('a');
+        expect(result[1].value).toBe('b');
+        expect(result[2].value).toBe('c');
     })
     test('single reference', () => {
         let tokensOnLine: tokenizer.Token[] = getTokens('do a()');
         let index = 2;
-        let result = utilities.getChildNode(tokensOnLine, index);
-        expect(result.token.value).toBe('a');
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result[0].value).toBe('a');
     })
     test('dot with parens', () => {
         let tokensOnLine: tokenizer.Token[] = getTokens('a().b');
         let index = 4;
-        let result = utilities.getChildNode(tokensOnLine, index);
-        expect(result.token.value).toBe('b');
-        expect(result.parent.token.value).toBe('a');
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result[0].value).toBe('a');
+        expect(result[1].value).toBe('b');
     })
     test('dot with parens content', () => {
         let tokensOnLine: tokenizer.Token[] = getTokens('a(blah).b');
         let index = 5;
-        let result = utilities.getChildNode(tokensOnLine, index);
-        expect(result.token.value).toBe('b');
-        expect(result.parent.token.value).toBe('a');
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result[0].value).toBe('a');
+        expect(result[1].value).toBe('b');
     })
     test('dot with parens content with parens', () => {
         let tokensOnLine: tokenizer.Token[] = getTokens('a(blah(bleh())).b');
         let index = 10;
-        let result = utilities.getChildNode(tokensOnLine, index);
-        expect(result.token.value).toBe('b');
-        expect(result.parent.token.value).toBe('a');
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result[0].value).toBe('a');
+        expect(result[1].value).toBe('b');
     })
     test('dot with parens content on dot', () => {
         let tokensOnLine: tokenizer.Token[] = getTokens('a(blah).b');
         let index = 4;
-        let result = utilities.getChildNode(tokensOnLine, index);
-        expect(result.token.value).toBe('.');
-        expect(result.parent.token.value).toBe('a');
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result[0].value).toBe('a');
+        expect(result[1].value).toBe('.');
     })
     test('clusterfuck', () => {
         let tokensOnLine: tokenizer.Token[] = getTokens('a.b().c(x(y)).d');
         let index = 14;
-        let result = utilities.getChildNode(tokensOnLine, index);
-        expect(result.token.value).toBe('d');
-        expect(result.parent.token.value).toBe('c');
-        expect(result.parent.parent.token.value).toBe('b');
-        expect(result.parent.parent.parent.token.value).toBe('a');
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result[0].value).toBe('a');
+        expect(result[1].value).toBe('b');
+        expect(result[2].value).toBe('c');
+        expect(result[3].value).toBe('d');
     })
     test('clusterfuck2', () => {
         let tokensOnLine: tokenizer.Token[] = getTokens('a.b().c(x(y)).d');
@@ -102,6 +102,20 @@ describe('completion', () => {
         expect(result[1].value).toBe('b');
         expect(result[2].value).toBe('c');
         expect(result[3].value).toBe('d');
+    })
+    test('mumps call label', () => {
+        let tokensOnLine: tokenizer.Token[] = getTokens('method^CLASS()');
+        let index = 0;
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result[1].value).toBe('method');
+        expect(result[0].value).toBe('CLASS');
+    })
+    
+    test('mumps call routine', () => {
+        let tokensOnLine: tokenizer.Token[] = getTokens('method^CLASS()');
+        let index = 2;
+        let result = utilities.getCallTokens(tokensOnLine, index);
+        expect(result[0].value).toBe('CLASS');
     })
 })
 

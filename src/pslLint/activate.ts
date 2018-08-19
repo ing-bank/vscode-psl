@@ -9,6 +9,7 @@ import { MethodParametersOnNewLine } from './parameters';
 import { TodoInfo } from './todos';
 import { MemberLiteralCase, MemberCamelCase, MemberLength, MemberStartsWithV } from './elementsConventionChecker';
 import { match, getConfig } from './config';
+import { RuntimeStart } from './runtime';
 
 /**
  * Add new rules here to have them checked at the appropriate time.
@@ -30,6 +31,7 @@ function addRules(subscription: RuleSubscription) {
 		new MethodDocumentation(),
 		new MethodSeparator(),
 		new MethodParametersOnNewLine(),
+		new RuntimeStart(),
 		// new MethodStartsWithZ(),
 	)
 

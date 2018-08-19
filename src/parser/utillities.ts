@@ -314,6 +314,7 @@ interface Node {
 	token: Token | undefined;
 	parent?: Node;
 	child?: Node;
+	routine?: boolean;
 }
 
 export function getCallTokens(tokensOnLine: Token[], index: number): Token[] {
@@ -329,14 +330,19 @@ export function getCallTokens(tokensOnLine: Token[], index: number): Token[] {
 }
 
 
-export function getChildNode(tokensOnLine: Token[], index: number): Node | undefined {
+function getChildNode(tokensOnLine: Token[], index: number): Node | undefined {
 	const currentToken = tokensOnLine[index];
 	if (!currentToken) return { token: undefined };
 	const previousToken = tokensOnLine[index - 1];
+	const nextToken = tokensOnLine[index + 1];
+	let routine = false;
 	if (previousToken) {
 		let newIndex = -1;
 		if (currentToken.isPeriod()) {
 			newIndex = resolve(tokensOnLine.slice(0, index));
+		}
+		else if (previousToken.isCaret()) {
+			routine = true;
 		}
 		else if (currentToken.isAlphanumeric() && previousToken.isPeriod()) {
 			newIndex = resolve(tokensOnLine.slice(0, index - 1));
@@ -348,8 +354,13 @@ export function getChildNode(tokensOnLine: Token[], index: number): Node | undef
 		}
 
 	}
+	if (nextToken && nextToken.isCaret()) {
+		const routineToken = tokensOnLine[index + 2];
+		if (!routineToken) return undefined;
+		return { parent: { token: routineToken, routine: true }, token: currentToken };
+	}
 	if (currentToken.isAlphanumeric()) {
-		return { token: currentToken }
+		return { token: currentToken, routine }
 	}
 	return undefined;
 }

@@ -36,7 +36,7 @@ export interface Member {
 	 * The member class to determine the type at runtime
 	 */
 	memberClass: MemberClass
-	
+
 	documentation?: string;
 }
 
@@ -94,6 +94,8 @@ export interface Method extends Member {
 	 * Previous Line of a method implementation
 	 */
 	prevLine: number;
+
+	statements: Statement[];
 
 }
 
@@ -197,6 +199,7 @@ class _Method implements Method {
 	batch: boolean;
 	memberClass: MemberClass;
 	documentation: string;
+	statements: Statement[];
 
 	constructor() {
 		this.types = []
@@ -207,6 +210,7 @@ class _Method implements Method {
 		this.endLine = -1;
 		this.memberClass = MemberClass.method;
 		this.documentation = '';
+		this.statements = [];
 	}
 }
 
@@ -306,7 +310,9 @@ class Parser {
 				}
 				let extending = this.checkForExtends(tokenBuffer);
 				if (extending) this.extending = extending;
-				
+
+				let statement = parseStatement(tokenBuffer);
+				if (statement) this.activeMethod.statements.push(statement);
 				if (this.activeProperty && this.activeProperty.id.position.line + 1 === lineNumber) {
 					let documentation = this.checkForDocumentation(tokenBuffer);
 					if (documentation) this.activeProperty.documentation = documentation;
@@ -336,8 +342,8 @@ class Parser {
 				i++;
 				continue;
 			}
-			if (token.isBlockCommentInit() && tokenBuffer[i+1] && tokenBuffer[i+1].isBlockComment()) {
-				return tokenBuffer[i+1].value;
+			if (token.isBlockCommentInit() && tokenBuffer[i + 1] && tokenBuffer[i + 1].isBlockComment()) {
+				return tokenBuffer[i + 1].value;
 			}
 			return '';
 		}
@@ -552,8 +558,8 @@ class Parser {
 					)
 					let classTypes: Token[] = [];
 					let classIndex = tokens.findIndex(t => t.value === 'class');
-					if (tokens[classIndex+1] && tokens[classIndex+1].value === '=' && tokens[classIndex+2] && tokens[classIndex+2].isAlphanumeric()) {
-						classTypes.push(tokens[classIndex+2]);
+					if (tokens[classIndex + 1] && tokens[classIndex + 1].value === '=' && tokens[classIndex + 2] && tokens[classIndex + 2].isAlphanumeric()) {
+						classTypes.push(tokens[classIndex + 2]);
 					}
 					return { id: tokens[0], modifiers: tokens.slice(1), types: classTypes, memberClass: MemberClass.property }
 
@@ -635,7 +641,7 @@ class Parser {
 		if (this.activeMethod) {
 			this.activeMethod.endLine = method.id.position.line - 1;
 		}
-		const lastModifier = method.modifiers[method.modifiers.length-1];
+		const lastModifier = method.modifiers[method.modifiers.length - 1];
 		if (lastModifier && NON_TYPE_MODIFIERS.indexOf(lastModifier.value) < 0) {
 			method.types = [lastModifier];
 		}
@@ -750,4 +756,99 @@ class Parser {
 	private getDummy() {
 		return new Token(Type.Undefined, '', this.activeToken.position);
 	}
+}
+
+export interface Statement {
+	action: Token
+	expression: Node
+}
+
+export interface Node {
+	data: Value | Token
+	left?: Node
+	right?: Node
+}
+
+export interface Value {
+	id: Token
+	args?: Value[]
+	child?: Value
+}
+
+export function parseStatement(tokenBuffer: Token[]): Statement | undefined {
+	let tokenIndex = 0;
+	let token = tokenBuffer[tokenIndex];
+	while (token && token.isWhiteSpace()) {
+		tokenIndex++;
+		token = tokenBuffer[tokenIndex];
+	}
+	switch (token.value) {
+		case "do":
+			let expression = parseExpression(tokenBuffer.slice(tokenIndex + 2));
+			if (expression) return {action: token, expression};
+			break;
+		default:
+			break;
+	}
+}
+
+export function parseExpression(tokenArray: Token[]): Node {
+	let parsed = parseValue(tokenArray)
+	if (parsed) return { data: parsed.value };
+
+}
+
+export function parseValue(tokenArray: Token[]): { value: Value | undefined, rest: Token[] } {
+	let token0 = tokenArray[0];
+	if (token0.isDoubleQuotes()) {
+		let id = tokenArray[1]
+		let endQuote = tokenArray[2];
+		if (id.isString() && endQuote.isDoubleQuotes()) {
+			return { value: { id }, rest: tokenArray.slice(3) }
+		}
+	}
+	if (!token0 || !(token0.isAlphanumeric() || token0.isString() || token0.isNumeric())) return;
+	const id = token0;
+	let args: Value[] = [];
+	let child: Value;
+	let next = tokenArray[1];
+	let rest = tokenArray.slice(1);
+	if (next && next.isOpenParen() && !args.length) {
+		let parsed = parseArgs(rest);
+		args = parsed.args;
+		rest = parsed.rest;
+		next = rest[0];
+	}
+
+	if (next && next.isPeriod()) {
+		let parsed = parseValue(rest.slice(1));
+		child = parsed.value;
+		rest = parsed.rest;
+	}
+
+	return { value: { id, args, child }, rest };
+
+}
+
+export function parseArgs(tokenArray: Token[]): { args: Value[], rest: Token[] } {
+	let args: Value[] = [];
+	let i;
+	for (i = 0; i < tokenArray.length; i++) {
+		const token = tokenArray[i];
+		if (i === 0 && token.isOpenParen()) continue;
+		if (token.isWhiteSpace()) continue;
+		if (token.isComma()) continue;
+		else if (token.isCloseParen()) {
+			i++;
+			break;
+		}
+		else if (token) {
+			let parsed = parseValue(tokenArray.slice(i));
+			if (!parsed) break;
+			i = tokenArray.length - parsed.rest.length;
+			if (parsed.value) args.push(parsed.value);
+			else break;
+		}
+	}
+	return { args, rest: tokenArray.slice(i) };
 }

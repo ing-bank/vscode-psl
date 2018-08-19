@@ -1,0 +1,30 @@
+	#PACKAGE custom
+	#CLASSDEF public
+
+public static void func()
+
+	type String a
+	type String b
+
+	// no flag
+	do Runtime.start("BA")
+	do Runtime.commit()
+
+	// flag for a
+	do Runtime.start("BA")
+	set a = ""
+	do Runtime.commit()
+
+	// flag for a and not b
+	do Runtime.start("BA", "b")
+	set a = ""
+	set b = ""
+	do Runtime.commit()
+
+	// no flag
+	do Runtime.start("BA")
+	type String c
+	set c = ""
+	do Runtime.commit()
+
+	quit
