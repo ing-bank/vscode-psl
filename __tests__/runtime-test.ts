@@ -32,7 +32,7 @@ describe('Parameter tests', () => {
 	})
 
 	test('Diagnostic count', () => {
-		expect(runtimeDiagnostics.length).toBe(2);
+		expect(runtimeDiagnostics.length).toBe(5);
 	})
 
 	test('No diagnostic first start', () => {
@@ -42,17 +42,41 @@ describe('Parameter tests', () => {
 	test('One diagnostic second start', () => {
 		let reports = reportsOnLine(13);
 		expect(reports.length).toBe(1);
-		expect(reports[0].message).toBe(`Declaration "a" referenced inside Runtime.start but not in variable list.`);
+		expect(reports[0].message).toBe(`Declaration "flagged" referenced inside Runtime.start but not in variable list.`);
 	})
 	
 	test('One diagnostic third start', () => {
 		let reports = reportsOnLine(18);
 		expect(reports.length).toBe(1);
-		expect(reports[0].message).toBe(`Declaration "a" referenced inside Runtime.start but not in variable list.`);
+		expect(reports[0].message).toBe(`Declaration "flagged" referenced inside Runtime.start but not in variable list.`);
 	})
 	
-	test('No diagnostic fourth start', () => {
+	test('No diagnostic with comment', () => {
 		expect(reportsOnLine(24)).toMatchObject([]);
 	})
 
+	test('No diagnostic fifth start', () => {
+		expect(reportsOnLine(29)).toMatchObject([]);
+	})
+
+	test('Method in middle with new variable', () => {
+		let reports = reportsOnLine(35);
+		expect(reports.length).toBe(1);
+		expect(reports[0].message).toBe(`Parameter "flaggedParam" referenced inside Runtime.start but not in variable list.`);
+	})
+
+	test('Method in middle with new variable', () => {
+		let reports = reportsOnLine(42);
+		expect(reports.length).toBe(1);
+		expect(reports[0].message).toBe(`Declaration "notFlaggedTwice" referenced inside Runtime.start but not in variable list.`);
+		expect(reports[0].relatedInformation.length).toBe(2);
+		expect(reports[0].relatedInformation[0].message).toBe(`Source of "notFlaggedTwice"`);
+		expect(reports[0].relatedInformation[1].message).toBe(`Reference to "notFlaggedTwice"`);
+	})
+
+	test('No literal', () => {
+		let reports = reportsOnLine(49);
+		expect(reports.length).toBe(1);
+		expect(reports[0].message).toBe(`Declaration "flagged" referenced inside Runtime.start but not in variable list.`);
+	})
 })

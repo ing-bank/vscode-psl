@@ -312,7 +312,7 @@ class Parser {
 				if (extending) this.extending = extending;
 
 				let statement = parseStatement(tokenBuffer);
-				if (statement) this.activeMethod.statements.push(statement);
+				if (statement && this.activeMethod) this.activeMethod.statements.push(statement);
 				if (this.activeProperty && this.activeProperty.id.position.line + 1 === lineNumber) {
 					let documentation = this.checkForDocumentation(tokenBuffer);
 					if (documentation) this.activeProperty.documentation = documentation;
@@ -782,6 +782,7 @@ export function parseStatement(tokenBuffer: Token[]): Statement | undefined {
 		tokenIndex++;
 		token = tokenBuffer[tokenIndex];
 	}
+	if (!token) return;
 	switch (token.value) {
 		case "do":
 			let expression = parseExpression(tokenBuffer.slice(tokenIndex + 2));

@@ -55,6 +55,12 @@ export class Diagnostic {
 	 */
 	code?: string | number;
 
+	/**
+	 * An array of related diagnostic information, e.g. when symbol-names within
+	 * a scope collide all definitions can be marked via this property.
+	 */
+	relatedInformation?: DiagnosticRelatedInformation[];
+
 	member?: Member;
 
 	/**
@@ -69,6 +75,35 @@ export class Diagnostic {
 		this.message = message
 		if (severity) this.severity = severity
 		if (member) this.member = member
+	}
+}
+
+/**
+ * Represents a related message and source code location for a diagnostic. This should be
+ * used to point to code locations that cause or related to a diagnostics, e.g when duplicating
+ * a symbol in a scope.
+ */
+export class DiagnosticRelatedInformation {
+
+	/**
+	 * The range of this related diagnostic information.
+	 */
+	range: Range;
+
+	/**
+	 * The message of this related diagnostic information.
+	 */
+	message: string;
+
+	/**
+	 * Creates a new related diagnostic information object.
+	 *
+	 * @param range The range.
+	 * @param message The message.
+	 */
+	constructor( range: Range,  message: string) {
+		this.range = range;
+		this.message = message;
 	}
 }
 

@@ -7,7 +7,7 @@ import { getDiagnostics } from '../activate'
 import * as api from '../api';
 import { setConfig } from '../config';
 
-async function readFile(filename: string): Promise<number> {
+async function readFile(filename: string, map: Map<string, string[]>): Promise<number> {
 	let errorCount = 0;
 	if (path.extname(filename) !== '.PROC' && path.extname(filename) !== '.BATCH' && path.extname(filename).toUpperCase() !== '.PSL')
 		return errorCount;
@@ -30,7 +30,10 @@ async function readFile(filename: string): Promise<number> {
 		let range = `${d.range.start.line + 1},${d.range.start.character + 1}`;
 		let severity = `${api.DiagnosticSeverity[d.severity].substr(0, 4).toUpperCase()}`
 		if (d.severity === api.DiagnosticSeverity.Warning || d.severity === api.DiagnosticSeverity.Error) errorCount += 1;
-		console.log(`${filename}(${range}) [${severity}][${d.source}] ${d.message}`)
+		let message = `${filename}(${range}) [${severity}][${d.source}] ${d.message}`
+		let mapDiags = map.get(d.source);
+		if (!mapDiags) map.set(d.source, [message])
+		else map.set(d.source, mapDiags.concat([message]));
 	})
 	return errorCount;
 }
@@ -40,7 +43,7 @@ function prepareDocument(textDocument: string, filename: string): api.PslDocumen
 	return new api.PslDocument(parsedDocument, textDocument, filename);
 }
 
-export async function cli(fileString: string) {
+export async function cli(fileString: string, map: Map<string, string[]>) {
 	let files = fileString.split(';');
 	let promises: Promise<any>[] = [];
 	let exitCode = 0;
@@ -51,11 +54,11 @@ export async function cli(fileString: string) {
 		if (stat.isDirectory()) {
 			let files = await fs.readdir(fsPath);
 			files.forEach(file => {
-				cli(path.join(fsPath, file));
+				cli(path.join(fsPath, file), map);
 			})
 		}
 		else if (stat.isFile()) {
-			let promise = readFile(fsPath).then(errorCount => {
+			let promise = readFile(fsPath, map).then(errorCount => {
 				exitCode += errorCount;
 			}).catch(e => {
 				if (e.message) console.error(fsPath, e.message);
@@ -77,7 +80,17 @@ if (require.main === module) {
 
 	if (commander.args[0]) {
 		console.log('Starting lint.');
-		cli(commander.args[0]).then(exitCode => {
+		let map = new Map<string, string[]>();
+		cli(commander.args[0], map).then(exitCode => {
+			for (const source of map.keys()) {
+				let diags = map.get(source);
+				let word = map.get(source).length === 1 ? 'diagnostic' : 'diagnostics';
+				console.log(`[${source}] ${diags.length} ${word}:`);
+				diags.forEach(message => {
+					console.log(message);
+				})
+			}
+
 			console.log('Finished lint.');
 			process.exit(exitCode);
 		});
