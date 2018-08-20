@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
+# v1.3.0
+
+Added new rule `RuntimeStart` that checks if variables declared outside of a TP Fence are referenced from within.
+
 ## v1.2.0
 
 Linting in PSL now uses a configuration file. By default the setting `"psl.lint"` is now `"config"`. Other options are `"all"` or `"none"`.
@@ -9,7 +13,7 @@ A file must be included in order to be checked. If it is then excluded, it will 
 
 ```json
 {
-	"version": "0.1",
+	"version": 1,
 	"include": {
 		"Z*": ["*"],
 		"*.psl": ["*"],
