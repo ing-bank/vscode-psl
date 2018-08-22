@@ -786,7 +786,7 @@ export function parseStatement(tokenBuffer: Token[]): Statement | undefined {
 	switch (token.value) {
 		case "do":
 			let expression = parseExpression(tokenBuffer.slice(tokenIndex + 2));
-			if (expression) return {action: token, expression};
+			if (expression) return { action: token, expression };
 			break;
 		default:
 			break;
@@ -823,8 +823,10 @@ export function parseValue(tokenArray: Token[]): { value: Value | undefined, res
 
 	if (next && next.isPeriod()) {
 		let parsed = parseValue(rest.slice(1));
-		child = parsed.value;
-		rest = parsed.rest;
+		if (parsed) {
+			child = parsed.value;
+			rest = parsed.rest;
+		}
 	}
 
 	return { value: { id, args, child }, rest };
