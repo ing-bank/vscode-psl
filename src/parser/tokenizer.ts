@@ -501,7 +501,7 @@ function getType(c: string): Type {
 	}
 }
 
-export enum Type {
+export const enum Type {
 	Alphanumeric = 1,
 	Numeric = 2,
 	LineComment = 3,

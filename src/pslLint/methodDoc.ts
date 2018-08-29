@@ -47,7 +47,7 @@ export class MethodSeparator implements MethodRule {
 
 function addDiagnostic(idToken: Token, method: Method, message: string): Diagnostic {
 	let range = idToken.getRange();
-	let diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Warning);
+	let diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Information);
 	diagnostic.source = 'lint';
 	diagnostic.member = method;
 	return diagnostic;

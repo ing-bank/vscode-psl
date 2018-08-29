@@ -37,7 +37,7 @@ export class MemberLiteralCase implements MemberRule {
 	checkUpperCase(member: Property, diagnostics: Diagnostic[]): void {
 		if ((member.modifiers.findIndex(x => x.value === 'literal') > -1)) {
 			if (member.id.value !== member.id.value.toUpperCase()) {
-				diagnostics.push(createDiagnostic(member, 'is literal but not upper case.'));
+				diagnostics.push(createDiagnostic(member, 'is literal but not upper case.', DiagnosticSeverity.Information));
 			}
 		}
 	}
@@ -87,7 +87,7 @@ export class MemberCamelCase implements MemberRule {
 				diagnostics.push(diagnostic)
 			}
 			else {
-				diagnostics.push(createDiagnostic(member, 'does not start with lowercase.'));
+				diagnostics.push(createDiagnostic(member, 'does not start with lowercase.', DiagnosticSeverity.Information));
 			}
 		}
 	}
@@ -107,7 +107,7 @@ export class MemberLength implements MemberRule {
 
 	checkMemberLength(member: Member, diagnostics: Diagnostic[]): void {
 		if (member.id.value.length > 25) {
-			diagnostics.push(createDiagnostic(member, 'is longer than 25 characters.'));
+			diagnostics.push(createDiagnostic(member, 'is longer than 25 characters.', DiagnosticSeverity.Warning));
 		}
 	}
 
@@ -127,13 +127,13 @@ export class MemberStartsWithV implements MemberRule {
 
 	checkStartsWithV(member: Member, diagnostics: Diagnostic[]): void {
 		if (member.id.value.charAt(0) == 'v') {
-			diagnostics.push(createDiagnostic(member, `starts with 'v'.`));
+			diagnostics.push(createDiagnostic(member, `starts with 'v'.`, DiagnosticSeverity.Warning));
 		}
 	}
 }
 
-function createDiagnostic(member: Member, message: String): Diagnostic {
-	let diagnostic = new Diagnostic(member.id.getRange(), `${printEnum(member.memberClass)} "${member.id.value}" ${message}`, DiagnosticSeverity.Warning);
+function createDiagnostic(member: Member, message: String, diagnosticSeverity: DiagnosticSeverity): Diagnostic {
+	let diagnostic = new Diagnostic(member.id.getRange(), `${printEnum(member.memberClass)} "${member.id.value}" ${message}`, diagnosticSeverity);
 	diagnostic.source = 'lint';
 	diagnostic.member = member;
 	return diagnostic;
@@ -142,7 +142,7 @@ function createDiagnostic(member: Member, message: String): Diagnostic {
 function startsWithZ(member: Member, diagnostics: Diagnostic[]) {
 	const firstChar = member.id.value.charAt(0)
 	if (firstChar == 'z' || firstChar == 'Z') {
-		diagnostics.push(createDiagnostic(member, `starts with '${firstChar}'.`));
+		diagnostics.push(createDiagnostic(member, `starts with '${firstChar}'.`, DiagnosticSeverity.Information));
 	}
 }
 function printEnum(memberClass: MemberClass): String {
