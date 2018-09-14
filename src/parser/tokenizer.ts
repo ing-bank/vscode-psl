@@ -35,6 +35,9 @@ export class Token {
 		let endPosition: Position = { line: this.position.line, character: this.position.character + this.value.length }
 		return new Range(startPosition, endPosition);
 	}
+	isWhiteSpace() {
+		return this.type === Type.Space || this.type === Type.Tab || this.type === Type.NewLine || this.type === Type.Undefined;
+	}
 	isAlphanumeric() {
 		return this.type === Type.Alphanumeric;
 	}

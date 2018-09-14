@@ -87,7 +87,7 @@ function lint(textDocument: vscode.TextDocument, useConfig: boolean, cancellatio
 	let documentText = textDocument.getText();
 	let pslDocument: api.PslDocument = prepareDocument(documentText, textDocument);
 	let diagnostics = getDiagnostics(pslDocument, useConfig);
-	let vscodeDiagnostics = transform(diagnostics);
+	let vscodeDiagnostics = transform(diagnostics, textDocument.uri);
 	process.nextTick(() => {
 		if (!cancellationToken.isCancellationRequested) {
 			lintDiagnostics.set(vscode.Uri.file(textDocument.fileName), vscodeDiagnostics);
@@ -103,7 +103,7 @@ function prepareDocument(documentText: string, textDocument: vscode.TextDocument
 	return pslDocument;
 }
 
-function transform(diagnostics: api.Diagnostic[]): vscode.Diagnostic[] {
+function transform(diagnostics: api.Diagnostic[], uri: vscode.Uri): vscode.Diagnostic[] {
 	return diagnostics.map(d => {
 		let r = d.range;
 		let vscodeRange = new vscode.Range(r.start.line, r.start.character, r.end.line, r.end.character);
@@ -111,6 +111,12 @@ function transform(diagnostics: api.Diagnostic[]): vscode.Diagnostic[] {
 		vscodeDiagnostic.source = d.source;
 		vscodeDiagnostic.code = d.code;
 		if (d.member) vscodeDiagnostic.member = d.member;
+		if (d.relatedInformation) vscodeDiagnostic.relatedInformation = d.relatedInformation.map(x => {
+			return new vscode.DiagnosticRelatedInformation(
+				new vscode.Location(uri, new vscode.Range(x.range.start.line, x.range.start.character, x.range.end.line, x.range.end.character)),
+				x.message
+			)
+		});
 		return vscodeDiagnostic;
 	})
 }

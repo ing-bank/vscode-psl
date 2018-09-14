@@ -154,19 +154,19 @@
 			"patterns": [
 				{
 					"name": "keyword.psl",
-					"match": "\\b(job|read|write)\\b"
+					"match": "\\b(?<!\\.)(job|read|write)\\b"
 				},
 				{
 					"name": "storage.modifier.psl",
-					"match": "\\b(set|type|final|literal|new|private|readonly|protected|public|req|ret|static|super|kill|lock|unlock)\\b"
+					"match": "\\b(?<!\\.)(set|type|final|literal|new|private|readonly|protected|public|req|ret|static|super|kill|lock|unlock)\\b"
 				},
 				{
 					"name": "keyword.control.psl",
-					"match": "\\b(if|else|while|for|return|quit|do|catch|throw|halt|hang)\\b"
+					"match": "\\b(?<!\\.)(if|else|while|for|return|quit|do|catch|throw|halt|hang)\\b"
 				},
 				{
 					"name": "keyword.operator.psl",
-					"match": "\\_|\\.|\\'|\\^|\\+|\\-|\\*|\\;|\\=|\\<|\\>|\\!|\\[|\\b(and|not|or)\\b"
+					"match": "\\_|\\.|\\'|\\^|\\+|\\-|\\*|\\;|\\=|\\<|\\>|\\!|\\[|\\b(?<!\\.)(and|not|or)\\b"
 				}
 			]
 		},
@@ -278,7 +278,7 @@
 				{
 					"name": "comment.block.psl",
 					"begin": "^---------- REVHIST ------ Section marker",
-					"end": "^---------- OPEN ------ Section marker",
+					"end": "^---------- OPEN\\s+------ Section marker",
 					"beginCaptures": {
 						"0": {
 							"patterns": [
