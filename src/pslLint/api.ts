@@ -55,6 +55,8 @@ export class Diagnostic {
 	 */
 	code?: string | number;
 
+	ruleName: string;
+
 	/**
 	 * An array of related diagnostic information, e.g. when symbol-names within
 	 * a scope collide all definitions can be marked via this property.
@@ -70,9 +72,10 @@ export class Diagnostic {
 	 * @param message The human-readable message.
 	 * @param severity The severity, default is [error](#DiagnosticSeverity.Error).
 	 */
-	constructor(range: Range, message: string, severity?: DiagnosticSeverity, member?: Member) {
+	constructor(range: Range, message: string, ruleName: string, severity?: DiagnosticSeverity, member?: Member) {
 		this.range = range
 		this.message = message
+		this.ruleName = ruleName
 		if (severity) this.severity = severity
 		if (member) this.member = member
 	}

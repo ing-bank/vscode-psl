@@ -19,13 +19,13 @@ export class MethodParametersOnNewLine implements MethodRule {
             const paramPosition = param.id.position;
             if (previousParam && paramPosition.line === previousParam.id.position.line) {
                 const message = `Parameter "${param.id.value}" on same line as parameter "${previousParam.id.value}".`
-                const diagnostic = new Diagnostic(param.id.getRange(), message, DiagnosticSeverity.Information);
+                const diagnostic = new Diagnostic(param.id.getRange(), message, this.ruleName, DiagnosticSeverity.Information);
                 diagnostic.source = 'lint';
                 diagnostics.push(diagnostic);
             }
             else if (method.parameters.length > 1 && paramPosition.line === methodLine) {
                 const message = `Parameter "${param.id.value}" on same line as label "${method.id.value}".`
-                const diagnostic = new Diagnostic(param.id.getRange(), message, DiagnosticSeverity.Information);
+                const diagnostic = new Diagnostic(param.id.getRange(), message, this.ruleName, DiagnosticSeverity.Information);
                 diagnostic.source = 'lint';
                 diagnostics.push(diagnostic);
             }

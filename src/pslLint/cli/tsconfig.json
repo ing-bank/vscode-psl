@@ -2,6 +2,9 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es2017",
+        "lib": [
+            "es2017"
+        ],
         "outDir": "lib",
         "sourceMap": true,
         "rootDir": "./../.."

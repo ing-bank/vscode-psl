@@ -267,7 +267,7 @@ class Tokenizer {
 	parseCharacter(char: string): boolean {
 		if (this.tokenType === Type.Alphanumeric) {
 			if (this.charType === Type.Alphanumeric || this.charType === Type.Numeric) {
-				this.tokenValue = this.tokenValue.concat(char);
+				this.tokenValue = this.tokenValue + char
 				this.parsed = true;
 				this.documentColumn++;
 				return false;

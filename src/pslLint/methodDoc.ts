@@ -17,7 +17,7 @@ export class MethodDocumentation implements MethodRule {
 		let idToken = method.id;
 		if (!(nextLineContent.trim().startsWith('/*'))) {
 			let message = `Documentation missing for label "${idToken.value}".`;
-			diagnostics.push(addDiagnostic(idToken, method, message));
+			diagnostics.push(addDiagnostic(idToken, method, message, this.ruleName));
 		}
 
 		return diagnostics;
@@ -38,16 +38,16 @@ export class MethodSeparator implements MethodRule {
 
 		if (!(prevLineContent.trim().startsWith('//'))) {
 			let message = `Separator missing for label "${idToken.value}".`;
-			diagnostics.push(addDiagnostic(idToken, method, message));
+			diagnostics.push(addDiagnostic(idToken, method, message, this.ruleName));
 		}
 
 		return diagnostics;
 	}
 }
 
-function addDiagnostic(idToken: Token, method: Method, message: string): Diagnostic {
+function addDiagnostic(idToken: Token, method: Method, message: string, ruleName: string): Diagnostic {
 	let range = idToken.getRange();
-	let diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Information);
+	let diagnostic = new Diagnostic(range, message,ruleName, DiagnosticSeverity.Information);
 	diagnostic.source = 'lint';
 	diagnostic.member = method;
 	return diagnostic;

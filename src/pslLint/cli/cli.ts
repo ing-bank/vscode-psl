@@ -49,15 +49,7 @@ async function readFile(filename: string, map: Map<string, string[]>, useConfig:
 	let textDocument = fileBuffer.toString();
 	let parsedDocument = prepareDocument(textDocument, filePath);
 
-	let diagnostics
-	try {
-		diagnostics = getDiagnostics(parsedDocument, useConfig);
-	}
-	catch (e) {
-		// console.error((<Error>e).message);
-		// console.error((<Error>e).stack);
-		return;
-	}
+	let diagnostics = getDiagnostics(parsedDocument, useConfig);
 
 	diagnostics.forEach(d => {
 		d.code = filePath;
@@ -65,7 +57,7 @@ async function readFile(filename: string, map: Map<string, string[]>, useConfig:
 		let range = `${d.range.start.line + 1},${d.range.start.character + 1}`;
 		let severity = `${api.DiagnosticSeverity[d.severity].substr(0, 4).toUpperCase()}`
 		if (d.severity === api.DiagnosticSeverity.Warning || d.severity === api.DiagnosticSeverity.Error) errorCount += 1;
-		let message = `${filePath}(${range}) [${severity}][${d.source}] ${d.message}`
+		let message = `${filePath}(${range}) [${severity}][${d.source}][${d.ruleName}] ${d.message}`
 		let mapDiags = map.get(d.source);
 		if (!mapDiags) map.set(d.source, [message])
 		else map.set(d.source, mapDiags.concat([message]));
@@ -79,7 +71,7 @@ function prepareDocument(textDocument: string, filename: string): api.PslDocumen
 }
 
 export async function cli(fileString: string, map: Map<string, string[]>, useConfig: boolean) {
-	let files = fileString.split(';');
+	let files = fileString.split(';').filter(x => x);
 	let promises: Promise<any>[] = [];
 	let exitCode = 0;
 	for (let index = 0; index < files.length; index++) {
@@ -90,7 +82,6 @@ export async function cli(fileString: string, map: Map<string, string[]>, useCon
 			let fileNames = await fs.readdir(absolutePath);
 			for (const fileName of fileNames) {
 				let absolutePathInDir = path.resolve(path.join(absolutePath, fileName));
-				// console.log(absolutePathInDir);
 				await cli(absolutePathInDir, map, useConfig);
 			}
 		}
@@ -117,7 +108,6 @@ async function main() {
 		.parse(process.argv);
 
 	if (commander.args[0]) {
-		console.log('Starting lint.');
 		let map = new Map<string, string[]>();
 		let configPath = path.join(process.cwd(), 'psl-lint.json');
 		let useConfig = false;
@@ -127,14 +117,20 @@ async function main() {
 		}).catch(() => {
 			useConfig = false;
 		});
+		if (commander.output) console.log('Starting report.');
+		else console.log('Starting lint.');
 		cli(commander.args[0], map, useConfig).then(async exitCode => {
+			let counts: { [ruleName: string]: number } = {};
 			if (commander.output) {
 				let issues: CodeClimateIssue[] = allDiagnostics.filter(d => {
-					return d.severity < api.DiagnosticSeverity.Information
+					let count = counts[d.ruleName]
+					if (count === undefined) counts[d.ruleName] = 1;
+					else counts[d.ruleName] = counts[d.ruleName] + 1;
+					return d.ruleName !== 'MemberCamelCase'
 				}).map(diagnostic => {
 					let issue: CodeClimateIssue = {
-						check_name: diagnostic.source,
-						description: diagnostic.message,
+						check_name: diagnostic.ruleName,
+						description: `[${diagnostic.ruleName}] ${diagnostic.message.trim().replace(/\.$/, '')}`,
 						location: {
 							path: diagnostic.code as string,
 							lines: {
@@ -146,7 +142,15 @@ async function main() {
 					}
 					return issue;
 				})
+				console.log('Diagnostics found in repository:')
+				for (const ruleName in counts) {
+					if (counts.hasOwnProperty(ruleName)) {
+						const count = counts[ruleName];
+						console.log(`${ruleName}:	${count}`);
+					}
+				}
 				await fs.writeFile(commander.output, JSON.stringify(issues));
+				console.log('Finished report.')
 			}
 			else {
 				for (const source of map.keys()) {
@@ -157,9 +161,9 @@ async function main() {
 						console.log(message);
 					})
 				}
+				console.log('Finished lint.');
 			}
 
-			console.log('Finished lint.');
 			process.exit(exitCode);
 		});
 	}
