@@ -4,7 +4,7 @@ import { getDiagnostics } from '../pslLint/activate';
 import * as api from '../pslLint/api';
 import { PSL_MODE, BATCH_MODE, TRIG_MODE } from '../extension';
 import { setConfig, removeConfig } from '../pslLint/config';
-import { PSLActionProvider } from '../hostCommands/codeAction';
+import { PSLActionProvider } from './codeAction';
 
 type lintOption = "none" | "all" | "config" | true;
 
