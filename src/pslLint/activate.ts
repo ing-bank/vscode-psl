@@ -4,7 +4,7 @@ import { Declaration, DeclarationRule, Diagnostic, DocumentRule, Member, MemberR
 /**
  * Import rules here.
  */
-import { MethodDocumentation, MethodSeparator } from './methodDoc';
+import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from './methodDoc';
 import { MethodParametersOnNewLine } from './parameters';
 import { TodoInfo } from './todos';
 import { MemberLiteralCase, MemberCamelCase, MemberLength, MemberStartsWithV } from './elementsConventionChecker';
@@ -32,6 +32,7 @@ function addRules(subscription: RuleSubscription) {
 		new MethodSeparator(),
 		new MethodParametersOnNewLine(),
 		new RuntimeStart(),
+		new TwoEmptyLines(),
 		// new MethodStartsWithZ(),
 	)
 

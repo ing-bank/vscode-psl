@@ -97,6 +97,17 @@ export interface Method extends Member {
 
 	statements: Statement[];
 
+	/**
+	 * One line before the method seperator
+	 */
+	oneLineB4: number
+
+	/**
+	 * Two line before the method seperator
+	 */
+	twoLineB4: number;
+
+
 }
 
 /**
@@ -200,6 +211,8 @@ class _Method implements Method {
 	memberClass: MemberClass;
 	documentation: string;
 	statements: Statement[];
+	oneLineB4: number;
+	twoLineB4: number;
 
 	constructor() {
 		this.types = []
@@ -599,6 +612,8 @@ class Parser {
 					method.line = this.activeToken.position.line;
 					method.prevLine = this.activeToken.position.line - 1;
 					method.nextLine = this.activeToken.position.line + 1;
+					method.oneLineB4 = method.prevLine - 1;
+					method.twoLineB4 = method.oneLineB4 - 1;
 				}
 				method.modifiers.push(this.activeToken);
 			}

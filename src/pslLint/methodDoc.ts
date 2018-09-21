@@ -45,6 +45,29 @@ export class MethodSeparator implements MethodRule {
 	}
 }
 
+export class TwoEmptyLines implements MethodRule {
+
+	ruleName = TwoEmptyLines.name;
+
+	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
+
+		if (method.batch) return [];
+
+		let diagnostics: Diagnostic[] = [];
+
+		let contentOneLineB4: string = pslDocument.getTextAtLine(method.oneLineB4);
+		let contentTwoLineB4: string = pslDocument.getTextAtLine(method.twoLineB4);
+		let idToken = method.id;
+
+		if (!((contentOneLineB4.trim() === "") && (contentTwoLineB4.trim() === ""))) {
+			let message = `There should be two empty lines before method "${idToken.value}".`;
+			diagnostics.push(addDiagnostic(idToken, method, message));
+		}
+
+		return diagnostics;
+	}
+}
+
 function addDiagnostic(idToken: Token, method: Method, message: string): Diagnostic {
 	let range = idToken.getRange();
 	let diagnostic = new Diagnostic(range, message, DiagnosticSeverity.Warning);
