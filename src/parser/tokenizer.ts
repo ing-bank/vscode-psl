@@ -267,7 +267,7 @@ class Tokenizer {
 	parseCharacter(char: string): boolean {
 		if (this.tokenType === Type.Alphanumeric) {
 			if (this.charType === Type.Alphanumeric || this.charType === Type.Numeric) {
-				this.tokenValue = this.tokenValue.concat(char);
+				this.tokenValue = this.tokenValue + char
 				this.parsed = true;
 				this.documentColumn++;
 				return false;
@@ -501,7 +501,7 @@ function getType(c: string): Type {
 	}
 }
 
-export enum Type {
+export const enum Type {
 	Alphanumeric = 1,
 	Numeric = 2,
 	LineComment = 3,

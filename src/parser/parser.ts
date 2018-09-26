@@ -479,12 +479,8 @@ class Parser {
 			}
 			else if (token.isNumberSign() && !classDef) {
 				let nextToken;
-				try {
-					nextToken = tokenBuffer[i + 1];
-				}
-				catch (e) {
-					return;
-				}
+				nextToken = tokenBuffer[i + 1];
+				if (!nextToken) return;
 				if (nextToken.value === 'CLASSDEF') {
 					classDef = true;
 					i += 2;
