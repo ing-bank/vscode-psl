@@ -56,7 +56,8 @@ export class TwoEmptyLines implements MethodRule {
 		let diagnostics: Diagnostic[] = [];
 
 		let contentOneLineB4: string = pslDocument.getTextAtLine(method.oneLineB4);
-		let contentTwoLineB4: string = pslDocument.getTextAtLine(method.twoLineB4);
+		let contentTwoLineB4: string = pslDocument.getTextAtLine((method.oneLineB4 - 1));
+		let contentThreeLinesB4: string = pslDocument.getTextAtLine((method.oneLineB4 - 2));
 		let idToken = method.id;
 		let addOneLine:boolean = false;
 		let addTwoLines:boolean = false;
@@ -64,8 +65,15 @@ export class TwoEmptyLines implements MethodRule {
 		if (!(contentTwoLineB4.trim() === "")) addOneLine = true;
 		if (!(contentOneLineB4.trim() === "")) addTwoLines = true;
 
+		// Checks two empty lines above a method
 		if (!((contentOneLineB4.trim() === "") && (contentTwoLineB4.trim() === ""))) {
 			let message = `There should be two empty lines before method "${idToken.value}".`;
+			diagnostics.push(addDiagnostic(idToken, method, message, this.ruleName, addOneLine, addTwoLines));
+		}
+
+		//Check more than 2 empty lines above a method
+		if ((contentOneLineB4.trim() === "") && (contentTwoLineB4.trim() === "") && (contentThreeLinesB4.trim() === "")) {
+			let message = `There are more than two empty lines before method "${idToken.value}".`;
 			diagnostics.push(addDiagnostic(idToken, method, message, this.ruleName, addOneLine, addTwoLines));
 		}
 

@@ -102,12 +102,6 @@ export interface Method extends Member {
 	 */
 	oneLineB4: number
 
-	/**
-	 * Two line before the method seperator
-	 */
-	twoLineB4: number;
-
-
 }
 
 /**
@@ -212,7 +206,6 @@ class _Method implements Method {
 	documentation: string;
 	statements: Statement[];
 	oneLineB4: number;
-	twoLineB4: number;
 
 	constructor() {
 		this.types = []
@@ -609,7 +602,6 @@ class Parser {
 					method.prevLine = this.activeToken.position.line - 1;
 					method.nextLine = this.activeToken.position.line + 1;
 					method.oneLineB4 = method.prevLine - 1;
-					method.twoLineB4 = method.oneLineB4 - 1;
 				}
 				method.modifiers.push(this.activeToken);
 			}

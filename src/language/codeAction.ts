@@ -65,11 +65,17 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 			}
 
 			if (diagnostic.ruleName == "TwoEmptyLines") {
+
+				if ((diagnostic.addOneLine == false) && (diagnostic.addTwoLines == false)) return;
+
 				let separatorAction = initializeAction('Add two empty lines above method.', diagnostic);
 				let fixText = ""
+
 				if (diagnostic.addOneLine) fixText = `\n`;
 				if (diagnostic.addTwoLines) fixText = `\n\n`
+
 				let textEdit = vscode.TextEdit.insert(new vscode.Position(method.prevLine, 0), fixText);
+
 				separatorAction.edit.set(document.uri, [textEdit]);
 				actions.push(separatorAction);
 
