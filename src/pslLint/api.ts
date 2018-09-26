@@ -65,6 +65,10 @@ export class Diagnostic {
 
 	member?: Member;
 
+	addOneLine?:boolean;
+
+	addTwoLines?:boolean;
+
 	/**
 	 * Creates a new diagnostic object.
 	 *

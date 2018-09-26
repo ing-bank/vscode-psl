@@ -45,10 +45,40 @@ export class MethodSeparator implements MethodRule {
 	}
 }
 
-function addDiagnostic(idToken: Token, method: Method, message: string, ruleName: string): Diagnostic {
+export class TwoEmptyLines implements MethodRule {
+
+	ruleName = TwoEmptyLines.name;
+
+	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
+
+		if (method.batch) return [];
+
+		let diagnostics: Diagnostic[] = [];
+
+		let contentOneLineB4: string = pslDocument.getTextAtLine(method.oneLineB4);
+		let contentTwoLineB4: string = pslDocument.getTextAtLine(method.twoLineB4);
+		let idToken = method.id;
+		let addOneLine:boolean = false;
+		let addTwoLines:boolean = false;
+
+		if (!(contentTwoLineB4.trim() === "")) addOneLine = true;
+		if (!(contentOneLineB4.trim() === "")) addTwoLines = true;
+
+		if (!((contentOneLineB4.trim() === "") && (contentTwoLineB4.trim() === ""))) {
+			let message = `There should be two empty lines before method "${idToken.value}".`;
+			diagnostics.push(addDiagnostic(idToken, method, message, this.ruleName, addOneLine, addTwoLines));
+		}
+
+		return diagnostics;
+	}
+}
+
+function addDiagnostic(idToken: Token, method: Method, message: string, ruleName: string, addOneLine?:boolean, addTwoLines?:boolean): Diagnostic {
 	let range = idToken.getRange();
 	let diagnostic = new Diagnostic(range, message,ruleName, DiagnosticSeverity.Information);
 	diagnostic.source = 'lint';
 	diagnostic.member = method;
+	diagnostic.addOneLine = addOneLine
+	diagnostic.addTwoLines = addTwoLines
 	return diagnostic;
 }

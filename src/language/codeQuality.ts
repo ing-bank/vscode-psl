@@ -112,6 +112,8 @@ function transform(diagnostics: api.Diagnostic[], uri: vscode.Uri): vscode.Diagn
 		vscodeDiagnostic.source = pslLintDiagnostic.source;
 		vscodeDiagnostic.code = pslLintDiagnostic.code;
 		vscodeDiagnostic.ruleName = pslLintDiagnostic.ruleName;
+		vscodeDiagnostic.addOneLine = pslLintDiagnostic.addOneLine;
+		vscodeDiagnostic.addTwoLines = pslLintDiagnostic.addTwoLines;
 		if (pslLintDiagnostic.member) vscodeDiagnostic.member = pslLintDiagnostic.member;
 		if (pslLintDiagnostic.relatedInformation) vscodeDiagnostic.relatedInformation = pslLintDiagnostic.relatedInformation.map(x => {
 			return new vscode.DiagnosticRelatedInformation(
