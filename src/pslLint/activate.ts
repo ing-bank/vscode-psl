@@ -8,7 +8,7 @@ import { MethodDocumentation, MethodSeparator } from './methodDoc';
 import { MethodParametersOnNewLine } from './parameters';
 import { TodoInfo } from './todos';
 import { MemberLiteralCase, MemberCamelCase, MemberLength, MemberStartsWithV } from './elementsConventionChecker';
-import { match, getConfig } from './config';
+import { match, getConfig, RegexConfig } from './config';
 import { RuntimeStart } from './runtime';
 
 /**
@@ -119,7 +119,7 @@ export class RuleSubscription {
 	 */
 	private declarationRules: DeclarationRule[];
 
-	private useConfig: boolean | undefined;
+	private config: RegexConfig;
 
 	constructor(pslDocument: PslDocument, useConfig?: boolean) {
 		this.pslDocument = pslDocument;
@@ -130,7 +130,7 @@ export class RuleSubscription {
 		this.methodRules = [];
 		this.parameterRules = [];
 		this.declarationRules = [];
-		if (useConfig) this.useConfig = useConfig;
+		if (useConfig) this.config = getConfig(this.pslDocument.fsPath);
 	}
 
 
@@ -173,8 +173,7 @@ export class RuleSubscription {
 	}
 
 	checkConfig(rule: DocumentRule): boolean {
-		if (!this.useConfig) return true;
-		const config = getConfig(this.pslDocument.fsPath);
-		return match(path.basename(this.pslDocument.fsPath), rule.ruleName, config);
+		if (!this.config) return true;
+		return match(path.basename(this.pslDocument.fsPath), rule.ruleName, this.config);
 	}
 }

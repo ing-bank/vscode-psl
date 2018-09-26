@@ -7,7 +7,7 @@ export class MethodStartsWithZ implements MethodRule {
 	report(_parsedDocument: PslDocument, method: Method): Diagnostic[] {
 		let diagnostics: Diagnostic[] = [];
 
-		startsWithZ(method, diagnostics)
+		startsWithZ(method, diagnostics, this.ruleName)
 
 		return diagnostics
 	}
@@ -19,7 +19,7 @@ export class PropertyStartsWithZ implements PropertyRule {
 	report(_parsedDocument: PslDocument, property: Property): Diagnostic[] {
 		let diagnostics: Diagnostic[] = [];
 
-		startsWithZ(property, diagnostics)
+		startsWithZ(property, diagnostics, this.ruleName)
 
 		return diagnostics
 	}
@@ -37,7 +37,7 @@ export class MemberLiteralCase implements MemberRule {
 	checkUpperCase(member: Property, diagnostics: Diagnostic[]): void {
 		if ((member.modifiers.findIndex(x => x.value === 'literal') > -1)) {
 			if (member.id.value !== member.id.value.toUpperCase()) {
-				diagnostics.push(createDiagnostic(member, 'is literal but not upper case.'));
+				diagnostics.push(createDiagnostic(member, 'is literal but not upper case.', DiagnosticSeverity.Information, this.ruleName));
 			}
 		}
 	}
@@ -81,13 +81,13 @@ export class MemberCamelCase implements MemberRule {
 
 		if (member.id.value.charAt(0) > 'z' || member.id.value.charAt(0) < 'a') {
 			if (publicDeclartion) {
-				let diagnostic = new Diagnostic(member.id.getRange(), `Declaration "${member.id.value}" is public and does not start with lower case.`, DiagnosticSeverity.Information);
+				let diagnostic = new Diagnostic(member.id.getRange(), `Declaration "${member.id.value}" is public and does not start with lower case.`, this.ruleName, DiagnosticSeverity.Information);
 				diagnostic.source = 'lint';
 				diagnostic.member = member;
 				diagnostics.push(diagnostic)
 			}
 			else {
-				diagnostics.push(createDiagnostic(member, 'does not start with lowercase.'));
+				diagnostics.push(createDiagnostic(member, 'does not start with lowercase.', DiagnosticSeverity.Information, this.ruleName));
 			}
 		}
 	}
@@ -107,7 +107,7 @@ export class MemberLength implements MemberRule {
 
 	checkMemberLength(member: Member, diagnostics: Diagnostic[]): void {
 		if (member.id.value.length > 25) {
-			diagnostics.push(createDiagnostic(member, 'is longer than 25 characters.'));
+			diagnostics.push(createDiagnostic(member, 'is longer than 25 characters.', DiagnosticSeverity.Warning, this.ruleName));
 		}
 	}
 
@@ -127,22 +127,22 @@ export class MemberStartsWithV implements MemberRule {
 
 	checkStartsWithV(member: Member, diagnostics: Diagnostic[]): void {
 		if (member.id.value.charAt(0) == 'v') {
-			diagnostics.push(createDiagnostic(member, `starts with 'v'.`));
+			diagnostics.push(createDiagnostic(member, `starts with 'v'.`, DiagnosticSeverity.Warning, this.ruleName));
 		}
 	}
 }
 
-function createDiagnostic(member: Member, message: String): Diagnostic {
-	let diagnostic = new Diagnostic(member.id.getRange(), `${printEnum(member.memberClass)} "${member.id.value}" ${message}`, DiagnosticSeverity.Warning);
+function createDiagnostic(member: Member, message: String, diagnosticSeverity: DiagnosticSeverity, ruleName: string): Diagnostic {
+	let diagnostic = new Diagnostic(member.id.getRange(), `${printEnum(member.memberClass)} "${member.id.value}" ${message}`, ruleName, diagnosticSeverity);
 	diagnostic.source = 'lint';
 	diagnostic.member = member;
 	return diagnostic;
 }
 
-function startsWithZ(member: Member, diagnostics: Diagnostic[]) {
+function startsWithZ(member: Member, diagnostics: Diagnostic[], ruleName: string) {
 	const firstChar = member.id.value.charAt(0)
 	if (firstChar == 'z' || firstChar == 'Z') {
-		diagnostics.push(createDiagnostic(member, `starts with '${firstChar}'.`));
+		diagnostics.push(createDiagnostic(member, `starts with '${firstChar}'.`, DiagnosticSeverity.Information, ruleName));
 	}
 }
 function printEnum(memberClass: MemberClass): String {

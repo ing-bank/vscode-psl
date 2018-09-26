@@ -29,7 +29,7 @@ export class RuntimeStart implements MethodRule {
 						let text = pslDocument.getTextAtLine(lastStart.id.position.line);
 						let startPos = text.length - text.trimLeft().length;
 						let word = variable.memberClass === MemberClass.parameter ? 'Parameter' : 'Declaration';
-						let diag = new Diagnostic(new Range(lastStart.id.position.line, startPos, lastStart.id.position.line, text.trimRight().length), `${word} "${variable.id.value}" referenced inside Runtime.start but not in variable list.`, DiagnosticSeverity.Warning, variable);
+						let diag = new Diagnostic(new Range(lastStart.id.position.line, startPos, lastStart.id.position.line, text.trimRight().length), `${word} "${variable.id.value}" referenced inside Runtime.start but not in variable list.`,this.ruleName, DiagnosticSeverity.Warning, variable);
 						diag.relatedInformation = [new DiagnosticRelatedInformation(variable.id.getRange(), `Source of "${variable.id.value}"`)];
 						diag.relatedInformation = diag.relatedInformation.concat(tokens.map(t => new DiagnosticRelatedInformation(t.getRange(), `Reference to "${t.value}"`)))
 						diag.source = 'tpfence';
@@ -87,7 +87,7 @@ export class RuntimeStart implements MethodRule {
 				let text = pslDocument.getTextAtLine(lastStart.id.position.line);
 				let startPos = text.length - text.trimLeft().length;
 				let word = variable.memberClass === MemberClass.parameter ? 'Parameter' : 'Declaration';
-				let diag = new Diagnostic(new Range(lastStart.id.position.line, startPos, lastStart.id.position.line, text.trimRight().length), `${word} "${variable.id.value}" referenced inside Runtime.start but not in variable list.`, DiagnosticSeverity.Warning, variable);
+				let diag = new Diagnostic(new Range(lastStart.id.position.line, startPos, lastStart.id.position.line, text.trimRight().length), `${word} "${variable.id.value}" referenced inside Runtime.start but not in variable list.`,this.ruleName, DiagnosticSeverity.Warning, variable);
 				diag.relatedInformation = [new DiagnosticRelatedInformation(variable.id.getRange(), `Source of "${variable.id.value}"`)];
 				diag.relatedInformation = diag.relatedInformation.concat(tokens.map(t => new DiagnosticRelatedInformation(t.getRange(), `Reference to "${t.value}"`)))
 				diag.source = 'tpfence';
