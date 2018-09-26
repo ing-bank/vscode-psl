@@ -11,22 +11,22 @@
 			"include": "#classes"
 		},
 		{
+			"include": "#accept"
+		},
+		{
 			"include": "#keywords"
 		},
 		{
 			"include": "#hovers"
 		},
 		{
+			"include": "#strings"
+		},
+		{
 			"include": "#comments"
 		},
 		{
 			"include": "#constants-and-special-vars"
-		},
-		{
-			"include": "#comments-inline"
-		},
-		{
-			"include": "#strings"
 		}
 	],
 	"repository": {
@@ -154,35 +154,109 @@
 			"patterns": [
 				{
 					"name": "keyword.psl",
-					"match": "\\b(job|read|write)\\b"
+					"match": "\\b(?<!\\.)(job|read|write)\\b"
 				},
 				{
 					"name": "storage.modifier.psl",
-					"match": "\\b(set|type|final|literal|new|private|readonly|protected|public|req|ret|static|super|kill|lock|unlock)\\b"
+					"match": "\\b(?<!\\.)(set|type|final|literal|new|private|readonly|protected|public|req|ret|static|super|kill|lock|unlock)\\b"
 				},
 				{
 					"name": "keyword.control.psl",
-					"match": "\\b(if|else|while|for|return|quit|do|catch|throw|halt|hang)\\b"
+					"match": "\\b(?<!\\.)(if|else|while|for|return|quit|do|catch|throw|halt|hang)\\b"
 				},
 				{
 					"name": "keyword.operator.psl",
-					"match": "\\_|\\.|\\'|\\^|\\+|\\-|\\*|\\;|\\=|\\<|\\>|\\!|\\[|\\b(and|not|or)\\b"
+					"match": "\\_|\\.|\\'|\\^|\\+|\\-|\\*|\\;|\\=|\\<|\\>|\\!|\\[|\\b(?<!\\.)(and|not|or)\\b"
 				}
 			]
 		},
 		"comments": {
 			"patterns": [
 				{
-					"captures": {
-						"0": {
-							"name": "punctuation.definition.comment.psl"
-						}
-					},
-					"match": "/\\*\\*/",
-					"name": "comment.block.empty.psl"
+					"include": "#comments-inline"
 				},
 				{
+					"include": "#comments-block"
+				}
+			]
+		},
+		"comments-block": {
+			"begin": "/\\*",
+			"end": "\\*/",
+			"name": "comment.block.psl",
+			"captures": {
+				"0": {
+					"name": "punctuation.definition.comment.psl"
+				}
+			},
+			"patterns": [
+				{
 					"include": "#comments-inline"
+				},
+				{
+					"include": "#doc-params"
+				},
+				{
+					"include": "#todo"
+				}
+			]
+		},
+		"comments-inline": {
+			"begin": "//",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.comment.psl"
+				}
+			},
+			"end": "\\n",
+			"name": "comment.line.double-slash.psl",
+			"patterns": [
+				{
+					"include": "#doc-params"
+				},
+				{
+					"include": "#todo"
+				}
+			]
+		},
+		"accept": {
+			"match": "^\\s+(#ACCEPT)(.*)",
+			"captures": {
+				"1": {
+					"name": "constant.language.psl"
+				},
+				"2": {
+					"name": "comment.inline.psl"
+				}
+			}
+		},
+		"doc-params": {
+			"patterns": [
+				{
+					"match": "(@(param|publicnew|public|throws?))(\\s*)([A-Za-z\\-0-9%_\\.]+)",
+					"captures": {
+						"1": {
+							"name": "storage.type.class.jsdoc"
+						},
+						"4": {
+							"name": "variable.other.jsdoc"
+						}
+					}
+				},
+				{
+					"match": "@returns?",
+					"name": "storage.type.class.jsdoc"
+				}
+			]
+		},
+		"todo": {
+			"begin": "\\bTODO\\b",
+			"end": "(?=\\n|\\*/|/\\*|//)",
+			"name": "variable.other.jsdoc",
+			"patterns": [
+				{
+					"match": "@\\w+",
+					"name": "storage.type.class.jsdoc"
 				}
 			]
 		},
@@ -204,76 +278,33 @@
 				{
 					"name": "comment.block.psl",
 					"begin": "^---------- REVHIST ------ Section marker",
-					"end": "^---------- OPEN ------ Section marker",
-					"captures": {
-						"0": {"patterns":[{"include": "#section-marker"}]}
-					}
-				},
-				{
-					"include": "#section-marker"
-				}
-			]
-		},
-		"comments-inline": {
-			"patterns": [
-				{
-					"begin": "/\\*",
-					"captures": {
-						"0": {
-							"name": "punctuation.definition.comment.psl"
-						}
-					},
-					"patterns": [
-						{
-							"match": "@(throws|return)",
-							"name": "storage.type.class.jsdoc"
-						},
-						{
-							"match": "(@param)(\\s+)(%?\\w+)",
-							"captures": {
-								"1": {
-									"name": "storage.type.class.jsdoc"
-								},
-								"3": {
-									"name": "variable.other.jsdoc"
-								}
-							}
-						}
-					],
-					"end": "\\*/",
-					"name": "comment.block.psl"
-				},
-				{
-					"begin": "(^[ \\t]+)?(?=//)",
+					"end": "^---------- OPEN\\s+------ Section marker",
 					"beginCaptures": {
-						"1": {
-							"name": "punctuation.whitespace.comment.leading.psl"
+						"0": {
+							"patterns": [
+								{
+									"include": "#section-marker"
+								}
+							]
 						}
 					},
-					"end": "(?!\\G)",
+					"endCaptures": {
+						"0": {
+							"patterns": [
+								{
+									"include": "#section-marker"
+								}
+							]
+						}
+					},
 					"patterns": [
 						{
-							"begin": "//",
-							"beginCaptures": {
-								"0": {
-									"name": "punctuation.definition.comment.psl"
-								}
-							},
-							"end": "\\n",
-							"name": "comment.line.double-slash.psl"
+							"include": "#comments"
 						}
 					]
 				},
 				{
-					"match": "^\\s+(#ACCEPT)(.*)",
-					"captures": {
-						"1": {
-							"name": "constant.language.psl"
-						},
-						"2": {
-							"name": "comment.inline.psl"
-						}
-					}
+					"include": "#section-marker"
 				}
 			]
 		},

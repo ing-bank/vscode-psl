@@ -12,7 +12,7 @@
             "isBackground": true,
             "problemMatcher": "$tsc-watch",
             "presentation": {
-                "reveal": "silent",
+                "reveal": "never",
                 "focus": false,
                 "panel": "shared"
             }

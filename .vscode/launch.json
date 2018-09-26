@@ -18,6 +18,21 @@
             "preLaunchTask": "watch"
         },
         {
+            "name": "Debug CLI",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/src/pslLint/cli/lib/pslLint/cli/cli.js",
+            "args": [
+                "."
+            ],
+            "stopOnEntry": false,
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/src/pslLint/cli/lib/**/*.js"
+            ],
+            "preLaunchTask": "watch"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Debug Tests",
