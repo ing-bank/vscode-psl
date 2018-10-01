@@ -30,7 +30,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 
 			let method = diagnostic.member as parser.Method;
 
-			if (diagnostic.message.startsWith('Separator')) {
+			if (diagnostic.ruleName == "MethodSeparator") {
 				let separatorAction = initializeAction('Add separator.', diagnostic);
 
 				let textEdit = vscode.TextEdit.insert(new vscode.Position(method.prevLine, 0), '\t// --------------------------------------------------------------------')
@@ -41,7 +41,8 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 				allDiagnostics.push(diagnostic);
 				allTextEdits.push(textEdit)
 			}
-			if (diagnostic.message.startsWith('Documentation')) {
+
+			if (diagnostic.ruleName == "MethodDocumentation") {
 				let documentationAction = initializeAction('Add documentation block.', diagnostic);
 
 				let docText = `\t/* DOC ----------------------------------------------------------------\n\tTODO: description of label ${method.id.value}\n\n`;
