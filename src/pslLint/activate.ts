@@ -10,6 +10,7 @@ import { TodoInfo } from './todos';
 import { MemberLiteralCase, MemberCamelCase, MemberLength, MemberStartsWithV } from './elementsConventionChecker';
 import { match, getConfig, RegexConfig } from './config';
 import { RuntimeStart } from './runtime';
+import { MultiLineDeclare } from './mutliLineDeclare';
 
 /**
  * Add new rules here to have them checked at the appropriate time.
@@ -32,6 +33,7 @@ function addRules(subscription: RuleSubscription) {
 		new MethodSeparator(),
 		new MethodParametersOnNewLine(),
 		new RuntimeStart(),
+		new MultiLineDeclare(),
 		// new MethodStartsWithZ(),
 	)
 
