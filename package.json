@@ -717,7 +717,7 @@
       }
     }
   },
-  "scripts": {
+   "scripts": {
     "compile": "tsc -p ./",
     "compile-lint": "tsc -p ./src/pslLint/cli",
     "watch": "npm run compile -- -watch",
