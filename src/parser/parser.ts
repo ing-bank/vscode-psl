@@ -237,7 +237,7 @@ const NON_METHOD_KEYWORDS = [
 	'do', 'set', 'if', 'for', 'while'
 ]
 
-const NON_TYPE_MODIFIERS = [
+export const NON_TYPE_MODIFIERS = [
 	'public', 'static', 'private',
 ]
 
