@@ -21,4 +21,5 @@ private void String methodInChild()
 
 	** ENDDOC */
 	type String y
+	type String vString
 	quit
