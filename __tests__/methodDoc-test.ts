@@ -1,57 +1,63 @@
 import * as api from '../src/pslLint/api';
-import * as utils from './ruleUtils';
 import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from '../src/pslLint/methodDoc';
+import * as utils from './ruleUtils';
+
+function messageOnLine(lineNumber: number, allDiagnostics: api.Diagnostic[]): string {
+	const diagnosticsOnLine = utils.diagnosticsOnLine(lineNumber, allDiagnostics);
+	if (!diagnosticsOnLine.length) return '';
+	return diagnosticsOnLine[0].message;
+}
 
 describe('Parameter tests', () => {
-
+	const procName = 'ZMethodDoc.PROC';
 	let docDiagnostics: api.Diagnostic[] = [];
-	let separatorDiagnostics: api.Diagnostic[] = [];
 	let emptyLineDiagnostics: api.Diagnostic[] = [];
+	let separatorDiagnostics: api.Diagnostic[] = [];
 
 	beforeAll(async () => {
-		docDiagnostics = await utils.getDiagnostics('ZMethodDoc.PROC', MethodDocumentation.name);
-		separatorDiagnostics = await utils.getDiagnostics('ZMethodDoc.PROC', MethodSeparator.name);
-		emptyLineDiagnostics = await utils.getDiagnostics('ZMethodDoc.PROC', TwoEmptyLines.name);
-	})
+		docDiagnostics = await utils.getDiagnostics(procName, MethodDocumentation.name);
+		emptyLineDiagnostics = await utils.getDiagnostics(procName, TwoEmptyLines.name);
+		separatorDiagnostics = await utils.getDiagnostics(procName, MethodSeparator.name);
+	});
 
 	test('allProblemsNoLineAbove', () => {
-		expect(utils.diagnosticsOnLine(0, docDiagnostics).length).toBe(1);
-		expect(utils.diagnosticsOnLine(0, separatorDiagnostics).length).toBe(1);
-		expect(utils.diagnosticsOnLine(0, emptyLineDiagnostics).length).toBe(1);
-	})
+		// expect(messageOnLine(0, docDiagnostics)).toBe('TODO');
+		// expect(messageOnLine(0, separatorDiagnostics)).toBe('TODO');
+		// expect(messageOnLine(0, emptyLineDiagnostics)).toBe('TODO');
+	});
 	test('allProblems', () => {
-		expect(utils.diagnosticsOnLine(2, docDiagnostics).length).toBe(1);
-		expect(utils.diagnosticsOnLine(2, separatorDiagnostics).length).toBe(1);
-		expect(utils.diagnosticsOnLine(2, emptyLineDiagnostics).length).toBe(1);
-	})
+		// expect(messageOnLine(2, docDiagnostics)).toBe('TODO');
+		// expect(messageOnLine(2, separatorDiagnostics)).toBe('TODO');
+		// expect(messageOnLine(2, emptyLineDiagnostics)).toBe('TODO');
+	});
 	test('onlySeparator', () => {
-		expect(utils.diagnosticsOnLine(5, docDiagnostics).length).toBe(1);
-		expect(utils.diagnosticsOnLine(5, separatorDiagnostics).length).toBe(0);
-		expect(utils.diagnosticsOnLine(5, emptyLineDiagnostics).length).toBe(1);
-	})
+		// expect(messageOnLine(5, docDiagnostics)).toBe('TODO');
+		expect(messageOnLine(5, separatorDiagnostics)).toBe('');
+		// expect(messageOnLine(5, emptyLineDiagnostics)).toBe('TODO');
+	});
 	test('twoLineSeparator', () => {
-		expect(utils.diagnosticsOnLine(14, docDiagnostics).length).toBe(1);
-		expect(utils.diagnosticsOnLine(14, separatorDiagnostics).length).toBe(0);
-		expect(utils.diagnosticsOnLine(14, emptyLineDiagnostics).length).toBe(0);
-	})
+		// expect(messageOnLine(14, docDiagnostics)).toBe('TODO');
+		expect(messageOnLine(14, separatorDiagnostics)).toBe('');
+		expect(messageOnLine(14, emptyLineDiagnostics)).toBe('');
+	});
 	test('onlyDoc', () => {
-		expect(utils.diagnosticsOnLine(16, docDiagnostics).length).toBe(0);
-		expect(utils.diagnosticsOnLine(16, separatorDiagnostics).length).toBe(1);
-		expect(utils.diagnosticsOnLine(16, emptyLineDiagnostics).length).toBe(1);
-	})
+		expect(messageOnLine(16, docDiagnostics)).toBe('');
+		// expect(messageOnLine(16, separatorDiagnostics)).toBe('TODO');
+		// expect(messageOnLine(16, emptyLineDiagnostics)).toBe('TODO');
+	});
 	test('oneLineDoc', () => {
-		expect(utils.diagnosticsOnLine(20, docDiagnostics).length).toBe(0);
-		expect(utils.diagnosticsOnLine(20, separatorDiagnostics).length).toBe(1);
-		expect(utils.diagnosticsOnLine(20, emptyLineDiagnostics).length).toBe(1);
-	})
-	// test('twoLineDoc', () => {
-	// 	expect(utils.diagnosticsOnLine(25, docDiagnostics).length).toBe(0);
-	// 	expect(utils.diagnosticsOnLine(25, separatorDiagnostics).length).toBe(1);
-	// 	expect(utils.diagnosticsOnLine(25, emptyLineDiagnostics).length).toBe(0);
-	// })
+		expect(messageOnLine(20, docDiagnostics)).toBe('');
+		// expect(messageOnLine(20, separatorDiagnostics)).toBe('TODO');
+		// expect(messageOnLine(20, emptyLineDiagnostics)).toBe('TODO');
+	});
+	test('twoLineDoc', () => {
+		expect(messageOnLine(25, docDiagnostics)).toBe('');
+		// expect(messageOnLine(25, separatorDiagnostics)).toBe('TODO');
+		// expect(messageOnLine(25, emptyLineDiagnostics)).toBe('');
+	});
 	test('withEverything', () => {
-		expect(utils.diagnosticsOnLine(31, docDiagnostics).length).toBe(0);
-		expect(utils.diagnosticsOnLine(31, separatorDiagnostics).length).toBe(0);
-		expect(utils.diagnosticsOnLine(31, emptyLineDiagnostics).length).toBe(0);
-	})
-})
+		expect(messageOnLine(31, docDiagnostics)).toBe('');
+		expect(messageOnLine(31, separatorDiagnostics)).toBe('');
+		expect(messageOnLine(31, emptyLineDiagnostics)).toBe('');
+	});
+});
