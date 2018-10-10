@@ -25,6 +25,25 @@ export class PropertyStartsWithZ implements PropertyRule {
 	}
 }
 
+export class PropertyIsDummy implements PropertyRule {
+
+	ruleName = PropertyIsDummy.name;
+
+	report(_parsedDocument: PslDocument, property: Property): Diagnostic[] {
+		let diagnostics: Diagnostic[] = [];
+
+		this.isCalledDummy(property, diagnostics)
+
+		return diagnostics
+	}
+
+	isCalledDummy(member: Member, diagnostics: Diagnostic[]): void {
+		if (member.id.value == 'dummy' || member.id.value == 'DUMMY') {
+			diagnostics.push(createDiagnostic(member, `property was called 'dummy'.`));
+		}
+	}
+}
+
 export class MemberLiteralCase implements MemberRule {
 
 	ruleName = MemberLiteralCase.name;
