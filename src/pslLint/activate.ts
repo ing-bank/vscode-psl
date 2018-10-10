@@ -7,7 +7,7 @@ import { Declaration, DeclarationRule, Diagnostic, DocumentRule, Member, MemberR
 import { MethodDocumentation, MethodSeparator } from './methodDoc';
 import { MethodParametersOnNewLine } from './parameters';
 import { TodoInfo } from './todos';
-import { MemberLiteralCase, MemberCamelCase, MemberLength, MemberStartsWithV } from './elementsConventionChecker';
+import { MemberLiteralCase, MemberCamelCase, MemberLength, MemberStartsWithV, PropertyIsDummy } from './elementsConventionChecker';
 import { match, getConfig } from './config';
 import { RuntimeStart } from './runtime';
 
@@ -35,9 +35,10 @@ function addRules(subscription: RuleSubscription) {
 		// new MethodStartsWithZ(),
 	)
 
-	// subscription.addPropertyRules(
+	subscription.addPropertyRules(
+		new PropertyIsDummy(),
 		// new PropertyStartsWithZ(),
-	// )
+	)
 
 }
 

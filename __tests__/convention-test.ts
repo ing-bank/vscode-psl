@@ -3,7 +3,7 @@ import { parseText } from '../src/parser/parser';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as activate from '../src/pslLint/activate';
-import { MemberLiteralCase, MemberCamelCase, MemberLength, MemberStartsWithV, MethodStartsWithZ, PropertyStartsWithZ } from '../src/pslLint/elementsConventionChecker';
+import { MemberLiteralCase, MemberCamelCase, MemberLength, MemberStartsWithV, MethodStartsWithZ, PropertyStartsWithZ, PropertyIsDummy } from '../src/pslLint/elementsConventionChecker';
 
 const testFilePath = path.resolve('__tests__', 'files', 'ZTestConvention.PROC');
 let membersReport: api.Diagnostic[];
@@ -33,6 +33,7 @@ describe('Members tests', () => {
 		ruleSubscriptions.addMethodRules(new MethodStartsWithZ());
 		ruleSubscriptions.addMemberRules(new MemberLiteralCase());
 		ruleSubscriptions.addPropertyRules(new PropertyStartsWithZ());
+		ruleSubscriptions.addPropertyRules(new PropertyIsDummy());
 
 		activate.reportRules(ruleSubscriptions);
 		membersReport = ruleSubscriptions.diagnostics;
@@ -53,5 +54,9 @@ describe('Members tests', () => {
 
 	test('More than 25 characters', () => {
 		expect(reportsOnLine(14).length).toBe(1);
+	})
+
+	test('property was called \'dummy\'', () => {
+		expect(reportsOnLine(2).length).toBe(1);
 	})
 })

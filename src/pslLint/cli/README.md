@@ -15,6 +15,7 @@ This module works by adding rules that are automatically checked at the appropri
 * MethodParametersOnNewLine
 * PropertyLiteralCase
 * RuntimeStart
+* PropertyIsDummy
 
 
 ## Contributing
