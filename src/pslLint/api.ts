@@ -55,6 +55,8 @@ export class Diagnostic {
 	 */
 	code?: string | number;
 
+	ruleName: string;
+
 	/**
 	 * An array of related diagnostic information, e.g. when symbol-names within
 	 * a scope collide all definitions can be marked via this property.
@@ -63,6 +65,10 @@ export class Diagnostic {
 
 	member?: Member;
 
+	addOneLine?:boolean;
+
+	addTwoLines?:boolean;
+
 	/**
 	 * Creates a new diagnostic object.
 	 *
@@ -70,9 +76,10 @@ export class Diagnostic {
 	 * @param message The human-readable message.
 	 * @param severity The severity, default is [error](#DiagnosticSeverity.Error).
 	 */
-	constructor(range: Range, message: string, severity?: DiagnosticSeverity, member?: Member) {
+	constructor(range: Range, message: string, ruleName: string, severity?: DiagnosticSeverity, member?: Member) {
 		this.range = range
 		this.message = message
+		this.ruleName = ruleName
 		if (severity) this.severity = severity
 		if (member) this.member = member
 	}
@@ -154,6 +161,8 @@ export class PslDocument {
 	textDocument: string;
 	fsPath: string;
 
+	private indexedDocument?: Map<number, string>;
+
 	constructor(parsedDocument: ParsedDocument, textDocument: string, fsPath: string, getTextAtLine?: GetTextMethod) {
 		this.parsedDocument = parsedDocument;
 		this.textDocument = textDocument;
@@ -166,9 +175,21 @@ export class PslDocument {
 	 * @param lineNumber The zero-based line number of the document where the text is.
 	 */
 	getTextAtLine(lineNumber: number): string {
-		return this.parsedDocument.tokens.filter(t => {
-			return t.position.line === lineNumber;
-		}).map(t => t.value).join('');
+		if (!this.indexedDocument) this.createIndexedDocument();
+		return this.indexedDocument.get(lineNumber) || '';
+	}
+	private createIndexedDocument(): void {
+		this.indexedDocument = new Map();
+		let line: string = '';
+		let index: number = 0;
+		for (const char of this.textDocument) {
+			line += char;
+			if (char === '\n') {
+				this.indexedDocument.set(index, line);
+				index++;
+				line = '';
+			}
+		}
 	}
 }
 

@@ -97,6 +97,11 @@ export interface Method extends Member {
 
 	statements: Statement[];
 
+	/**
+	 * One line before the method seperator
+	 */
+	oneLineB4: number
+
 }
 
 /**
@@ -200,6 +205,7 @@ class _Method implements Method {
 	memberClass: MemberClass;
 	documentation: string;
 	statements: Statement[];
+	oneLineB4: number;
 
 	constructor() {
 		this.types = []
@@ -466,12 +472,8 @@ class Parser {
 			}
 			else if (token.isNumberSign() && !classDef) {
 				let nextToken;
-				try {
-					nextToken = tokenBuffer[i + 1];
-				}
-				catch (e) {
-					return;
-				}
+				nextToken = tokenBuffer[i + 1];
+				if (!nextToken) return;
 				if (nextToken.value === 'CLASSDEF') {
 					classDef = true;
 					i += 2;
@@ -599,6 +601,7 @@ class Parser {
 					method.line = this.activeToken.position.line;
 					method.prevLine = this.activeToken.position.line - 1;
 					method.nextLine = this.activeToken.position.line + 1;
+					method.oneLineB4 = method.prevLine - 1;
 				}
 				method.modifiers.push(this.activeToken);
 			}

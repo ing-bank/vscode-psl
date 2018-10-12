@@ -4,11 +4,7 @@ import * as utilities from '../src/parser/utillities';
 import { ParsedDocument, parseFile, MemberClass } from '../src/parser/parser';
 
 function getTokens(str: string): tokenizer.Token[] {
-    let ret: tokenizer.Token[] = [];
-    for (const token of tokenizer.getTokens(str)) {
-        ret.push(token);
-    }
-    return ret;
+    return Array.from(tokenizer.getTokens(str));
 }
 
 describe('completion', () => {

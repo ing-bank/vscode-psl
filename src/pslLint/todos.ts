@@ -14,7 +14,7 @@ export class TodoInfo implements DocumentRule {
 			}
 		}
 		return todos.map(todo => {
-			let diagnostic = new Diagnostic(todo.range, todo.message, DiagnosticSeverity.Information);
+			let diagnostic = new Diagnostic(todo.range, todo.message, this.ruleName,DiagnosticSeverity.Information);
 			diagnostic.source = 'TODO';
 			return diagnostic;
 		})

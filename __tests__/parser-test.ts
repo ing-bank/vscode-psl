@@ -1,7 +1,5 @@
 import * as tokenizer from '../src/parser/tokenizer';
 import * as parser from '../src/parser/parser';
-import { Token } from '../src/parser/tokenizer';
-import { parseValue, parseArgs, parseStatement, Value } from '../src/parser/parser';
 
 
 function getMethod(methodString: string): parser.Method | undefined {
@@ -716,87 +714,5 @@ public static void main2()
 		let doc = getParsedDoc(documentString);
 		expect(doc.methods[0].declarations[0].id.value).toEqual('x')
 		expect(doc.methods[1].declarations[0].id.value).toEqual('y')
-	})
-})
-
-function toTokens(str: string): Token[] {
-	let ret: Token[] = [];
-	for (let token of tokenizer.getTokens(str)) {
-		ret.push(token);
-	}
-	return ret;
-}
-
-describe('recursive tests', () => {
-	test('parse value', () => {
-		let tokens = toTokens('alex');
-		let parsed = parseValue(tokens);
-		expect(parsed.value.id).toBe(tokens[0]);
-		expect(parsed.rest).toMatchObject([]);
-	})
-	test('parse value with no args', () => {
-		let tokens = toTokens('alex()');
-		let parsed = parseValue(tokens);
-		expect(parsed.value.id).toBe(tokens[0]);
-		expect(parsed.rest).toMatchObject([]);
-	})
-	test('parse value with 1 arg', () => {
-		let tokens = toTokens('alex(ioana)');
-		let parsed = parseValue(tokens);
-		expect(parsed.value.id).toBe(tokens[0]);
-		expect(parsed.value.args[0].id).toBe(tokens[2]);
-		expect(parsed.rest).toMatchObject([]);
-	}) 
-	test('child', () => {
-		let tokens = toTokens('Runtime.start');
-		let parsed = parseValue(tokens);
-		expect(parsed.value.id).toBe(tokens[0]);
-		expect(parsed.value.child.id).toBe(tokens[2]);
-		expect(parsed.rest).toMatchObject([]);
-	}) 
-	test('Runtime start', () => {
-		let tokens = toTokens('Runtime.start("BA",varlist)');
-		let parsed = parseValue(tokens);
-		expect(parsed.value.id).toBe(tokens[0]);
-		expect(parsed.value.child.id).toBe(tokens[2]);
-		expect(parsed.value.child.args[0].id).toBe(tokens[5]);
-		expect(parsed.value.child.args[1].id).toBe(tokens[8]);
-		expect(parsed.rest).toMatchObject([]);
-	}) 
-	test('grandchild', () => {
-		let tokens = toTokens('a.b.c');
-		let parsed = parseValue(tokens);
-		expect(parsed.value.id).toBe(tokens[0]);
-		expect(parsed.value.child.id).toBe(tokens[2]);
-		expect(parsed.value.child.child.id).toBe(tokens[4]);
-		expect(parsed.rest).toMatchObject([]);
-	}) 
-	test('parse arg', () => {
-		let tokens = toTokens('(alex)');
-		let parsed = parseArgs(tokens);
-		expect(parsed.args[0].id).toBe(tokens[1]);
-		expect(parsed.rest).toMatchObject([]);
-	})
-	test('parse 2 args', () => {
-		let tokens = toTokens('(alex,ioana)');
-		let parsed = parseArgs(tokens);
-		expect(parsed.args[0].id).toBe(tokens[1]);
-		expect(parsed.args[1].id).toBe(tokens[3]);
-		expect(parsed.rest).toMatchObject([]);
-	})
-	test('parse 3 args', () => {
-		let tokens = toTokens('(alex,ioana,chris)');
-		let parsed = parseArgs(tokens);
-		expect(parsed.args[0].id).toBe(tokens[1]);
-		expect(parsed.args[1].id).toBe(tokens[3]);
-		expect(parsed.args[2].id).toBe(tokens[5]);
-		expect(parsed.rest).toMatchObject([]);
-	})
-	test('parse statement', () => {
-		let tokens = toTokens('	do a');
-		let statement = parseStatement(tokens);
-		let data = statement.expression.data as Value;
-		expect(statement.action).toBe(tokens[1]);
-		expect(data.id).toBe(tokens[3]);
 	})
 })

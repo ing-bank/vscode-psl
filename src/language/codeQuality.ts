@@ -4,7 +4,7 @@ import { getDiagnostics } from '../pslLint/activate';
 import * as api from '../pslLint/api';
 import { PSL_MODE, BATCH_MODE, TRIG_MODE } from '../extension';
 import { setConfig, removeConfig } from '../pslLint/config';
-import { PSLActionProvider } from '../hostCommands/codeAction';
+import { PSLActionProvider } from './codeAction';
 
 type lintOption = "none" | "all" | "config" | true;
 
@@ -60,6 +60,7 @@ async function pslLintConfigurationWatchers(context: vscode.ExtensionContext) {
 
 export class MemberDiagnostic extends vscode.Diagnostic {
 	member: parser.Member;
+	ruleName: string;
 }
 
 function prepareRules(textDocument: vscode.TextDocument, lintDiagnostics: vscode.DiagnosticCollection, cancellationToken: vscode.CancellationToken) {
@@ -104,14 +105,17 @@ function prepareDocument(documentText: string, textDocument: vscode.TextDocument
 }
 
 function transform(diagnostics: api.Diagnostic[], uri: vscode.Uri): vscode.Diagnostic[] {
-	return diagnostics.map(d => {
-		let r = d.range;
+	return diagnostics.map(pslLintDiagnostic => {
+		let r = pslLintDiagnostic.range;
 		let vscodeRange = new vscode.Range(r.start.line, r.start.character, r.end.line, r.end.character);
-		let vscodeDiagnostic = new MemberDiagnostic(vscodeRange, d.message, d.severity);
-		vscodeDiagnostic.source = d.source;
-		vscodeDiagnostic.code = d.code;
-		if (d.member) vscodeDiagnostic.member = d.member;
-		if (d.relatedInformation) vscodeDiagnostic.relatedInformation = d.relatedInformation.map(x => {
+		let vscodeDiagnostic = new MemberDiagnostic(vscodeRange, pslLintDiagnostic.message, pslLintDiagnostic.severity);
+		vscodeDiagnostic.source = pslLintDiagnostic.source;
+		vscodeDiagnostic.code = pslLintDiagnostic.code;
+		vscodeDiagnostic.ruleName = pslLintDiagnostic.ruleName;
+		vscodeDiagnostic.addOneLine = pslLintDiagnostic.addOneLine;
+		vscodeDiagnostic.addTwoLines = pslLintDiagnostic.addTwoLines;
+		if (pslLintDiagnostic.member) vscodeDiagnostic.member = pslLintDiagnostic.member;
+		if (pslLintDiagnostic.relatedInformation) vscodeDiagnostic.relatedInformation = pslLintDiagnostic.relatedInformation.map(x => {
 			return new vscode.DiagnosticRelatedInformation(
 				new vscode.Location(uri, new vscode.Range(x.range.start.line, x.range.start.character, x.range.end.line, x.range.end.character)),
 				x.message

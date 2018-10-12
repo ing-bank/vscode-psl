@@ -1,4 +1,4 @@
-import { match, Config } from "../src/pslLint/config";
+import { match, Config, transform } from "../src/pslLint/config";
 
 const config: Config = {
 	'include': {
@@ -12,21 +12,21 @@ const config: Config = {
 }
 
 test('does not match ZRPC.PROC', () => {
-	expect(match('ZRPC.PROC', 'arule', config)).toEqual(false);
+	expect(match('ZRPC.PROC', 'arule', transform(config))).toEqual(false);
 })
 
 test('does match x.psl', () => {
-	expect(match('x.psl', 'arule', config)).toEqual(true);
+	expect(match('x.psl', 'arule', transform(config))).toEqual(true);
 })
 
 test('does match ZRPC1.PROC', () => {
-	expect(match('ZRPC1.PROC', 'arule', config)).toEqual(true);
+	expect(match('ZRPC1.PROC', 'arule', transform(config))).toEqual(true);
 })
 
 test('TodoInfo match A.PROC', () => {
-	expect(match('A.PROC', 'TodoInfo', config)).toEqual(true);
+	expect(match('A.PROC', 'TodoInfo', transform(config))).toEqual(true);
 })
 
 test('arule match A.PROC', () => {
-	expect(match('A.PROC', 'arule', config)).toEqual(false);
+	expect(match('A.PROC', 'arule', transform(config))).toEqual(false);
 })
