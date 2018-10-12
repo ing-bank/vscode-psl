@@ -1,0 +1,34 @@
+public void allProblemsNoLineAbove()
+	quit
+public void allProblems()
+	quit
+	// -------------------------------------------------------------------
+public void onlySeparator()
+	quit
+
+	// -------------------------------------------------------------------
+public void oneLineSeparator()
+	quit
+
+
+	// -------------------------------------------------------------------
+public void twoLineSeparator()
+	quit
+public void onlyDoc()
+	/* DOC */
+	quit
+
+public void oneLineDoc()
+	/* DOC */
+	quit
+
+
+public void twoLineDoc()
+	/* DOC */
+	quit
+
+
+	// -------------------------------------------------------------------
+public void withEverything()
+	/* DOC */
+	quit
