@@ -161,6 +161,8 @@ export class PslDocument {
 	textDocument: string;
 	fsPath: string;
 
+	private indexedDocument?: Map<number, string>;
+
 	constructor(parsedDocument: ParsedDocument, textDocument: string, fsPath: string, getTextAtLine?: GetTextMethod) {
 		this.parsedDocument = parsedDocument;
 		this.textDocument = textDocument;
@@ -173,9 +175,21 @@ export class PslDocument {
 	 * @param lineNumber The zero-based line number of the document where the text is.
 	 */
 	getTextAtLine(lineNumber: number): string {
-		return this.parsedDocument.tokens.filter(t => {
-			return t.position.line === lineNumber;
-		}).map(t => t.value).join('');
+		if (!this.indexedDocument) this.createIndexedDocument();
+		return this.indexedDocument.get(lineNumber) || '';
+	}
+	private createIndexedDocument(): void {
+		this.indexedDocument = new Map();
+		let line: string = '';
+		let index: number = 0;
+		for (const char of this.textDocument) {
+			line += char;
+			if (char === '\n') {
+				this.indexedDocument.set(index, line);
+				index++;
+				line = '';
+			}
+		}
 	}
 }
 
