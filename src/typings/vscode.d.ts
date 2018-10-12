@@ -3898,10 +3898,6 @@ declare module 'vscode' {
 		 */
 		relatedInformation?: DiagnosticRelatedInformation[];
 
-		addOneLine?:boolean;
-
-		addTwoLines?:boolean;
-
 		/**
 		 * Creates a new diagnostic object.
 		 *
