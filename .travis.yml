@@ -1,13 +1,25 @@
 language: node_js
 
+# https://docs.travis-ci.com/user/build-stages/deploy-npm/
 node_js:
-  - 8.9.4
+  - "8.9.4"
 
-install:
-  - npm install
-  - npm install -g vsce
+jobs:
+  include:
+    - stage: TS Linter
+      script:
+        - echo "Run TS linter ..."
+        - npm install tslint typescript -g
+        - tslint -c tslint.json --project .
 
-script:
-  - npm run compile
-  - npm run test
-  - vsce package
+    - stage: Run tests
+      script:
+        - echo "Run tests ..."
+        - npm run test
+
+    - stage: Publish Extension
+      if: branch = master
+      script:
+        - echo "Publish Extension (only for master) ..."
+        - npm install -g vsce
+        - vsce publish
