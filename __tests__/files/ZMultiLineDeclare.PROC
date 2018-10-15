@@ -1,0 +1,16 @@
+public static void ZTEST()
+	type Number test1, test2 = ""
+	type Number number1, number2 = ""
+	type ResultSet rs1, rs2, rs3 = ""
+	type void x(String) 
+	type Number number11="", number13, number15=""
+	type Number number19, number20=1, number21, number22=0, number23
+	type Number number29, number30
+	type Number number32, number34(), number36 = 0
+	type Number number37=(((%PG-1)*15)+1), number38=(((%PG-1)*15)+1)
+	type ResultSet rs4 = Db.select("ACN", "I999GLAD", "IBAN = :tba.iban"), rs5= Db.select("ACN", "I999GLAD", "IBAN = :tba.iban")
+	type Number number38 = rs4.getCol("CID"), number39 = rs4.getCol("CID")
+	type Number number40 = $$getTotAuthOdLimit^RecordDEPAUTHODLIMIT(dep.cid), number41 = $$getTotAuthOdLimit^RecordDEPAUTHODLIMIT(dep.cid)
+	type Number number42=ln("ACN").toNumber(),number41=ln("BOO").toNumber(),number43=ln("TYPE").toNumber()
+	type String test=this.test12
+	quit
