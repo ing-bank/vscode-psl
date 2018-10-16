@@ -1,16 +1,19 @@
 import * as path from 'path';
-import { Declaration, DeclarationRule, Diagnostic, DocumentRule, Member, MemberRule, Method, MethodRule, Parameter, ParameterRule, Property, PropertyRule, PslDocument } from './api';
+import { Declaration, DeclarationRule, Diagnostic, DocumentRule,
+		Member, MemberRule, Method, MethodRule, Parameter,
+		ParameterRule, Property, PropertyRule, PslDocument } from './api';
 
 /**
  * Import rules here.
  */
+import { getConfig, match, RegexConfig } from './config';
+import { MemberCamelCase, MemberLength, MemberLiteralCase,
+		MemberStartsWithV, PropertyIsDummy } from './elementsConventionChecker';
 import { MethodDocumentation, MethodSeparator } from './methodDoc';
-import { MethodParametersOnNewLine } from './parameters';
-import { TodoInfo } from './todos';
-import { MemberLiteralCase, MemberCamelCase, MemberLength, MemberStartsWithV } from './elementsConventionChecker';
-import { match, getConfig, RegexConfig } from './config';
-import { RuntimeStart } from './runtime';
 import { MultiLineDeclare } from './mutliLineDeclare';
+import { MethodParametersOnNewLine } from './parameters';
+import { RuntimeStart } from './runtime';
+import { TodoInfo } from './todos';
 
 /**
  * Add new rules here to have them checked at the appropriate time.
@@ -19,14 +22,14 @@ function addRules(subscription: RuleSubscription) {
 
 	subscription.addDocumentRules(
 		new TodoInfo(),
-	)
+	);
 
 	subscription.addMemberRules(
 		new MemberCamelCase(),
 		new MemberLength(),
 		new MemberStartsWithV(),
 		new MemberLiteralCase(),
-	)
+	);
 
 	subscription.addMethodRules(
 		new MethodDocumentation(),
@@ -35,11 +38,12 @@ function addRules(subscription: RuleSubscription) {
 		new RuntimeStart(),
 		new MultiLineDeclare(),
 		// new MethodStartsWithZ(),
-	)
+	);
 
-	// subscription.addPropertyRules(
+	subscription.addPropertyRules(
+		new PropertyIsDummy(),
 		// new PropertyStartsWithZ(),
-	// )
+	);
 
 }
 
@@ -74,7 +78,7 @@ export function reportRules(subscription: RuleSubscription) {
 }
 
 export function getDiagnostics(pslDocument: PslDocument, useConfig?: boolean) {
-	let ruleSubscriptions = new RuleSubscription(pslDocument, useConfig);
+	const ruleSubscriptions = new RuleSubscription(pslDocument, useConfig);
 
 	addRules(ruleSubscriptions);
 	reportRules(ruleSubscriptions);
@@ -135,7 +139,6 @@ export class RuleSubscription {
 		if (useConfig) this.config = getConfig(this.pslDocument.fsPath);
 	}
 
-
 	addDocumentRules(...documentRules: DocumentRule[]) {
 		this.documentRules = this.documentRules.concat(documentRules);
 	}
@@ -156,22 +159,46 @@ export class RuleSubscription {
 	}
 
 	reportDocumentRules() {
-		this.documentRules.filter(rule => this.checkConfig(rule)).forEach(rule => { this.diagnostics = this.diagnostics.concat(rule.report(this.pslDocument)) });
+		this.documentRules.filter(rule => this.checkConfig(rule)).forEach(
+			rule => {
+				this.diagnostics = this.diagnostics.concat(rule.report(this.pslDocument)); 
+			}
+		);
 	}
 	reportMemberRules(member: Member) {
-		this.memberRules.filter(rule => this.checkConfig(rule)).forEach(memberRule => { this.diagnostics = this.diagnostics.concat(memberRule.report(this.pslDocument, member)) });
+		this.memberRules.filter(rule => this.checkConfig(rule)).forEach(
+			memberRule => {
+				this.diagnostics = this.diagnostics.concat(memberRule.report(this.pslDocument, member));
+			}
+		);
 	}
 	reportPropertyRules(property: Property) {
-		this.propertyRules.filter(rule => this.checkConfig(rule)).forEach(propertyRule => { this.diagnostics = this.diagnostics.concat(propertyRule.report(this.pslDocument, property)) });
+		this.propertyRules.filter(rule => this.checkConfig(rule)).forEach(
+			propertyRule => {
+				this.diagnostics = this.diagnostics.concat(propertyRule.report(this.pslDocument, property));
+			}
+		);
 	}
 	reportMethodRules(method: Method) {
-		this.methodRules.filter(rule => this.checkConfig(rule)).forEach(methodRule => { this.diagnostics = this.diagnostics.concat(methodRule.report(this.pslDocument, method)) })
+		this.methodRules.filter(rule => this.checkConfig(rule)).forEach(
+			methodRule => {
+				this.diagnostics = this.diagnostics.concat(methodRule.report(this.pslDocument, method));
+			}
+		);
 	}
 	reportParameterRules(parameter: Parameter, method: Method) {
-		this.parameterRules.filter(rule => this.checkConfig(rule)).forEach(parameterRule => { this.diagnostics = this.diagnostics.concat(parameterRule.report(this.pslDocument, parameter, method)) })
+		this.parameterRules.filter(rule => this.checkConfig(rule)).forEach(
+			parameterRule => {
+				this.diagnostics = this.diagnostics.concat(parameterRule.report(this.pslDocument, parameter, method));
+			}
+		);
 	}
 	reportDeclarationRules(declaration: Declaration, method?: Method) {
-		this.declarationRules.filter(rule => this.checkConfig(rule)).forEach(declarationRule => { this.diagnostics = this.diagnostics.concat(declarationRule.report(this.pslDocument, declaration, method)) })
+		this.declarationRules.filter(rule => this.checkConfig(rule)).forEach(
+			declarationRule => {
+				this.diagnostics = this.diagnostics.concat(declarationRule.report(this.pslDocument, declaration, method));
+			}
+		);
 	}
 
 	checkConfig(rule: DocumentRule): boolean {
