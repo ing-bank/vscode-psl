@@ -718,6 +718,7 @@
     }
   },
   "scripts": {
+    "linter": "tslint -c tslint.json --project .",
     "compile": "tsc -p ./",
     "compile-lint": "tsc -p ./src/pslLint/cli",
     "watch": "npm run compile -- -watch",
