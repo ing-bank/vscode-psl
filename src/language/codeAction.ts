@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as parser from '../parser/parser';
 import { MemberDiagnostic } from '../language/codeQuality';
+import { getLineAfter } from '../parser/utillities';
 
 function initializeAction(title: string, ...diagnostics: MemberDiagnostic[]) {
 	let action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
@@ -33,7 +34,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 			if (diagnostic.ruleName == "MethodSeparator") {
 				let separatorAction = initializeAction('Add separator.', diagnostic);
 
-				let textEdit = vscode.TextEdit.insert(new vscode.Position(method.prevLine, 0), '\t// --------------------------------------------------------------------')
+				let textEdit = vscode.TextEdit.insert(new vscode.Position(method.id.position.character - 1, 0), '\t// --------------------------------------------------------------------')
 
 				separatorAction.edit.set(document.uri, [textEdit]);
 				actions.push(separatorAction);
@@ -56,7 +57,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 				}
 				docText += terminator;
 
-				let textEdit = vscode.TextEdit.insert(new vscode.Position(method.nextLine, 0), docText);
+				let textEdit = vscode.TextEdit.insert(new vscode.Position(getLineAfter(method), 0), docText);
 				documentationAction.edit.set(document.uri, [textEdit]);
 				actions.push(documentationAction);
 
@@ -75,7 +76,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 				if (diagnostic.addOneLine) fixText = `\n`;
 				if (diagnostic.addTwoLines) fixText = `\n\n`
 
-				let textEdit = vscode.TextEdit.insert(new vscode.Position(method.prevLine, 0), fixText);
+				let textEdit = vscode.TextEdit.insert(new vscode.Position(method.id.position.line - 1, 0), fixText);
 
 				separatorAction.edit.set(document.uri, [textEdit]);
 				actions.push(separatorAction);

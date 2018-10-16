@@ -414,3 +414,7 @@ export function findCallable(tokensOnLine: Token[], index: number) {
 		parameterIndex: activeCallable.parameterIndex
 	};
 }
+
+export function getLineAfter(method: Method): number {
+	return method.closeParen ? method.closeParen.position.line + 1 : method.id.position.line + 1;
+}

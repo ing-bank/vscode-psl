@@ -1,5 +1,6 @@
 import { getTokens, Token, Type } from './tokenizer';
 import * as fs from 'fs';
+import { getLineAfter } from './utillities';
 
 /**
  * Used for checking the type of Member at runtime
@@ -85,22 +86,7 @@ export interface Method extends Member {
 	 */
 	batch: boolean
 
-	/**
-	 * Next Line of a method implementation
-	 */
-	nextLine: number
-
-	/**
-	 * Previous Line of a method implementation
-	 */
-	prevLine: number;
-
 	statements: Statement[];
-
-	/**
-	 * One line before the method seperator
-	 */
-	oneLineB4: number
 
 }
 
@@ -191,8 +177,6 @@ export interface ParsedDocument {
 
 class _Method implements Method {
 
-	nextLine: number;
-	prevLine: number;
 	closeParen: Token;
 	id: Token;
 	types: Token[];
@@ -205,7 +189,6 @@ class _Method implements Method {
 	memberClass: MemberClass;
 	documentation: string;
 	statements: Statement[];
-	oneLineB4: number;
 
 	constructor() {
 		this.types = []
@@ -284,12 +267,6 @@ class Parser {
 		if (tokenizer) this.tokenizer = tokenizer;
 	}
 
-	private next(): boolean {
-		this.activeToken = this.tokenizer.next().value;
-		if (this.activeToken) this.tokens.push(this.activeToken);
-		return this.activeToken !== undefined;
-	}
-
 	parseDocument(documentText: string): ParsedDocument {
 		this.tokenizer = getTokens(documentText);
 		while (this.next()) {
@@ -323,7 +300,7 @@ class Parser {
 					let documentation = this.checkForDocumentation(tokenBuffer);
 					if (documentation) this.activeProperty.documentation = documentation;
 				}
-				else if (this.activeMethod && this.activeMethod.nextLine === lineNumber) {
+				else if (this.activeMethod && getLineAfter(this.activeMethod) === lineNumber) {
 					let documentation = this.checkForDocumentation(tokenBuffer);
 					if (documentation) this.activeMethod.documentation = documentation;
 				}
@@ -338,6 +315,12 @@ class Parser {
 			tokens: this.tokens,
 			extending: this.extending
 		}
+	}
+
+	private next(): boolean {
+		this.activeToken = this.tokenizer.next().value;
+		if (this.activeToken) this.tokens.push(this.activeToken);
+		return this.activeToken !== undefined;
 	}
 
 	private checkForDocumentation(tokenBuffer: Token[]): string {
@@ -599,9 +582,6 @@ class Parser {
 				}
 				if (method.line === -1) {
 					method.line = this.activeToken.position.line;
-					method.prevLine = this.activeToken.position.line - 1;
-					method.nextLine = this.activeToken.position.line + 1;
-					method.oneLineB4 = method.prevLine - 1;
 				}
 				method.modifiers.push(this.activeToken);
 			}
@@ -616,7 +596,6 @@ class Parser {
 			else if (this.activeToken.isCloseParen()) {
 				if (!method.closeParen) {
 					method.closeParen = this.activeToken;
-					method.nextLine = this.activeToken.position.line + 1;
 				}
 			}
 			else {
@@ -674,7 +653,6 @@ class Parser {
 			else if (this.activeToken.isCloseParen()) {
 				open = false;
 				method.closeParen = this.activeToken;
-				method.nextLine = this.activeToken.position.line + 1;
 				if (!param) break;
 				if (param.types.length === 1 && !param.id) {
 					param.id = param.types[0]
