@@ -15,6 +15,7 @@
   "activationEvents": [
     "workspaceContains:dataqwik",
     "workspaceContains:.vscode/environment.json",
+    "onLanguage:psl",
     "onCommand:psl.getElement",
     "onCommand:psl.refreshElement",
     "onCommand:psl.getTable",
@@ -131,6 +132,14 @@
       {
         "language": "psl",
         "path": "./snippets/psl.json"
+      },
+      {
+        "language": "profileTable",
+        "path": "./snippets/tableDefinition.json"
+      },
+      {
+        "language": "profileColumn",
+        "path": "./snippets/columnDefinition.json"
       }
     ],
     "configurationDefaults": {
