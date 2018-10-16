@@ -136,7 +136,7 @@ export class ParsedDocFinder {
 				}
 				return ret;
 			})
-			let parsedDocument: ParsedDocument = { extending: new Token(Type.Alphanumeric, 'Record', dummyPosition), properties: columns, tokens: [], methods: [], declarations: [] };
+			let parsedDocument: ParsedDocument = { extending: new Token(Type.Alphanumeric, 'Record', dummyPosition), properties: columns, tokens: [], methods: [], declarations: [], comments: [] };
 			const newPaths: FinderPaths = Object.create(this.paths);
 			newPaths.routine = tableDirectory;
 			return new ParsedDocFinder(parsedDocument, newPaths, this.getWorkspaceDocumentText);
@@ -156,8 +156,8 @@ export class ParsedDocFinder {
 	}
 
 	/**
-	* Search the parsed document and parents for a particular member
-	*/
+	 * Search the parsed document and parents for a particular member
+	 */
 	async searchParser(queriedToken: Token): Promise<FinderResult | undefined> {
 		let activeMethod = this.findActiveMethod(queriedToken);
 		if (activeMethod) {
@@ -413,4 +413,8 @@ export function findCallable(tokensOnLine: Token[], index: number) {
 		callTokens: getCallTokens(tokensOnLine, activeCallable.tokenBufferIndex),
 		parameterIndex: activeCallable.parameterIndex
 	};
+}
+
+export function getLineAfter(method: Method): number {
+	return method.closeParen ? method.closeParen.position.line + 1 : method.id.position.line + 1;
 }
