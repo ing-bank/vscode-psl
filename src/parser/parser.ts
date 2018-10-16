@@ -152,27 +152,32 @@ export interface ParsedDocument {
 	 * An array of Declarations that are not contained within a method.
 	 * This will be empty for valid Profile 7.6 code but is maintained for compatibility.
 	 */
-	declarations: Declaration[]
+	declarations: Declaration[];
 
 	/**
 	 * An array of PROPERTYDEFs
 	 */
-	properties: Property[]
+	properties: Property[];
 
 	/**
 	 * An array of the methods in the document
 	 */
-	methods: Method[]
+	methods: Method[];
 
 	/**
 	 * All the tokens in the document, for reference.
 	 */
-	tokens: Token[]
+	tokens: Token[];
 
 	/**
 	 * The Token that represents the parent class.
 	 */
-	extending: Token
+	extending: Token;
+
+	/**
+	 * The tokens corresponding to line and block comments.
+	 */
+	comments: Token[];
 }
 
 class _Method implements Method {
@@ -258,12 +263,14 @@ class Parser {
 	private activeProperty: Property;
 	private tokens: Token[];
 	private extending: Token;
+	private comments: Token[];
 
 	constructor(tokenizer?: IterableIterator<Token>) {
 		this.methods = [];
 		this.properties = [];
 		this.declarations = [];
 		this.tokens = [];
+		this.comments = [];
 		if (tokenizer) this.tokenizer = tokenizer;
 	}
 
@@ -313,13 +320,19 @@ class Parser {
 			properties: this.properties,
 			methods: this.methods,
 			tokens: this.tokens,
-			extending: this.extending
+			extending: this.extending,
+			comments: this.comments
 		}
 	}
 
 	private next(): boolean {
 		this.activeToken = this.tokenizer.next().value;
-		if (this.activeToken) this.tokens.push(this.activeToken);
+		if (this.activeToken) {
+			this.tokens.push(this.activeToken);
+			if (this.activeToken.isLineComment() || this.activeToken.isBlockComment()) {
+				this.comments.push(this.activeToken);
+			}
+		}
 		return this.activeToken !== undefined;
 	}
 

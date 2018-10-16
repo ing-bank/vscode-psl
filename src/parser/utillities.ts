@@ -136,7 +136,7 @@ export class ParsedDocFinder {
 				}
 				return ret;
 			})
-			let parsedDocument: ParsedDocument = { extending: new Token(Type.Alphanumeric, 'Record', dummyPosition), properties: columns, tokens: [], methods: [], declarations: [] };
+			let parsedDocument: ParsedDocument = { extending: new Token(Type.Alphanumeric, 'Record', dummyPosition), properties: columns, tokens: [], methods: [], declarations: [], comments: [] };
 			const newPaths: FinderPaths = Object.create(this.paths);
 			newPaths.routine = tableDirectory;
 			return new ParsedDocFinder(parsedDocument, newPaths, this.getWorkspaceDocumentText);
@@ -156,8 +156,8 @@ export class ParsedDocFinder {
 	}
 
 	/**
-	* Search the parsed document and parents for a particular member
-	*/
+	 * Search the parsed document and parents for a particular member
+	 */
 	async searchParser(queriedToken: Token): Promise<FinderResult | undefined> {
 		let activeMethod = this.findActiveMethod(queriedToken);
 		if (activeMethod) {

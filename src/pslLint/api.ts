@@ -1,5 +1,5 @@
 import { Declaration, Member, MemberClass, Method, Parameter, ParsedDocument, Property, parseFile, parseText } from './../parser/parser';
-import { Range } from './../parser/tokenizer';
+import { Range, Token } from './../parser/tokenizer';
 
 export enum DiagnosticSeverity {
 
@@ -178,6 +178,13 @@ export class PslDocument {
 		if (!this.indexedDocument) this.createIndexedDocument();
 		return this.indexedDocument.get(lineNumber) || '';
 	}
+
+	getCommentsOnLine(lineNumber: number): Token[] {
+		return this.parsedDocument.comments.filter(t => {
+			return t.position.line === lineNumber;
+		});
+	}
+
 	private createIndexedDocument(): void {
 		this.indexedDocument = new Map();
 		let line: string = '';
