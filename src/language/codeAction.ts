@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as parser from '../parser/parser';
 import { MemberDiagnostic } from '../language/codeQuality';
+import { MethodSeparator, MethodDocumentation, TwoEmptyLines } from '../pslLint/methodDoc';
 
 function initializeAction(title: string, ...diagnostics: MemberDiagnostic[]) {
 	let action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
@@ -30,7 +31,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 
 			let method = diagnostic.member as parser.Method;
 
-			if (diagnostic.ruleName == "MethodSeparator") {
+			if (diagnostic.ruleName === MethodSeparator.ruleName) {
 				let separatorAction = initializeAction('Add separator.', diagnostic);
 
 				let textEdit = vscode.TextEdit.insert(new vscode.Position(method.prevLine, 0), '\t// --------------------------------------------------------------------')
@@ -42,7 +43,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 				allTextEdits.push(textEdit)
 			}
 
-			if (diagnostic.ruleName == "MethodDocumentation") {
+			if (diagnostic.ruleName === MethodDocumentation.ruleName) {
 				let documentationAction = initializeAction('Add documentation block.', diagnostic);
 
 				let docText = `\t/* DOC ----------------------------------------------------------------\n\tTODO: description of label ${method.id.value}\n\n`;
@@ -65,7 +66,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 
 			}
 
-			if (diagnostic.ruleName == "TwoEmptyLines") {
+			if (diagnostic.ruleName === TwoEmptyLines.ruleName) {
 
 				if ((diagnostic.addOneLine == false) && (diagnostic.addTwoLines == false)) return;
 

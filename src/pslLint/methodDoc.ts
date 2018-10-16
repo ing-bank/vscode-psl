@@ -10,6 +10,7 @@ enum Code {
  */
 export class MethodDocumentation implements MethodRule {
 
+	static ruleName: string;
 	ruleName = MethodDocumentation.name;
 
 	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
@@ -30,6 +31,7 @@ export class MethodDocumentation implements MethodRule {
 }
 export class MethodSeparator implements MethodRule {
 
+	static ruleName: string;
 	ruleName = MethodSeparator.name;
 
 	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
@@ -52,6 +54,7 @@ export class MethodSeparator implements MethodRule {
 
 export class TwoEmptyLines implements MethodRule {
 
+	static ruleName: string;
 	ruleName = TwoEmptyLines.name;
 
 	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
