@@ -68,7 +68,7 @@ export class TwoEmptyLines implements MethodRule {
 		if (!hasOneSpaceAbove) code = Code.TWO_EMPTY_LINES;
 
 		// Checks two empty lines above a method
-		if (hasOneSpaceAbove || hasTwoSpacesAbove || lineAbove <= 0) {
+		if (!hasOneSpaceAbove || !hasTwoSpacesAbove || lineAbove <= 0) {
 			const message = `There should be two empty lines above label "${idToken.value}".`;
 			diagnostics.push(addDiagnostic(idToken, method, message, this.ruleName, code));
 		}
