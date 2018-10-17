@@ -63,6 +63,7 @@ export class MemberDiagnostic extends vscode.Diagnostic {
 	ruleName: string;
 }
 
+
 function prepareRules(textDocument: vscode.TextDocument, lintDiagnostics: vscode.DiagnosticCollection, cancellationToken: vscode.CancellationToken) {
 	if (!isPSL(textDocument)) return;
 
@@ -88,10 +89,10 @@ function lint(textDocument: vscode.TextDocument, useConfig: boolean, cancellatio
 	let documentText = textDocument.getText();
 	let pslDocument: api.PslDocument = prepareDocument(documentText, textDocument);
 	let diagnostics = getDiagnostics(pslDocument, useConfig);
-	let vscodeDiagnostics = transform(diagnostics, textDocument.uri);
+	let memberDiagnostics = transform(diagnostics, textDocument.uri);
 	process.nextTick(() => {
 		if (!cancellationToken.isCancellationRequested) {
-			lintDiagnostics.set(vscode.Uri.file(textDocument.fileName), vscodeDiagnostics);
+			lintDiagnostics.set(vscode.Uri.file(textDocument.fileName), memberDiagnostics);
 			vscode.workspace.onDidCloseTextDocument(textDocument => lintDiagnostics.delete(textDocument.uri));
 		}
 	});
@@ -104,22 +105,22 @@ function prepareDocument(documentText: string, textDocument: vscode.TextDocument
 	return pslDocument;
 }
 
-function transform(diagnostics: api.Diagnostic[], uri: vscode.Uri): vscode.Diagnostic[] {
+function transform(diagnostics: api.Diagnostic[], uri: vscode.Uri): MemberDiagnostic[] {
 	return diagnostics.map(pslLintDiagnostic => {
 		let r = pslLintDiagnostic.range;
 		let vscodeRange = new vscode.Range(r.start.line, r.start.character, r.end.line, r.end.character);
-		let vscodeDiagnostic = new MemberDiagnostic(vscodeRange, pslLintDiagnostic.message, pslLintDiagnostic.severity);
-		vscodeDiagnostic.source = pslLintDiagnostic.source;
-		vscodeDiagnostic.code = pslLintDiagnostic.code;
-		vscodeDiagnostic.ruleName = pslLintDiagnostic.ruleName;
-		if (pslLintDiagnostic.member) vscodeDiagnostic.member = pslLintDiagnostic.member;
-		if (pslLintDiagnostic.relatedInformation) vscodeDiagnostic.relatedInformation = pslLintDiagnostic.relatedInformation.map(x => {
+		let memberDiagnostic = new MemberDiagnostic(vscodeRange, pslLintDiagnostic.message, pslLintDiagnostic.severity);
+		memberDiagnostic.source = pslLintDiagnostic.source;
+		memberDiagnostic.code = pslLintDiagnostic.code;
+		memberDiagnostic.ruleName = pslLintDiagnostic.ruleName;
+		if (pslLintDiagnostic.member) memberDiagnostic.member = pslLintDiagnostic.member;
+		if (pslLintDiagnostic.relatedInformation) memberDiagnostic.relatedInformation = pslLintDiagnostic.relatedInformation.map(x => {
 			return new vscode.DiagnosticRelatedInformation(
 				new vscode.Location(uri, new vscode.Range(x.range.start.line, x.range.start.character, x.range.end.line, x.range.end.character)),
 				x.message
 			)
 		});
-		return vscodeDiagnostic;
+		return memberDiagnostic;
 	})
 }
 

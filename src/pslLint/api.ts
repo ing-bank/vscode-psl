@@ -1,5 +1,5 @@
 import { Declaration, Member, MemberClass, Method, Parameter, ParsedDocument, Property, parseFile, parseText } from './../parser/parser';
-import { Range } from './../parser/tokenizer';
+import { Range, Token } from './../parser/tokenizer';
 
 export enum DiagnosticSeverity {
 
@@ -157,6 +157,8 @@ export class PslDocument {
 	textDocument: string;
 	fsPath: string;
 
+	private indexedDocument?: Map<number, string>;
+
 	constructor(parsedDocument: ParsedDocument, textDocument: string, fsPath: string, getTextAtLine?: GetTextMethod) {
 		this.parsedDocument = parsedDocument;
 		this.textDocument = textDocument;
@@ -169,9 +171,28 @@ export class PslDocument {
 	 * @param lineNumber The zero-based line number of the document where the text is.
 	 */
 	getTextAtLine(lineNumber: number): string {
-		return this.parsedDocument.tokens.filter(t => {
+		if (!this.indexedDocument) this.createIndexedDocument();
+		return this.indexedDocument.get(lineNumber) || '';
+	}
+
+	getCommentsOnLine(lineNumber: number): Token[] {
+		return this.parsedDocument.comments.filter(t => {
 			return t.position.line === lineNumber;
-		}).map(t => t.value).join('');
+		});
+	}
+
+	private createIndexedDocument(): void {
+		this.indexedDocument = new Map();
+		let line: string = '';
+		let index: number = 0;
+		for (const char of this.textDocument) {
+			line += char;
+			if (char === '\n') {
+				this.indexedDocument.set(index, line);
+				index++;
+				line = '';
+			}
+		}
 	}
 }
 

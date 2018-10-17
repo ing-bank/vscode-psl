@@ -1,9 +1,11 @@
 import * as vscode from 'vscode';
-import * as parser from '../parser/parser';
 import { MemberDiagnostic } from '../language/codeQuality';
+import * as parser from '../parser/parser';
+import { getLineAfter } from '../parser/utillities';
+import { MethodDocumentation, MethodSeparator, TwoEmptyLines, Code } from '../pslLint/methodDoc';
 
 function initializeAction(title: string, ...diagnostics: MemberDiagnostic[]) {
-	let action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
+	const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
 	action.edit = new vscode.WorkspaceEdit();
 	if (diagnostics) action.diagnostics = diagnostics;
 	return action;
@@ -18,36 +20,36 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 
 		if (context.diagnostics.length === 0) return;
 
-		let actions: vscode.CodeAction[] = [];
-		let allDiagnostics: MemberDiagnostic[] = [];
-		let allTextEdits: vscode.TextEdit[] = [];
+		const actions: vscode.CodeAction[] = [];
+		const allDiagnostics: MemberDiagnostic[] = [];
+		const allTextEdits: vscode.TextEdit[] = [];
 
-		let fixAll: vscode.CodeAction = initializeAction('Fix all.');
-
+		const fixAll: vscode.CodeAction = initializeAction('Fix all.');
 
 		for (const diagnostic of context.diagnostics) {
 			if (!diagnostic.member) continue;
 
-			let method = diagnostic.member as parser.Method;
+			const method = diagnostic.member as parser.Method;
 
-			if (diagnostic.message.startsWith('Separator')) {
-				let separatorAction = initializeAction('Add separator.', diagnostic);
+			if (diagnostic.ruleName === MethodSeparator.name) {
+				const separatorAction = initializeAction('Add separator.', diagnostic);
 
-				let textEdit = vscode.TextEdit.insert(new vscode.Position(method.prevLine, 0), '\t// --------------------------------------------------------------------')
+				const textEdit = vscode.TextEdit.insert(new vscode.Position(method.id.position.character - 1, 0), '\t// --------------------------------------------------------------------');
 
 				separatorAction.edit.set(document.uri, [textEdit]);
 				actions.push(separatorAction);
 
 				allDiagnostics.push(diagnostic);
-				allTextEdits.push(textEdit)
+				allTextEdits.push(textEdit);
 			}
-			if (diagnostic.message.startsWith('Documentation')) {
-				let documentationAction = initializeAction('Add documentation block.', diagnostic);
+
+			if (diagnostic.ruleName === MethodDocumentation.name) {
+				const documentationAction = initializeAction('Add documentation block.', diagnostic);
 
 				let docText = `\t/* DOC ----------------------------------------------------------------\n\tTODO: description of label ${method.id.value}\n\n`;
-				let terminator = `\t** ENDDOC */\n`;
+				const terminator = `\t** ENDDOC */\n`;
 				if (method.parameters.length > 0) {
-					let spacing = method.parameters.slice().sort((p1, p2): number => {
+					const spacing = method.parameters.slice().sort((p1, p2): number => {
 						return p2.id.value.length - p1.id.value.length;
 					})[0].id.value.length + 2;
 
@@ -55,13 +57,32 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 				}
 				docText += terminator;
 
-				let textEdit = vscode.TextEdit.insert(new vscode.Position(method.nextLine, 0), docText);
+				const textEdit = vscode.TextEdit.insert(new vscode.Position(getLineAfter(method), 0), docText);
 				documentationAction.edit.set(document.uri, [textEdit]);
 				actions.push(documentationAction);
 
 				allDiagnostics.push(diagnostic);
-				allTextEdits.push(textEdit)
+				allTextEdits.push(textEdit);
 
+			}
+
+			if (diagnostic.ruleName === TwoEmptyLines.name) {
+
+				if (!diagnostic.code) return;
+
+				const separatorAction = initializeAction('Add two empty lines above method.', diagnostic);
+				let fixText = '';
+
+				if (diagnostic.code === Code.ONE_EMPTY_LINE) fixText = `\n`;
+				if (diagnostic.code === Code.TWO_EMPTY_LINES) fixText = `\n\n`;
+
+				const textEdit = vscode.TextEdit.insert(new vscode.Position(method.id.position.line - 1, 0), fixText);
+
+				separatorAction.edit.set(document.uri, [textEdit]);
+				actions.push(separatorAction);
+
+				allDiagnostics.push(diagnostic);
+				allTextEdits.push(textEdit);
 			}
 		}
 		if (actions.length > 1) {
