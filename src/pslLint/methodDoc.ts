@@ -1,6 +1,6 @@
 import { Diagnostic, DiagnosticSeverity, getLineAfter, Method, MethodRule, PslDocument, Token } from './api';
 
-enum Code {
+export enum Code {
 	ONE_EMPTY_LINE = 1,
 	TWO_EMPTY_LINES = 2
 }

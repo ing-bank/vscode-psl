@@ -61,8 +61,6 @@ async function pslLintConfigurationWatchers(context: vscode.ExtensionContext) {
 export class MemberDiagnostic extends vscode.Diagnostic {
 	member: parser.Member;
 	ruleName: string;
-	addOneLine: boolean;
-	addTwoLines: boolean;
 }
 
 
@@ -115,8 +113,6 @@ function transform(diagnostics: api.Diagnostic[], uri: vscode.Uri): MemberDiagno
 		memberDiagnostic.source = pslLintDiagnostic.source;
 		memberDiagnostic.code = pslLintDiagnostic.code;
 		memberDiagnostic.ruleName = pslLintDiagnostic.ruleName;
-		memberDiagnostic.addOneLine = pslLintDiagnostic.addOneLine;
-		memberDiagnostic.addTwoLines = pslLintDiagnostic.addTwoLines;
 		if (pslLintDiagnostic.member) memberDiagnostic.member = pslLintDiagnostic.member;
 		if (pslLintDiagnostic.relatedInformation) memberDiagnostic.relatedInformation = pslLintDiagnostic.relatedInformation.map(x => {
 			return new vscode.DiagnosticRelatedInformation(

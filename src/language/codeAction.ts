@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { MemberDiagnostic } from '../language/codeQuality';
 import * as parser from '../parser/parser';
 import { getLineAfter } from '../parser/utillities';
-import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from '../pslLint/methodDoc';
+import { MethodDocumentation, MethodSeparator, TwoEmptyLines, Code } from '../pslLint/methodDoc';
 
 function initializeAction(title: string, ...diagnostics: MemberDiagnostic[]) {
 	const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
@@ -68,13 +68,13 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 
 			if (diagnostic.ruleName === TwoEmptyLines.name) {
 
-				if ((diagnostic.addOneLine === false) && (diagnostic.addTwoLines === false)) return;
+				if (!diagnostic.code) return;
 
 				const separatorAction = initializeAction('Add two empty lines above method.', diagnostic);
 				let fixText = '';
 
-				if (diagnostic.addOneLine) fixText = `\n`;
-				if (diagnostic.addTwoLines) fixText = `\n\n`;
+				if (diagnostic.code === Code.ONE_EMPTY_LINE) fixText = `\n`;
+				if (diagnostic.code === Code.TWO_EMPTY_LINES) fixText = `\n\n`;
 
 				const textEdit = vscode.TextEdit.insert(new vscode.Position(method.id.position.line - 1, 0), fixText);
 
