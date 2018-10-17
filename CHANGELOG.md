@@ -40,7 +40,6 @@ These are the current rules:
 - MethodSeparator
 - MethodParametersOnNewLine
 - PropertyLiteralCase
-- TwoEmptyLines above a method
 
 Additionally, this version also introduces Completion Items with Suggestions as another preview feature for the PSL language.
 
