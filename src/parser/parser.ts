@@ -1,6 +1,7 @@
-import { getTokens, Token, Type } from './tokenizer';
 import * as fs from 'fs';
-import { getLineAfter } from './utillities';
+import { Statement, StatementParser } from './statementParser';
+import { getTokens, Token, Type } from './tokenizer';
+import { getLineAfter } from './utilities';
 
 /**
  * Used for checking the type of Member at runtime
@@ -23,20 +24,20 @@ export interface Member {
 	/**
 	 * The Token representing the name of the member.
 	 */
-	id: Token
+	id: Token;
 
 	/**
 	 * An array of types. The 0 index represents the 0 node type.
 	 * For trees the type of the nth node will be found at index n.
 	 */
-	types: Token[]
+	types: Token[];
 
 	modifiers: Token[];
 
 	/**
 	 * The member class to determine the type at runtime
 	 */
-	memberClass: MemberClass
+	memberClass: MemberClass;
 
 	documentation?: string;
 }
@@ -49,42 +50,43 @@ export interface Method extends Member {
 	/**
 	 * The Token of the closing parenthesis after the declaration of all the Method's parameters.
 	 */
-	closeParen: Token
+	closeParen: Token;
 
 	/**
 	 * Currently unused for Methods.
 	 */
-	types: Token[]
+	types: Token[];
 
 	/**
 	 * All the modifiers before the Method id, like "public", "static", "void", "String", etc.
 	 */
-	modifiers: Token[]
+	modifiers: Token[];
 
 	/**
 	 * The parameters of the Method, each with their own typing and comment information.
 	 */
-	parameters: Parameter[]
+	parameters: Parameter[];
 
 	/**
-	 * The "type" declarations found within the body of the method. Only the location where they are declared is referenced.
+	 * The "type" declarations found within the body of the method.
+	 * Only the location where they are declared is referenced.
 	 */
-	declarations: Declaration[]
+	declarations: Declaration[];
 
 	/**
 	 * The zero-based line where the Method begins
 	 */
-	line: number
+	line: number;
 
 	/**
 	 * The last line of the Method, right before the start of a new Method
 	 */
-	endLine: number
+	endLine: number;
 
 	/**
 	 * Whether the Method (label) is a batch label, such as "OPEN" or "EXEC"
 	 */
-	batch: boolean
+	batch: boolean;
 
 	statements: Statement[];
 
@@ -98,7 +100,7 @@ export interface Property extends Member {
 	/**
 	 * The other Tokens in the declaration, currently unparsed.
 	 */
-	modifiers: Token[]
+	modifiers: Token[];
 }
 
 /**
@@ -109,17 +111,17 @@ export interface Parameter extends Member {
 	/**
 	 * If the req keyword is used
 	 */
-	req: boolean
+	req: boolean;
 
 	/**
 	 * If the ret keyword is used
 	 */
-	ret: boolean
+	ret: boolean;
 
 	/**
 	 * If the literal keyword is used.
 	 */
-	literal: boolean
+	literal: boolean;
 
 	/**
 	 * The contents of the comment for the parameter, i.e.
@@ -129,7 +131,7 @@ export interface Parameter extends Member {
 	 * 		)
 	 * ```
 	 */
-	comment: Token
+	comment: Token;
 }
 
 /**
@@ -140,7 +142,7 @@ export interface Declaration extends Member {
 	/**
 	 * The other Tokens in the declaration, currently unparsed.
 	 */
-	modifiers: Token[]
+	modifiers: Token[];
 }
 
 /**
@@ -180,13 +182,14 @@ export interface ParsedDocument {
 	comments: Token[];
 }
 
+// tslint:disable-next-line:class-name
 class _Method implements Method {
 
 	closeParen: Token;
 	id: Token;
 	types: Token[];
 	modifiers: Token[];
-	parameters: _Parameter[]
+	parameters: _Parameter[];
 	declarations: Declaration[];
 	line: number;
 	endLine: number;
@@ -196,7 +199,7 @@ class _Method implements Method {
 	statements: Statement[];
 
 	constructor() {
-		this.types = []
+		this.types = [];
 		this.modifiers = [];
 		this.parameters = [];
 		this.line = -1;
@@ -208,35 +211,36 @@ class _Method implements Method {
 	}
 }
 
+// tslint:disable-next-line:class-name
 class _Parameter implements Parameter {
-	types: Token[]
-	req: boolean
-	ret: boolean
-	literal: boolean
-	id: Token
-	memberClass: MemberClass
-	comment: Token
+	types: Token[];
+	req: boolean;
+	ret: boolean;
+	literal: boolean;
+	id: Token;
+	memberClass: MemberClass;
+	comment: Token;
 	modifiers: Token[];
 
 	constructor() {
 		this.modifiers = [];
-		this.req = false
-		this.ret = false
-		this.literal = false
-		this.memberClass = MemberClass.parameter
+		this.req = false;
+		this.ret = false;
+		this.literal = false;
+		this.memberClass = MemberClass.parameter;
 	}
 }
 
 const NON_METHOD_KEYWORDS = [
-	'do', 'set', 'if', 'for', 'while'
-]
+	'do', 'set', 'if', 'for', 'while',
+];
 
 export const NON_TYPE_MODIFIERS = [
 	'public', 'static', 'private',
-]
+];
 
 export function parseText(sourceText: string): ParsedDocument {
-	let parser = new Parser();
+	const parser = new Parser();
 	return parser.parseDocument(sourceText);
 }
 
@@ -246,10 +250,12 @@ export function parseFile(sourcePath: string): Promise<ParsedDocument> {
 			if (err) {
 				reject(err);
 			}
-			let parser = new Parser();
-			resolve(parser.parseDocument(data.toString()));
-		})
-	})
+			else {
+				const parser = new Parser();
+				resolve(parser.parseDocument(data.toString()));
+			}
+		});
+	});
 }
 
 class Parser {
@@ -278,37 +284,39 @@ class Parser {
 		this.tokenizer = getTokens(documentText);
 		while (this.next()) {
 			if (this.activeToken.isAlphanumeric() || this.activeToken.isMinusSign()) {
-				let method = this.parseMethod();
+				const method = this.parseMethod();
 				if (!method) continue;
 				this.methods.push(method);
 				this.activeMethod = method;
 			}
 			else if (this.activeToken.isTab() || this.activeToken.isSpace()) {
-				let lineNumber = this.activeToken.position.line;
-				let tokenBuffer = this.loadTokenBuffer();
-				let propertyDef = this.lookForPropertyDef(tokenBuffer);
+				const lineNumber = this.activeToken.position.line;
+				const tokenBuffer = this.loadTokenBuffer();
+				const propertyDef = this.lookForPropertyDef(tokenBuffer);
 				if (propertyDef) {
 					if (propertyDef.id) this.properties.push(propertyDef);
 					this.activeProperty = propertyDef;
 					continue;
 				}
-				let typeDec = this.lookForTypeDeclaration(tokenBuffer);
+				const typeDec = this.lookForTypeDeclaration(tokenBuffer);
 				if (typeDec.length > 0) {
-					let activeDeclarations = this.activeMethod ? this.activeMethod.declarations : this.declarations;
-					for (let dec of typeDec) activeDeclarations.push(dec);
+					const activeDeclarations = this.activeMethod ? this.activeMethod.declarations : this.declarations;
+					for (const dec of typeDec) activeDeclarations.push(dec);
 					continue;
 				}
-				let extending = this.checkForExtends(tokenBuffer);
+				const extending = this.checkForExtends(tokenBuffer);
 				if (extending) this.extending = extending;
-
-				let statement = parseStatement(tokenBuffer);
-				if (statement && this.activeMethod) this.activeMethod.statements.push(statement);
+				if (this.activeMethod && this.activeMethod.batch && this.activeMethod.id.value === 'REVHIST') {
+					continue;
+				}
+				const statements = this.parseStatementsOnLine(tokenBuffer);
+				if (statements && this.activeMethod) this.activeMethod.statements = this.activeMethod.statements.concat(statements);
 				if (this.activeProperty && this.activeProperty.id.position.line + 1 === lineNumber) {
-					let documentation = this.checkForDocumentation(tokenBuffer);
+					const documentation = this.checkForDocumentation(tokenBuffer);
 					if (documentation) this.activeProperty.documentation = documentation;
 				}
 				else if (this.activeMethod && getLineAfter(this.activeMethod) === lineNumber) {
-					let documentation = this.checkForDocumentation(tokenBuffer);
+					const documentation = this.checkForDocumentation(tokenBuffer);
 					if (documentation) this.activeMethod.documentation = documentation;
 				}
 			}
@@ -316,13 +324,13 @@ class Parser {
 			else this.throwAwayTokensTil(Type.NewLine);
 		}
 		return {
+			comments: this.comments,
 			declarations: this.declarations,
-			properties: this.properties,
-			methods: this.methods,
-			tokens: this.tokens,
 			extending: this.extending,
-			comments: this.comments
-		}
+			methods: this.methods,
+			properties: this.properties,
+			tokens: this.tokens,
+		};
 	}
 
 	private next(): boolean {
@@ -339,7 +347,7 @@ class Parser {
 	private checkForDocumentation(tokenBuffer: Token[]): string {
 		let i = 0;
 		while (i < tokenBuffer.length) {
-			let token = tokenBuffer[i];
+			const token = tokenBuffer[i];
 			if (token.isTab() || token.isSpace()) {
 				i++;
 				continue;
@@ -353,16 +361,16 @@ class Parser {
 
 	private lookForTypeDeclaration(tokenBuffer: Token[]): Declaration[] | undefined {
 		let i = 0;
-		let tokens: Token[] = [];
+		const tokens: Token[] = [];
 		while (i < tokenBuffer.length) {
-			let token = tokenBuffer[i];
+			const token = tokenBuffer[i];
 			if (token.isTab() || token.isSpace()) {
 				i++;
 				continue;
 			}
 			if (token.isAlphanumeric() && token.value === 'type') {
 				for (let j = i + 1; j < tokenBuffer.length; j++) {
-					let loadToken = tokenBuffer[j];
+					const loadToken = tokenBuffer[j];
 					if (loadToken.isSpace() || loadToken.isTab()) continue;
 					// if (loadToken.isEqualSign()) break;
 					tokens.push(loadToken);
@@ -370,7 +378,7 @@ class Parser {
 			}
 			else if (token.isAlphanumeric() && token.value === 'catch') {
 				for (let j = i + 1; j < tokenBuffer.length; j++) {
-					let loadToken = tokenBuffer[j];
+					const loadToken = tokenBuffer[j];
 					if (loadToken.isSpace() || loadToken.isTab()) continue;
 					// if (loadToken.isEqualSign()) break;
 					tokens.push(new Token(Type.Alphanumeric, 'Error', { character: 0, line: 0 }));
@@ -380,23 +388,26 @@ class Parser {
 			}
 			break;
 		}
-		let memberClass = MemberClass.declaration
-		let declarations: Declaration[] = [];
+		const memberClass = MemberClass.declaration;
+		const declarations: Declaration[] = [];
 		let type;
 		let tokenIndex = 0;
 		let id;
 		let hasType;
-		let modifiers: Token[] = [];
+		const modifiers: Token[] = [];
 		while (tokenIndex < tokens.length) {
-			let token = tokens[tokenIndex];
+			const token = tokens[tokenIndex];
 			tokenIndex++;
 			if (this.isDeclarationKeyword(token)) {
 				modifiers.push(token);
 				continue;
-			};
+			}
 			if (!hasType) {
 				if (token.type !== Type.Alphanumeric) break;
-				if (token.value === 'static') hasType = true;
+				if (token.value === 'static') {
+					modifiers.push(token);
+					hasType = true;
+				}
 				else {
 					type = token;
 					hasType = true;
@@ -409,25 +420,25 @@ class Parser {
 				// declarations.push({types: [type], identifier});
 			}
 			else if (token.isEqualSign()) {
-				tokenIndex = this.skipToNextDeclaration(tokens, tokenIndex)
+				tokenIndex = this.skipToNextDeclaration(tokens, tokenIndex);
 				if (id && type) declarations.push({ types: [type], id, memberClass, modifiers });
 				id = undefined;
 			}
 			else if (token.isOpenParen()) {
-				let types = [];
-				let myIdentifier = tokens[tokenIndex - 2];
+				const types = [];
+				const myIdentifier = tokens[tokenIndex - 2];
 				while (tokenIndex < tokens.length) {
-					let token = tokens[tokenIndex];
+					const arrayTypeToken = tokens[tokenIndex];
 					tokenIndex++;
-					if (token.isOpenParen()) continue;
-					else if (token.isAlphanumeric()) {
-						types.push(token)
+					if (arrayTypeToken.isOpenParen()) continue;
+					else if (arrayTypeToken.isAlphanumeric()) {
+						types.push(arrayTypeToken);
 					}
-					else if (token.isComma()) {
+					else if (arrayTypeToken.isComma()) {
 						continue;
 					}
-					else if (token.isCloseParen()) {
-						if (type) declarations.push({ id: myIdentifier, types: [type].concat(types), memberClass, modifiers })
+					else if (arrayTypeToken.isCloseParen()) {
+						if (type) declarations.push({ id: myIdentifier, types: [type].concat(types), memberClass, modifiers });
 						id = undefined;
 						break;
 					}
@@ -447,7 +458,7 @@ class Parser {
 			else if (token.isNewLine()) {
 				if (id && type) declarations.push({ types: [type], id, memberClass, modifiers });
 				id = undefined;
-				break
+				break;
 			}
 			else break;
 		}
@@ -461,14 +472,13 @@ class Parser {
 		let extending = false;
 		let equals = false;
 		while (i < tokenBuffer.length) {
-			let token = tokenBuffer[i];
+			const token = tokenBuffer[i];
 			if (token.isTab() || token.isSpace()) {
 				i++;
 				continue;
 			}
 			else if (token.isNumberSign() && !classDef) {
-				let nextToken;
-				nextToken = tokenBuffer[i + 1];
+				const nextToken = tokenBuffer[i + 1];
 				if (!nextToken) return;
 				if (nextToken.value === 'CLASSDEF') {
 					classDef = true;
@@ -478,11 +488,11 @@ class Parser {
 			}
 			else if (token.value === 'extends' && !extending) {
 				extending = true;
-				i++
+				i++;
 			}
 			else if (token.isEqualSign() && !equals) {
 				equals = true;
-				i++
+				i++;
 			}
 			else if (token.isAlphanumeric() && classDef && extending && equals) {
 				return token;
@@ -497,7 +507,7 @@ class Parser {
 	private skipToNextDeclaration(identifiers: Token[], tokenIndex: number): number {
 		let parenStack = 0;
 		while (tokenIndex < identifiers.length) {
-			let token = identifiers[tokenIndex]
+			const token = identifiers[tokenIndex];
 			tokenIndex++;
 			if (token.isOpenParen()) {
 				parenStack++;
@@ -514,16 +524,16 @@ class Parser {
 
 	private isDeclarationKeyword(token: Token) {
 		if (token.type !== Type.Alphanumeric) return false;
-		let keywords = ['public', 'private', 'new', 'literal']
+		const keywords = ['public', 'private', 'new', 'literal'];
 		return keywords.indexOf(token.value) !== -1;
 	}
 
 	private throwAwayTokensTil(type: Type) {
-		do { } while (this.next() && this.activeToken.type !== type)
+		while (this.next() && this.activeToken.type !== type);
 	}
 
 	private loadTokenBuffer() {
-		let tokenBuffer = []
+		const tokenBuffer = [];
 		while (this.next() && this.activeToken.type !== Type.NewLine) {
 			tokenBuffer.push(this.activeToken);
 		}
@@ -548,18 +558,28 @@ class Parser {
 					return;
 				}
 				if (token.value === 'PROPERTYDEF') {
-					let tokens = tokenBuffer.filter(t => {
+					const tokens = tokenBuffer.filter(t => {
 						if (t.isNumberSign()) return false;
 						if (t.value === 'PROPERTYDEF') return false;
-						return t.type !== Type.Space && t.type !== Type.Tab
-					}
-					)
-					let classTypes: Token[] = [];
-					let classIndex = tokens.findIndex(t => t.value === 'class');
-					if (tokens[classIndex + 1] && tokens[classIndex + 1].value === '=' && tokens[classIndex + 2] && tokens[classIndex + 2].isAlphanumeric()) {
+						return t.type !== Type.Space && t.type !== Type.Tab;
+					},
+					);
+					const classTypes: Token[] = [];
+					const classIndex = tokens.findIndex(t => t.value === 'class');
+					if (
+						tokens[classIndex + 1]
+						&& tokens[classIndex + 1].value === '='
+						&& tokens[classIndex + 2]
+						&& tokens[classIndex + 2].isAlphanumeric()
+					) {
 						classTypes.push(tokens[classIndex + 2]);
 					}
-					return { id: tokens[0], modifiers: tokens.slice(1), types: classTypes, memberClass: MemberClass.property }
+					return {
+						id: tokens[0],
+						memberClass: MemberClass.property,
+						modifiers: this.findPropertyModifiers(tokens.slice(1)),
+						types: classTypes,
+					};
 
 				}
 				else {
@@ -571,25 +591,30 @@ class Parser {
 			}
 		}
 		return;
+	}
 
+	private findPropertyModifiers(tokens: Token[]) {
+		return tokens.filter(t => {
+			return t.value === 'private' || t.value === 'literal' || t.value === 'public';
+		});
 	}
 
 	private parseMethod(): _Method | undefined {
 		let batchLabel = false;
-		let method: _Method = new _Method();
+		const method: _Method = new _Method();
 		do {
 			if (!this.activeToken) continue;
 			if (this.activeToken.isTab() || this.activeToken.isSpace()) continue;
 			else if (this.activeToken.isNewLine()) break;
 			else if (this.activeToken.isOpenParen()) {
-				let processed = this.processParameters(method);
+				const processed = this.processParameters(method);
 				if (!processed) return undefined;
 				method.parameters = processed;
 				break;
 			}
 			else if (this.activeToken.isAlphanumeric() || this.activeToken.isNumeric()) {
 				if (batchLabel) {
-					method.modifiers.push(this.activeToken)
+					method.modifiers.push(this.activeToken);
 					method.batch = true;
 					break;
 				}
@@ -602,7 +627,13 @@ class Parser {
 				batchLabel = true;
 				continue;
 			}
-			else if (this.activeToken.isLineCommentInit() || this.activeToken.isLineComment() || this.activeToken.isBlockCommentInit() || this.activeToken.isBlockComment() || this.activeToken.isBlockCommentTerm()) {
+			else if (
+				this.activeToken.isLineCommentInit()
+				|| this.activeToken.isLineComment()
+				|| this.activeToken.isBlockCommentInit()
+				|| this.activeToken.isBlockComment()
+				|| this.activeToken.isBlockCommentTerm()
+			) {
 				continue;
 			}
 			else if (this.activeToken.value === '\r') continue;
@@ -616,7 +647,7 @@ class Parser {
 				if (method.modifiers.length > 1) {
 					break;
 				}
-				return undefined
+				return undefined;
 			}
 		} while (this.next());
 
@@ -624,8 +655,8 @@ class Parser {
 	}
 
 	private finalizeMethod(method: _Method) {
-		for (let keyword of NON_METHOD_KEYWORDS) {
-			let index = method.modifiers.map(i => i.value).indexOf(keyword)
+		for (const keyword of NON_METHOD_KEYWORDS) {
+			const index = method.modifiers.map(i => i.value).indexOf(keyword);
 			if (index > -1 && index < method.modifiers.length - 1) {
 				method.modifiers = [method.modifiers[0]];
 				method.parameters = [];
@@ -638,7 +669,7 @@ class Parser {
 		}
 		const lastModifier = method.modifiers[method.modifiers.length - 1];
 		if (lastModifier && NON_TYPE_MODIFIERS.indexOf(lastModifier.value) < 0) {
-			method.types = [lastModifier];
+			method.types = [method.modifiers.pop()];
 		}
 		this.activeMethod = method;
 		return method;
@@ -646,7 +677,7 @@ class Parser {
 
 	private processParameters(method: _Method): _Parameter[] | undefined {
 
-		let args: _Parameter[] = [];
+		const args: _Parameter[] = [];
 		let param: _Parameter | undefined;
 		let open = false;
 		while (this.next()) {
@@ -658,7 +689,7 @@ class Parser {
 					param.id = param.types[0];
 					param.types[0] = this.getDummy();
 				}
-				let objectArgs = this.processObjectArgs();
+				const objectArgs = this.processObjectArgs();
 				if (!objectArgs) return undefined;
 				param.types = param.types.concat(objectArgs);
 				continue;
@@ -668,7 +699,7 @@ class Parser {
 				method.closeParen = this.activeToken;
 				if (!param) break;
 				if (param.types.length === 1 && !param.id) {
-					param.id = param.types[0]
+					param.id = param.types[0];
 					param.types[0] = this.getDummy();
 				}
 				args.push(param);
@@ -696,7 +727,7 @@ class Parser {
 			}
 			else if (this.activeToken.isLineComment()) {
 				if (param) {
-					param.comment = this.activeToken
+					param.comment = this.activeToken;
 				}
 				else if (args.length >= 1) {
 					args[args.length - 1].comment = this.activeToken;
@@ -705,10 +736,10 @@ class Parser {
 			else if (this.activeToken.isComma()) {
 				if (!param) return undefined;
 				if (param.types.length === 1 && !param.id) {
-					param.id = param.types[0]
+					param.id = param.types[0];
 					param.types[0] = this.getDummy();
 				}
-				args.push(param)
+				args.push(param);
 				param = undefined;
 			}
 		}
@@ -717,10 +748,10 @@ class Parser {
 	}
 
 	private processObjectArgs(): Token[] | undefined {
-		let types: Token[] = [];
+		const types: Token[] = [];
 		let found = false;
 		while (this.next()) {
-			let dummy = this.getDummy();
+			const dummy = this.getDummy();
 			if (this.activeToken.isTab() || this.activeToken.isSpace()) continue;
 			else if (this.activeToken.isCloseParen()) {
 				if (types.length === 0) types.push(dummy);
@@ -747,105 +778,17 @@ class Parser {
 		return undefined;
 	}
 
+	private parseStatementsOnLine(tokenBuffer: Token[]): Statement[] {
+		const statementParser = new StatementParser(tokenBuffer);
+		try {
+			return statementParser.parseLine();
+		}
+		catch {
+			return [];
+		}
+	}
+
 	private getDummy() {
 		return new Token(Type.Undefined, '', this.activeToken.position);
 	}
-}
-
-export interface Statement {
-	action: Token
-	expression: Node
-}
-
-export interface Node {
-	data: Value | Token
-	left?: Node
-	right?: Node
-}
-
-export interface Value {
-	id: Token
-	args?: Value[]
-	child?: Value
-}
-
-export function parseStatement(tokenBuffer: Token[]): Statement | undefined {
-	let tokenIndex = 0;
-	let token = tokenBuffer[tokenIndex];
-	while (token && token.isWhiteSpace()) {
-		tokenIndex++;
-		token = tokenBuffer[tokenIndex];
-	}
-	if (!token) return;
-	switch (token.value) {
-		case "do":
-			let expression = parseExpression(tokenBuffer.slice(tokenIndex + 2));
-			if (expression) return { action: token, expression };
-			break;
-		default:
-			break;
-	}
-}
-
-export function parseExpression(tokenArray: Token[]): Node {
-	let parsed = parseValue(tokenArray)
-	if (parsed) return { data: parsed.value };
-
-}
-
-export function parseValue(tokenArray: Token[]): { value: Value | undefined, rest: Token[] } {
-	let token0 = tokenArray[0];
-	if (token0.isDoubleQuotes()) {
-		let id = tokenArray[1]
-		let endQuote = tokenArray[2];
-		if (id.isString() && endQuote.isDoubleQuotes()) {
-			return { value: { id }, rest: tokenArray.slice(3) }
-		}
-	}
-	if (!token0 || !(token0.isAlphanumeric() || token0.isString() || token0.isNumeric())) return;
-	const id = token0;
-	let args: Value[] = [];
-	let child: Value;
-	let next = tokenArray[1];
-	let rest = tokenArray.slice(1);
-	if (next && next.isOpenParen() && !args.length) {
-		let parsed = parseArgs(rest);
-		args = parsed.args;
-		rest = parsed.rest;
-		next = rest[0];
-	}
-
-	if (next && next.isPeriod()) {
-		let parsed = parseValue(rest.slice(1));
-		if (parsed) {
-			child = parsed.value;
-			rest = parsed.rest;
-		}
-	}
-
-	return { value: { id, args, child }, rest };
-
-}
-
-export function parseArgs(tokenArray: Token[]): { args: Value[], rest: Token[] } {
-	let args: Value[] = [];
-	let i;
-	for (i = 0; i < tokenArray.length; i++) {
-		const token = tokenArray[i];
-		if (i === 0 && token.isOpenParen()) continue;
-		if (token.isWhiteSpace()) continue;
-		if (token.isComma()) continue;
-		else if (token.isCloseParen()) {
-			i++;
-			break;
-		}
-		else if (token) {
-			let parsed = parseValue(tokenArray.slice(i));
-			if (!parsed) break;
-			i = tokenArray.length - parsed.rest.length;
-			if (parsed.value) args.push(parsed.value);
-			else break;
-		}
-	}
-	return { args, rest: tokenArray.slice(i) };
 }

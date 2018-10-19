@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as parser from '../parser/parser';
-import * as utils from '../parser/utillities';
+import * as utils from '../parser/utilities';
 import * as jsonc from 'jsonc-parser';
 
 export interface Documentation {
@@ -23,8 +23,8 @@ export async function getDocumentation(result: utils.FinderResult, tableDirector
 			let parsed = jsonc.parse(text);
 			let doc = text.split('}')[1];
 			let tableName = path.basename(fsPath).split('.')[0];
-	
-			return {code: '(table) ' + tableName, markdown: `${parsed.DES}\n\n${doc}`};
+
+			return { code: '(table) ' + tableName, markdown: `${parsed.DES}\n\n${doc}` };
 		}
 	}
 	else if (member.memberClass === parser.MemberClass.column) {
@@ -95,7 +95,7 @@ export async function getDocumentation(result: utils.FinderResult, tableDirector
 			let text = await getWorkspaceDocumentText(tableLocation);
 			let parsed = jsonc.parse(text);
 			let doc = text.split('}')[1];
-	
+
 			markdown = `${parsed.DES}\n\n${doc}`;
 		}
 		return { code, markdown };

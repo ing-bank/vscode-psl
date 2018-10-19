@@ -6,15 +6,15 @@ export class TodoInfo implements DocumentRule {
 
 	report(pslDocument: PslDocument): Diagnostic[] {
 		let todos: Todo[] = [];
-		for (let token of pslDocument.parsedDocument.tokens) {
-			let startLine = token.position.line;
-			let startChar = token.position.character;
-			if (token.isBlockComment() || token.isLineComment()) {
+		for (let token of pslDocument.parsedDocument.comments) {
+			if (token.value.includes('TODO')) {
+				let startLine = token.position.line;
+				let startChar = token.position.character;
 				todos = todos.concat(getTodosFromComment(token.value, startLine, startChar));
 			}
 		}
 		return todos.map(todo => {
-			let diagnostic = new Diagnostic(todo.range, todo.message, this.ruleName,DiagnosticSeverity.Information);
+			let diagnostic = new Diagnostic(todo.range, todo.message, this.ruleName, DiagnosticSeverity.Information);
 			diagnostic.source = 'TODO';
 			return diagnostic;
 		})

@@ -1,4 +1,7 @@
-import { Declaration, Member, MemberClass, Method, Parameter, ParsedDocument, Property, parseFile, parseText } from './../parser/parser';
+import {
+	Declaration, Member, MemberClass, Method, Parameter,
+	ParsedDocument, parseFile, parseText, Property,
+} from './../parser/parser';
 import { Range, Token } from './../parser/tokenizer';
 
 export enum DiagnosticSeverity {
@@ -22,7 +25,7 @@ export enum DiagnosticSeverity {
 	 * Something to hint to a better way of doing it, like proposing
 	 * a refactoring.
 	 */
-	Hint = 3
+	Hint = 3,
 }
 
 export class Diagnostic {
@@ -73,11 +76,11 @@ export class Diagnostic {
 	 * @param severity The severity, default is [error](#DiagnosticSeverity.Error).
 	 */
 	constructor(range: Range, message: string, ruleName: string, severity?: DiagnosticSeverity, member?: Member) {
-		this.range = range
-		this.message = message
-		this.ruleName = ruleName
-		if (severity) this.severity = severity
-		if (member) this.member = member
+		this.range = range;
+		this.message = message;
+		this.ruleName = ruleName;
+		if (severity) this.severity = severity;
+		if (member) this.member = member;
 	}
 }
 
@@ -104,7 +107,7 @@ export class DiagnosticRelatedInformation {
 	 * @param range The range.
 	 * @param message The message.
 	 */
-	constructor( range: Range,  message: string) {
+	constructor(range: Range, message: string) {
 		this.range = range;
 		this.message = message;
 	}
@@ -118,13 +121,12 @@ export interface DocumentRule {
 	ruleName: string;
 
 	/**
-	 * 
+	 *
 	 * @param pslDocument An abstract representation of a PSL document
 	 * @param textDocument The whole text of the document, as a string.
 	 */
 	report(pslDocument: PslDocument, ...args: any[]): Diagnostic[];
 }
-
 
 export interface MemberRule extends DocumentRule {
 	report(pslDocument: PslDocument, member: Member): Diagnostic[];
@@ -143,13 +145,10 @@ export interface ParameterRule extends DocumentRule {
 }
 
 export interface DeclarationRule extends DocumentRule {
-	report(pslDocument: PslDocument, declaration: Declaration, method: Method): Diagnostic[];
+	report(pslDocument: PslDocument, declaration: Declaration, method?: Method): Diagnostic[];
 }
 
-
-interface GetTextMethod {
-	(lineNumber: number): string;
-}
+type GetTextMethod = (lineNumber: number) => string;
 
 export class PslDocument {
 
@@ -171,7 +170,9 @@ export class PslDocument {
 	 * @param lineNumber The zero-based line number of the document where the text is.
 	 */
 	getTextAtLine(lineNumber: number): string {
-		if (!this.indexedDocument) this.createIndexedDocument();
+		if (!this.indexedDocument) {
+			this.indexedDocument = this.createIndexedDocument();
+		}
 		return this.indexedDocument.get(lineNumber) || '';
 	}
 
@@ -181,21 +182,22 @@ export class PslDocument {
 		});
 	}
 
-	private createIndexedDocument(): void {
-		this.indexedDocument = new Map();
+	private createIndexedDocument(): Map<number, string> {
+		const indexedDocument = new Map();
 		let line: string = '';
 		let index: number = 0;
 		for (const char of this.textDocument) {
 			line += char;
 			if (char === '\n') {
-				this.indexedDocument.set(index, line);
+				indexedDocument.set(index, line);
 				index++;
 				line = '';
 			}
 		}
+		return indexedDocument;
 	}
 }
 
 export { parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter };
 export * from './../parser/tokenizer';
-export * from './../parser/utillities';
+export * from '../parser/utilities';

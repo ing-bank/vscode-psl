@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { MemberDiagnostic } from '../language/codeQuality';
 import * as parser from '../parser/parser';
-import { getLineAfter } from '../parser/utillities';
-import { MethodDocumentation, MethodSeparator, TwoEmptyLines, Code } from '../pslLint/methodDoc';
+import { getLineAfter } from '../parser/utilities';
+import { Code, MethodDocumentation, MethodSeparator, TwoEmptyLines } from '../pslLint/methodDoc';
 
 function initializeAction(title: string, ...diagnostics: MemberDiagnostic[]) {
 	const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
@@ -16,7 +16,11 @@ interface CodeQualityActionContext {
 }
 
 export class PSLActionProvider implements vscode.CodeActionProvider {
-	public async provideCodeActions(document: vscode.TextDocument, _range: vscode.Range, context: CodeQualityActionContext): Promise<vscode.CodeAction[]> {
+	public async provideCodeActions(
+		document: vscode.TextDocument,
+		_range: vscode.Range,
+		context: CodeQualityActionContext,
+	): Promise<vscode.CodeAction[]> {
 
 		if (context.diagnostics.length === 0) return;
 
@@ -34,7 +38,10 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 			if (diagnostic.ruleName === MethodSeparator.name) {
 				const separatorAction = initializeAction('Add separator.', diagnostic);
 
-				const textEdit = vscode.TextEdit.insert(new vscode.Position(method.id.position.character - 1, 0), '\t// --------------------------------------------------------------------');
+				const textEdit = vscode.TextEdit.insert(
+					new vscode.Position(method.id.position.character - 1, 0),
+					'\t// --------------------------------------------------------------------',
+				);
 
 				separatorAction.edit.set(document.uri, [textEdit]);
 				actions.push(separatorAction);
@@ -46,14 +53,17 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 			if (diagnostic.ruleName === MethodDocumentation.name) {
 				const documentationAction = initializeAction('Add documentation block.', diagnostic);
 
-				let docText = `\t/* DOC ----------------------------------------------------------------\n\tTODO: description of label ${method.id.value}\n\n`;
+				let docText = `\t/* DOC ----------------------------------------------------------------\n\t`
+					+ `TODO: description of label ${method.id.value}\n\n`;
 				const terminator = `\t** ENDDOC */\n`;
 				if (method.parameters.length > 0) {
 					const spacing = method.parameters.slice().sort((p1, p2): number => {
 						return p2.id.value.length - p1.id.value.length;
 					})[0].id.value.length + 2;
 
-					docText += method.parameters.map(p => `\t@param ${p.id.value}${' '.repeat(spacing - p.id.value.length)}TODO: description of param ${p.id.value}`).join('\n\n') + '\n';
+					docText += method.parameters.map(p => {
+						return `\t@param ${p.id.value}${' '.repeat(spacing - p.id.value.length)}TODO: description of param ${p.id.value}`;
+					}).join('\n\n') + '\n';
 				}
 				docText += terminator;
 

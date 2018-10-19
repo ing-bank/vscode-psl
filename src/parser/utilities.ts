@@ -1,13 +1,7 @@
-import * as path from 'path';
-import { Member, Method, ParsedDocument, Property, parseText, MemberClass } from '../parser/parser';
-import { Position, Token, Type } from '../parser/tokenizer';
 import * as fs from 'fs-extra';
-
-export interface Query {
-	identifier: string
-	line: number
-	character: number
-}
+import * as path from 'path';
+import { Member, MemberClass, Method, ParsedDocument, parseText, Property } from './parser';
+import { Position, Token, Type } from './tokenizer';
 
 export interface FinderResult {
 	fsPath: string;
@@ -18,7 +12,7 @@ export interface FinderPaths {
 	routine: string;
 	projectPsl: string[];
 	corePsl: string;
-	table: string
+	table: string;
 }
 export const dummyPosition = new Position(0, 0);
 
@@ -30,7 +24,11 @@ export class ParsedDocFinder {
 
 	private hierarchy: string[] = [];
 
-	constructor(parsedDocument: ParsedDocument, paths: FinderPaths, getWorkspaceDocumentText?: (fsPath: string) => Promise<string>) {
+	constructor(
+		parsedDocument: ParsedDocument,
+		paths: FinderPaths,
+		getWorkspaceDocumentText?: (fsPath: string) => Promise<string>,
+	) {
 		this.parsedDocument = parsedDocument;
 		this.paths = paths;
 		if (getWorkspaceDocumentText) this.getWorkspaceDocumentText = getWorkspaceDocumentText;
@@ -41,35 +39,34 @@ export class ParsedDocFinder {
 		let finder: ParsedDocFinder = this;
 
 		if (callTokens.length === 1) {
-			let result = await finder.searchParser(callTokens[0]);
+			const result = await finder.searchParser(callTokens[0]);
 
 			// check for core class or tables
 			if (!result) {
-				let pslClsNames = await getPslClsNames(this.paths.corePsl);
+				const pslClsNames = await getPslClsNames(this.paths.corePsl);
 				if (pslClsNames.indexOf(callTokens[0].value) >= 0) {
 					finder = await finder.newFinder(callTokens[0].value);
 					return {
 						fsPath: finder.paths.routine,
-						// member: { types: [], id: new Token(Type.Alphanumeric, callTokens[0].value, dummyPosition), memberClass: MemberClass.table }
 					};
 				}
-				let tableName = callTokens[0].value.replace('Record', '');
-				let tableLocation = path.join(this.paths.table, tableName.toLowerCase(), tableName.toUpperCase() + '.TBL');
-				let tableLocationExists = await fs.pathExists(tableLocation);
-				if (tableLocationExists) return {
-					fsPath: tableLocation,
-					// member: { types: [], id: new Token(Type.Alphanumeric, tableName, dummyPosition), memberClass: MemberClass.table }
-				};
+				const tableName = callTokens[0].value.replace('Record', '');
+				const tableLocation = path.join(this.paths.table, tableName.toLowerCase(), tableName.toUpperCase() + '.TBL');
+				const tableLocationExists = await fs.pathExists(tableLocation);
+				if (tableLocationExists) {
+					return {
+						fsPath: tableLocation,
+					};
+				}
 				else if (callTokens[0] === this.parsedDocument.extending) {
 					finder = await finder.newFinder(callTokens[0].value);
 					return {
 						fsPath: finder.paths.routine,
-						// member: { types: [], id: new Token(Type.Alphanumeric, callTokens[0].value, dummyPosition), memberClass: MemberClass.table }
 					};
 				}
 				else if (callTokens[0].value === 'this' || callTokens[0].value === this.procName) {
 					return {
-						fsPath: this.paths.routine
+						fsPath: this.paths.routine,
 					};
 				}
 			}
@@ -90,8 +87,8 @@ export class ParsedDocFinder {
 				const token = callTokens[index];
 
 				if (index === 0) {
-					// handle core class					
-					let pslClsNames = await getPslClsNames(this.paths.corePsl);
+					// handle core class
+					const pslClsNames = await getPslClsNames(this.paths.corePsl);
 					if (pslClsNames.indexOf(token.value) >= 0) {
 						finder = await finder.newFinder(token.value);
 						continue;
@@ -99,7 +96,7 @@ export class ParsedDocFinder {
 					// skip over 'this'
 					else if (token.value === 'this' || token.value === this.procName) {
 						result = {
-							fsPath: this.paths.routine
+							fsPath: this.paths.routine,
 						};
 						continue;
 					}
@@ -108,7 +105,9 @@ export class ParsedDocFinder {
 					}
 				}
 
-				if (!result || (result.fsPath === this.paths.routine && !result.member)) result = await finder.searchInDocument(token.value);
+				if (!result || (result.fsPath === this.paths.routine && !result.member)) {
+					result = await finder.searchInDocument(token.value);
+				}
 				if (!result) return;
 				if (!callTokens[index + 1]) return result;
 				let type = result.member.types[0].value;
@@ -122,21 +121,28 @@ export class ParsedDocFinder {
 	async newFinder(routineName: string): Promise<ParsedDocFinder | undefined> {
 
 		if (routineName.startsWith('Record') && routineName !== 'Record') {
-			let tableName = routineName.replace('Record', '');
-			let tableDirectory = path.join(this.paths.table, tableName.toLowerCase());
-			let tableLocationExists = await fs.pathExists(tableDirectory);
+			const tableName = routineName.replace('Record', '');
+			const tableDirectory = path.join(this.paths.table, tableName.toLowerCase());
+			const tableLocationExists = await fs.pathExists(tableDirectory);
 			if (!tableLocationExists) return;
-			let columns: Property[] = (await fs.readdir(tableDirectory)).filter(file => file.endsWith('.COL')).map(col => {
-				let colName = col.replace(`${tableName}-`, '').replace('.COL', '');
-				let ret: Property = {
+			const columns: Property[] = (await fs.readdir(tableDirectory)).filter(file => file.endsWith('.COL')).map(col => {
+				const colName = col.replace(`${tableName}-`, '').replace('.COL', '');
+				const ret: Property = {
 					id: new Token(Type.Alphanumeric, colName, dummyPosition),
 					memberClass: MemberClass.column,
+					modifiers: [],
 					types: [new Token(Type.Alphanumeric, 'String', dummyPosition)],
-					modifiers: []
-				}
+				};
 				return ret;
-			})
-			let parsedDocument: ParsedDocument = { extending: new Token(Type.Alphanumeric, 'Record', dummyPosition), properties: columns, tokens: [], methods: [], declarations: [], comments: [] };
+			});
+			const parsedDocument: ParsedDocument = {
+				comments: [],
+				declarations: [],
+				extending: new Token(Type.Alphanumeric, 'Record', dummyPosition),
+				methods: [],
+				properties: columns,
+				tokens: [],
+			};
 			const newPaths: FinderPaths = Object.create(this.paths);
 			newPaths.routine = tableDirectory;
 			return new ParsedDocFinder(parsedDocument, newPaths, this.getWorkspaceDocumentText);
@@ -145,7 +151,7 @@ export class ParsedDocFinder {
 
 		for (const pathWithoutExtension of pathsWithoutExtensions) {
 			for (const extension of ['.PROC', '.psl', '.PSL']) {
-				const possiblePath = pathWithoutExtension + extension
+				const possiblePath = pathWithoutExtension + extension;
 				const routineText = await this.getWorkspaceDocumentText(possiblePath);
 				if (!routineText) continue;
 				const newPaths: FinderPaths = Object.create(this.paths);
@@ -159,7 +165,7 @@ export class ParsedDocFinder {
 	 * Search the parsed document and parents for a particular member
 	 */
 	async searchParser(queriedToken: Token): Promise<FinderResult | undefined> {
-		let activeMethod = this.findActiveMethod(queriedToken);
+		const activeMethod = this.findActiveMethod(queriedToken);
 		if (activeMethod) {
 			const variable = this.searchInMethod(activeMethod, queriedToken);
 			if (variable) return { member: variable, fsPath: this.paths.routine };
@@ -168,14 +174,18 @@ export class ParsedDocFinder {
 	}
 
 	async searchInDocument(queriedId: string): Promise<FinderResult | undefined> {
+		let foundProperty;
 		if (path.relative(this.paths.routine, this.paths.table) === '..') {
-			const foundProperty = this.parsedDocument.properties.find(p => p.id.value.toLowerCase() === queriedId.toLowerCase());
+			foundProperty = this.parsedDocument.properties.find(p => p.id.value.toLowerCase() === queriedId.toLowerCase());
 			if (foundProperty) {
-				let tableName = path.basename(this.paths.routine).toUpperCase();
-				return { member: foundProperty, fsPath: path.join(this.paths.routine, `${tableName}-${foundProperty.id.value}.COL`) };
+				const tableName = path.basename(this.paths.routine).toUpperCase();
+				return {
+					fsPath: path.join(this.paths.routine, `${tableName}-${foundProperty.id.value}.COL`),
+					member: foundProperty,
+				};
 			}
 		}
-		const foundProperty = this.parsedDocument.properties.find(p => p.id.value === queriedId);
+		foundProperty = this.parsedDocument.properties.find(p => p.id.value === queriedId);
 		if (foundProperty) return { member: foundProperty, fsPath: this.paths.routine };
 
 		const foundMethod = this.parsedDocument.methods.find(p => p.id.value === queriedId);
@@ -184,7 +194,7 @@ export class ParsedDocFinder {
 		if (this.parsedDocument.extending) {
 			const parentRoutineName = this.parsedDocument.extending.value;
 			if (this.hierarchy.indexOf(parentRoutineName) > -1) return;
-			let parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
+			const parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
 			if (!parentFinder) return;
 			return parentFinder.searchInDocument(queriedId);
 		}
@@ -197,26 +207,26 @@ export class ParsedDocFinder {
 			if (!results.find(r => r.member.id.value === result.member.id.value)) {
 				results.push(result);
 			}
-		}
+		};
 
 		if (path.relative(this.paths.routine, this.paths.table) === '..') {
 			this.parsedDocument.properties.forEach(property => {
-				let tableName = path.basename(this.paths.routine).toUpperCase();
+				const tableName = path.basename(this.paths.routine).toUpperCase();
 				addToResults({ member: property, fsPath: path.join(this.paths.routine, `${tableName}-${property.id.value}.COL`) });
-			})
+			});
 		}
 		this.parsedDocument.properties.forEach(property => {
 			addToResults({ member: property, fsPath: this.paths.routine });
-		})
+		});
 
 		this.parsedDocument.methods.forEach(method => {
 			addToResults({ member: method, fsPath: this.paths.routine });
-		})
+		});
 
 		if (this.parsedDocument.extending) {
 			const parentRoutineName = this.parsedDocument.extending.value;
 			if (this.hierarchy.indexOf(parentRoutineName) > -1) return results;
-			let parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
+			const parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
 			if (!parentFinder) return results;
 			return parentFinder.findAllInDocument(results);
 		}
@@ -249,12 +259,11 @@ export class ParsedDocFinder {
 		return fs.readFile(fsPath).then(b => b.toString()).catch(() => '');
 	}
 
-
 }
 
 async function getPslClsNames(dir: string) {
 	try {
-		let names = await fs.readdir(dir);
+		const names = await fs.readdir(dir);
 		return names.map(name => name.split('.')[0]);
 	}
 	catch {
@@ -275,32 +284,6 @@ export function searchTokens(tokens: Token[], position: Position) {
 		return isBetween(start, position, end);
 	});
 	return { tokensOnLine, index };
-}
-
-export function completion(tokensOnLine: Token[], index: number): { reference: Token | undefined, attribute?: Token } {
-	const currentToken = tokensOnLine[index];
-	let reference: Token;
-	let attribute: Token;
-	if (index >= 1) {
-		if (currentToken.isPeriod() && tokensOnLine[index - 1].isAlphanumeric()) {
-			reference = tokensOnLine[index - 1];
-			return { reference }
-		}
-		else if (currentToken.isAlphanumeric() && tokensOnLine[index - 1].isPeriod() && tokensOnLine[index - 2].isAlphanumeric()) {
-			reference = tokensOnLine[index - 2];
-			attribute = currentToken;
-			return { reference, attribute };
-		}
-	}
-
-	return { reference: undefined };
-}
-
-export function getLineContent(parsedDoc: ParsedDocument, lineNumber: number): string {
-	const tokensOnLine: Token[] = parsedDoc.tokens.filter(t => t.position.line === lineNumber);
-	const values: string[] = tokensOnLine.map(t => t.value);
-	const lineString: string = values.join('');
-	return lineString;
 }
 
 function isBetween(lb: Position, t: Position, ub: Position): boolean {
@@ -329,7 +312,6 @@ export function getCallTokens(tokensOnLine: Token[], index: number): Token[] {
 	return ret;
 }
 
-
 function getChildNode(tokensOnLine: Token[], index: number): Node | undefined {
 	const currentToken = tokensOnLine[index];
 	if (!currentToken) return { token: undefined };
@@ -349,7 +331,7 @@ function getChildNode(tokensOnLine: Token[], index: number): Node | undefined {
 		}
 
 		if (newIndex >= 0) {
-			let parent = getChildNode(tokensOnLine, newIndex);
+			const parent = getChildNode(tokensOnLine, newIndex);
 			return { parent, token: currentToken };
 		}
 
@@ -360,7 +342,7 @@ function getChildNode(tokensOnLine: Token[], index: number): Node | undefined {
 		return { parent: { token: routineToken, routine: true }, token: currentToken };
 	}
 	if (currentToken.isAlphanumeric()) {
-		return { token: currentToken, routine }
+		return { token: currentToken, routine };
 	}
 	return undefined;
 }
@@ -392,7 +374,7 @@ interface Callable {
 }
 
 export function findCallable(tokensOnLine: Token[], index: number) {
-	let callables: Callable[] = []
+	const callables: Callable[] = [];
 	for (let tokenBufferIndex = 0; tokenBufferIndex <= index; tokenBufferIndex++) {
 		const token = tokensOnLine[tokenBufferIndex];
 		if (!tokenBufferIndex && !token.isTab() && !token.isSpace()) return;
@@ -404,14 +386,14 @@ export function findCallable(tokensOnLine: Token[], index: number) {
 			else return;
 		}
 		else if (token.isComma() && callables.length) {
-			callables[callables.length - 1].parameterIndex += 1
+			callables[callables.length - 1].parameterIndex += 1;
 		}
 	}
 	if (!callables.length) return;
 	const activeCallable = callables[callables.length - 1];
 	return {
 		callTokens: getCallTokens(tokensOnLine, activeCallable.tokenBufferIndex),
-		parameterIndex: activeCallable.parameterIndex
+		parameterIndex: activeCallable.parameterIndex,
 	};
 }
 
