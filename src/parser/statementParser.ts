@@ -1,6 +1,6 @@
 import { getTokens, Token, Type } from './tokenizer';
 
-export enum SyntaxKind {
+export const enum SyntaxKind {
 	ASSIGNMENT,
 	BINARY_OPERATOR,
 	CATCH_STATEMENT,
@@ -13,13 +13,14 @@ export enum SyntaxKind {
 	QUIT_STATEMENT,
 	RETURN_STATEMENT,
 	SET_STATEMENT,
+	MULTIPLE_VARIABLE_SET,
 	STRING_LITERAL,
 	WHILE_STATEMENT,
 	TYPE_STATEMENT,
 	VARIABLE_DECLARATION,
 }
 
-enum OPERATOR_VALUE {
+const enum OPERATOR_VALUE {
 	AND_LITERAL = 'and',
 	APOSTROPHE = '\'',
 	AT = '@',
@@ -46,16 +47,27 @@ enum OPERATOR_VALUE {
 	RET = 'ret',
 }
 
-enum STORAGE_MODIFIERS {
+const enum STORAGE_MODIFIERS {
 	STATIC = 'static',
 	NEW = 'new',
 	LITERAL = 'literal',
 }
 
-enum ACCESS_MODIFIERS {
+const enum ACCESS_MODIFIERS {
 	PUBLIC = 'public',
 	PRIVATE = 'private',
+}
 
+const enum STATEMENT_KEYWORD {
+	DO = 'do',
+	SET = 'set',
+	IF = 'if',
+	CATCH = 'catch',
+	FOR = 'for',
+	QUIT = 'quit',
+	RETURN = 'return',
+	WHILE = 'while',
+	TYPE = 'type',
 }
 
 interface Operator {
@@ -104,17 +116,21 @@ export interface Node {
 
 export interface BinaryOperator extends Node {
 	operator: Token[];
-	left?: Node | Node[]; // Node[] for case when set (x,y) = z
+	left?: Node;
 	right?: Node;
+}
+
+export interface MultiSet extends Node {
+	variables: Expression[];
 }
 
 export interface PostCondition extends Node {
 	colon: Token;
 	condition?: Expression;
-	expression?: Expression | Expression[]; // Expression[] for case when set:a (x,y)
+	expression?: Expression | MultiSet;
 }
 
-export type Expression = Value | BinaryOperator | PostCondition;
+export type Expression = Value | BinaryOperator | PostCondition | MultiSet;
 
 export interface Statement extends Node {
 	action: Token;
@@ -127,7 +143,7 @@ export interface Value extends Node {
 	unaryOperator?: Token[];
 }
 
-export interface NumericLiteral extends Value { }
+export type NumericLiteral = Value;
 
 export interface StringLiteral extends Value {
 	openQuote: Token;
@@ -188,62 +204,75 @@ export class StatementParser {
 
 	parseStatement(): Statement | undefined {
 		if (!this.activeToken) return;
-
-		let loadFunction;
-		let kind;
-		if (this.activeToken.value === 'do') {
-			loadFunction = () => this.parseExpression();
-			kind = SyntaxKind.DO_STATEMENT;
-		}
-		else if (this.activeToken.value === 'set') {
-			loadFunction = () => this.parseSetExpression();
-			kind = SyntaxKind.SET_STATEMENT;
-		}
-		else if (this.activeToken.value === 'if') {
-			loadFunction = () => this.parseExpression();
-			kind = SyntaxKind.IF_STATEMENT;
-		}
-		else if (this.activeToken.value === 'catch') {
-			loadFunction = () => this.parseExpression();
-			kind = SyntaxKind.CATCH_STATEMENT;
-		}
-		else if (this.activeToken.value === 'for') {
-			return this.parseForStatement();
-		}
-		else if (this.activeToken.value === 'quit') {
-			const action = this.activeToken;
-			if (!this.next(true)) return { action, kind: SyntaxKind.QUIT_STATEMENT, expressions: [] };
-			const condition = this.parsePostCondition();
-			const statement = { kind: SyntaxKind.QUIT_STATEMENT, action, expressions: [] };
-			if (condition) statement.expressions.push(condition);
-			return statement;
-		}
-		else if (this.activeToken.value === 'return') {
-			const action = this.activeToken;
-			if (!this.next(true)) return { action, kind: SyntaxKind.RETURN_STATEMENT, expressions: [] };
-			const expression = this.parseExpression();
-			return { kind: SyntaxKind.RETURN_STATEMENT, action, expressions: [expression] };
-		}
-		else if (this.activeToken.value === 'while') {
-			const action = this.activeToken;
-			if (!this.next(true)) return { action, kind: SyntaxKind.WHILE_STATEMENT, expressions: [] };
-			const expression = this.parseExpression();
-			return { kind: SyntaxKind.WHILE_STATEMENT, action, expressions: [expression] };
-		}
-		else if (this.activeToken.value === 'type') {
-			const action = this.activeToken;
-			if (!this.next(true)) return { action, kind: SyntaxKind.TYPE_STATEMENT, expressions: [] };
-			const expression = this.parseTypeExpression();
-			return { kind: SyntaxKind.TYPE_STATEMENT, action, expressions: [expression] };
-		}
-		else return;
+		if (!this.activeToken.isAlphanumeric()) return;
 
 		const action = this.activeToken;
-		if (!this.next(true)) return { action, kind, expressions: [] };
-		const expressions: Expression[] = this.loadCommaSeparated(loadFunction);
-		return { kind, action, expressions };
+		let loadFunction: () => Expression | undefined;
+		let kind: SyntaxKind;
+
+		const loadSingleExpression = (): Statement => {
+			if (!this.next(true)) return { action, kind, expressions: [] };
+			const expression: Expression | undefined = loadFunction();
+			const expressions = expression ? [expression] : [];
+			return { kind, action, expressions };
+		};
+
+		const loadCommaSeparatedExpressions = (): Statement => {
+			if (!this.next(true)) return { action, kind, expressions: [] };
+			const expressions: Expression[] = this.loadCommaSeparated(loadFunction);
+			return { kind, action, expressions };
+		};
+
+		switch (action.value) {
+			case STATEMENT_KEYWORD.DO:
+				loadFunction = () => this.parseExpression();
+				kind = SyntaxKind.DO_STATEMENT;
+				return loadCommaSeparatedExpressions();
+
+			case STATEMENT_KEYWORD.SET:
+				loadFunction = () => this.parseSetExpression();
+				kind = SyntaxKind.SET_STATEMENT;
+				return loadCommaSeparatedExpressions();
+
+			case STATEMENT_KEYWORD.IF:
+				loadFunction = () => this.parseExpression();
+				kind = SyntaxKind.IF_STATEMENT;
+				return loadCommaSeparatedExpressions();
+
+			case STATEMENT_KEYWORD.CATCH:
+				loadFunction = () => this.parseExpression();
+				kind = SyntaxKind.CATCH_STATEMENT;
+				return loadCommaSeparatedExpressions();
+
+			case STATEMENT_KEYWORD.FOR:
+				return this.parseForStatement();
+
+			case STATEMENT_KEYWORD.QUIT:
+				loadFunction = () => this.parseExpression();
+				kind = SyntaxKind.QUIT_STATEMENT;
+				return loadCommaSeparatedExpressions();
+
+			case STATEMENT_KEYWORD.RETURN:
+				loadFunction = () => this.parseExpression();
+				kind = SyntaxKind.RETURN_STATEMENT;
+				return loadSingleExpression();
+
+			case STATEMENT_KEYWORD.WHILE:
+				loadFunction = () => this.parseExpression();
+				kind = SyntaxKind.WHILE_STATEMENT;
+				return loadSingleExpression();
+
+			case STATEMENT_KEYWORD.TYPE:
+				return this.parseTypeStatement();
+
+			default:
+				return;
+		}
 	}
-	parseTypeExpression(): Expression {
+
+	parseTypeStatement(): Statement {
+		const action = this.activeToken as Token;
+		this.next(true);
 		let staticToken: Token | undefined;
 		let newToken: Token | undefined;
 		let publicToken: Token | undefined;
@@ -268,42 +297,50 @@ export class StatementParser {
 			}
 		};
 
-		while (getKeyWordToken(this.activeToken)) {
+		while (this.activeToken && getKeyWordToken(this.activeToken)) {
 			if (!this.next(true)) break;
 		}
 
-		const type = this.activeToken;
+		const type = this.activeToken as Token;
 		this.next(true);
-		const id = this.activeToken;
-		this.next(true);
-		let args;
-		if (this.activeToken && this.activeToken.isOpenParen()) {
-			this.next(true);
-			args = this.loadCommaSeparated(() => this.parseValue() as Identifier);
-		}
+		const expressions =
+			this.loadCommaSeparated(() => {
+				return this.parseAssignment(() => {
+					const variable = this.parseValue() as Identifier;
+					return {
+						args: variable.args,
+						id: variable.id,
+						kind: SyntaxKind.VARIABLE_DECLARATION,
+						literalToken,
+						newToken,
+						publicToken,
+						staticToken,
+						type,
+					};
+				});
+			});
 
-		const declaration: Declaration = {
-			args,
-			id,
-			kind: SyntaxKind.VARIABLE_DECLARATION,
-			literalToken,
-			newToken,
-			publicToken,
-			staticToken,
-			type,
+		return {
+			action,
+			expressions,
+			kind: SyntaxKind.TYPE_STATEMENT,
 		};
+	}
 
-		let rootNode: Expression = declaration;
+	parseAssignment(getLeft: () => Expression | MultiSet | Declaration | undefined): Expression | undefined {
+		const left = getLeft();
+		let rootNode = left;
 		if (this.activeToken && this.activeToken.isEqualSign()) {
 			const equalSign = this.activeToken;
 			this.next(true);
 			const expression = this.parseExpression();
 			rootNode = { operator: [equalSign], kind: SyntaxKind.ASSIGNMENT };
-			rootNode.left = declaration;
+			rootNode.left = left;
 			rootNode.right = expression;
 		}
 		return rootNode;
 	}
+
 	parseForStatement(): Statement | undefined {
 		if (!this.activeToken) return;
 		const action = this.activeToken;
@@ -320,31 +357,23 @@ export class StatementParser {
 		return forStatement;
 	}
 
-	parseSetExpression(): Expression | Expression[] | undefined {
+	parseSetExpression(): Expression | undefined {
 		if (!this.activeToken) return;
 		const postCondition: PostCondition | undefined = this.parsePostCondition();
-		const leftSide = this.parseSetVariables();
-		if (this.activeToken && this.activeToken.isWhiteSpace()) this.next(true);
-		if (this.activeToken && this.activeToken.isEqualSign()) {
-			const equalSign = this.activeToken;
-			this.next(true);
-			const expression = this.parseExpression();
-			const assignment: BinaryOperator = { operator: [equalSign], kind: SyntaxKind.ASSIGNMENT };
-			assignment.left = leftSide;
-			assignment.right = expression;
+		const assignment = this.parseAssignment(() => {
+			const setVariables = this.parseSetVariables();
+			if (this.activeToken && this.activeToken.isWhiteSpace()) this.next(true);
 			if (postCondition) {
-				postCondition.expression = assignment;
+				postCondition.expression = setVariables;
 				return postCondition;
 			}
-			return assignment;
+			return setVariables;
+		});
+		if (assignment && postCondition) {
+			postCondition.expression = assignment;
+			return postCondition;
 		}
-		else {
-			if (postCondition) {
-				postCondition.expression = leftSide;
-				return postCondition;
-			}
-			return leftSide;
-		}
+		return assignment;
 	}
 
 	parsePostCondition(): PostCondition | undefined {
@@ -360,13 +389,13 @@ export class StatementParser {
 		}
 	}
 
-	parseSetVariables(): Expression | Expression[] | undefined {
-		if (!this.activeToken) return [];
+	parseSetVariables(): Expression | undefined {
+		if (!this.activeToken) return;
 		if (this.activeToken.isOpenParen()) {
 			this.next(true);
-			const variables = this.loadCommaSeparated<Expression>(() => this.parseExpression());
+			const variables = this.loadCommaSeparated(() => this.parseExpression());
 			if (this.activeToken && this.activeToken.isCloseParen()) this.next(true);
-			return variables;
+			return { variables, kind: SyntaxKind.MULTIPLE_VARIABLE_SET } as MultiSet;
 		}
 		else {
 			return this.parseExpression(true);
@@ -405,9 +434,9 @@ export class StatementParser {
 			this.next(true);
 			const colon: BinaryOperator = {
 				kind: SyntaxKind.BINARY_OPERATOR,
-				operator: [colonToken],
 				left: rootNode,
-				right: this.parseValue()
+				operator: [colonToken],
+				right: this.parseValue(),
 			};
 			rootNode = colon;
 		}
@@ -429,8 +458,8 @@ export class StatementParser {
 	parseBinaryOperator(): BinaryOperator | undefined {
 		if (!this.activeToken) return;
 		const operator: BinaryOperator = {
+			kind: SyntaxKind.BINARY_OPERATOR,
 			operator: [this.activeToken],
-			kind: SyntaxKind.BINARY_OPERATOR
 		};
 		if (!this.next(true)) return operator;
 		let binaryOperator;
@@ -469,7 +498,13 @@ export class StatementParser {
 		}
 
 		const unaryOperator: Token[] = this.parseUnaryOperator(includeRet);
-		if (!this.activeToken) return { id: new Token(Type.Undefined, '', { character: 0, line: 0 }), unaryOperator, kind: SyntaxKind.IDENTIFIER };
+		if (!this.activeToken) {
+			return {
+				id: new Token(Type.Undefined, '', { character: 0, line: 0 }),
+				kind: SyntaxKind.IDENTIFIER,
+				unaryOperator,
+			};
+		}
 		if (this.activeToken.type === Type.Alphanumeric) {
 			value = this.parseIdentifier();
 			if (!value) return;
@@ -496,9 +531,9 @@ export class StatementParser {
 		}
 		if (this.activeToken && (this.activeToken.type === Type.Period || this.activeToken.type === Type.Caret)) {
 			const operator: BinaryOperator = {
-				operator: [this.activeToken],
+				kind: SyntaxKind.BINARY_OPERATOR,
 				left: value,
-				kind: SyntaxKind.BINARY_OPERATOR
+				operator: [this.activeToken],
 			};
 			this.next();
 			return this.parseValue(operator);
@@ -596,6 +631,7 @@ export function forEachChild(node: Node, f: (n: Node) => boolean) {
 		case SyntaxKind.WHILE_STATEMENT:
 		case SyntaxKind.FOR_STATEMENT:
 		case SyntaxKind.CATCH_STATEMENT:
+		case SyntaxKind.TYPE_STATEMENT:
 			goDeeper = f(node);
 			if (!goDeeper) return;
 			const statement = node as Statement;
@@ -610,8 +646,8 @@ export function forEachChild(node: Node, f: (n: Node) => boolean) {
 			if (!goDeeper) return;
 			const assignment = node as BinaryOperator;
 			const left = assignment.left;
-			if (Array.isArray(left)) {
-				left.forEach(n => {
+			if (left && left.kind === SyntaxKind.MULTIPLE_VARIABLE_SET) {
+				(left as MultiSet).variables.forEach(n => {
 					forEachChild(n, f);
 				});
 			}
@@ -641,6 +677,7 @@ export function forEachChild(node: Node, f: (n: Node) => boolean) {
 			}
 			break;
 		case SyntaxKind.IDENTIFIER:
+		case SyntaxKind.VARIABLE_DECLARATION:
 			goDeeper = f(node);
 			if (!goDeeper) return;
 			const identifier = node as Identifier;
