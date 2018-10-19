@@ -1,6 +1,6 @@
 import {
 	BinaryOperator, Declaration, Expression, Identifier, MultiSet, NumericLiteral,
-	PostCondition, Statement, StatementParser, StringLiteral, SyntaxKind, Value,
+	PostCondition, Statement, StatementParser, StringLiteral, SyntaxKind, Value, TypeIdentifier,
 } from '../src/parser/statementParser';
 import { getTokens, Token } from '../src/parser/tokenizer';
 
@@ -723,7 +723,8 @@ describe('recursive tests', () => {
 		const parser = parse('type String x');
 		const statement = parser.parseTypeStatement() as Statement;
 		const declaration = statement.expressions[0] as Declaration;
-		expect(declaration.type.value).toBe('String');
+		const typeIdentifier = declaration.type as TypeIdentifier;
+		expect(typeIdentifier.id.value).toBe('String');
 		expect(declaration.id.value).toBe('x');
 		expect(declaration.args).toBeUndefined();
 	});
@@ -733,7 +734,8 @@ describe('recursive tests', () => {
 		const declaration = statement.expressions[0] as Declaration;
 		const args = declaration.args as Identifier[];
 		const arrayTypeNumber = args[0] as Identifier;
-		expect(declaration.type.value).toBe('void');
+		const typeIdentifier = declaration.type as TypeIdentifier;
+		expect(typeIdentifier.id.value).toBe('void');
 		expect(declaration.id.value).toBe('x');
 		expect(args.length).toBe(1);
 		expect(arrayTypeNumber.id.value).toBe('Number');
@@ -745,7 +747,8 @@ describe('recursive tests', () => {
 		const args = declaration.args as Identifier[];
 		const arrayTypeNumber = args[0] as Identifier;
 		const arrayTypeString = args[1] as Identifier;
-		expect(declaration.type.value).toBe('void');
+		const typeIdentifier = declaration.type as TypeIdentifier;
+		expect(typeIdentifier.id.value).toBe('void');
 		expect(declaration.id.value).toBe('x');
 		expect(args.length).toBe(2);
 		expect(arrayTypeNumber.id.value).toBe('Number');
@@ -756,7 +759,8 @@ describe('recursive tests', () => {
 		const statement = parser.parseTypeStatement() as Statement;
 		const declaration = statement.expressions[0] as Declaration;
 		const args = declaration.args as Identifier[];
-		expect(declaration.type.value).toBe('void');
+		const typeIdentifier = declaration.type as TypeIdentifier;
+		expect(typeIdentifier.id.value).toBe('void');
 		expect(declaration.id.value).toBe('x');
 		expect(args.length).toBe(0);
 	});
@@ -765,7 +769,8 @@ describe('recursive tests', () => {
 		const statement = parser.parseTypeStatement() as Statement;
 		const declaration = statement.expressions[0] as Declaration;
 		const args = declaration.args as Identifier[];
-		expect(declaration.type.value).toBe('void');
+		const typeIdentifier = declaration.type as TypeIdentifier;
+		expect(typeIdentifier.id.value).toBe('void');
 		expect(declaration.id.value).toBe('x');
 		expect(args.length).toBe(2);
 	});
@@ -775,7 +780,8 @@ describe('recursive tests', () => {
 		const assignment = statement.expressions[0] as BinaryOperator;
 		const declaration = assignment.left as Declaration;
 		const something = assignment.right as StringLiteral;
-		expect(declaration.type.value).toBe('String');
+		const typeIdentifier = declaration.type as TypeIdentifier;
+		expect(typeIdentifier.id.value).toBe('String');
 		expect(declaration.id.value).toBe('x');
 		expect(declaration.args).toBeUndefined();
 		expect(something.id.value).toBe('something');
@@ -786,7 +792,8 @@ describe('recursive tests', () => {
 		const declaration = statement.expressions[0] as Declaration;
 		const publicToken = declaration.publicToken as Token;
 		const newToken = declaration.newToken as Token;
-		expect(declaration.type.value).toBe('String');
+		const typeIdentifier = declaration.type as TypeIdentifier;
+		expect(typeIdentifier.id.value).toBe('String');
 		expect(publicToken.value).toBe('public');
 		expect(newToken.value).toBe('new');
 		expect(declaration.id.value).toBe('x');

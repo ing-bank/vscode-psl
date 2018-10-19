@@ -1,6 +1,6 @@
 import { getTokens, Token, Type } from './tokenizer';
 
-export const enum SyntaxKind {
+export enum SyntaxKind {
 	ASSIGNMENT,
 	BINARY_OPERATOR,
 	CATCH_STATEMENT,
@@ -18,9 +18,10 @@ export const enum SyntaxKind {
 	WHILE_STATEMENT,
 	TYPE_STATEMENT,
 	VARIABLE_DECLARATION,
+	TYPE_IDENTIFIER,
 }
 
-const enum OPERATOR_VALUE {
+enum OPERATOR_VALUE {
 	AND_LITERAL = 'and',
 	APOSTROPHE = '\'',
 	AT = '@',
@@ -47,18 +48,18 @@ const enum OPERATOR_VALUE {
 	RET = 'ret',
 }
 
-const enum STORAGE_MODIFIERS {
+enum STORAGE_MODIFIERS {
 	STATIC = 'static',
 	NEW = 'new',
 	LITERAL = 'literal',
 }
 
-const enum ACCESS_MODIFIERS {
+enum ACCESS_MODIFIERS {
 	PUBLIC = 'public',
 	PRIVATE = 'private',
 }
 
-const enum STATEMENT_KEYWORD {
+enum STATEMENT_KEYWORD {
 	DO = 'do',
 	SET = 'set',
 	IF = 'if',
@@ -157,12 +158,14 @@ export interface Identifier extends Value {
 }
 
 export interface Declaration extends Identifier {
-	type: Token;
+	type: TypeIdentifier;
 	staticToken?: Token;
 	newToken?: Token;
 	publicToken?: Token;
 	literalToken?: Token;
 }
+
+export type TypeIdentifier = Identifier;
 
 export class StatementParser {
 	tokenizer: IterableIterator<Token>;
@@ -301,7 +304,7 @@ export class StatementParser {
 			if (!this.next(true)) break;
 		}
 
-		const type = this.activeToken as Token;
+		const type: TypeIdentifier = { id: this.activeToken, kind: SyntaxKind.TYPE_IDENTIFIER };
 		this.next(true);
 		const expressions =
 			this.loadCommaSeparated(() => {
@@ -319,7 +322,22 @@ export class StatementParser {
 					};
 				});
 			});
-
+		expressions.forEach(expression => {
+			forEachChild(expression, node => {
+				if (!node) return;
+				if (node.kind === SyntaxKind.VARIABLE_DECLARATION) {
+					const declaration = node as Declaration;
+					if (declaration.args) {
+						declaration.args = declaration.args.map((arg: Identifier) => {
+							if (!arg) return;
+							arg.kind = SyntaxKind.TYPE_IDENTIFIER;
+							return arg;
+						});
+					}
+				}
+				return true;
+			})
+		})
 		return {
 			action,
 			expressions,
@@ -622,6 +640,7 @@ function getUnaryOperator(tokenValue: string, includeRet?: boolean): Operator | 
 
 export function forEachChild(node: Node, f: (n: Node) => boolean) {
 	let goDeeper: boolean = false;
+	if (!node) return;
 	switch (node.kind) {
 		case SyntaxKind.DO_STATEMENT:
 		case SyntaxKind.IF_STATEMENT:
@@ -677,12 +696,18 @@ export function forEachChild(node: Node, f: (n: Node) => boolean) {
 			}
 			break;
 		case SyntaxKind.IDENTIFIER:
-		case SyntaxKind.VARIABLE_DECLARATION:
+		case SyntaxKind.TYPE_IDENTIFIER:
 			goDeeper = f(node);
 			if (!goDeeper) return;
 			const identifier = node as Identifier;
 			if (identifier.args) identifier.args.forEach(arg => forEachChild(arg, f));
 			break;
+		case SyntaxKind.VARIABLE_DECLARATION:
+			goDeeper = f(node);
+			if (!goDeeper) return;
+			const declaration = node as Declaration;
+			if (declaration.args) declaration.args.forEach(arg => forEachChild(arg, f));
+			f(declaration.type)
 		case SyntaxKind.NUMERIC_LITERAL:
 		case SyntaxKind.STRING_LITERAL:
 			f(node);
