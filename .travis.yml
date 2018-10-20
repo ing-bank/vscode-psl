@@ -1,3 +1,6 @@
+sudo: false
+dist: trusty
+
 language: node_js
 
 node_js:
@@ -6,8 +9,19 @@ node_js:
 install:
   - npm install
   - npm install -g vsce
-
-script:
   - npm run compile
+  - npm run compile-lint
   - npm run test
   - vsce package
+ 
+deploy:
+  - provider: script
+    script: cp ./src/pslLint/cli/.npmrc.psl-lint .npmrc && npm pack ./src/pslLint/cli | xargs npm publish
+    on:
+      tags: true
+      condition: tag =~ ^psl-lint
+  - provider: script
+    script: vsce publish -p $VSCODE_TOKEN
+    on:
+      tags: true
+      condition: tag =~ ^vscode-psl
