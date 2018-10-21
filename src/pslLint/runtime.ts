@@ -1,11 +1,10 @@
-import { MemberClass } from '../parser/parser';
 import {
 	BinaryOperator, Identifier,
 	StringLiteral, SyntaxKind, Value,
 } from '../parser/statementParser';
 import {
 	Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity,
-	Member, Method, MethodRule, PslDocument, Range, Token,
+	Member, MemberClass, Method, MethodRule, PslDocument, Range, Token,
 } from './api';
 
 export class RuntimeStart implements MethodRule {

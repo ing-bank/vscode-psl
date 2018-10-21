@@ -1,6 +1,6 @@
 import {
-	Declaration, Member, MemberClass, Method, Parameter,
-	ParsedDocument, parseFile, parseText, Property,
+	Declaration, Member, MemberClass, Method, NON_TYPE_MODIFIERS,
+	Parameter, ParsedDocument, parseFile, parseText, Property,
 } from './../parser/parser';
 import { Range, Token } from './../parser/tokenizer';
 
@@ -198,6 +198,6 @@ export class PslDocument {
 	}
 }
 
-export { parseFile, parseText, Declaration, Member, MemberClass, Method, Property, Parameter };
+export { parseFile, parseText, Declaration, Member, MemberClass, Method, NON_TYPE_MODIFIERS, Property, Parameter };
 export * from './../parser/tokenizer';
 export * from '../parser/utilities';

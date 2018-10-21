@@ -1,5 +1,7 @@
-import { Declaration, NON_TYPE_MODIFIERS } from '../parser/parser';
-import { Diagnostic, DiagnosticSeverity, getTokens, Method, MethodRule, PslDocument } from './api';
+import {
+	Declaration, Diagnostic, DiagnosticSeverity, getTokens,
+	Method, MethodRule, NON_TYPE_MODIFIERS, PslDocument,
+} from './api';
 
 export class MultiLineDeclare implements MethodRule {
 	ruleName = MultiLineDeclare.name;

@@ -2,7 +2,7 @@ import { Diagnostic, DiagnosticSeverity, getLineAfter, Method, MethodRule, PslDo
 
 export enum Code {
 	ONE_EMPTY_LINE = 1,
-	TWO_EMPTY_LINES = 2
+	TWO_EMPTY_LINES = 2,
 }
 
 /**
@@ -63,7 +63,7 @@ export class TwoEmptyLines implements MethodRule {
 
 		const idToken = method.id;
 
-		let code: Code;
+		let code: Code | undefined;
 		if (!hasTwoSpacesAbove) code = Code.ONE_EMPTY_LINE;
 		if (!hasOneSpaceAbove) code = Code.TWO_EMPTY_LINES;
 
