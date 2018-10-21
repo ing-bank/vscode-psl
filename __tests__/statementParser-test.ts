@@ -1,6 +1,6 @@
 import {
 	BinaryOperator, Declaration, Expression, Identifier, MultiSet, NumericLiteral,
-	PostCondition, Statement, StatementParser, StringLiteral, SyntaxKind, Value, TypeIdentifier,
+	PostCondition, Statement, StatementParser, StringLiteral, SyntaxKind, TypeIdentifier, Value,
 } from '../src/parser/statementParser';
 import { getTokens, Token } from '../src/parser/tokenizer';
 
@@ -323,8 +323,8 @@ describe('recursive tests', () => {
 		const equal = setStatement.expressions[0] as BinaryOperator;
 		const a = equal.left as Identifier;
 		const b = equal.right as Identifier;
-		const doStatment = statements[1];
-		const c = doStatment.expressions[0] as Identifier;
+		const doStatement = statements[1];
+		const c = doStatement.expressions[0] as Identifier;
 
 		expect(setStatement.action.value).toBe('set');
 		expect(equal.operator[0].value).toBe('=');
@@ -470,6 +470,40 @@ describe('recursive tests', () => {
 		expect(postEqual.kind).toBe(SyntaxKind.BINARY_OPERATOR);
 		expect(assignEqual.operator.map(o => o.value).join('')).toBe('=');
 		expect(assignEqual.kind).toBe(SyntaxKind.ASSIGNMENT);
+	});
+	test('set with colon and assignment', () => {
+		const parser = parse('set:EVENT.isNull() EVENT = "No "');
+		const setStatement = parser.parseStatement() as Statement;
+		const postCondition = setStatement.expressions[0] as PostCondition;
+		const postDot = postCondition.condition as BinaryOperator;
+		const postEvent = postDot.left as Identifier;
+		const isNull = postDot.right as Identifier;
+		const assignEqual = postCondition.expression as BinaryOperator;
+		const assignEvent = assignEqual.left as Identifier;
+		const no = assignEqual.right as StringLiteral;
+		expect(postEvent.id.value).toBe('EVENT');
+		expect(isNull.id.value).toBe('isNull');
+		expect(no.id.value).toBe('No ');
+		expect(assignEvent.id.value).toBe('EVENT');
+	});
+	test('set with colon not contain and assignment', () => {
+		const parser = parse(`set:VAL '[ "." VAL = VAL_ "."`);
+		const setStatement = parser.parseStatement() as Statement;
+		const postCondition = setStatement.expressions[0] as PostCondition;
+		const notContain = postCondition.condition as BinaryOperator;
+		const val1 = notContain.left as Identifier;
+		const dot1 = notContain.right as StringLiteral;
+		const assignment = postCondition.expression as BinaryOperator;
+		const val2 = assignment.left as Identifier;
+		const underscore = assignment.right as BinaryOperator;
+		const val3 = underscore.left as Identifier;
+		const dot2 = underscore.right as StringLiteral;
+		expect(notContain.operator.map(o => o.value).join('')).toBe(`'[`);
+		expect(val1.id.value).toBe('VAL');
+		expect(val2.id.value).toBe('VAL');
+		expect(val3.id.value).toBe('VAL');
+		expect(dot1.id.value).toBe('.');
+		expect(dot2.id.value).toBe('.');
 	});
 	test('do with colon', () => {
 		const parser = parse('do:x=ER logErr^LOG(msg)');
@@ -807,5 +841,34 @@ describe('recursive tests', () => {
 		expect(statement.expressions.length).toBe(2);
 		expect(xAssign.kind).toBe(SyntaxKind.ASSIGNMENT);
 		expect(yAssign.kind).toBe(SyntaxKind.ASSIGNMENT);
+	});
+	test('static declaration', () => {
+		const parser = parse('type static ZTest');
+		const statement = parser.parseStatement() as Statement;
+		const declaration = statement.expressions[0] as Declaration;
+		expect(declaration.type.id.value).toBe('ZTest');
+		expect(declaration.staticToken.value).toBe('static');
+	});
+	test('only type', () => {
+		const parser = parse('type');
+		const statement = parser.parseStatement() as Statement;
+		expect(statement.kind).toBe(SyntaxKind.TYPE_STATEMENT);
+		expect(statement.expressions.length).toBe(0);
+	});
+	test('type String', () => {
+		const parser = parse('type String');
+		const statement = parser.parseStatement() as Statement;
+		const declaration = statement.expressions[0] as Declaration;
+		const stringType = declaration.type as TypeIdentifier;
+		expect(statement.kind).toBe(SyntaxKind.TYPE_STATEMENT);
+		expect(stringType.id.value).toBe('String');
+		expect(declaration.id).toBeUndefined();
+	});
+	test('type static', () => {
+		const parser = parse('type static');
+		const statement = parser.parseStatement() as Statement;
+		const declaration = statement.expressions[0] as Declaration;
+		expect(declaration.type).toBeUndefined();
+		expect(declaration.staticToken.value).toBe('static');
 	});
 });

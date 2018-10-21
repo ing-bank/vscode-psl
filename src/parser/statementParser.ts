@@ -82,7 +82,6 @@ const UNARY_OPERATORS: Operator[] = [
 	{ value: OPERATOR_VALUE.CARROT },
 	{ value: OPERATOR_VALUE.DOLLAR, appendable: true },
 	{ value: OPERATOR_VALUE.DOT },
-	{ value: OPERATOR_VALUE.LEFT_BRACKET },
 	{ value: OPERATOR_VALUE.MINUS },
 	{ value: OPERATOR_VALUE.NOT_LITERAL },
 	{ value: OPERATOR_VALUE.PLUS },
@@ -92,6 +91,7 @@ const UNARY_OPERATORS: Operator[] = [
 
 const BINARY_OPERATORS: Operator[] = [
 	{ value: OPERATOR_VALUE.AND_LITERAL },
+	{ value: OPERATOR_VALUE.APOSTROPHE, appendable: true },
 	{ value: OPERATOR_VALUE.AT },
 	{ value: OPERATOR_VALUE.BACK_SLASH },
 	{ value: OPERATOR_VALUE.CARROT },
@@ -100,8 +100,10 @@ const BINARY_OPERATORS: Operator[] = [
 	{ value: OPERATOR_VALUE.EXCLAMATION },
 	{ value: OPERATOR_VALUE.GREATER_THAN, appendable: true },
 	{ value: OPERATOR_VALUE.HASH },
+	{ value: OPERATOR_VALUE.LEFT_BRACKET },
 	{ value: OPERATOR_VALUE.LESS_THAN, appendable: true },
 	{ value: OPERATOR_VALUE.MINUS },
+	{ value: OPERATOR_VALUE.NOT_LITERAL, appendable: true },
 	{ value: OPERATOR_VALUE.OR_LITERAL },
 	{ value: OPERATOR_VALUE.PLUS },
 	{ value: OPERATOR_VALUE.QUESTION_MARK },
@@ -300,44 +302,76 @@ export class StatementParser {
 			}
 		};
 
+		const parseTypeAssignments = (): Expression[] => {
+			if (!this.activeToken || !this.activeToken.isAlphanumeric()) {
+				if (literalToken || newToken || publicToken || staticToken) {
+					const emptyDeclaration: Declaration = {
+						id: undefined,
+						kind: SyntaxKind.VARIABLE_DECLARATION,
+						literalToken: undefined,
+						newToken,
+						publicToken,
+						staticToken,
+						type: undefined,
+					};
+					return [emptyDeclaration];
+				}
+				return [];
+			}
+
+			const type: TypeIdentifier = { id: this.activeToken, kind: SyntaxKind.TYPE_IDENTIFIER };
+			if (!this.next(true) || staticToken) {
+				const declaration: Declaration = {
+					id: undefined,
+					kind: SyntaxKind.VARIABLE_DECLARATION,
+					literalToken,
+					newToken,
+					publicToken,
+					staticToken,
+					type,
+				};
+				return [declaration];
+			}
+			const assignments =
+				this.loadCommaSeparated(() => {
+					return this.parseAssignment(() => {
+						const variable = this.parseValue() as Identifier; // why not parseIdentifier
+						return {
+							args: variable.args,
+							id: variable.id,
+							kind: SyntaxKind.VARIABLE_DECLARATION,
+							literalToken,
+							newToken,
+							publicToken,
+							staticToken,
+							type,
+						};
+					});
+				});
+			assignments.forEach(expression => {
+				forEachChild(expression, node => {
+					if (!node) return;
+					if (node.kind === SyntaxKind.VARIABLE_DECLARATION) {
+						const declaration = node as Declaration;
+						if (declaration.args) {
+							declaration.args = declaration.args.map((arg: Identifier) => {
+								if (!arg) return;
+								arg.kind = SyntaxKind.TYPE_IDENTIFIER;
+								return arg;
+							});
+						}
+					}
+					return true;
+				});
+			});
+			return assignments;
+		};
+
 		while (this.activeToken && getKeyWordToken(this.activeToken)) {
 			if (!this.next(true)) break;
 		}
 
-		const type: TypeIdentifier = { id: this.activeToken, kind: SyntaxKind.TYPE_IDENTIFIER };
-		this.next(true);
-		const expressions =
-			this.loadCommaSeparated(() => {
-				return this.parseAssignment(() => {
-					const variable = this.parseValue() as Identifier;
-					return {
-						args: variable.args,
-						id: variable.id,
-						kind: SyntaxKind.VARIABLE_DECLARATION,
-						literalToken,
-						newToken,
-						publicToken,
-						staticToken,
-						type,
-					};
-				});
-			});
-		expressions.forEach(expression => {
-			forEachChild(expression, node => {
-				if (!node) return;
-				if (node.kind === SyntaxKind.VARIABLE_DECLARATION) {
-					const declaration = node as Declaration;
-					if (declaration.args) {
-						declaration.args = declaration.args.map((arg: Identifier) => {
-							if (!arg) return;
-							arg.kind = SyntaxKind.TYPE_IDENTIFIER;
-							return arg;
-						});
-					}
-				}
-				return true;
-			})
-		})
+		const expressions = parseTypeAssignments();
 		return {
 			action,
 			expressions,
@@ -381,7 +415,7 @@ export class StatementParser {
 		const assignment = this.parseAssignment(() => {
 			const setVariables = this.parseSetVariables();
 			if (this.activeToken && this.activeToken.isWhiteSpace()) this.next(true);
-			if (postCondition) {
+			if (postCondition && !setVariables) {
 				postCondition.expression = setVariables;
 				return postCondition;
 			}
@@ -475,19 +509,24 @@ export class StatementParser {
 
 	parseBinaryOperator(): BinaryOperator | undefined {
 		if (!this.activeToken) return;
-		const operator: BinaryOperator = {
+		const binaryOperator: BinaryOperator = {
 			kind: SyntaxKind.BINARY_OPERATOR,
 			operator: [this.activeToken],
 		};
-		if (!this.next(true)) return operator;
-		let binaryOperator;
+		if (!this.next(true)) return binaryOperator;
+		let operator: Operator | undefined;
 		do {
-			binaryOperator = getBinaryOperator(this.activeToken.value);
-			if (!binaryOperator) break;
-			operator.operator.push(this.activeToken);
+			operator = getBinaryOperator(this.activeToken.value);
+			if (!operator) break;
+			if (operator) {
+				const not = operator.value === OPERATOR_VALUE.NOT_LITERAL
+					|| operator.value === OPERATOR_VALUE.APOSTROPHE;
+				if (not && binaryOperator.operator.length) break;
+			}
+			binaryOperator.operator.push(this.activeToken);
 			this.next(true);
-		} while (binaryOperator && binaryOperator.appendable);
-		return operator;
+		} while (operator && operator.appendable);
+		return binaryOperator;
 	}
 
 	parseUnaryOperator(includeRet?: boolean): Token[] {
@@ -707,7 +746,7 @@ export function forEachChild(node: Node, f: (n: Node) => boolean) {
 			if (!goDeeper) return;
 			const declaration = node as Declaration;
 			if (declaration.args) declaration.args.forEach(arg => forEachChild(arg, f));
-			f(declaration.type)
+			f(declaration.type);
 		case SyntaxKind.NUMERIC_LITERAL:
 		case SyntaxKind.STRING_LITERAL:
 			f(node);

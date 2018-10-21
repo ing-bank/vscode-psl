@@ -551,13 +551,8 @@ class Parser {
 				continue;
 			}
 			if (token.isNumberSign()) {
-				try {
-					token = tokenBuffer[i + 1];
-				}
-				catch (e) {
-					return;
-				}
-				if (token.value === 'PROPERTYDEF') {
+				token = tokenBuffer[i + 1];
+				if (token && token.value === 'PROPERTYDEF') {
 					const tokens = tokenBuffer.filter(t => {
 						if (t.isNumberSign()) return false;
 						if (t.value === 'PROPERTYDEF') return false;
