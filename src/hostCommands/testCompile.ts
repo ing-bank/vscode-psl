@@ -35,15 +35,16 @@ export async function testCompileHandler(context: utils.ExtensionCommandContext)
 	}
 }
 
-export async function testCompile(fsPath: string) {
-	if (!fs.statSync(fsPath).isFile()) {
+export async function testCompile(fsPath: string): Promise<boolean> {
+	const fileStats = await fs.stat(fsPath);
+	if (!fileStats.isFile()) {
 		utils.logger.error(`${utils.icons.ERROR} ${icon} ${fsPath} is not a file.`);
-		return 1;
+		return true;
 	}
 	let textDocument = await vscode.workspace.openTextDocument(fsPath);
 	if (!canTestCompileFile(textDocument, fsPath)) {
 		// The error message for the specific error was already added in 'canTestCompileFile'
-		return 1;
+		return true;
 	}
 
 	let testCompileSucceeded = false;
@@ -53,11 +54,11 @@ export async function testCompile(fsPath: string) {
 	}
 	catch (e) {
 		utils.logger.error(`${utils.icons.ERROR} ${icon} Invalid environment configuration.`);
-		return 1;
+		return true;
 	}
 	if (envs.length === 0) {
 		utils.logger.error(`${utils.icons.ERROR} ${icon} No environments selected.`);
-		return 1;
+		return true;
 	}
 	let testCompiles: Promise<void>[] = [];
 	for (let env of envs) {
@@ -85,7 +86,7 @@ export async function testCompile(fsPath: string) {
 			utils.logger.error(`${utils.icons.ERROR} ${icon} error in ${env.name} ${e.message}`);
 		}))
 	}
-	return 0;
+	return false;
 }
 
 function parseCompilerOutput(compilerOutput: string, document: vscode.TextDocument): PSLDiagnostic[] {
@@ -125,7 +126,7 @@ function parseCompilerOutput(compilerOutput: string, document: vscode.TextDocume
 	return pslDiagnostics;
 }
 
-function canTestCompileFile(document: vscode.TextDocument, fsPath: string) {	
+function canTestCompileFile(document: vscode.TextDocument, fsPath: string): boolean {	
 	let compilable: boolean = false;
 	if (vscode.languages.match(extension.PSL_MODE, document)) {
 		compilable = true;
@@ -133,22 +134,22 @@ function canTestCompileFile(document: vscode.TextDocument, fsPath: string) {
 	else {
 		let fileTypeDescription = "";
 		if (vscode.languages.match(extension.BATCH_MODE, document)) {
-			fileTypeDescription = "batches"
+			fileTypeDescription = "Batch"
 		}
 		else if (vscode.languages.match(extension.COL_MODE, document)) {
-			fileTypeDescription = "column definitions"
+			fileTypeDescription = "Column Definition"
 		}
 		else if (vscode.languages.match(extension.DATA_MODE, document)) {
-			fileTypeDescription = "data files"
+			fileTypeDescription = "Data File"
 		}
 		else if (vscode.languages.match(extension.TBL_MODE, document)) {
-			fileTypeDescription = "table definitions"
+			fileTypeDescription = "Table Definition"
 		}
 		else if (vscode.languages.match(extension.TRIG_MODE, document)) {			
-			fileTypeDescription = "triggers"
+			fileTypeDescription = "Trigger"
 		}
 		if (fileTypeDescription != "") {
-			utils.logger.error(`${utils.icons.ERROR} ${icon} ${fileTypeDescription} cannot be test compiled (${path.basename(fsPath)}).`);
+			utils.logger.error(`${utils.icons.ERROR} ${icon} ${fileTypeDescription} ${path.basename(fsPath)} cannot be test compiled.`);
 		}
 		else {
 			utils.logger.error(`${utils.icons.ERROR} ${icon} ${path.basename(fsPath)} is not a PSL file.`);
