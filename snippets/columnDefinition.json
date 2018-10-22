@@ -18,7 +18,7 @@
 			"\t\"RHD\" : \"${10:reportHeader}\",",
 			"\t\"TYP\" : \"${11:dataType}\",",
 			"}",
-			"${12:// Column documentation (do not exceed 80-character margin)}"
+			"${12:Column documentation (do not exceed 80-character margin)}"
 		],
 		"description": "Column Definition"
 	}
