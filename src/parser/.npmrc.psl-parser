@@ -1,0 +1,4 @@
+always-auth=true
+registry=https://registry.npmjs.org
+//registry.npmjs.org/:_authToken=${PARSER_TOKEN}
+//registry.npmjs.org/:username=${PARSER_USER}

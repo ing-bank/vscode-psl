@@ -1,0 +1,4 @@
+always-auth=true
+registry=https://registry.npmjs.org
+//registry.npmjs.org/:_authToken=${LINT_TOKEN}
+//registry.npmjs.org/:username=${LINT_USER}
