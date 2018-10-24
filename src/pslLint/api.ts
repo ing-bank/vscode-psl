@@ -170,6 +170,9 @@ export class PslDocument {
 	 * @param lineNumber The zero-based line number of the document where the text is.
 	 */
 	getTextAtLine(lineNumber: number): string {
+		if (lineNumber < 0) {
+			throw new Error('Cannot get text at negative line number.');
+		}
 		if (!this.indexedDocument) {
 			this.indexedDocument = this.createIndexedDocument();
 		}

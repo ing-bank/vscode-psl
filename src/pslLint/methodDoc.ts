@@ -53,15 +53,21 @@ export class TwoEmptyLines implements MethodRule {
 
 	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
 
+		if (method.batch) return [];
+
 		const diagnostics: Diagnostic[] = [];
+		const idToken = method.id;
 
 		const lineAbove = hasSeparator(method, pslDocument) ? method.id.position.line - 2 : method.id.position.line - 1;
+
+		if (lineAbove < 2) {
+			const message = `There should be two empty lines above label "${idToken.value}".`;
+			return [addDiagnostic(idToken, method, message, this.ruleName, Code.TWO_EMPTY_LINES)];
+		}
 
 		const hasOneSpaceAbove: boolean = pslDocument.getTextAtLine(lineAbove).trim() === '';
 		const hasTwoSpacesAbove: boolean = pslDocument.getTextAtLine(lineAbove - 1).trim() === '';
 		const hasThreeSpacesAbove: boolean = pslDocument.getTextAtLine(lineAbove - 2).trim() === '';
-
-		const idToken = method.id;
 
 		let code: Code | undefined;
 		if (!hasTwoSpacesAbove) code = Code.ONE_EMPTY_LINE;
