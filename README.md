@@ -49,6 +49,7 @@ These features include:
 * Property and Label outline for PSL files (access by <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> or with [this extension](https://marketplace.visualstudio.com/items?itemName=patrys.vscode-code-outline))
 * Auto-complete for Record objects in PSL (activated by the `.` operator or by <kbd>Ctrl</kbd>+<kbd>Space</kbd>)
 * Highlighting and Hover information for editing data configuration files
+* Code snippets for loops, comments, and table/column definitions
 
 ## Development
 

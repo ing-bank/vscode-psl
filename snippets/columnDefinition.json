@@ -3,16 +3,22 @@
 		"prefix": "columndefinition",
 		"body": [
 			"{",
-			"\t\"FID\" : ${1:tableName},",
-			"\t\"DI\" : ${2:columnName},",
-			"\t\"TYP\" : ${3:dataType},",
-			"\t\"LEN\" : ${4:lengthInteger},",
-			"\t\"NOD\" : ${5:nodeIdentifier},",
-			"\t\"POS\" : ${6:positionInteger},",
-			"\t\"DES\" : ${7:description},",
-			"\t\"RHD\" : ${8:reportHeader}",
+			"\t\"%LIBS\" : \"SYSDEV\",",
+			"\t\"FID\" : \"${1:tableName}\",",
+			"\t\"DI\" : \"${2:columnName}\",",
+			"\t\"ALIAS\" : \"${3:alias}\",",
+			"\t\"CMP\" : ${4:computed},",
+			"\t\"DES\" : ${5:description},",
+			"\t\"LEN\" : ${6:lengthInteger},",
+			"\t\"MDD\" : null,",
+			"\t\"MIN\" : null,",
+			"\t\"NOD\" : \"${7:nodeIdentifier}\",",
+			"\t\"POS\" : ${8:positionInteger},",
+			"\t\"REQ\" : ${9:required},",
+			"\t\"RHD\" : \"${10:reportHeader}\",",
+			"\t\"TYP\" : \"${11:dataType}\",",
 			"}",
-			"${9:Column documentation (do not exceed 80-character margin)}"
+			"${12:Column documentation (do not exceed 80-character margin)}"
 		],
 		"description": "Column Definition"
 	}

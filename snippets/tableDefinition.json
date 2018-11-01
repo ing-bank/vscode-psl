@@ -3,16 +3,23 @@
 		"prefix": "tabledefinition",
 		"body": [
 			"{",
-			"\t\"FID\" : ${1:tableName},",
-			"\t\"ACCKEYS\" : ${2:keys},",
+			"\t\"%LIBS\" : \"SYSDEV\",",
+			"\t\"FID\" : \"${1:tableName}\",",
+			"\t\"ACCKEYS\" : \"${2:keys}\",",
+			"\t\"ALIAS\" : null,",
+			"\t\"CACHED\" : null,",
 			"\t\"DEL\" : ${3:delimiterInteger},",
-			"\t\"DES\" : ${4:description},",
+			"\t\"DES\" : \"${4:description}\",",
 			"\t\"FILETYP\" : ${5:fileTypeInteger},",
-			"\t\"GLOBAL\" : ${6:globalName},",
-			"\t\"PSLPACKAGE\" : ${7:packageName},",
-			"\t\"RECTYP\" : ${8:recordTypeIntege}",
+			"\t\"FSN\" : \"f${1:tableName}\",",
+			"\t\"GLOBAL\" : \"${1:tableName}\",",
+			"\t\"GLREF\" : \"^${1:tableName}(${2:keys}\",",
+			"\t\"PSLPACKAGE\" : \"${6:packageName}\",",
+			"\t\"PSLRESTRICTION\" : null,",
+			"\t\"RECTYP\" : 1,",
+			"\t\"SYSSN\" : \"PBS\"",
 			"}",
-			"${9:Table documentation (do not exceed 80 character margin)}"
+			"${7:// Table documentation (do not exceed 80 character margin)}"
 		],
 		"description": "Table Definition"
 	}
