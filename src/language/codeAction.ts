@@ -24,9 +24,10 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 
 		if (context.diagnostics.length === 0) return;
 
+		const newLine = document.eol === vscode.EndOfLine.LF ? '\n' : '\r\n';
 		const actions: vscode.CodeAction[] = [];
 		const allDiagnostics: MemberDiagnostic[] = [];
-		const allTextEdits: vscode.TextEdit[] = [];
+		const allTextEdits: Array<{ edit: vscode.TextEdit, priority: number }> = [];
 
 		const fixAll: vscode.CodeAction = initializeAction('Fix all.');
 
@@ -39,23 +40,23 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 				const separatorAction = initializeAction('Add separator.', diagnostic);
 
 				const textEdit = vscode.TextEdit.insert(
-					new vscode.Position(method.id.position.character - 1, 0),
-					'\t// --------------------------------------------------------------------',
+					new vscode.Position(method.id.position.line - 1, Number.MAX_VALUE),
+					`${newLine}\t// --------------------------------------------------------------------`,
 				);
 
 				separatorAction.edit.set(document.uri, [textEdit]);
 				actions.push(separatorAction);
 
 				allDiagnostics.push(diagnostic);
-				allTextEdits.push(textEdit);
+				allTextEdits.push({ edit: textEdit, priority: 2 });
 			}
 
 			if (diagnostic.ruleName === MethodDocumentation.name) {
 				const documentationAction = initializeAction('Add documentation block.', diagnostic);
 
-				let docText = `\t/* DOC ----------------------------------------------------------------\n\t`
-					+ `TODO: description of label ${method.id.value}\n\n`;
-				const terminator = `\t** ENDDOC */\n`;
+				let docText = `\t/* DOC ----------------------------------------------------------------${newLine}\t`
+					+ `TODO: description of label ${method.id.value}${newLine}`;
+				const terminator = `\t** ENDDOC */${newLine}`;
 				if (method.parameters.length > 0) {
 					const spacing = method.parameters.slice().sort((p1, p2): number => {
 						return p2.id.value.length - p1.id.value.length;
@@ -63,7 +64,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 
 					docText += method.parameters.map(p => {
 						return `\t@param ${p.id.value}${' '.repeat(spacing - p.id.value.length)}TODO: description of param ${p.id.value}`;
-					}).join('\n\n') + '\n';
+					}).join(`${newLine}${newLine}`) + `${newLine}`;
 				}
 				docText += terminator;
 
@@ -72,7 +73,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 				actions.push(documentationAction);
 
 				allDiagnostics.push(diagnostic);
-				allTextEdits.push(textEdit);
+				allTextEdits.push({ edit: textEdit, priority: 2 });
 
 			}
 
@@ -83,20 +84,23 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 				const separatorAction = initializeAction('Add two empty lines above method.', diagnostic);
 				let fixText = '';
 
-				if (diagnostic.code === Code.ONE_EMPTY_LINE) fixText = `\n`;
-				if (diagnostic.code === Code.TWO_EMPTY_LINES) fixText = `\n\n`;
+				if (diagnostic.code === Code.ONE_EMPTY_LINE) fixText = `${newLine}`;
+				if (diagnostic.code === Code.TWO_EMPTY_LINES) fixText = `${newLine}${newLine}`;
 
-				const textEdit = vscode.TextEdit.insert(new vscode.Position(method.id.position.line - 1, 0), fixText);
+				const textEdit = vscode.TextEdit.insert(
+					new vscode.Position(method.id.position.line - 1, Number.MAX_VALUE),
+					fixText,
+				);
 
 				separatorAction.edit.set(document.uri, [textEdit]);
 				actions.push(separatorAction);
 
 				allDiagnostics.push(diagnostic);
-				allTextEdits.push(textEdit);
+				allTextEdits.push({ edit: textEdit, priority: 1 });
 			}
 		}
 		if (actions.length > 1) {
-			fixAll.edit.set(document.uri, allTextEdits);
+			fixAll.edit.set(document.uri, allTextEdits.sort((a, b) => a.priority - b.priority).map(edits => edits.edit));
 			fixAll.diagnostics = allDiagnostics;
 			actions.push(fixAll);
 		}
