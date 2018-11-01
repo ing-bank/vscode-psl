@@ -6,15 +6,16 @@ This module works by adding rules that are automatically checked at the appropri
 
 ## Current Rules
 
-* TodoInfo
 * MemberCamelCase
 * MemberLength
+* MemberLiteralCase
 * MemberStartsWithV
 * MethodDocumentation
-* MethodSeparator
 * MethodParametersOnNewLine
-* PropertyLiteralCase
+* MethodSeparator
+* MultiLineDeclare
 * RuntimeStart
+* TodoInfo
 * TwoEmptyLines
 
 
