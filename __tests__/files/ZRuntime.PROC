@@ -48,7 +48,7 @@ public static void func(String flaggedParam, String notFlaggedParam)
 	type String literal NOLITERAL = ""
 	// flag flagged but not NOLITERAL
 	do Runtime.start("BA")
-	do thing(flagged, NOLITERAL)
+	set (flagged, NOLITERAL) = ""
 	do Runtime.commit()
 
 	quit

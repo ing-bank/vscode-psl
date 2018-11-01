@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as parser from '../parser/parser';
 import * as lang from './lang';
-import * as utils from '../parser/utillities';
+import * as utils from '../parser/utilities';
 import { MemberClass } from '../parser/parser';
 
 export class PSLCompletionItemProvider implements vscode.CompletionItemProvider {

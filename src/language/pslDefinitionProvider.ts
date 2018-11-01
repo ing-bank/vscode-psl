@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as lang from './lang';
 import * as path from 'path';
 import * as parser from '../parser/parser';
-import * as utils from '../parser/utillities';
+import * as utils from '../parser/utilities';
 
 export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 
@@ -32,11 +32,9 @@ export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 	}
 }
 
-
-
 function getLocation(result: utils.FinderResult): vscode.Location {
 	if (!result.member) {
-		return new vscode.Location(vscode.Uri.file(result.fsPath), new vscode.Position(0,0));	
+		return new vscode.Location(vscode.Uri.file(result.fsPath), new vscode.Position(0, 0));
 	}
 	let range = result.member.id.getRange();
 	let vscodeRange = new vscode.Range(range.start.line, range.start.character, range.end.line, range.end.character);

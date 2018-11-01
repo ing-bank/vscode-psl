@@ -1,7 +1,7 @@
 export function* getTokens(documentContents: string): IterableIterator<Token> {
-	let t: Tokenizer = new Tokenizer();
+	const t: Tokenizer = new Tokenizer();
 
-	for (let char of documentContents) {
+	for (const char of documentContents) {
 		t.charType = getType(char);
 		if (t.tokenType === 0) {
 			t.tokenType = t.charType;
@@ -31,12 +31,15 @@ export class Token {
 	}
 
 	getRange() {
-		let startPosition: Position = this.position;
-		let endPosition: Position = { line: this.position.line, character: this.position.character + this.value.length }
+		const startPosition: Position = this.position;
+		const endPosition: Position = { line: this.position.line, character: this.position.character + this.value.length };
 		return new Range(startPosition, endPosition);
 	}
 	isWhiteSpace() {
-		return this.type === Type.Space || this.type === Type.Tab || this.type === Type.NewLine || this.type === Type.Undefined;
+		return this.type === Type.Space
+			|| this.type === Type.Tab
+			|| this.type === Type.NewLine
+			|| this.type === Type.Undefined;
 	}
 	isAlphanumeric() {
 		return this.type === Type.Alphanumeric;
@@ -199,7 +202,7 @@ export class Range {
 	constructor(startLine: number, startCharacter: number, endLine: number, endCharacter: number);
 
 	constructor(a: number | Position, b: number | Position, c?: number, d?: number) {
-		if (typeof a === 'number' && typeof b == 'number' && typeof c == 'number' && typeof d == 'number') {
+		if (typeof a === 'number' && typeof b === 'number' && typeof c === 'number' && typeof d === 'number') {
 			this.start = new Position(a, b);
 			this.end = new Position(c, d);
 		}
@@ -210,7 +213,6 @@ export class Range {
 	}
 
 }
-
 
 export class Position {
 
@@ -244,7 +246,7 @@ class Tokenizer {
 	tokenPosition: Position;
 	token: Token;
 
-	parsed: boolean
+	parsed: boolean;
 	stringOpen: boolean;
 	firstSlash: boolean;
 	asterisk: boolean;
@@ -267,7 +269,7 @@ class Tokenizer {
 	parseCharacter(char: string): boolean {
 		if (this.tokenType === Type.Alphanumeric) {
 			if (this.charType === Type.Alphanumeric || this.charType === Type.Numeric) {
-				this.tokenValue = this.tokenValue + char
+				this.tokenValue = this.tokenValue + char;
 				this.parsed = true;
 				this.documentColumn++;
 				return false;
@@ -308,7 +310,8 @@ class Tokenizer {
 					this.documentColumn++;
 				}
 			}
-			if (this.charType === Type.Asterisk) { // do not add a * to the token immediately, it could be the end of a block comment
+			// do not add a * to the token immediately, it could be the end of a block comment
+			if (this.charType === Type.Asterisk) {
 				this.asterisk = true;
 			} else {
 				this.tokenValue = this.tokenValue + char;
@@ -418,7 +421,7 @@ class Tokenizer {
 }
 
 function getType(c: string): Type {
-	let charCode: number = c.charCodeAt(0);
+	const charCode: number = c.charCodeAt(0);
 	// Find a better way to incorporate the %
 	if (charCode >= 65 && charCode <= 90 || charCode >= 97 && charCode <= 122 || charCode === 37) {
 		return Type.Alphanumeric;
@@ -547,5 +550,5 @@ export const enum Type {
 	CloseBrace = 125,
 	Tilde = 126,
 
-	Undefined = -1
+	Undefined = -1,
 }

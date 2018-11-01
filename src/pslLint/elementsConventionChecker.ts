@@ -37,7 +37,7 @@ export class MemberLiteralCase implements MemberRule {
 	checkUpperCase(member: Property, diagnostics: Diagnostic[]): void {
 		if ((member.modifiers.findIndex(x => x.value === 'literal') > -1)) {
 			if (member.id.value !== member.id.value.toUpperCase()) {
-				diagnostics.push(createDiagnostic(member, 'is literal but not upper case.', DiagnosticSeverity.Information, this.ruleName));
+				diagnostics.push(createDiagnostic(member, 'is literal but not upper case.', DiagnosticSeverity.Warning, this.ruleName));
 			}
 		}
 	}
@@ -87,7 +87,7 @@ export class MemberCamelCase implements MemberRule {
 				diagnostics.push(diagnostic)
 			}
 			else {
-				diagnostics.push(createDiagnostic(member, 'does not start with lowercase.', DiagnosticSeverity.Information, this.ruleName));
+				diagnostics.push(createDiagnostic(member, 'does not start with lowercase.', DiagnosticSeverity.Warning, this.ruleName));
 			}
 		}
 	}

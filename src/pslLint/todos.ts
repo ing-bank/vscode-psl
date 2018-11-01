@@ -1,4 +1,4 @@
-import { Diagnostic, Range, Position, DiagnosticSeverity, DocumentRule, PslDocument, getTokens } from './api';
+import { Diagnostic, DiagnosticSeverity, DocumentRule, getTokens, Position, PslDocument, Range } from './api';
 
 export class TodoInfo implements DocumentRule {
 
@@ -6,24 +6,24 @@ export class TodoInfo implements DocumentRule {
 
 	report(pslDocument: PslDocument): Diagnostic[] {
 		let todos: Todo[] = [];
-		for (let token of pslDocument.parsedDocument.tokens) {
-			let startLine = token.position.line;
-			let startChar = token.position.character;
-			if (token.isBlockComment() || token.isLineComment()) {
+		for (const token of pslDocument.parsedDocument.comments) {
+			if (token.value.includes('TODO')) {
+				const startLine = token.position.line;
+				const startChar = token.position.character;
 				todos = todos.concat(getTodosFromComment(token.value, startLine, startChar));
 			}
 		}
 		return todos.map(todo => {
-			let diagnostic = new Diagnostic(todo.range, todo.message, this.ruleName,DiagnosticSeverity.Information);
+			const diagnostic = new Diagnostic(todo.range, todo.message, this.ruleName, DiagnosticSeverity.Information);
 			diagnostic.source = 'TODO';
 			return diagnostic;
-		})
+		});
 	}
 }
 
 interface Todo {
-	range: Range
-	message: string
+	range: Range;
+	message: string;
 }
 
 function getTodosFromComment(commentText: string, startLine: number, startChar: number): Todo[] {
@@ -32,19 +32,19 @@ function getTodosFromComment(commentText: string, startLine: number, startChar: 
 	let currentLine: number;
 	let currentChar: number;
 
-	let finalize = () => {
+	const finalize = () => {
 		if (!todo) return;
-		let start = todo.range.start;
-		let end = new Position(currentLine, todo.range.end.character + todo.message.trimRight().length);
+		const start = todo.range.start;
+		const end = new Position(currentLine, todo.range.end.character + todo.message.trimRight().length);
 		todo.range = new Range(start, end);
 		todo.message = todo.message.trim().replace(/^:/gm, '').trim();
 		if (!todo.message) todo.message = `TODO on line ${todo.range.start.line + 1}.`;
 		todos.push(todo);
 		todo = undefined;
-	}
+	};
 
-	let tokens = getTokens(commentText);
-	for (let token of tokens) {
+	const tokens = getTokens(commentText);
+	for (const token of tokens) {
 		currentLine = startLine + token.position.line;
 		currentChar = startLine === currentLine ? token.position.character + startChar : token.position.character;
 		if (token.isBlockCommentInit() || token.isLineCommentInit()) continue;
@@ -52,8 +52,8 @@ function getTodosFromComment(commentText: string, startLine: number, startChar: 
 			todos = todos.concat(getTodosFromComment(token.value, currentLine, currentChar));
 		}
 		else if (token.value === 'TODO' && !todo) {
-			let range = new Range(currentLine, currentChar, currentLine, currentChar + 4);
-			let message = '';
+			const range = new Range(currentLine, currentChar, currentLine, currentChar + 4);
+			const message = '';
 			todo = { range, message };
 		}
 		else if (todo) {

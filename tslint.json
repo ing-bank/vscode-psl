@@ -25,7 +25,10 @@
         "arrow-parens": false,
         "trailing-comma": [
             true,
-            "multiline"
+            {
+                "multiline": "always",
+                "singleline": "never"
+            }
         ],
         "one-line": [
             true,
@@ -37,6 +40,9 @@
             "ban-keywords",
             "check-format",
             "allow-leading-underscore"
+        ],
+        "no-console": [
+            false
         ]
     },
     "defaultSeverity": "warn"
