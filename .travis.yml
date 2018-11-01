@@ -19,9 +19,13 @@ deploy:
     script: cp ./src/pslLint/cli/.npmrc.psl-lint .npmrc && npm pack ./src/pslLint/cli | xargs npm publish
     on:
       tags: true
+      repo: ing-bank/vscode-psl
+      all_branches: true
       condition: tag =~ ^psl-lint
   - provider: script
     script: vsce publish -p $VSCODE_TOKEN
     on:
       tags: true
       condition: tag =~ ^vscode-psl
+      repo: ing-bank/vscode-psl
+      all_branches: true
