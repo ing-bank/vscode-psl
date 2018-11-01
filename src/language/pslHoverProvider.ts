@@ -6,8 +6,8 @@ import * as utils from '../parser/utilities';
 
 export class PSLHoverProvider implements vscode.HoverProvider {
 
-	async provideHover(document: vscode.TextDocument, position: vscode.Position, cancellationToknen: vscode.CancellationToken): Promise<vscode.Hover | undefined> {
-		if (cancellationToknen.isCancellationRequested) return;
+	async provideHover(document: vscode.TextDocument, position: vscode.Position, cancellationToken: vscode.CancellationToken): Promise<vscode.Hover | undefined> {
+		if (cancellationToken.isCancellationRequested) return;
 		let parsedDoc = parser.parseText(document.getText());
 
 		// get tokens on line and current token

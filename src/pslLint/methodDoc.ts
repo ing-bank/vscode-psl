@@ -6,7 +6,7 @@ export enum Code {
 }
 
 /**
- * Checks if multiple parameters are written on the same line as the method declaration.
+ * Checks if method has a documentation block below it.
  */
 export class MethodDocumentation implements MethodRule {
 
