@@ -150,7 +150,7 @@ async function generateCodeQualityReport(reportFileName: string) {
 			else {
 				counts[diagnostic.ruleName] = counts[diagnostic.ruleName] + 1;
 			}
-			if (diagnostic.ruleName !== 'MemberCamelCase') continue;
+			if (diagnostic.ruleName === 'MemberCamelCase') continue;
 			const issue: CodeClimateIssue = {
 				check_name: diagnostic.ruleName,
 				description: `[${diagnostic.ruleName}] ${diagnostic.message.trim().replace(/\.$/, '')}`,
