@@ -24,6 +24,7 @@ deploy:
       repo: ing-bank/vscode-psl
   - provider: script
     script: vsce publish -p $VSCODE_TOKEN
+    skip_cleanup: true
     on:
       tags: true
       condition: $TRAVIS_TAG =~ ^vscode-psl
