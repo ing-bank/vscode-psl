@@ -55,7 +55,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 				const documentationAction = initializeAction('Add documentation block.', diagnostic);
 
 				let docText = `\t/* DOC ----------------------------------------------------------------${newLine}\t`
-					+ `TODO: description of label ${method.id.value}${newLine}`;
+					+ `TODO: description of label ${method.id.value}${newLine}${newLine}`;
 				const terminator = `\t** ENDDOC */${newLine}`;
 				if (method.parameters.length > 0) {
 					const spacing = method.parameters.slice().sort((p1, p2): number => {
