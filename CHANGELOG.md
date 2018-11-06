@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
+# v1.5.0
+
+* TwoEmptyLines psl-lint rule (thanks @RajkumarVelusamy)
+* MultiLineDeclare psl-lint rule (thanks @Thirurakshan)
+* Automated deployments (thanks @morganing)
+* Improved error messages when attempting to test compile an invalid file (thanks @cjprieb)
+* Updated snippets (thanks @cjprieb)
+* Improved PSL statement parsing
+
 # v1.4.1
 
 * Fixed a bug that would break do statement completion

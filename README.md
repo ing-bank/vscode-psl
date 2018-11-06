@@ -6,7 +6,7 @@ Profile Scripting Language functionality for Visual Studio Code.
 
 ## Dependencies
 
-* Visual Studio Code version 1.17 (October 2017) or higher 
+* Visual Studio Code version 1.23.0 (April 2018) or higher 
 
 ## Configuration
 
