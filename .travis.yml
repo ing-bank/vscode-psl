@@ -17,6 +17,7 @@ install:
 deploy:
   - provider: script
     script: cp ./src/pslLint/cli/.npmrc.psl-lint .npmrc && npm pack ./src/pslLint/cli | xargs npm publish
+    skip_cleanup: true
     on:
       tags: true
       condition: $TRAVIS_TAG =~ ^psl-lint
