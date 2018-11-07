@@ -34,6 +34,11 @@ export async function activate(context: vscode.ExtensionContext) {
 		prepareRules(e.document, lintDiagnostics, tokenSource.token);
 	});
 
+	vscode.workspace.onDidCloseTextDocument(closedDocument => {
+		if (!isProfileElement(closedDocument)) return;
+		lintDiagnostics.delete(closedDocument.uri);
+	});
+
 	context.subscriptions.push(
 		vscode.languages.registerCodeActionsProvider(
 			PSL_MODE, new PSLActionProvider(),
@@ -72,7 +77,7 @@ function prepareRules(
 	lintDiagnostics: vscode.DiagnosticCollection,
 	cancellationToken: vscode.CancellationToken,
 ) {
-	if (!isPSL(textDocument)) return;
+	if (!isProfileElement(textDocument)) return;
 
 	const lintConfigValue: lintOption = vscode.workspace.getConfiguration('psl', textDocument.uri).get('lint');
 
@@ -104,9 +109,6 @@ function lint(
 	process.nextTick(() => {
 		if (!cancellationToken.isCancellationRequested) {
 			lintDiagnostics.set(textDocument.uri, memberDiagnostics);
-			vscode.workspace.onDidCloseTextDocument((textDocument) => {
-				lintDiagnostics.delete(textDocument.uri);
-			});
 		}
 	});
 }
@@ -144,7 +146,7 @@ function transform(diagnostics: api.Diagnostic[], uri: vscode.Uri): MemberDiagno
 	});
 }
 
-function isPSL(textDocument: vscode.TextDocument) {
+function isProfileElement(textDocument: vscode.TextDocument) {
 	return vscode.languages.match(PSL_MODE, textDocument) ||
 		vscode.languages.match(BATCH_MODE, textDocument) ||
 		vscode.languages.match(TRIG_MODE, textDocument);

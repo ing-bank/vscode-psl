@@ -25,7 +25,8 @@
             "request": "launch",
             "runtimeExecutable": "${execPath}",
             "args": [
-                "--extensionDevelopmentPath=${workspaceRoot}"
+                "--extensionDevelopmentPath=${workspaceRoot}",
+                "--logExtensionHostCommunication"
             ],
             "stopOnEntry": false,
             "sourceMaps": true,
