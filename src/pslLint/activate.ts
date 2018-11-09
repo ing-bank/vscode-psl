@@ -17,13 +17,16 @@ import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from './methodDoc
 import { MultiLineDeclare } from './multiLineDeclare';
 import { MethodParametersOnNewLine } from './parameters';
 import { RuntimeStart } from './runtime';
+import { TblColDocumentation } from './tblcolDoc';
 import { TodoInfo } from './todos';
 
 /**
  * Add new rules here to have them checked at the appropriate time.
  */
 const componentRules: ProfileComponentRule[] = [];
-const fileDefinitionRules: FileDefinitionRule[] = [];
+const fileDefinitionRules: FileDefinitionRule[] = [
+	new TblColDocumentation(),
+];
 const pslRules: PslRule[] = [
 	new TodoInfo(),
 ];
