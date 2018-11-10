@@ -1,24 +1,28 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
+# v1.6.0
+
+* Adds rule "PropertyIsDummy" from psl-lint (thanks [@kewtree1408](https://github.com/kewtree1408))
+
 # v1.5.1
 
 * Fixed a bug in codeQuality that caused major workbench performance degredation.
 
 # v1.5.0
 
-* TwoEmptyLines psl-lint rule (thanks @RajkumarVelusamy)
-* MultiLineDeclare psl-lint rule (thanks @Thirurakshan)
-* Automated deployments (thanks @morganing)
-* Improved error messages when attempting to test compile an invalid file (thanks @cjprieb)
-* Updated snippets (thanks @cjprieb)
+* TwoEmptyLines psl-lint rule (thanks [@RajkumarVelusamy](https://github.com/RajkumarVelusamy))
+* MultiLineDeclare psl-lint rule (thanks [@Thirurakshan](https://github.com/Thirurakshan))
+* Automated deployments (thanks [@morganing](https://github.com/morganing))
+* Improved error messages when attempting to test compile an invalid file (thanks [@cjprieb](https://github.com/cjprieb))
+* Updated snippets (thanks [@cjprieb](https://github.com/cjprieb))
 * Improved PSL statement parsing
 
 # v1.4.1
 
 * Fixed a bug that would break do statement completion
-* Fixed syntax highlighting to no longer highlight fields with keyword identifiers
-* Made the OPEN section header syntax highlighting less strict to allow multiple spaces after the OPEN identifier.
+* Fixed syntax highlighting to no longer highlight fields with keyword identifiers (thanks [@cjprieb](https://github.com/cjprieb))
+* Made the OPEN section header syntax highlighting less strict to allow multiple spaces after the OPEN  identifier (thanks [@cjprieb](https://github.com/cjprieb))
 
 # v1.4.0
 
