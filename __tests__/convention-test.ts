@@ -1,7 +1,8 @@
 import * as api from '../src/pslLint/api';
 import {
 	MemberCamelCase, MemberLength,
-	MemberLiteralCase, MemberStartsWithV } from '../src/pslLint/elementsConventionChecker';
+	MemberLiteralCase, MemberStartsWithV,
+} from '../src/pslLint/elementsConventionChecker';
 import * as utils from './ruleUtils';
 
 describe('Members tests', () => {
@@ -18,11 +19,11 @@ describe('Members tests', () => {
 	});
 
 	test('Upper case literal report', () => {
-		expect(utils.diagnosticsOnLine(5, literalDiagnostics).length).toBe(1)
+		expect(utils.diagnosticsOnLine(5, literalDiagnostics).length).toBe(1);
 	});
 
 	test('Camel case literal report', () => {
-		expect(utils.diagnosticsOnLine(4, camelCaseDiagnostics).length).toBe(1)
+		expect(utils.diagnosticsOnLine(4, camelCaseDiagnostics).length).toBe(1);
 	});
 
 	test('More than 25 characters', () => {

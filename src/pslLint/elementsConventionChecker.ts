@@ -1,5 +1,7 @@
-import { Diagnostic, DiagnosticSeverity, Member, MemberClass, MemberRule,
-	Method, MethodRule, Property, PropertyRule, PslDocument } from './api';
+import {
+	Diagnostic, DiagnosticSeverity, Member, MemberClass, MemberRule,
+	Method, MethodRule, Property, PropertyRule, PslDocument,
+} from './api';
 
 export class MethodStartsWithZ implements MethodRule {
 
@@ -8,7 +10,7 @@ export class MethodStartsWithZ implements MethodRule {
 	report(_parsedDocument: PslDocument, method: Method): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
-		startsWithZ(method, diagnostics, this.ruleName)
+		startsWithZ(method, diagnostics, this.ruleName);
 
 		return diagnostics;
 	}
@@ -20,7 +22,7 @@ export class PropertyStartsWithZ implements PropertyRule {
 	report(_parsedDocument: PslDocument, property: Property): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
-		startsWithZ(property, diagnostics, this.ruleName)
+		startsWithZ(property, diagnostics, this.ruleName);
 
 		return diagnostics;
 	}
@@ -39,7 +41,7 @@ export class MemberLiteralCase implements MemberRule {
 		if ((member.modifiers.findIndex(x => x.value === 'literal') > -1)) {
 			if (member.id.value !== member.id.value.toUpperCase()) {
 				diagnostics.push(
-					createDiagnostic(member, 'is literal but not upper case.', DiagnosticSeverity.Warning, this.ruleName)
+					createDiagnostic(member, 'is literal but not upper case.', DiagnosticSeverity.Warning, this.ruleName),
 				);
 			}
 		}
@@ -112,7 +114,7 @@ export class MemberLength implements MemberRule {
 	report(_parsedDocument: PslDocument, member: Member): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
-		this.checkMemberLength(member, diagnostics)
+		this.checkMemberLength(member, diagnostics);
 
 		return diagnostics;
 	}
@@ -141,28 +143,28 @@ export class MemberStartsWithV implements MemberRule {
 	}
 
 	checkStartsWithV(member: Member, diagnostics: Diagnostic[]): void {
-		if (member.id.value.charAt(0) == 'v') {
+		if (member.id.value.charAt(0) === 'v') {
 			diagnostics.push(createDiagnostic(member, `starts with 'v'.`, DiagnosticSeverity.Warning, this.ruleName));
 		}
 	}
 }
 
 function createDiagnostic(
-		member: Member,
-		message: string,
-		diagnosticSeverity: DiagnosticSeverity,
-		ruleName: string,
-	): Diagnostic {
-		const diagnostic = new Diagnostic(
-			member.id.getRange(),
-			`${printEnum(member.memberClass)} "${member.id.value}" ${message}`,
-			ruleName,
-			diagnosticSeverity,
-		);
-		diagnostic.source = 'lint';
-		diagnostic.member = member;
-		return diagnostic;
-	}
+	member: Member,
+	message: string,
+	diagnosticSeverity: DiagnosticSeverity,
+	ruleName: string,
+): Diagnostic {
+	const diagnostic = new Diagnostic(
+		member.id.getRange(),
+		`${printEnum(member.memberClass)} "${member.id.value}" ${message}`,
+		ruleName,
+		diagnosticSeverity,
+	);
+	diagnostic.source = 'lint';
+	diagnostic.member = member;
+	return diagnostic;
+}
 
 function startsWithZ(member: Member, diagnostics: Diagnostic[], ruleName: string) {
 	const firstChar = member.id.value.charAt(0);
