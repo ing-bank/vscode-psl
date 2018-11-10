@@ -32,9 +32,9 @@ export class PropertyIsDummy implements PropertyRule {
 
 	ruleName = PropertyIsDummy.name;
 
-	report(_parsedDocument: PslDocument, property: Property): Diagnostic[] {
+	report(parsedDocument: PslDocument, property: Property): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
-		if (_parsedDocument.parsedDocument.extending == null ) {
+		if (!parsedDocument.parsedDocument.extending) {
 			this.isCalledDummy(property, diagnostics);
 		}
 		return diagnostics;
@@ -43,7 +43,7 @@ export class PropertyIsDummy implements PropertyRule {
 	isCalledDummy(member: Member, diagnostics: Diagnostic[]): void {
 		if (member.id.value.toLowerCase() === 'dummy') {
 			diagnostics.push(
-				createDiagnostic(member, `property was called 'dummy'.`, DiagnosticSeverity.Information, this.ruleName)
+				createDiagnostic(member, 'Usage of "dummy" property is discouraged', DiagnosticSeverity.Information, this.ruleName)
 			);
 		}
 	}

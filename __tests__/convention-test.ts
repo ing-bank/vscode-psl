@@ -27,7 +27,7 @@ describe('Members tests', () => {
 
 	test('Camel case literal report', () => {
 		expect(utils.diagnosticsOnLine(4, camelCaseDiagnostics).length).toBe(1);
-	})
+	});
 
 	test('More than 25 characters', () => {
 		expect(utils.diagnosticsOnLine(14, lengthDiagnostics).length).toBe(1);
@@ -37,11 +37,11 @@ describe('Members tests', () => {
 		expect(utils.diagnosticsOnLine(23, vDiagnostics).length).toBe(1);
 	});
 
-	test('property was not called \'dummy\'', () => {
-		expect(utils.diagnosticsOnLine(2, withoutDummyDiagnostics).length).toBe(0);
+	test('Property was not called \'dummy\'', () => {
+		expect(withoutDummyDiagnostics.length).toBe(0);
 	});
 
-	test('property was called \'dummy\'', () => {
+	test('Property was called \'dummy\'', () => {
 		expect(utils.diagnosticsOnLine(2, withDummyDiagnostics).length).toBe(1);
 	});
 
