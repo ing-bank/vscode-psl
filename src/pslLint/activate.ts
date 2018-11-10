@@ -7,7 +7,8 @@ import { getConfig, matchConfig } from './config';
 /**
  * Import rules here.
  */
-import { MemberCamelCase, MemberLength, MemberLiteralCase, MemberStartsWithV } from './elementsConventionChecker';
+import { MemberCamelCase, MemberLength, MemberLiteralCase,
+		MemberStartsWithV, PropertyIsDummy} from './elementsConventionChecker';
 import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from './methodDoc';
 import { MultiLineDeclare } from './multiLineDeclare';
 import { MethodParametersOnNewLine } from './parameters';
@@ -34,7 +35,9 @@ const methodRules: MethodRule[] = [
 	new MultiLineDeclare(),
 	new TwoEmptyLines(),
 ];
-const propertyRules: PropertyRule[] = [];
+const propertyRules: PropertyRule[] = [
+	new PropertyIsDummy(),
+];
 const declarationRules: DeclarationRule[] = [];
 const parameterRules: ParameterRule[] = [];
 
