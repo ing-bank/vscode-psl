@@ -28,6 +28,27 @@ export class PropertyStartsWithZ implements PropertyRule {
 	}
 }
 
+export class PropertyIsDummy implements PropertyRule {
+
+	ruleName = PropertyIsDummy.name;
+
+	report(_parsedDocument: PslDocument, property: Property): Diagnostic[] {
+		const diagnostics: Diagnostic[] = [];
+		if (_parsedDocument.parsedDocument.extending == null ) {
+			this.isCalledDummy(property, diagnostics);
+		}
+		return diagnostics;
+	}
+
+	isCalledDummy(member: Member, diagnostics: Diagnostic[]): void {
+		if (member.id.value.toLowerCase() === 'dummy') {
+			diagnostics.push(
+				createDiagnostic(member, `property was called 'dummy'.`, DiagnosticSeverity.Information, this.ruleName)
+			);
+		}
+	}
+}
+
 export class MemberLiteralCase implements MemberRule {
 
 	ruleName = MemberLiteralCase.name;
