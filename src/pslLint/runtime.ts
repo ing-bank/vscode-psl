@@ -4,13 +4,13 @@ import {
 } from '../parser/statementParser';
 import {
 	Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity,
-	Member, MemberClass, Method, MethodRule, PslDocument, Range, Token,
+	Member, MemberClass, Method, MethodRule, ProfileComponent, Range, Token,
 } from './api';
 
 export class RuntimeStart implements MethodRule {
 	ruleName = RuntimeStart.name;
 
-	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
+	report(pslDocument: ProfileComponent, method: Method): Diagnostic[] {
 
 		const runtimeCalls: BinaryOperator[] = [];
 
@@ -44,7 +44,7 @@ export class RuntimeStart implements MethodRule {
 		return dotOperator.right as Identifier;
 	}
 
-	tpFence(diagnostics: Diagnostic[], runtimeCalls: BinaryOperator[], pslDocument: PslDocument, method: Method) {
+	tpFence(diagnostics: Diagnostic[], runtimeCalls: BinaryOperator[], pslDocument: ProfileComponent, method: Method) {
 		let lastStart: Value;
 		let variables: Map<Member, Token[]>;
 		let acceptVariables: string[] = [];
@@ -150,7 +150,7 @@ export class RuntimeStart implements MethodRule {
 		return new Range(start.id.position.line, startPos, start.id.position.line, endPos);
 	}
 
-	private addToWhitelist(pslDocument: PslDocument, runtimeMethod: Identifier) {
+	private addToWhitelist(pslDocument: ProfileComponent, runtimeMethod: Identifier) {
 		let acceptVariables = [];
 		const commentsAbove: Token[] = pslDocument.getCommentsOnLine(runtimeMethod.id.position.line - 1);
 		const whiteListComment = commentsAbove[0];

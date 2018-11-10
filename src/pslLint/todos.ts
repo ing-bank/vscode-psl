@@ -1,10 +1,10 @@
-import { Diagnostic, DiagnosticSeverity, DocumentRule, getTokens, Position, PslDocument, Range } from './api';
+import { Diagnostic, DiagnosticSeverity, ProfileComponentRule, getTokens, Position, ProfileComponent, Range } from './api';
 
-export class TodoInfo implements DocumentRule {
+export class TodoInfo implements ProfileComponentRule {
 
 	ruleName = TodoInfo.name;
 
-	report(pslDocument: PslDocument): Diagnostic[] {
+	report(pslDocument: ProfileComponent): Diagnostic[] {
 		let todos: Todo[] = [];
 		for (const token of pslDocument.parsedDocument.comments) {
 			if (token.value.includes('TODO')) {

@@ -1,6 +1,6 @@
 import * as path from 'path';
 import {
-	DeclarationRule, Diagnostic, DocumentRule, MemberRule, MethodRule, ParameterRule, PropertyRule, PslDocument,
+	DeclarationRule, Diagnostic, ProfileComponentRule, MemberRule, MethodRule, ParameterRule, PropertyRule, ProfileComponent,
 } from './api';
 import { getConfig, matchConfig } from './config';
 
@@ -18,7 +18,7 @@ import { TodoInfo } from './todos';
 /**
  * Add new rules here to have them checked at the appropriate time.
  */
-const documentRules: DocumentRule[] = [
+const documentRules: ProfileComponentRule[] = [
 	new TodoInfo(),
 ];
 const memberRules: MemberRule[] = [
@@ -41,7 +41,7 @@ const propertyRules: PropertyRule[] = [
 const declarationRules: DeclarationRule[] = [];
 const parameterRules: ParameterRule[] = [];
 
-export function getDiagnostics(pslDocument: PslDocument, useConfig?: boolean): Diagnostic[] {
+export function getDiagnostics(pslDocument: ProfileComponent, useConfig?: boolean): Diagnostic[] {
 	const subscription = new RuleSubscription(pslDocument, useConfig);
 	return subscription.reportRules();
 }
@@ -52,19 +52,19 @@ export function getDiagnostics(pslDocument: PslDocument, useConfig?: boolean): D
 class RuleSubscription {
 
 	private diagnostics: Diagnostic[];
-	private filteredDocumentRules: DocumentRule[];
+	private filteredDocumentRules: ProfileComponentRule[];
 	private filteredMethodRules: MethodRule[];
 	private filteredMemberRules: MemberRule[];
 	private filteredPropertyRules: PropertyRule[];
 	private filteredDeclarationRules: DeclarationRule[];
 	private filteredParameterRules: ParameterRule[];
 
-	constructor(private pslDocument: PslDocument, useConfig?: boolean) {
+	constructor(private pslDocument: ProfileComponent, useConfig?: boolean) {
 		this.diagnostics = [];
 
 		const config = useConfig ? getConfig(this.pslDocument.fsPath) : undefined;
 
-		const filterRules = (rules: DocumentRule[]) => {
+		const filterRules = (rules: ProfileComponentRule[]) => {
 			return rules.filter(rule => {
 				if (!config) return true;
 				return matchConfig(path.basename(this.pslDocument.fsPath), rule.ruleName, config);
@@ -80,7 +80,7 @@ class RuleSubscription {
 	}
 
 	reportRules(): Diagnostic[] {
-		const addDiagnostics = (rules: DocumentRule[], ...args: any[]) => {
+		const addDiagnostics = (rules: ProfileComponentRule[], ...args: any[]) => {
 			rules.forEach(rule => this.diagnostics.push(...rule.report(this.pslDocument, ...args)));
 		};
 

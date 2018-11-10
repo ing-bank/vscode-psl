@@ -69,9 +69,9 @@ async function readFile(filename: string): Promise<number> {
 	return errorCount;
 }
 
-function prepareDocument(textDocument: string, filename: string): api.PslDocument {
+function prepareDocument(textDocument: string, filename: string): api.ProfileComponent {
 	const parsedDocument = api.parseText(textDocument);
-	return new api.PslDocument(parsedDocument, textDocument, filename);
+	return new api.ProfileComponent(parsedDocument, textDocument, filename);
 }
 
 export async function readPath(fileString: string) {

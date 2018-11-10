@@ -24,7 +24,7 @@ export async function getDiagnostics(testFileName: string, ruleName?: string): P
 	const testFilePath = path.resolve('__tests__', 'files', testFileName);
 	const text = await fs.readFile(testFilePath).then(b => b.toString());
 
-	const pslDocument = new api.PslDocument(api.parseText(text), text, testFilePath);
+	const pslDocument = new api.ProfileComponent(api.parseText(text), text, testFilePath);
 	const diagnostics = activate.getDiagnostics(pslDocument, false);
 	if (ruleName) return diagnostics.filter(d => d.ruleName === ruleName);
 	return diagnostics;

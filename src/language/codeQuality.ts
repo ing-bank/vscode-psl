@@ -103,7 +103,7 @@ function lint(
 	lintDiagnostics: vscode.DiagnosticCollection,
 ) {
 	const documentText = textDocument.getText();
-	const pslDocument: api.PslDocument = prepareDocument(documentText, textDocument);
+	const pslDocument: api.ProfileComponent = prepareDocument(documentText, textDocument);
 	const diagnostics = getDiagnostics(pslDocument, useConfig);
 	const memberDiagnostics = transform(diagnostics, textDocument.uri);
 	process.nextTick(() => {
@@ -116,7 +116,7 @@ function lint(
 function prepareDocument(documentText: string, textDocument: vscode.TextDocument) {
 	const parsedDocument = parser.parseText(documentText);
 	const getTextAtLine = (n: number) => textDocument.lineAt(n).text;
-	const pslDocument = new api.PslDocument(parsedDocument, documentText, textDocument.uri.fsPath, getTextAtLine);
+	const pslDocument = new api.ProfileComponent(parsedDocument, documentText, textDocument.uri.fsPath, getTextAtLine);
 	return pslDocument;
 }
 

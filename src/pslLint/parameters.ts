@@ -1,4 +1,4 @@
-import { Diagnostic, DiagnosticSeverity, Method, MethodRule, Parameter, PslDocument } from './api';
+import { Diagnostic, DiagnosticSeverity, Method, MethodRule, Parameter, ProfileComponent } from './api';
 
 /**
  * Checks if multiple parameters are written on the same line as the method declaration.
@@ -7,7 +7,7 @@ export class MethodParametersOnNewLine implements MethodRule {
 
 	ruleName = MethodParametersOnNewLine.name;
 
-	report(_pslDocument: PslDocument, method: Method): Diagnostic[] {
+	report(_pslDocument: ProfileComponent, method: Method): Diagnostic[] {
 
 		if (method.batch) return [];
 

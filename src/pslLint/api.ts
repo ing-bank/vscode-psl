@@ -113,44 +113,39 @@ export class DiagnosticRelatedInformation {
 	}
 }
 
-/**
- * An interface for writing new rules
- */
-export interface DocumentRule {
+export interface ProfileComponentRule {
 
 	ruleName: string;
 
 	/**
-	 *
-	 * @param pslDocument An abstract representation of a PSL document
-	 * @param textDocument The whole text of the document, as a string.
+	 * @param profileComponent An abstract representation of a PSL document
 	 */
-	report(pslDocument: PslDocument, ...args: any[]): Diagnostic[];
+	report(profileComponent: ProfileComponent, ...args: any[]): Diagnostic[];
 }
 
-export interface MemberRule extends DocumentRule {
-	report(pslDocument: PslDocument, member: Member): Diagnostic[];
+export interface MemberRule extends ProfileComponentRule {
+	report(profileComponent: ProfileComponent, member: Member): Diagnostic[];
 }
 
-export interface PropertyRule extends DocumentRule {
-	report(pslDocument: PslDocument, property: Property): Diagnostic[];
+export interface PropertyRule extends ProfileComponentRule {
+	report(profileComponent: ProfileComponent, property: Property): Diagnostic[];
 }
 
-export interface MethodRule extends DocumentRule {
-	report(pslDocument: PslDocument, method: Method): Diagnostic[];
+export interface MethodRule extends ProfileComponentRule {
+	report(profileComponent: ProfileComponent, method: Method): Diagnostic[];
 }
 
-export interface ParameterRule extends DocumentRule {
-	report(pslDocument: PslDocument, parameter: Parameter, method: Method): Diagnostic[];
+export interface ParameterRule extends ProfileComponentRule {
+	report(profileComponent: ProfileComponent, parameter: Parameter, method: Method): Diagnostic[];
 }
 
-export interface DeclarationRule extends DocumentRule {
-	report(pslDocument: PslDocument, declaration: Declaration, method?: Method): Diagnostic[];
+export interface DeclarationRule extends ProfileComponentRule {
+	report(profileComponent: ProfileComponent, declaration: Declaration, method?: Method): Diagnostic[];
 }
 
 type GetTextMethod = (lineNumber: number) => string;
 
-export class PslDocument {
+export class ProfileComponent {
 
 	parsedDocument: ParsedDocument;
 	textDocument: string;

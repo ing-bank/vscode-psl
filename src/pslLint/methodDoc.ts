@@ -1,4 +1,4 @@
-import { Diagnostic, DiagnosticSeverity, getLineAfter, Method, MethodRule, PslDocument, Token } from './api';
+import { Diagnostic, DiagnosticSeverity, getLineAfter, Method, MethodRule, ProfileComponent, Token } from './api';
 
 export enum Code {
 	ONE_EMPTY_LINE = 1,
@@ -12,7 +12,7 @@ export class MethodDocumentation implements MethodRule {
 
 	ruleName = MethodDocumentation.name;
 
-	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
+	report(pslDocument: ProfileComponent, method: Method): Diagnostic[] {
 
 		if (method.batch) return [];
 
@@ -31,7 +31,7 @@ export class MethodSeparator implements MethodRule {
 
 	ruleName = MethodSeparator.name;
 
-	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
+	report(pslDocument: ProfileComponent, method: Method): Diagnostic[] {
 
 		if (method.batch) return [];
 
@@ -51,7 +51,7 @@ export class TwoEmptyLines implements MethodRule {
 
 	ruleName = TwoEmptyLines.name;
 
-	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
+	report(pslDocument: ProfileComponent, method: Method): Diagnostic[] {
 
 		if (method.batch) return [];
 
@@ -98,12 +98,12 @@ function addDiagnostic(idToken: Token, method: Method, message: string, ruleName
 	return diagnostic;
 }
 
-function hasSeparator(method: Method, pslDocument: PslDocument): boolean {
+function hasSeparator(method: Method, pslDocument: ProfileComponent): boolean {
 	const nextLineCommentTokens: Token[] = pslDocument.getCommentsOnLine(method.id.position.line - 1);
 	return nextLineCommentTokens[0] && nextLineCommentTokens[0].isLineComment();
 }
 
-function hasBlockComment(method: Method, pslDocument: PslDocument): boolean {
+function hasBlockComment(method: Method, pslDocument: ProfileComponent): boolean {
 	const nextLineCommentTokens: Token[] = pslDocument.getCommentsOnLine(getLineAfter(method));
 	return nextLineCommentTokens[0] && nextLineCommentTokens[0].isBlockComment();
 }

@@ -1,12 +1,12 @@
 import {
 	Declaration, Diagnostic, DiagnosticSeverity, getTokens,
-	Method, MethodRule, NON_TYPE_MODIFIERS, PslDocument,
+	Method, MethodRule, NON_TYPE_MODIFIERS, ProfileComponent,
 } from './api';
 
 export class MultiLineDeclare implements MethodRule {
 	ruleName = MultiLineDeclare.name;
 
-	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
+	report(pslDocument: ProfileComponent, method: Method): Diagnostic[] {
 
 		const diagnostics: Diagnostic[] = [];
 		let reportVariable: boolean = false;
