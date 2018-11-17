@@ -118,45 +118,53 @@ export interface ProfileComponentRule {
 	ruleName: string;
 
 	/**
-	 * @param profileComponent An abstract representation of a PSL document
+	 * @param profileComponent An object containing genearal information about a Profile component
 	 */
 	report(profileComponent: ProfileComponent, ...args: any[]): Diagnostic[];
 }
+export type PslRule = ProfileComponentRule;
 
-export interface MemberRule extends ProfileComponentRule {
+export interface MemberRule extends PslRule {
 	report(profileComponent: ProfileComponent, member: Member): Diagnostic[];
 }
 
-export interface PropertyRule extends ProfileComponentRule {
+export interface PropertyRule extends PslRule {
 	report(profileComponent: ProfileComponent, property: Property): Diagnostic[];
 }
 
-export interface MethodRule extends ProfileComponentRule {
+export interface MethodRule extends PslRule {
 	report(profileComponent: ProfileComponent, method: Method): Diagnostic[];
 }
 
-export interface ParameterRule extends ProfileComponentRule {
+export interface ParameterRule extends PslRule {
 	report(profileComponent: ProfileComponent, parameter: Parameter, method: Method): Diagnostic[];
 }
 
-export interface DeclarationRule extends ProfileComponentRule {
+export interface DeclarationRule extends PslRule {
 	report(profileComponent: ProfileComponent, declaration: Declaration, method?: Method): Diagnostic[];
 }
 
 type GetTextMethod = (lineNumber: number) => string;
 
+/**
+ * A ProfileComponent contains information about a file used in Profile.
+ * The file may be PSL or non-PSL (such as a TBL or COL).
+ *
+ * The path on the filesystem is available, as well as the components's text contents.
+ * In the case where the component is PSL, the parsedDocument property is defined.
+ */
 export class ProfileComponent {
 
-	parsedDocument: ParsedDocument;
-	textDocument: string;
 	fsPath: string;
+	textDocument: string;
+	parsedDocument?: ParsedDocument;
 
 	private indexedDocument?: Map<number, string>;
 
-	constructor(parsedDocument: ParsedDocument, textDocument: string, fsPath: string, getTextAtLine?: GetTextMethod) {
-		this.parsedDocument = parsedDocument;
+	constructor(fsPath: string, textDocument: string, parsedDocument?: ParsedDocument, getTextAtLine?: GetTextMethod) {
 		this.textDocument = textDocument;
 		this.fsPath = fsPath;
+		if (parsedDocument) this.parsedDocument = parsedDocument;
 		if (getTextAtLine) this.getTextAtLine = getTextAtLine;
 	}
 
@@ -175,6 +183,7 @@ export class ProfileComponent {
 	}
 
 	getCommentsOnLine(lineNumber: number): Token[] {
+		if (!this.parsedDocument) return [];
 		return this.parsedDocument.comments.filter(t => {
 			return t.position.line === lineNumber;
 		});

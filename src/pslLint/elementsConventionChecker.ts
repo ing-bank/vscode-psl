@@ -7,7 +7,7 @@ export class MethodStartsWithZ implements MethodRule {
 
 	ruleName = MethodStartsWithZ.name;
 
-	report(_parsedDocument: ProfileComponent, method: Method): Diagnostic[] {
+	report(_, method: Method): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
 		startsWithZ(method, diagnostics, this.ruleName);
@@ -19,7 +19,7 @@ export class PropertyStartsWithZ implements PropertyRule {
 
 	ruleName = PropertyStartsWithZ.name;
 
-	report(_parsedDocument: ProfileComponent, property: Property): Diagnostic[] {
+	report(_, property: Property): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
 		startsWithZ(property, diagnostics, this.ruleName);
@@ -32,9 +32,9 @@ export class PropertyIsDummy implements PropertyRule {
 
 	ruleName = PropertyIsDummy.name;
 
-	report(parsedDocument: ProfileComponent, property: Property): Diagnostic[] {
+	report(profileComponent: ProfileComponent, property: Property): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
-		if (!parsedDocument.parsedDocument.extending) {
+		if (!profileComponent.parsedDocument.extending) {
 			this.isCalledDummy(property, diagnostics);
 		}
 		return diagnostics;
@@ -53,7 +53,7 @@ export class MemberLiteralCase implements MemberRule {
 
 	ruleName = MemberLiteralCase.name;
 
-	report(_parsedDocument: ProfileComponent, member: Member): Diagnostic[] {
+	report(_, member: Member): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 		this.checkUpperCase(member, diagnostics);
 		return diagnostics;
@@ -73,7 +73,7 @@ export class MemberCamelCase implements MemberRule {
 
 	ruleName = MemberCamelCase.name;
 
-	report(_parsedDocument: ProfileComponent, member: Member): Diagnostic[] {
+	report(_, member: Member): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
 		this.memberCase(member, diagnostics);
@@ -132,7 +132,7 @@ export class MemberLength implements MemberRule {
 
 	ruleName = MemberLength.name;
 
-	report(_parsedDocument: ProfileComponent, member: Member): Diagnostic[] {
+	report(_, member: Member): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
 		this.checkMemberLength(member, diagnostics);
@@ -155,7 +155,7 @@ export class MemberStartsWithV implements MemberRule {
 
 	ruleName = MemberStartsWithV.name;
 
-	report(_parsedDocument: ProfileComponent, member: Member): Diagnostic[] {
+	report(_, member: Member): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
 		this.checkStartsWithV(member, diagnostics);

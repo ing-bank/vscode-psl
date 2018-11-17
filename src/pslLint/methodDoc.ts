@@ -12,13 +12,13 @@ export class MethodDocumentation implements MethodRule {
 
 	ruleName = MethodDocumentation.name;
 
-	report(pslDocument: ProfileComponent, method: Method): Diagnostic[] {
+	report(profileComponent: ProfileComponent, method: Method): Diagnostic[] {
 
 		if (method.batch) return [];
 
 		const diagnostics: Diagnostic[] = [];
 
-		if (!hasBlockComment(method, pslDocument)) {
+		if (!hasBlockComment(method, profileComponent)) {
 			const idToken = method.id;
 			const message = `Documentation missing for label "${idToken.value}".`;
 			diagnostics.push(addDiagnostic(idToken, method, message, this.ruleName));
@@ -31,13 +31,13 @@ export class MethodSeparator implements MethodRule {
 
 	ruleName = MethodSeparator.name;
 
-	report(pslDocument: ProfileComponent, method: Method): Diagnostic[] {
+	report(profileComponent: ProfileComponent, method: Method): Diagnostic[] {
 
 		if (method.batch) return [];
 
 		const diagnostics: Diagnostic[] = [];
 
-		if (!hasSeparator(method, pslDocument)) {
+		if (!hasSeparator(method, profileComponent)) {
 			const idToken = method.id;
 			const message = `Separator missing for label "${idToken.value}".`;
 			diagnostics.push(addDiagnostic(idToken, method, message, this.ruleName));
@@ -51,23 +51,23 @@ export class TwoEmptyLines implements MethodRule {
 
 	ruleName = TwoEmptyLines.name;
 
-	report(pslDocument: ProfileComponent, method: Method): Diagnostic[] {
+	report(profileComponent: ProfileComponent, method: Method): Diagnostic[] {
 
 		if (method.batch) return [];
 
 		const diagnostics: Diagnostic[] = [];
 		const idToken = method.id;
 
-		const lineAbove = hasSeparator(method, pslDocument) ? method.id.position.line - 2 : method.id.position.line - 1;
+		const lineAbove = hasSeparator(method, profileComponent) ? method.id.position.line - 2 : method.id.position.line - 1;
 
 		if (lineAbove < 2) {
 			const message = `There should be two empty lines above label "${idToken.value}".`;
 			return [addDiagnostic(idToken, method, message, this.ruleName, Code.TWO_EMPTY_LINES)];
 		}
 
-		const hasOneSpaceAbove: boolean = pslDocument.getTextAtLine(lineAbove).trim() === '';
-		const hasTwoSpacesAbove: boolean = pslDocument.getTextAtLine(lineAbove - 1).trim() === '';
-		const hasThreeSpacesAbove: boolean = pslDocument.getTextAtLine(lineAbove - 2).trim() === '';
+		const hasOneSpaceAbove: boolean = profileComponent.getTextAtLine(lineAbove).trim() === '';
+		const hasTwoSpacesAbove: boolean = profileComponent.getTextAtLine(lineAbove - 1).trim() === '';
+		const hasThreeSpacesAbove: boolean = profileComponent.getTextAtLine(lineAbove - 2).trim() === '';
 
 		let code: Code | undefined;
 		if (!hasTwoSpacesAbove) code = Code.ONE_EMPTY_LINE;
@@ -98,12 +98,12 @@ function addDiagnostic(idToken: Token, method: Method, message: string, ruleName
 	return diagnostic;
 }
 
-function hasSeparator(method: Method, pslDocument: ProfileComponent): boolean {
-	const nextLineCommentTokens: Token[] = pslDocument.getCommentsOnLine(method.id.position.line - 1);
+function hasSeparator(method: Method, profileComponent: ProfileComponent): boolean {
+	const nextLineCommentTokens: Token[] = profileComponent.getCommentsOnLine(method.id.position.line - 1);
 	return nextLineCommentTokens[0] && nextLineCommentTokens[0].isLineComment();
 }
 
-function hasBlockComment(method: Method, pslDocument: ProfileComponent): boolean {
-	const nextLineCommentTokens: Token[] = pslDocument.getCommentsOnLine(getLineAfter(method));
+function hasBlockComment(method: Method, profileComponent: ProfileComponent): boolean {
+	const nextLineCommentTokens: Token[] = profileComponent.getCommentsOnLine(getLineAfter(method));
 	return nextLineCommentTokens[0] && nextLineCommentTokens[0].isBlockComment();
 }

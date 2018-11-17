@@ -6,7 +6,7 @@ import {
 export class MultiLineDeclare implements MethodRule {
 	ruleName = MultiLineDeclare.name;
 
-	report(pslDocument: ProfileComponent, method: Method): Diagnostic[] {
+	report(profileComponent: ProfileComponent, method: Method): Diagnostic[] {
 
 		const diagnostics: Diagnostic[] = [];
 		let reportVariable: boolean = false;
@@ -14,7 +14,7 @@ export class MultiLineDeclare implements MethodRule {
 		const multiLineDeclarations = this.getMultiLineDeclarations(method.declarations);
 
 		multiLineDeclarations.forEach((declarationsOnLine, lineNumber) => {
-			const fullLine = pslDocument.getTextAtLine(lineNumber);
+			const fullLine = profileComponent.getTextAtLine(lineNumber);
 			if (!(fullLine.includes('=') && fullLine.includes(','))) return;
 			for (const declaration of declarationsOnLine) {
 				reportVariable = false;

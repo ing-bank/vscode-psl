@@ -5,7 +5,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as process from 'process';
 import { getDiagnostics } from '../activate';
-import * as api from '../api';
+import { Diagnostic, DiagnosticSeverity, parseText, ProfileComponent } from '../api';
 import { setConfig } from '../config';
 
 interface CodeClimateIssue {
@@ -27,7 +27,7 @@ interface CodeClimateLines {
 }
 
 interface StoredDiagnostic {
-	diagnostic: api.Diagnostic;
+	diagnostic: Diagnostic;
 	filePath: string;
 }
 
@@ -37,7 +37,7 @@ let useConfig: boolean;
 function getMessage(storedDiagnostic: StoredDiagnostic) {
 	const { diagnostic, filePath } = storedDiagnostic;
 	const range = `${diagnostic.range.start.line + 1},${diagnostic.range.start.character + 1}`;
-	const severity = `${api.DiagnosticSeverity[diagnostic.severity].substr(0, 4).toUpperCase()}`;
+	const severity = `${DiagnosticSeverity[diagnostic.severity].substr(0, 4).toUpperCase()}`;
 	return `${filePath}(${range}) [${severity}][${diagnostic.source}][${diagnostic.ruleName}] ${diagnostic.message}`;
 }
 
@@ -53,12 +53,12 @@ async function readFile(filename: string): Promise<number> {
 	const filePath = path.relative(process.cwd(), filename);
 	const fileBuffer = await fs.readFile(filePath);
 	const textDocument = fileBuffer.toString();
-	const parsedDocument = prepareDocument(textDocument, filePath);
+	const profileComponent = prepareComponent(textDocument, filePath);
 
-	const diagnostics = getDiagnostics(parsedDocument, useConfig);
+	const diagnostics = getDiagnostics(profileComponent, useConfig);
 
 	diagnostics.forEach(diagnostic => {
-		if (diagnostic.severity === api.DiagnosticSeverity.Warning || diagnostic.severity === api.DiagnosticSeverity.Error) {
+		if (diagnostic.severity === DiagnosticSeverity.Warning || diagnostic.severity === DiagnosticSeverity.Error) {
 			errorCount += 1;
 		}
 		const mapDiagnostics = diagnosticStore.get(diagnostic.source);
@@ -69,9 +69,9 @@ async function readFile(filename: string): Promise<number> {
 	return errorCount;
 }
 
-function prepareDocument(textDocument: string, filename: string): api.ProfileComponent {
-	const parsedDocument = api.parseText(textDocument);
-	return new api.ProfileComponent(parsedDocument, textDocument, filename);
+function prepareComponent(textDocument: string, fsPath: string): ProfileComponent {
+	const parsedDocument = parseText(textDocument);
+	return new ProfileComponent(fsPath, textDocument, parsedDocument);
 }
 
 export async function readPath(fileString: string) {

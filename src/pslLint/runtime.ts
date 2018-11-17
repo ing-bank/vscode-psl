@@ -10,7 +10,7 @@ import {
 export class RuntimeStart implements MethodRule {
 	ruleName = RuntimeStart.name;
 
-	report(pslDocument: ProfileComponent, method: Method): Diagnostic[] {
+	report(profileComponent: ProfileComponent, method: Method): Diagnostic[] {
 
 		const runtimeCalls: BinaryOperator[] = [];
 
@@ -28,7 +28,7 @@ export class RuntimeStart implements MethodRule {
 		if (!runtimeCalls.length) return [];
 
 		const diagnostics: Diagnostic[] = [];
-		this.tpFence(diagnostics, runtimeCalls, pslDocument, method);
+		this.tpFence(diagnostics, runtimeCalls, profileComponent, method);
 		return diagnostics;
 	}
 
@@ -44,7 +44,12 @@ export class RuntimeStart implements MethodRule {
 		return dotOperator.right as Identifier;
 	}
 
-	tpFence(diagnostics: Diagnostic[], runtimeCalls: BinaryOperator[], pslDocument: ProfileComponent, method: Method) {
+	tpFence(
+		diagnostics: Diagnostic[],
+		runtimeCalls: BinaryOperator[],
+		profileComponent: ProfileComponent,
+		method: Method,
+	): void {
 		let lastStart: Value;
 		let variables: Map<Member, Token[]>;
 		let acceptVariables: string[] = [];
@@ -58,7 +63,7 @@ export class RuntimeStart implements MethodRule {
 				}
 				lastStart = runtimeMethod;
 				variables = new Map();
-				acceptVariables = this.addToWhitelist(pslDocument, runtimeMethod);
+				acceptVariables = this.addToWhitelist(profileComponent, runtimeMethod);
 			}
 			else if (runtimeMethod.id.value === 'commit') {
 				if (!lastStart) continue;
@@ -66,7 +71,7 @@ export class RuntimeStart implements MethodRule {
 					const startLine = lastStart.id.position.line;
 					const commitLine = runtimeMethod.id.position.line;
 					const identifierTokens: Token[] = this.getAllIdentifersInRange(
-						pslDocument.parsedDocument.tokens,
+						profileComponent.parsedDocument.tokens,
 						startLine,
 						commitLine,
 					);
@@ -150,9 +155,9 @@ export class RuntimeStart implements MethodRule {
 		return new Range(start.id.position.line, startPos, start.id.position.line, endPos);
 	}
 
-	private addToWhitelist(pslDocument: ProfileComponent, runtimeMethod: Identifier) {
+	private addToWhitelist(profileComponent: ProfileComponent, runtimeMethod: Identifier) {
 		let acceptVariables = [];
-		const commentsAbove: Token[] = pslDocument.getCommentsOnLine(runtimeMethod.id.position.line - 1);
+		const commentsAbove: Token[] = profileComponent.getCommentsOnLine(runtimeMethod.id.position.line - 1);
 		const whiteListComment = commentsAbove[0];
 		if (!whiteListComment || !whiteListComment.isLineComment()) return [];
 

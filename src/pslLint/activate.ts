@@ -1,14 +1,17 @@
 import * as path from 'path';
 import {
-	DeclarationRule, Diagnostic, ProfileComponentRule, MemberRule, MethodRule, ParameterRule, PropertyRule, ProfileComponent,
+	DeclarationRule, Diagnostic, MemberRule, MethodRule,
+	ParameterRule, ProfileComponent, ProfileComponentRule, PropertyRule,
 } from './api';
 import { getConfig, matchConfig } from './config';
 
 /**
  * Import rules here.
  */
-import { MemberCamelCase, MemberLength, MemberLiteralCase,
-		MemberStartsWithV, PropertyIsDummy} from './elementsConventionChecker';
+import {
+	MemberCamelCase, MemberLength, MemberLiteralCase,
+	MemberStartsWithV, PropertyIsDummy,
+} from './elementsConventionChecker';
 import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from './methodDoc';
 import { MultiLineDeclare } from './multiLineDeclare';
 import { MethodParametersOnNewLine } from './parameters';
@@ -41,8 +44,8 @@ const propertyRules: PropertyRule[] = [
 const declarationRules: DeclarationRule[] = [];
 const parameterRules: ParameterRule[] = [];
 
-export function getDiagnostics(pslDocument: ProfileComponent, useConfig?: boolean): Diagnostic[] {
-	const subscription = new RuleSubscription(pslDocument, useConfig);
+export function getDiagnostics(profileComponent: ProfileComponent, useConfig?: boolean): Diagnostic[] {
+	const subscription = new RuleSubscription(profileComponent, useConfig);
 	return subscription.reportRules();
 }
 
@@ -59,15 +62,15 @@ class RuleSubscription {
 	private filteredDeclarationRules: DeclarationRule[];
 	private filteredParameterRules: ParameterRule[];
 
-	constructor(private pslDocument: ProfileComponent, useConfig?: boolean) {
+	constructor(private profileComponent: ProfileComponent, useConfig?: boolean) {
 		this.diagnostics = [];
 
-		const config = useConfig ? getConfig(this.pslDocument.fsPath) : undefined;
+		const config = useConfig ? getConfig(this.profileComponent.fsPath) : undefined;
 
 		const filterRules = (rules: ProfileComponentRule[]) => {
 			return rules.filter(rule => {
 				if (!config) return true;
-				return matchConfig(path.basename(this.pslDocument.fsPath), rule.ruleName, config);
+				return matchConfig(path.basename(this.profileComponent.fsPath), rule.ruleName, config);
 			});
 		};
 
@@ -81,22 +84,22 @@ class RuleSubscription {
 
 	reportRules(): Diagnostic[] {
 		const addDiagnostics = (rules: ProfileComponentRule[], ...args: any[]) => {
-			rules.forEach(rule => this.diagnostics.push(...rule.report(this.pslDocument, ...args)));
+			rules.forEach(rule => this.diagnostics.push(...rule.report(this.profileComponent, ...args)));
 		};
 
 		addDiagnostics(this.filteredDocumentRules);
 
-		for (const property of this.pslDocument.parsedDocument.properties) {
+		for (const property of this.profileComponent.parsedDocument.properties) {
 			addDiagnostics(this.filteredMemberRules, property);
 			addDiagnostics(this.filteredPropertyRules, property);
 		}
 
-		for (const declaration of this.pslDocument.parsedDocument.declarations) {
+		for (const declaration of this.profileComponent.parsedDocument.declarations) {
 			addDiagnostics(this.filteredMemberRules, declaration);
 			addDiagnostics(this.filteredDeclarationRules, declaration);
 		}
 
-		for (const method of this.pslDocument.parsedDocument.methods) {
+		for (const method of this.profileComponent.parsedDocument.methods) {
 			addDiagnostics(this.filteredMemberRules, method);
 			addDiagnostics(this.filteredMethodRules, method);
 
