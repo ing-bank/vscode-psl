@@ -1,7 +1,7 @@
 import * as path from 'path';
 import {
-	DeclarationRule, Diagnostic, MemberRule,
-	MethodRule, ParameterRule, ProfileComponent, PropertyRule, PslRule,
+	DeclarationRule, Diagnostic, MemberRule, MethodRule, ParameterRule,
+	ProfileComponent, ProfileComponentRule, PropertyRule, PslRule,
 } from './api';
 import { getConfig, matchConfig } from './config';
 
@@ -22,6 +22,7 @@ import { TodoInfo } from './todos';
 /**
  * Add new rules here to have them checked at the appropriate time.
  */
+const componentRules: ProfileComponentRule[] = [];
 const pslRules: PslRule[] = [
 	new TodoInfo(),
 ];
@@ -60,6 +61,7 @@ export function getDiagnostics(
 class RuleSubscription {
 
 	private diagnostics: Diagnostic[];
+	private initializedComponentRules: ProfileComponentRule[];
 	private initializedPslRules: PslRule[];
 	private initializedMethodRules: MethodRule[];
 	private initializedMemberRules: MemberRule[];
@@ -72,31 +74,42 @@ class RuleSubscription {
 
 		const config = useConfig ? getConfig(this.profileComponent.fsPath) : undefined;
 
-		const initializeRules = (rules: PslRule[]) => {
+		const initializeRules = (rules: ProfileComponentRule[]) => {
 			return rules.filter(rule => {
 				if (!config) return true;
 				return matchConfig(path.basename(this.profileComponent.fsPath), rule.ruleName, config);
 			}).map(rule => {
 				rule.profileComponent = this.profileComponent;
-				if (this.parsedDocument) rule.parsedDocument = this.parsedDocument;
+				return rule;
+			});
+		};
+		const initializePslRules = (rules: PslRule[]) => {
+			const componentInitialized = initializeRules(rules) as PslRule[];
+			const pslParsedDocument = this.parsedDocument as ParsedDocument;
+			return componentInitialized.map(rule => {
+				rule.parsedDocument = pslParsedDocument;
 				return rule;
 			});
 		};
 
-		this.initializedPslRules = initializeRules(pslRules);
-		this.initializedMethodRules = initializeRules(methodRules);
-		this.initializedMemberRules = initializeRules(memberRules);
-		this.initializedPropertyRules = initializeRules(propertyRules);
-		this.initializedDeclarationRules = initializeRules(declarationRules);
-		this.initializedParameterRules = initializeRules(parameterRules);
+		this.initializedComponentRules = initializeRules(componentRules);
+		this.initializedPslRules = initializePslRules(pslRules);
+		this.initializedMethodRules = initializePslRules(methodRules);
+		this.initializedMemberRules = initializePslRules(memberRules);
+		this.initializedPropertyRules = initializePslRules(propertyRules);
+		this.initializedDeclarationRules = initializePslRules(declarationRules);
+		this.initializedParameterRules = initializePslRules(parameterRules);
 	}
 
 	reportRules(): Diagnostic[] {
-		const addDiagnostics = (rules: PslRule[], ...args: any[]) => {
+		const addDiagnostics = (rules: ProfileComponentRule[], ...args: any[]) => {
 			rules.forEach(rule => this.diagnostics.push(...rule.report(...args)));
 		};
 
+		addDiagnostics(this.initializedComponentRules);
 		addDiagnostics(this.initializedPslRules);
+
+		if (!ProfileComponent.isPsl(this.profileComponent.fsPath)) return;
 
 		const parsedDocument = this.parsedDocument as ParsedDocument;
 
