@@ -1,7 +1,5 @@
-import {
-	Declaration, Member, MemberClass, Method, NON_TYPE_MODIFIERS,
-	Parameter, ParsedDocument, parseFile, parseText, Property,
-} from './../parser/parser';
+import * as path from 'path';
+import { Declaration, Member, Method, Parameter, ParsedDocument, Property } from './../parser/parser';
 import { Range, Token } from './../parser/tokenizer';
 
 export enum DiagnosticSeverity {
@@ -113,35 +111,58 @@ export class DiagnosticRelatedInformation {
 	}
 }
 
-export interface ProfileComponentRule {
+export abstract class ProfileComponentRule {
 
-	ruleName: string;
+	readonly ruleName: string = (() => {
+		return this.constructor.name;
+	})();
 
-	/**
-	 * @param profileComponent An object containing genearal information about a Profile component
-	 */
-	report(profileComponent: ProfileComponent, ...args: any[]): Diagnostic[];
-}
-export type PslRule = ProfileComponentRule;
+	private _profileComponent: ProfileComponent;
 
-export interface MemberRule extends PslRule {
-	report(profileComponent: ProfileComponent, member: Member): Diagnostic[];
-}
+	abstract report(...args: any[]): Diagnostic[];
 
-export interface PropertyRule extends PslRule {
-	report(profileComponent: ProfileComponent, property: Property): Diagnostic[];
-}
+	get profileComponent(): ProfileComponent {
+		return this._profileComponent;
+	}
 
-export interface MethodRule extends PslRule {
-	report(profileComponent: ProfileComponent, method: Method): Diagnostic[];
+	set profileComponent(v: ProfileComponent) {
+		this._profileComponent = v;
+	}
 }
 
-export interface ParameterRule extends PslRule {
-	report(profileComponent: ProfileComponent, parameter: Parameter, method: Method): Diagnostic[];
+export abstract class PslRule extends ProfileComponentRule {
+
+	private _parsedDocument: ParsedDocument;
+
+	abstract report(...args: any[]): Diagnostic[];
+
+	get parsedDocument(): ParsedDocument {
+		return this._parsedDocument;
+	}
+
+	set parsedDocument(v: ParsedDocument) {
+		this._parsedDocument = v;
+	}
 }
 
-export interface DeclarationRule extends PslRule {
-	report(profileComponent: ProfileComponent, declaration: Declaration, method?: Method): Diagnostic[];
+export abstract class MemberRule extends PslRule {
+	abstract report(member: Member): Diagnostic[];
+}
+
+export abstract class PropertyRule extends PslRule {
+	abstract report(property: Property): Diagnostic[];
+}
+
+export abstract class MethodRule extends PslRule {
+	abstract report(method: Method): Diagnostic[];
+}
+
+export abstract class ParameterRule extends PslRule {
+	abstract report(parameter: Parameter, method: Method): Diagnostic[];
+}
+
+export abstract class DeclarationRule extends PslRule {
+	abstract report(declaration: Declaration, method?: Method): Diagnostic[];
 }
 
 type GetTextMethod = (lineNumber: number) => string;
@@ -155,16 +176,26 @@ type GetTextMethod = (lineNumber: number) => string;
  */
 export class ProfileComponent {
 
+	static isPsl(fsPath: string): boolean {
+		return path.extname(fsPath) !== '.PROC'
+			|| path.extname(fsPath) !== '.BATCH'
+			|| path.extname(fsPath).toUpperCase() !== '.PSL';
+	}
+
+	static isProfileComponent(fsPath: string): boolean {
+		return ProfileComponent.isPsl(fsPath)
+			|| path.extname(fsPath) !== '.TBL'
+			|| path.extname(fsPath) !== '.COL';
+	}
+
 	fsPath: string;
 	textDocument: string;
-	parsedDocument?: ParsedDocument;
 
 	private indexedDocument?: Map<number, string>;
 
-	constructor(fsPath: string, textDocument: string, parsedDocument?: ParsedDocument, getTextAtLine?: GetTextMethod) {
+	constructor(fsPath: string, textDocument: string, getTextAtLine?: GetTextMethod) {
 		this.textDocument = textDocument;
 		this.fsPath = fsPath;
-		if (parsedDocument) this.parsedDocument = parsedDocument;
 		if (getTextAtLine) this.getTextAtLine = getTextAtLine;
 	}
 
@@ -180,13 +211,6 @@ export class ProfileComponent {
 			this.indexedDocument = this.createIndexedDocument();
 		}
 		return this.indexedDocument.get(lineNumber) || '';
-	}
-
-	getCommentsOnLine(lineNumber: number): Token[] {
-		if (!this.parsedDocument) return [];
-		return this.parsedDocument.comments.filter(t => {
-			return t.position.line === lineNumber;
-		});
 	}
 
 	private createIndexedDocument(): Map<number, string> {
@@ -205,6 +229,8 @@ export class ProfileComponent {
 	}
 }
 
-export { parseFile, parseText, Declaration, Member, MemberClass, Method, NON_TYPE_MODIFIERS, Property, Parameter };
-export * from './../parser/tokenizer';
-export * from '../parser/utilities';
+export function getCommentsOnLine(parsedDocument: ParsedDocument, lineNumber: number): Token[] {
+	return parsedDocument.comments.filter(t => {
+		return t.position.line === lineNumber;
+	});
+}

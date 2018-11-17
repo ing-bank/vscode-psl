@@ -1,15 +1,11 @@
-import {
-	Diagnostic, DiagnosticSeverity, getTokens, Position,
-	ProfileComponent, ProfileComponentRule, Range,
-} from './api';
+import { getTokens, Position, Range } from '../parser/tokenizer';
+import { Diagnostic, DiagnosticSeverity, PslRule } from './api';
 
-export class TodoInfo implements ProfileComponentRule {
+export class TodoInfo extends PslRule {
 
-	ruleName = TodoInfo.name;
-
-	report(profileComponent: ProfileComponent): Diagnostic[] {
+	report(): Diagnostic[] {
 		let todos: Todo[] = [];
-		for (const token of profileComponent.parsedDocument.comments) {
+		for (const token of this.parsedDocument.comments) {
 			if (token.value.includes('TODO')) {
 				const startLine = token.position.line;
 				const startChar = token.position.character;

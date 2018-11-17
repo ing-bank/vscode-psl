@@ -1,13 +1,12 @@
+import { Member, MemberClass, Method, Property } from '../parser/parser';
 import {
-	Diagnostic, DiagnosticSeverity, Member, MemberClass, MemberRule,
-	Method, MethodRule, ProfileComponent, Property, PropertyRule,
+	Diagnostic, DiagnosticSeverity, MemberRule,
+	MethodRule, PropertyRule,
 } from './api';
 
-export class MethodStartsWithZ implements MethodRule {
+export class MethodStartsWithZ extends MethodRule {
 
-	ruleName = MethodStartsWithZ.name;
-
-	report(_, method: Method): Diagnostic[] {
+	report(method: Method): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
 		startsWithZ(method, diagnostics, this.ruleName);
@@ -15,11 +14,9 @@ export class MethodStartsWithZ implements MethodRule {
 		return diagnostics;
 	}
 }
-export class PropertyStartsWithZ implements PropertyRule {
+export class PropertyStartsWithZ extends PropertyRule {
 
-	ruleName = PropertyStartsWithZ.name;
-
-	report(_, property: Property): Diagnostic[] {
+	report(property: Property): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
 		startsWithZ(property, diagnostics, this.ruleName);
@@ -28,13 +25,11 @@ export class PropertyStartsWithZ implements PropertyRule {
 	}
 }
 
-export class PropertyIsDummy implements PropertyRule {
+export class PropertyIsDummy extends PropertyRule {
 
-	ruleName = PropertyIsDummy.name;
-
-	report(profileComponent: ProfileComponent, property: Property): Diagnostic[] {
+	report(property: Property): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
-		if (!profileComponent.parsedDocument.extending) {
+		if (!this.parsedDocument.extending) {
 			this.isCalledDummy(property, diagnostics);
 		}
 		return diagnostics;
@@ -49,11 +44,9 @@ export class PropertyIsDummy implements PropertyRule {
 	}
 }
 
-export class MemberLiteralCase implements MemberRule {
+export class MemberLiteralCase extends MemberRule {
 
-	ruleName = MemberLiteralCase.name;
-
-	report(_, member: Member): Diagnostic[] {
+	report(member: Member): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 		this.checkUpperCase(member, diagnostics);
 		return diagnostics;
@@ -69,11 +62,9 @@ export class MemberLiteralCase implements MemberRule {
 	}
 }
 
-export class MemberCamelCase implements MemberRule {
+export class MemberCamelCase extends MemberRule {
 
-	ruleName = MemberCamelCase.name;
-
-	report(_, member: Member): Diagnostic[] {
+	report(member: Member): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
 		this.memberCase(member, diagnostics);
@@ -128,11 +119,9 @@ export class MemberCamelCase implements MemberRule {
 	}
 }
 
-export class MemberLength implements MemberRule {
+export class MemberLength extends MemberRule {
 
-	ruleName = MemberLength.name;
-
-	report(_, member: Member): Diagnostic[] {
+	report(member: Member): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
 		this.checkMemberLength(member, diagnostics);
@@ -151,11 +140,9 @@ export class MemberLength implements MemberRule {
 		}
 	}
 }
-export class MemberStartsWithV implements MemberRule {
+export class MemberStartsWithV extends MemberRule {
 
-	ruleName = MemberStartsWithV.name;
-
-	report(_, member: Member): Diagnostic[] {
+	report(member: Member): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
 
 		this.checkStartsWithV(member, diagnostics);

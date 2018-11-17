@@ -69,7 +69,7 @@ export function matchConfig(fileName: string, ruleName: string, configObj: Regex
 		}
 	};
 
-	matches = findMatch(configObj.include);
+	matches = findMatch(configObj.include) || false;
 	if (!matches) return false;
 	return !findMatch(configObj.exclude);
 }

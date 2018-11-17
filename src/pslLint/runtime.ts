@@ -1,16 +1,17 @@
+import { Member, MemberClass, Method } from '../parser/parser';
 import {
 	BinaryOperator, Identifier,
 	StringLiteral, SyntaxKind, Value,
 } from '../parser/statementParser';
+import { Range, Token } from '../parser/tokenizer';
 import {
 	Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity,
-	Member, MemberClass, Method, MethodRule, ProfileComponent, Range, Token,
+	getCommentsOnLine, MethodRule,
 } from './api';
 
-export class RuntimeStart implements MethodRule {
-	ruleName = RuntimeStart.name;
+export class RuntimeStart extends MethodRule {
 
-	report(profileComponent: ProfileComponent, method: Method): Diagnostic[] {
+	report(method: Method): Diagnostic[] {
 
 		const runtimeCalls: BinaryOperator[] = [];
 
@@ -28,7 +29,7 @@ export class RuntimeStart implements MethodRule {
 		if (!runtimeCalls.length) return [];
 
 		const diagnostics: Diagnostic[] = [];
-		this.tpFence(diagnostics, runtimeCalls, profileComponent, method);
+		this.tpFence(diagnostics, runtimeCalls, method);
 		return diagnostics;
 	}
 
@@ -47,7 +48,6 @@ export class RuntimeStart implements MethodRule {
 	tpFence(
 		diagnostics: Diagnostic[],
 		runtimeCalls: BinaryOperator[],
-		profileComponent: ProfileComponent,
 		method: Method,
 	): void {
 		let lastStart: Value;
@@ -63,7 +63,7 @@ export class RuntimeStart implements MethodRule {
 				}
 				lastStart = runtimeMethod;
 				variables = new Map();
-				acceptVariables = this.addToWhitelist(profileComponent, runtimeMethod);
+				acceptVariables = this.addToWhitelist(runtimeMethod);
 			}
 			else if (runtimeMethod.id.value === 'commit') {
 				if (!lastStart) continue;
@@ -71,7 +71,7 @@ export class RuntimeStart implements MethodRule {
 					const startLine = lastStart.id.position.line;
 					const commitLine = runtimeMethod.id.position.line;
 					const identifierTokens: Token[] = this.getAllIdentifersInRange(
-						profileComponent.parsedDocument.tokens,
+						this.parsedDocument.tokens,
 						startLine,
 						commitLine,
 					);
@@ -155,9 +155,9 @@ export class RuntimeStart implements MethodRule {
 		return new Range(start.id.position.line, startPos, start.id.position.line, endPos);
 	}
 
-	private addToWhitelist(profileComponent: ProfileComponent, runtimeMethod: Identifier) {
-		let acceptVariables = [];
-		const commentsAbove: Token[] = profileComponent.getCommentsOnLine(runtimeMethod.id.position.line - 1);
+	private addToWhitelist(runtimeMethod: Identifier) {
+		let acceptVariables: string[] = [];
+		const commentsAbove: Token[] = getCommentsOnLine(this.parsedDocument, runtimeMethod.id.position.line - 1);
 		const whiteListComment = commentsAbove[0];
 		if (!whiteListComment || !whiteListComment.isLineComment()) return [];
 

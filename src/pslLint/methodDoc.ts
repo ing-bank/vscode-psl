@@ -1,4 +1,7 @@
-import { Diagnostic, DiagnosticSeverity, getLineAfter, Method, MethodRule, ProfileComponent, Token } from './api';
+import { Method, ParsedDocument } from '../parser/parser';
+import { Token } from '../parser/tokenizer';
+import { getLineAfter } from '../parser/utilities';
+import { Diagnostic, DiagnosticSeverity, getCommentsOnLine, MethodRule } from './api';
 
 export enum Code {
 	ONE_EMPTY_LINE = 1,
@@ -8,17 +11,15 @@ export enum Code {
 /**
  * Checks if method has a documentation block below it.
  */
-export class MethodDocumentation implements MethodRule {
+export class MethodDocumentation extends MethodRule {
 
-	ruleName = MethodDocumentation.name;
-
-	report(profileComponent: ProfileComponent, method: Method): Diagnostic[] {
+	report(method: Method): Diagnostic[] {
 
 		if (method.batch) return [];
 
 		const diagnostics: Diagnostic[] = [];
 
-		if (!hasBlockComment(method, profileComponent)) {
+		if (!hasBlockComment(method, this.parsedDocument)) {
 			const idToken = method.id;
 			const message = `Documentation missing for label "${idToken.value}".`;
 			diagnostics.push(addDiagnostic(idToken, method, message, this.ruleName));
@@ -27,17 +28,15 @@ export class MethodDocumentation implements MethodRule {
 		return diagnostics;
 	}
 }
-export class MethodSeparator implements MethodRule {
+export class MethodSeparator extends MethodRule {
 
-	ruleName = MethodSeparator.name;
-
-	report(profileComponent: ProfileComponent, method: Method): Diagnostic[] {
+	report(method: Method): Diagnostic[] {
 
 		if (method.batch) return [];
 
 		const diagnostics: Diagnostic[] = [];
 
-		if (!hasSeparator(method, profileComponent)) {
+		if (!hasSeparator(method, this.parsedDocument)) {
 			const idToken = method.id;
 			const message = `Separator missing for label "${idToken.value}".`;
 			diagnostics.push(addDiagnostic(idToken, method, message, this.ruleName));
@@ -47,27 +46,26 @@ export class MethodSeparator implements MethodRule {
 	}
 }
 
-export class TwoEmptyLines implements MethodRule {
+export class TwoEmptyLines extends MethodRule {
 
-	ruleName = TwoEmptyLines.name;
-
-	report(profileComponent: ProfileComponent, method: Method): Diagnostic[] {
+	report(method: Method): Diagnostic[] {
 
 		if (method.batch) return [];
 
 		const diagnostics: Diagnostic[] = [];
 		const idToken = method.id;
 
-		const lineAbove = hasSeparator(method, profileComponent) ? method.id.position.line - 2 : method.id.position.line - 1;
+		const lineAbove = hasSeparator(method, this.parsedDocument) ?
+			method.id.position.line - 2 : method.id.position.line - 1;
 
 		if (lineAbove < 2) {
 			const message = `There should be two empty lines above label "${idToken.value}".`;
 			return [addDiagnostic(idToken, method, message, this.ruleName, Code.TWO_EMPTY_LINES)];
 		}
 
-		const hasOneSpaceAbove: boolean = profileComponent.getTextAtLine(lineAbove).trim() === '';
-		const hasTwoSpacesAbove: boolean = profileComponent.getTextAtLine(lineAbove - 1).trim() === '';
-		const hasThreeSpacesAbove: boolean = profileComponent.getTextAtLine(lineAbove - 2).trim() === '';
+		const hasOneSpaceAbove: boolean = this.profileComponent.getTextAtLine(lineAbove).trim() === '';
+		const hasTwoSpacesAbove: boolean = this.profileComponent.getTextAtLine(lineAbove - 1).trim() === '';
+		const hasThreeSpacesAbove: boolean = this.profileComponent.getTextAtLine(lineAbove - 2).trim() === '';
 
 		let code: Code | undefined;
 		if (!hasTwoSpacesAbove) code = Code.ONE_EMPTY_LINE;
@@ -98,12 +96,12 @@ function addDiagnostic(idToken: Token, method: Method, message: string, ruleName
 	return diagnostic;
 }
 
-function hasSeparator(method: Method, profileComponent: ProfileComponent): boolean {
-	const nextLineCommentTokens: Token[] = profileComponent.getCommentsOnLine(method.id.position.line - 1);
+function hasSeparator(method: Method, parsedDocument: ParsedDocument): boolean {
+	const nextLineCommentTokens: Token[] = getCommentsOnLine(parsedDocument, method.id.position.line - 1);
 	return nextLineCommentTokens[0] && nextLineCommentTokens[0].isLineComment();
 }
 
-function hasBlockComment(method: Method, profileComponent: ProfileComponent): boolean {
-	const nextLineCommentTokens: Token[] = profileComponent.getCommentsOnLine(getLineAfter(method));
+function hasBlockComment(method: Method, parsedDocument: ParsedDocument): boolean {
+	const nextLineCommentTokens: Token[] = getCommentsOnLine(parsedDocument, getLineAfter(method));
 	return nextLineCommentTokens[0] && nextLineCommentTokens[0].isBlockComment();
 }
