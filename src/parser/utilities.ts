@@ -400,3 +400,9 @@ export function findCallable(tokensOnLine: Token[], index: number) {
 export function getLineAfter(method: Method): number {
 	return method.closeParen ? method.closeParen.position.line + 1 : method.id.position.line + 1;
 }
+
+export function getCommentsOnLine(parsedDocument: ParsedDocument, lineNumber: number): Token[] {
+	return parsedDocument.comments.filter(t => {
+		return t.position.line === lineNumber;
+	});
+}

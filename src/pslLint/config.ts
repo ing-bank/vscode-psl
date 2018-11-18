@@ -32,16 +32,16 @@ export function transform(config: Config): RegexConfig {
 	for (const pattern in config.include) {
 		if (config.include.hasOwnProperty(pattern)) {
 			const rules = config.include[pattern];
-			includes.push({pattern: minimatch.makeRe(pattern), rules});
+			includes.push({ pattern: minimatch.makeRe(pattern), rules });
 		}
 	}
 	for (const pattern in config.exclude) {
 		if (config.exclude.hasOwnProperty(pattern)) {
 			const rules = config.exclude[pattern];
-			excludes.push({pattern: minimatch.makeRe(pattern), rules});
+			excludes.push({ pattern: minimatch.makeRe(pattern), rules });
 		}
 	}
-	return {include: includes, exclude: excludes};
+	return { include: includes, exclude: excludes };
 }
 
 export async function removeConfig(configPath: string) {
@@ -49,9 +49,9 @@ export async function removeConfig(configPath: string) {
 	activeConfigs.delete(configBaseDir);
 }
 
-export function getConfig(fileName: string): RegexConfig | undefined {
+export function getConfig(fsPath: string): RegexConfig | undefined {
 	for (const configBaseDir of activeConfigs.keys()) {
-		const relative = path.relative(configBaseDir, fileName);
+		const relative = path.relative(configBaseDir, fsPath);
 		if (!!relative && !relative.startsWith('..') && !path.isAbsolute(relative)) {
 			return activeConfigs.get(configBaseDir);
 		}
@@ -69,7 +69,7 @@ export function matchConfig(fileName: string, ruleName: string, configObj: Regex
 		}
 	};
 
-	matches = findMatch(configObj.include);
+	matches = findMatch(configObj.include) || false;
 	if (!matches) return false;
 	return !findMatch(configObj.exclude);
 }

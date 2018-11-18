@@ -1,12 +1,11 @@
-import { Diagnostic, DiagnosticSeverity, DocumentRule, getTokens, Position, PslDocument, Range } from './api';
+import { getTokens, Position, Range } from '../parser/tokenizer';
+import { Diagnostic, DiagnosticSeverity, PslRule } from './api';
 
-export class TodoInfo implements DocumentRule {
+export class TodoInfo extends PslRule {
 
-	ruleName = TodoInfo.name;
-
-	report(pslDocument: PslDocument): Diagnostic[] {
+	report(): Diagnostic[] {
 		let todos: Todo[] = [];
-		for (const token of pslDocument.parsedDocument.comments) {
+		for (const token of this.parsedDocument.comments) {
 			if (token.value.includes('TODO')) {
 				const startLine = token.position.line;
 				const startChar = token.position.character;

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { BATCH_MODE, PSL_MODE, TRIG_MODE } from '../extension';
+import { PSL_MODE } from '../extension';
 import * as parser from '../parser/parser';
 import { getDiagnostics } from '../pslLint/activate';
 import * as api from '../pslLint/api';
@@ -35,7 +35,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	});
 
 	vscode.workspace.onDidCloseTextDocument(closedDocument => {
-		if (!isProfileElement(closedDocument)) return;
 		lintDiagnostics.delete(closedDocument.uri);
 	});
 
@@ -77,7 +76,7 @@ function prepareRules(
 	lintDiagnostics: vscode.DiagnosticCollection,
 	cancellationToken: vscode.CancellationToken,
 ) {
-	if (!isProfileElement(textDocument)) return;
+	if (!api.ProfileComponent.isProfileComponent(textDocument.fileName)) return;
 
 	const lintConfigValue: lintOption = vscode.workspace.getConfiguration('psl', textDocument.uri).get('lint');
 
@@ -102,9 +101,10 @@ function lint(
 	useConfig: boolean, cancellationToken: vscode.CancellationToken,
 	lintDiagnostics: vscode.DiagnosticCollection,
 ) {
-	const documentText = textDocument.getText();
-	const pslDocument: api.PslDocument = prepareDocument(documentText, textDocument);
-	const diagnostics = getDiagnostics(pslDocument, useConfig);
+	const profileComponent: api.ProfileComponent = prepareDocument(textDocument);
+	const parsedDocument = api.ProfileComponent.isPsl(profileComponent.fsPath) ?
+		parser.parseText(textDocument.getText()) : undefined;
+	const diagnostics = getDiagnostics(profileComponent, parsedDocument, useConfig);
 	const memberDiagnostics = transform(diagnostics, textDocument.uri);
 	process.nextTick(() => {
 		if (!cancellationToken.isCancellationRequested) {
@@ -113,11 +113,10 @@ function lint(
 	});
 }
 
-function prepareDocument(documentText: string, textDocument: vscode.TextDocument) {
-	const parsedDocument = parser.parseText(documentText);
+function prepareDocument(textDocument: vscode.TextDocument) {
 	const getTextAtLine = (n: number) => textDocument.lineAt(n).text;
-	const pslDocument = new api.PslDocument(parsedDocument, documentText, textDocument.uri.fsPath, getTextAtLine);
-	return pslDocument;
+	const profileComponent = new api.ProfileComponent(textDocument.uri.fsPath, textDocument.getText(), getTextAtLine);
+	return profileComponent;
 }
 
 function transform(diagnostics: api.Diagnostic[], uri: vscode.Uri): MemberDiagnostic[] {
@@ -144,10 +143,4 @@ function transform(diagnostics: api.Diagnostic[], uri: vscode.Uri): MemberDiagno
 		}
 		return memberDiagnostic;
 	});
-}
-
-function isProfileElement(textDocument: vscode.TextDocument) {
-	return vscode.languages.match(PSL_MODE, textDocument) ||
-		vscode.languages.match(BATCH_MODE, textDocument) ||
-		vscode.languages.match(TRIG_MODE, textDocument);
 }

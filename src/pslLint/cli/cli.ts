@@ -4,8 +4,9 @@ import * as crypto from 'crypto';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as process from 'process';
+import { parseText } from '../../parser/parser';
 import { getDiagnostics } from '../activate';
-import * as api from '../api';
+import { Diagnostic, DiagnosticSeverity, ProfileComponent } from '../api';
 import { setConfig } from '../config';
 
 interface CodeClimateIssue {
@@ -27,51 +28,42 @@ interface CodeClimateLines {
 }
 
 interface StoredDiagnostic {
-	diagnostic: api.Diagnostic;
-	filePath: string;
+	diagnostic: Diagnostic;
+	fsPath: string;
 }
 
 const diagnosticStore: Map<string, StoredDiagnostic[]> = new Map();
 let useConfig: boolean;
 
 function getMessage(storedDiagnostic: StoredDiagnostic) {
-	const { diagnostic, filePath } = storedDiagnostic;
+	const { diagnostic, fsPath } = storedDiagnostic;
 	const range = `${diagnostic.range.start.line + 1},${diagnostic.range.start.character + 1}`;
-	const severity = `${api.DiagnosticSeverity[diagnostic.severity].substr(0, 4).toUpperCase()}`;
-	return `${filePath}(${range}) [${severity}][${diagnostic.source}][${diagnostic.ruleName}] ${diagnostic.message}`;
+	const severity = `${DiagnosticSeverity[diagnostic.severity].substr(0, 4).toUpperCase()}`;
+	return `${fsPath}(${range}) [${severity}][${diagnostic.source}][${diagnostic.ruleName}] ${diagnostic.message}`;
 }
 
 async function readFile(filename: string): Promise<number> {
 	let errorCount = 0;
-	if (
-		path.extname(filename) !== '.PROC'
-		&& path.extname(filename) !== '.BATCH'
-		&& path.extname(filename).toUpperCase() !== '.PSL'
-	) {
+	const fsPath = path.relative(process.cwd(), filename);
+	if (!ProfileComponent.isProfileComponent(fsPath)) {
 		return errorCount;
 	}
-	const filePath = path.relative(process.cwd(), filename);
-	const fileBuffer = await fs.readFile(filePath);
-	const textDocument = fileBuffer.toString();
-	const parsedDocument = prepareDocument(textDocument, filePath);
+	const textDocument = (await fs.readFile(fsPath)).toString();
+	const parsedDocument = ProfileComponent.isPsl(fsPath) ? parseText(textDocument) : undefined;
+	const profileComponent = new ProfileComponent(fsPath, textDocument);
 
-	const diagnostics = getDiagnostics(parsedDocument, useConfig);
+	const diagnostics = getDiagnostics(profileComponent, parsedDocument, useConfig);
 
 	diagnostics.forEach(diagnostic => {
-		if (diagnostic.severity === api.DiagnosticSeverity.Warning || diagnostic.severity === api.DiagnosticSeverity.Error) {
+		if (diagnostic.severity === DiagnosticSeverity.Warning || diagnostic.severity === DiagnosticSeverity.Error) {
 			errorCount += 1;
 		}
 		const mapDiagnostics = diagnosticStore.get(diagnostic.source);
-		if (!mapDiagnostics) diagnosticStore.set(diagnostic.source, [{ diagnostic, filePath }]);
-		else mapDiagnostics.push({ diagnostic, filePath });
+		if (!mapDiagnostics) diagnosticStore.set(diagnostic.source, [{ diagnostic, fsPath }]);
+		else mapDiagnostics.push({ diagnostic, fsPath });
 	});
 
 	return errorCount;
-}
-
-function prepareDocument(textDocument: string, filename: string): api.PslDocument {
-	const parsedDocument = api.parseText(textDocument);
-	return new api.PslDocument(parsedDocument, textDocument, filename);
 }
 
 export async function readPath(fileString: string) {
@@ -142,7 +134,7 @@ async function generateCodeQualityReport(reportFileName: string) {
 	const issues: CodeClimateIssue[] = [];
 	for (const ruleDiagnostics of diagnosticStore.values()) {
 		for (const storedDiagnostic of ruleDiagnostics) {
-			const { diagnostic, filePath } = storedDiagnostic;
+			const { diagnostic, fsPath } = storedDiagnostic;
 			const count = counts[diagnostic.ruleName];
 			if (!count) {
 				counts[diagnostic.ruleName] = 1;
@@ -160,7 +152,7 @@ async function generateCodeQualityReport(reportFileName: string) {
 						begin: diagnostic.range.start.line + 1,
 						end: diagnostic.range.end.line + 1,
 					},
-					path: filePath,
+					path: fsPath,
 				},
 			};
 			issues.push(issue);

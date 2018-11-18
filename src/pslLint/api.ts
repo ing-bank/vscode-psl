@@ -1,8 +1,6 @@
-import {
-	Declaration, Member, MemberClass, Method, NON_TYPE_MODIFIERS,
-	Parameter, ParsedDocument, parseFile, parseText, Property,
-} from './../parser/parser';
-import { Range, Token } from './../parser/tokenizer';
+import * as path from 'path';
+import { Declaration, Member, Method, Parameter, ParsedDocument, Property } from './../parser/parser';
+import { Range } from './../parser/tokenizer';
 
 export enum DiagnosticSeverity {
 
@@ -113,53 +111,75 @@ export class DiagnosticRelatedInformation {
 	}
 }
 
-/**
- * An interface for writing new rules
- */
-export interface DocumentRule {
+export abstract class ProfileComponentRule {
 
-	ruleName: string;
+	readonly ruleName: string = this.constructor.name;
 
-	/**
-	 *
-	 * @param pslDocument An abstract representation of a PSL document
-	 * @param textDocument The whole text of the document, as a string.
-	 */
-	report(pslDocument: PslDocument, ...args: any[]): Diagnostic[];
+	profileComponent: ProfileComponent;
+
+	abstract report(...args: any[]): Diagnostic[];
 }
 
-export interface MemberRule extends DocumentRule {
-	report(pslDocument: PslDocument, member: Member): Diagnostic[];
+export abstract class FileDefinitionRule extends ProfileComponentRule { }
+
+export abstract class PslRule extends ProfileComponentRule {
+
+	parsedDocument: ParsedDocument;
+
+	abstract report(...args: any[]): Diagnostic[];
 }
 
-export interface PropertyRule extends DocumentRule {
-	report(pslDocument: PslDocument, property: Property): Diagnostic[];
+export abstract class MemberRule extends PslRule {
+	abstract report(member: Member): Diagnostic[];
 }
 
-export interface MethodRule extends DocumentRule {
-	report(pslDocument: PslDocument, method: Method): Diagnostic[];
+export abstract class PropertyRule extends PslRule {
+	abstract report(property: Property): Diagnostic[];
 }
 
-export interface ParameterRule extends DocumentRule {
-	report(pslDocument: PslDocument, parameter: Parameter, method: Method): Diagnostic[];
+export abstract class MethodRule extends PslRule {
+	abstract report(method: Method): Diagnostic[];
 }
 
-export interface DeclarationRule extends DocumentRule {
-	report(pslDocument: PslDocument, declaration: Declaration, method?: Method): Diagnostic[];
+export abstract class ParameterRule extends PslRule {
+	abstract report(parameter: Parameter, method: Method): Diagnostic[];
+}
+
+export abstract class DeclarationRule extends PslRule {
+	abstract report(declaration: Declaration, method?: Method): Diagnostic[];
 }
 
 type GetTextMethod = (lineNumber: number) => string;
 
-export class PslDocument {
+/**
+ * A ProfileComponent contains information about a file used in Profile.
+ * The file may be PSL or non-PSL (such as a TBL or COL).
+ */
+export class ProfileComponent {
 
-	parsedDocument: ParsedDocument;
-	textDocument: string;
+	static isPsl(fsPath: string): boolean {
+		return path.extname(fsPath) === '.PROC'
+			|| path.extname(fsPath) === '.BATCH'
+			|| path.extname(fsPath) === '.TRIG'
+			|| path.extname(fsPath).toUpperCase() === '.PSL';
+	}
+
+	static isFileDefinition(fsPath: string): boolean {
+		return path.extname(fsPath) === '.TBL'
+			|| path.extname(fsPath) === '.COL';
+	}
+
+	static isProfileComponent(fsPath: string): boolean {
+		return ProfileComponent.isPsl(fsPath)
+			|| ProfileComponent.isFileDefinition(fsPath);
+	}
+
 	fsPath: string;
+	textDocument: string;
 
 	private indexedDocument?: Map<number, string>;
 
-	constructor(parsedDocument: ParsedDocument, textDocument: string, fsPath: string, getTextAtLine?: GetTextMethod) {
-		this.parsedDocument = parsedDocument;
+	constructor(fsPath: string, textDocument: string, getTextAtLine?: GetTextMethod) {
 		this.textDocument = textDocument;
 		this.fsPath = fsPath;
 		if (getTextAtLine) this.getTextAtLine = getTextAtLine;
@@ -179,12 +199,6 @@ export class PslDocument {
 		return this.indexedDocument.get(lineNumber) || '';
 	}
 
-	getCommentsOnLine(lineNumber: number): Token[] {
-		return this.parsedDocument.comments.filter(t => {
-			return t.position.line === lineNumber;
-		});
-	}
-
 	private createIndexedDocument(): Map<number, string> {
 		const indexedDocument = new Map();
 		let line: string = '';
@@ -200,7 +214,3 @@ export class PslDocument {
 		return indexedDocument;
 	}
 }
-
-export { parseFile, parseText, Declaration, Member, MemberClass, Method, NON_TYPE_MODIFIERS, Property, Parameter };
-export * from './../parser/tokenizer';
-export * from '../parser/utilities';

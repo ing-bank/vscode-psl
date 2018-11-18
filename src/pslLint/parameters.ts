@@ -1,13 +1,12 @@
-import { Diagnostic, DiagnosticSeverity, Method, MethodRule, Parameter, PslDocument } from './api';
+import { Method, Parameter } from '../parser/parser';
+import { Diagnostic, DiagnosticSeverity, MethodRule } from './api';
 
 /**
  * Checks if multiple parameters are written on the same line as the method declaration.
  */
-export class MethodParametersOnNewLine implements MethodRule {
+export class MethodParametersOnNewLine extends MethodRule {
 
-	ruleName = MethodParametersOnNewLine.name;
-
-	report(_pslDocument: PslDocument, method: Method): Diagnostic[] {
+	report(method: Method): Diagnostic[] {
 
 		if (method.batch) return [];
 

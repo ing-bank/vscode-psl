@@ -1,12 +1,10 @@
-import {
-	Declaration, Diagnostic, DiagnosticSeverity, getTokens,
-	Method, MethodRule, NON_TYPE_MODIFIERS, PslDocument,
-} from './api';
+import { Declaration, Method, NON_TYPE_MODIFIERS } from '../parser/parser';
+import { getTokens } from '../parser/tokenizer';
+import { Diagnostic, DiagnosticSeverity, MethodRule } from './api';
 
-export class MultiLineDeclare implements MethodRule {
-	ruleName = MultiLineDeclare.name;
+export class MultiLineDeclare extends MethodRule {
 
-	report(pslDocument: PslDocument, method: Method): Diagnostic[] {
+	report(method: Method): Diagnostic[] {
 
 		const diagnostics: Diagnostic[] = [];
 		let reportVariable: boolean = false;
@@ -14,7 +12,7 @@ export class MultiLineDeclare implements MethodRule {
 		const multiLineDeclarations = this.getMultiLineDeclarations(method.declarations);
 
 		multiLineDeclarations.forEach((declarationsOnLine, lineNumber) => {
-			const fullLine = pslDocument.getTextAtLine(lineNumber);
+			const fullLine = this.profileComponent.getTextAtLine(lineNumber);
 			if (!(fullLine.includes('=') && fullLine.includes(','))) return;
 			for (const declaration of declarationsOnLine) {
 				reportVariable = false;

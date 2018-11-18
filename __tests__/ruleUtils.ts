@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import { parseText } from '../src/parser/parser';
 import * as activate from '../src/pslLint/activate';
 import * as api from '../src/pslLint/api';
 
@@ -24,8 +25,8 @@ export async function getDiagnostics(testFileName: string, ruleName?: string): P
 	const testFilePath = path.resolve('__tests__', 'files', testFileName);
 	const text = await fs.readFile(testFilePath).then(b => b.toString());
 
-	const pslDocument = new api.PslDocument(api.parseText(text), text, testFilePath);
-	const diagnostics = activate.getDiagnostics(pslDocument, false);
+	const profileComponent = new api.ProfileComponent(testFilePath, text);
+	const diagnostics = activate.getDiagnostics(profileComponent, parseText(text), false);
 	if (ruleName) return diagnostics.filter(d => d.ruleName === ruleName);
 	return diagnostics;
 }
