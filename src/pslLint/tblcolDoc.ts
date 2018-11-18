@@ -1,17 +1,14 @@
 import * as path from 'path';
 import { Range } from '../parser/tokenizer';
-import { Diagnostic, DiagnosticSeverity, ProfileComponentRule } from './api';
+import { Diagnostic, DiagnosticSeverity, FileDefinitionRule } from './api';
 
 /**
  * Checks whether table and columns are created with documentation.
  */
-export class TblColDocumentation extends ProfileComponentRule {
+export class TblColDocumentation extends FileDefinitionRule {
 
 	report(): Diagnostic[] {
 		const baseName = path.basename(this.profileComponent.fsPath);
-
-		// This rule is applicable only for TBL and COL definitions
-		if ((!baseName.endsWith('TBL')) && (!baseName.endsWith('COL'))) return [];
 
 		const diagnostics: Diagnostic[] = [];
 
