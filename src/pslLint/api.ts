@@ -115,34 +115,18 @@ export abstract class ProfileComponentRule {
 
 	readonly ruleName: string = this.constructor.name;
 
-	private _profileComponent: ProfileComponent;
+	profileComponent: ProfileComponent;
 
 	abstract report(...args: any[]): Diagnostic[];
-
-	get profileComponent(): ProfileComponent {
-		return this._profileComponent;
-	}
-
-	set profileComponent(v: ProfileComponent) {
-		this._profileComponent = v;
-	}
 }
 
 export abstract class FileDefinitionRule extends ProfileComponentRule { }
 
 export abstract class PslRule extends ProfileComponentRule {
 
-	private _parsedDocument: ParsedDocument;
+	parsedDocument: ParsedDocument;
 
 	abstract report(...args: any[]): Diagnostic[];
-
-	get parsedDocument(): ParsedDocument {
-		return this._parsedDocument;
-	}
-
-	set parsedDocument(v: ParsedDocument) {
-		this._parsedDocument = v;
-	}
 }
 
 export abstract class MemberRule extends PslRule {
