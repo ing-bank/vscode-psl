@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { Declaration, Member, Method, Parameter, ParsedDocument, Property } from './../parser/parser';
-import { Range, Token } from './../parser/tokenizer';
+import { Range } from './../parser/tokenizer';
 
 export enum DiagnosticSeverity {
 
@@ -113,9 +113,7 @@ export class DiagnosticRelatedInformation {
 
 export abstract class ProfileComponentRule {
 
-	readonly ruleName: string = (() => {
-		return this.constructor.name;
-	})();
+	readonly ruleName: string = this.constructor.name;
 
 	private _profileComponent: ProfileComponent;
 
@@ -129,6 +127,8 @@ export abstract class ProfileComponentRule {
 		this._profileComponent = v;
 	}
 }
+
+export abstract class FileDefinitionRule extends ProfileComponentRule { }
 
 export abstract class PslRule extends ProfileComponentRule {
 
@@ -170,22 +170,24 @@ type GetTextMethod = (lineNumber: number) => string;
 /**
  * A ProfileComponent contains information about a file used in Profile.
  * The file may be PSL or non-PSL (such as a TBL or COL).
- *
- * The path on the filesystem is available, as well as the components's text contents.
- * In the case where the component is PSL, the parsedDocument property is defined.
  */
 export class ProfileComponent {
 
 	static isPsl(fsPath: string): boolean {
-		return path.extname(fsPath) !== '.PROC'
-			|| path.extname(fsPath) !== '.BATCH'
-			|| path.extname(fsPath).toUpperCase() !== '.PSL';
+		return path.extname(fsPath) === '.PROC'
+			|| path.extname(fsPath) === '.BATCH'
+			|| path.extname(fsPath) === '.TRIG'
+			|| path.extname(fsPath).toUpperCase() === '.PSL';
+	}
+
+	static isFileDefinition(fsPath: string): boolean {
+		return path.extname(fsPath) === '.TBL'
+			|| path.extname(fsPath) === '.COL';
 	}
 
 	static isProfileComponent(fsPath: string): boolean {
 		return ProfileComponent.isPsl(fsPath)
-			|| path.extname(fsPath) !== '.TBL'
-			|| path.extname(fsPath) !== '.COL';
+			|| ProfileComponent.isFileDefinition(fsPath);
 	}
 
 	fsPath: string;
@@ -227,10 +229,4 @@ export class ProfileComponent {
 		}
 		return indexedDocument;
 	}
-}
-
-export function getCommentsOnLine(parsedDocument: ParsedDocument, lineNumber: number): Token[] {
-	return parsedDocument.comments.filter(t => {
-		return t.position.line === lineNumber;
-	});
 }

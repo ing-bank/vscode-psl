@@ -1,6 +1,6 @@
 import * as path from 'path';
 import {
-	DeclarationRule, Diagnostic, MemberRule, MethodRule, ParameterRule,
+	DeclarationRule, Diagnostic, FileDefinitionRule, MemberRule, MethodRule, ParameterRule,
 	ProfileComponent, ProfileComponentRule, PropertyRule, PslRule,
 } from './api';
 import { getConfig, matchConfig } from './config';
@@ -23,6 +23,7 @@ import { TodoInfo } from './todos';
  * Add new rules here to have them checked at the appropriate time.
  */
 const componentRules: ProfileComponentRule[] = [];
+const fileDefinitionRules: FileDefinitionRule[] = [];
 const pslRules: PslRule[] = [
 	new TodoInfo(),
 ];
@@ -61,13 +62,14 @@ export function getDiagnostics(
 class RuleSubscription {
 
 	private diagnostics: Diagnostic[];
-	private initializedComponentRules: ProfileComponentRule[];
-	private initializedPslRules: PslRule[];
-	private initializedMethodRules: MethodRule[];
-	private initializedMemberRules: MemberRule[];
-	private initializedPropertyRules: PropertyRule[];
-	private initializedDeclarationRules: DeclarationRule[];
-	private initializedParameterRules: ParameterRule[];
+	private componentRules: ProfileComponentRule[];
+	private pslRules: PslRule[];
+	private fileDefinitionRules: FileDefinitionRule[];
+	private methodRules: MethodRule[];
+	private memberRules: MemberRule[];
+	private propertyRules: PropertyRule[];
+	private declarationRules: DeclarationRule[];
+	private parameterRules: ParameterRule[];
 
 	constructor(private profileComponent: ProfileComponent, private parsedDocument?: ParsedDocument, useConfig?: boolean) {
 		this.diagnostics = [];
@@ -92,13 +94,14 @@ class RuleSubscription {
 			});
 		};
 
-		this.initializedComponentRules = initializeRules(componentRules);
-		this.initializedPslRules = initializePslRules(pslRules);
-		this.initializedMethodRules = initializePslRules(methodRules);
-		this.initializedMemberRules = initializePslRules(memberRules);
-		this.initializedPropertyRules = initializePslRules(propertyRules);
-		this.initializedDeclarationRules = initializePslRules(declarationRules);
-		this.initializedParameterRules = initializePslRules(parameterRules);
+		this.componentRules = initializeRules(componentRules);
+		this.fileDefinitionRules = initializeRules(fileDefinitionRules);
+		this.pslRules = initializePslRules(pslRules);
+		this.methodRules = initializePslRules(methodRules);
+		this.memberRules = initializePslRules(memberRules);
+		this.propertyRules = initializePslRules(propertyRules);
+		this.declarationRules = initializePslRules(declarationRules);
+		this.parameterRules = initializePslRules(parameterRules);
 	}
 
 	reportRules(): Diagnostic[] {
@@ -106,37 +109,44 @@ class RuleSubscription {
 			rules.forEach(rule => this.diagnostics.push(...rule.report(...args)));
 		};
 
-		addDiagnostics(this.initializedComponentRules);
-		addDiagnostics(this.initializedPslRules);
+		addDiagnostics(this.componentRules);
 
-		if (!ProfileComponent.isPsl(this.profileComponent.fsPath)) return;
-
-		const parsedDocument = this.parsedDocument as ParsedDocument;
-
-		for (const property of parsedDocument.properties) {
-			addDiagnostics(this.initializedMemberRules, property);
-			addDiagnostics(this.initializedPropertyRules, property);
+		if (ProfileComponent.isFileDefinition(this.profileComponent.fsPath)) {
+			addDiagnostics(this.fileDefinitionRules);
 		}
 
-		for (const declaration of parsedDocument.declarations) {
-			addDiagnostics(this.initializedMemberRules, declaration);
-			addDiagnostics(this.initializedDeclarationRules, declaration);
-		}
+		if (ProfileComponent.isPsl(this.profileComponent.fsPath)) {
+			addDiagnostics(this.pslRules);
 
-		for (const method of parsedDocument.methods) {
-			addDiagnostics(this.initializedMemberRules, method);
-			addDiagnostics(this.initializedMethodRules, method);
+			const parsedDocument = this.parsedDocument as ParsedDocument;
 
-			for (const parameter of method.parameters) {
-				addDiagnostics(this.initializedMemberRules, parameter);
-				addDiagnostics(this.initializedParameterRules, parameter, method);
+			for (const property of parsedDocument.properties) {
+				addDiagnostics(this.memberRules, property);
+				addDiagnostics(this.propertyRules, property);
 			}
 
-			for (const declaration of method.declarations) {
-				addDiagnostics(this.initializedMemberRules, declaration);
-				addDiagnostics(this.initializedDeclarationRules, declaration, method);
+			for (const declaration of parsedDocument.declarations) {
+				addDiagnostics(this.memberRules, declaration);
+				addDiagnostics(this.declarationRules, declaration);
 			}
+
+			for (const method of parsedDocument.methods) {
+				addDiagnostics(this.memberRules, method);
+				addDiagnostics(this.methodRules, method);
+
+				for (const parameter of method.parameters) {
+					addDiagnostics(this.memberRules, parameter);
+					addDiagnostics(this.parameterRules, parameter, method);
+				}
+
+				for (const declaration of method.declarations) {
+					addDiagnostics(this.memberRules, declaration);
+					addDiagnostics(this.declarationRules, declaration, method);
+				}
+			}
+
 		}
+
 		return this.diagnostics;
 	}
 }

@@ -1,7 +1,7 @@
 import { Method, ParsedDocument } from '../parser/parser';
 import { Token } from '../parser/tokenizer';
-import { getLineAfter } from '../parser/utilities';
-import { Diagnostic, DiagnosticSeverity, getCommentsOnLine, MethodRule } from './api';
+import { getCommentsOnLine, getLineAfter} from '../parser/utilities';
+import { Diagnostic, DiagnosticSeverity, MethodRule } from './api';
 
 export enum Code {
 	ONE_EMPTY_LINE = 1,

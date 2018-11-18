@@ -4,10 +4,8 @@ import {
 	StringLiteral, SyntaxKind, Value,
 } from '../parser/statementParser';
 import { Range, Token } from '../parser/tokenizer';
-import {
-	Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity,
-	getCommentsOnLine, MethodRule,
-} from './api';
+import { getCommentsOnLine } from '../parser/utilities';
+import { Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity, MethodRule } from './api';
 
 export class RuntimeStart extends MethodRule {
 

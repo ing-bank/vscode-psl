@@ -44,12 +44,12 @@ function getMessage(storedDiagnostic: StoredDiagnostic) {
 
 async function readFile(filename: string): Promise<number> {
 	let errorCount = 0;
-	if (!ProfileComponent.isProfileComponent(filename)) {
+	const fsPath = path.relative(process.cwd(), filename);
+	if (!ProfileComponent.isProfileComponent(fsPath)) {
 		return errorCount;
 	}
-	const fsPath = path.relative(process.cwd(), filename);
 	const textDocument = (await fs.readFile(fsPath)).toString();
-	const parsedDocument = parseText(textDocument);
+	const parsedDocument = ProfileComponent.isPsl(fsPath) ? parseText(textDocument) : undefined;
 	const profileComponent = new ProfileComponent(fsPath, textDocument);
 
 	const diagnostics = getDiagnostics(profileComponent, parsedDocument, useConfig);
