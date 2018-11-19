@@ -245,6 +245,11 @@
         "command": "psl.refreshTable",
         "title": "Table Refresh from Host",
         "category": "PSL"
+      },
+      {
+        "command": "psl.previewDocumentation",
+        "title": "Preview Documentation",
+        "category": "PSL"
       }
     ],
     "menus": {
@@ -562,6 +567,11 @@
         }
       ],
       "editor/title": [
+        {
+          "command": "psl.previewDocumentation",
+          "group": "navigation@-206",
+          "when": "resourceLangId == psl"
+        },
         {
           "command": "psl.refreshElement",
           "group": "navigation@-205",
