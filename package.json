@@ -732,6 +732,11 @@
           "type": "boolean",
           "default": false,
           "description": "Set true to enable the latest developing features (requires restart)."
+        },
+        "psl.documentationServer": {
+          "scope": "resource",
+          "type": "string",
+          "description": "HTTP POST endpoint that responds with PSL documentation in markdown format."
         }
       }
     }
