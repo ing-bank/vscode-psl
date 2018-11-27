@@ -570,7 +570,7 @@
         {
           "command": "psl.previewDocumentation",
           "group": "navigation@-206",
-          "when": "resourceLangId == psl"
+          "when": "resourceLangId == psl && psl.hasDocumentationServer"
         },
         {
           "command": "psl.refreshElement",

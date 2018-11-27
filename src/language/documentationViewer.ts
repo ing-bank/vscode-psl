@@ -8,6 +8,15 @@ export function activate(context: vscode.ExtensionContext) {
 			preparePreview,
 		),
 	);
+
+	vscode.workspace.onDidChangeConfiguration(event => {
+		if (!event.affectsConfiguration('psl')) return;
+		const documentationServer: string = vscode.workspace.
+			getConfiguration('psl').get('documentationServer');
+		if (documentationServer) {
+			vscode.commands.executeCommand('setContext', 'psl.hasDocumentationServer', true);
+		}
+	});
 }
 
 async function preparePreview(textEditor: vscode.TextEditor) {
