@@ -11,8 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	vscode.workspace.onDidChangeConfiguration(event => {
 		if (!event.affectsConfiguration('psl')) return;
-		const documentationServer: string = vscode.workspace.
-			getConfiguration('psl').get('documentationServer');
+		const documentationServer: string = vscode.workspace.getConfiguration('psl').get('documentationServer');
 		if (documentationServer) {
 			vscode.commands.executeCommand('setContext', 'psl.hasDocumentationServer', true);
 		}
