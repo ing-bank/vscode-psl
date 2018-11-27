@@ -766,6 +766,7 @@
     "fs-extra": "^5.0.0",
     "jsonc-parser": "^1.0.0",
     "minimatch": "^3.0.4",
+    "request-light": "^0.2.4",
     "vscode-json-languageservice": "^3.2.0"
   },
   "jest": {
