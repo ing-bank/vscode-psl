@@ -11,8 +11,11 @@ export class TblColDocumentation extends FileDefinitionRule {
 		const baseName = path.basename(this.profileComponent.fsPath);
 
 		const diagnostics: Diagnostic[] = [];
+		const bracketMatch = this.profileComponent.textDocument.match(/^}/m);
+		// Exit if no match found
+		if (!bracketMatch) return [];
 
-		const charcterOffset = this.profileComponent.textDocument.match(/^}/m).index;
+		const charcterOffset = bracketMatch.index;
 		const endPos = this.profileComponent.textDocument.length;
 		const tblColDoc = this.profileComponent.textDocument.substring(charcterOffset + 1, endPos).trim();
 

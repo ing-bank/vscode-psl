@@ -199,6 +199,12 @@ export class ProfileComponent {
 		return this.indexedDocument.get(lineNumber) || '';
 	}
 
+	/**
+	 * Converts a zero-based offset to a position.
+	 *
+	 * @param offset A zero-based offset.
+	 * @return A valid [position](#Position).
+	 */
 	positionAt(offset: number): Position {
 		const before = this.textDocument.slice(0, offset);
 		const newLines = before.match(/\n/g);
