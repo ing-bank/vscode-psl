@@ -43,16 +43,18 @@ describe('Table and Column Documentation tests', () => {
 	test('Column documentation', () => {
 		// Column documentation exists with '{' '}' braces
 		expect(bracesInColDocDiagnostics.length).toBe(0);
-		// Column documentation exists 
+		// Column documentation exists
 		expect(withColDocDiagnostics.length).toBe(0);
 		// Without } in the column definition.This should be ignored as the compiler should handle it
 		expect(withoutClosedBracesColDiagnostics.length).toBe(0);
 		// Without Column documentation and '{' '}' inside the definition
 		expect(bracesInsideColDefDiagnostics.length).toBe(0);
 		// Without Column documentation
-        expect(messageOnLine(36, withoutColDocDiagnostics)).toBe(`Documentation missing for data item "ZTblColDocTst-Col3.COL".`);
+		expect(messageOnLine(36, withoutColDocDiagnostics))
+			.toBe(`Documentation missing for data item "ZTblColDocTst-Col3.COL".`);
 		// Without Column documentation but only space exists after '}' braces
-        expect(messageOnLine(36, withSpaceColDocDiagnostics)).toBe(`Documentation missing for data item "ZTblColDocTst-Col4.COL".`);
+		expect(messageOnLine(36, withSpaceColDocDiagnostics))
+			.toBe(`Documentation missing for data item "ZTblColDocTst-Col4.COL".`);
 	});
 
 	test('Table documentation', () => {
@@ -65,8 +67,10 @@ describe('Table and Column Documentation tests', () => {
 		// Without Table documentation and '{' '}' inside the definition
 		expect(bracesInsideTblDefDiagnostics.length).toBe(0);
 		// Without Table documentation
-		expect(messageOnLine(41, withoutTblDocDiagnostics)).toBe(`Documentation missing for table definition "ZTblColDocTst3.TBL".`);
+		expect(messageOnLine(41, withoutTblDocDiagnostics))
+			.toBe(`Documentation missing for table definition "ZTblColDocTst3.TBL".`);
 		// Without Table documentation but only space exists after '}' braces
-		expect(messageOnLine(41, withSpaceTblDocDiagnostics)).toBe(`Documentation missing for table definition "ZTblColDocTst4.TBL".`);
+		expect(messageOnLine(41, withSpaceTblDocDiagnostics))
+			.toBe(`Documentation missing for table definition "ZTblColDocTst4.TBL".`);
 	});
 });
