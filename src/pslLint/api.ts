@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { Declaration, Member, Method, Parameter, ParsedDocument, Property } from './../parser/parser';
-import { Range } from './../parser/tokenizer';
+import { Position, Range } from './../parser/tokenizer';
 
 export enum DiagnosticSeverity {
 
@@ -197,6 +197,20 @@ export class ProfileComponent {
 			this.indexedDocument = this.createIndexedDocument();
 		}
 		return this.indexedDocument.get(lineNumber) || '';
+	}
+
+	/**
+	 * Converts a zero-based offset to a position.
+	 *
+	 * @param offset A zero-based offset.
+	 * @return A valid [position](#Position).
+	 */
+	positionAt(offset: number): Position {
+		const before = this.textDocument.slice(0, offset);
+		const newLines = before.match(/\n/g);
+		const line = newLines ? newLines.length : 0;
+		const preCharacters = before.match(/(\n|^).*$/g);
+		return new Position(line, preCharacters ? preCharacters[0].length : 0);
 	}
 
 	private createIndexedDocument(): Map<number, string> {

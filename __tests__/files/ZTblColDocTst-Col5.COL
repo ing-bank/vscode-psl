@@ -1,0 +1,42 @@
+{
+	"%LIBS" : "SYSDEV",
+	"FID" : "ZTblColDocTst",
+	"DI" : "Col5",
+	"ALIAS" : "HoldAutoallyPlaced",
+	"CMP" : null,
+	"CMPFUNCUDF" : false,
+	"CNV" : null,
+	"DEC" : null,
+	"DEPOSTP" : null,
+	"DEPREP" : null,
+	"DES" : "Test for COL Documentation with { and } in the definition",
+	"DFT" : "0",
+	"DOM" : null,
+	"ISCUSTOM" : false,
+	"ISMASTER" : false,
+	"LEN" : 1,
+	"MAX" : null,
+	"MDD" : null,
+	"MIN" : null,
+	"NOD" : "KEY",
+	"NULLIND" : false,
+	"POS" : 30,
+	"PTN" : null,
+	"RDBPOS" : null,
+	"RDBTBL" : null,
+	"REQ" : true,
+	"RHD" : "Test for COL Documentation with { and } in the definition",
+	"SFD" : null,
+	"SIZ" : 1,
+	"SRL" : false,
+	"TBL" : null,
+	"TYP" : "L",
+	"VAL4EXT" : false,
+	"XPO" : null,
+	"XPR" : null
+}
+An option that indicates whether a permanent hold should be applied for 
+a payment order. If this option is selected, the payment order amount  
+holds for the number of days specified in the Max Hold Days field.
+
+This option is only valid for outgoing payments.
