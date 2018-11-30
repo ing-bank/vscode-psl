@@ -1,4 +1,4 @@
-import * as request from 'request-light';
+import * as request from 'request-light/lib/main';
 import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
