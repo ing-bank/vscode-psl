@@ -680,6 +680,11 @@
           "group": "PSL"
         },
         {
+          "when": "resourceLangId == psl && psl.hasDocumentationServer",
+          "command": "psl.previewDocumentation",
+          "group": "PSL"
+        },
+        {
           "when": "resourceLangId == profileColumn",
           "command": "psl.refreshTable",
           "group": "PSL"
