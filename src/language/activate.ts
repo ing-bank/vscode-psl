@@ -9,7 +9,7 @@ import { PSLDefinitionProvider } from './pslDefinitionProvider';
 import { PSLHoverProvider } from './pslHoverProvider';
 import * as codeQuality from './codeQuality';
 import { PSLSignatureHelpProvider } from './pslSignature';
-import * as documentationViewer from './documentationPreview';
+import * as documentationViewer from './previewDocumentation';
 
 
 export async function activate(context: vscode.ExtensionContext) {
