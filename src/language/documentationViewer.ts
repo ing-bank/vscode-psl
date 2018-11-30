@@ -9,18 +9,28 @@ export function activate(context: vscode.ExtensionContext) {
 		),
 	);
 
+	checkForDocumentationServer();
+
 	vscode.workspace.onDidChangeConfiguration(event => {
 		if (!event.affectsConfiguration('psl')) return;
-		const documentationServer: string = vscode.workspace.getConfiguration('psl').get('documentationServer');
-		if (documentationServer) {
-			vscode.commands.executeCommand('setContext', 'psl.hasDocumentationServer', true);
-		}
+		checkForDocumentationServer();
 	});
 }
 
+function checkForDocumentationServer(): string {
+	const documentationServer: string = vscode.workspace.getConfiguration('psl').get('documentationServer');
+	if (documentationServer) {
+		vscode.commands.executeCommand('setContext', 'psl.hasDocumentationServer', true);
+		return documentationServer;
+	}
+	else {
+		vscode.commands.executeCommand('setContext', 'psl.hasDocumentationServer', false);
+		return '';
+	}
+}
+
 async function preparePreview(textEditor: vscode.TextEditor) {
-	const documentationServer: string = vscode.workspace.
-		getConfiguration('psl', textEditor.document.uri).get('documentationServer');
+	const documentationServer: string = checkForDocumentationServer();
 	if (!documentationServer) return;
 
 	const markdown = await getMarkdownFromApi(textEditor.document.getText(), documentationServer);
