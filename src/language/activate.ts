@@ -9,7 +9,7 @@ import { PSLDefinitionProvider } from './pslDefinitionProvider';
 import { PSLHoverProvider } from './pslHoverProvider';
 import * as codeQuality from './codeQuality';
 import { PSLSignatureHelpProvider } from './pslSignature';
-import * as documentationViewer from './previewDocumentation';
+import * as previewDocumentation from './previewDocumentation';
 
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -80,7 +80,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Code quality
 	codeQuality.activate(context);
 
-	documentationViewer.activate(context);
+	previewDocumentation.activate(context);
 
 	// Language Configuration
 	const wordPattern = /(-?\d*\.\d[a-zA-Z0-9\%\#]*)|([^\`\~\!\@\^\&\*\(\)\-\=\+\[\{\]\}\\\|\"\;\:\'\'\,\.\<\>\/\?\s_]+)/g;
