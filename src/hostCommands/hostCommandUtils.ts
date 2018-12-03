@@ -37,6 +37,10 @@ export const enum ContextMode {
 	EMPTY = 3
 }
 
+const enum NEWLINE_SETTING {
+	ALWAYS = 'always',
+	NEVER = 'never',
+}
 
 export interface ExtensionCommandContext {
 	fsPath: string;
@@ -121,4 +125,38 @@ export async function getCommandenvConfigQuickPick(envs: environment.Environment
 	let choice = await vscode.window.showQuickPick(items, { placeHolder: 'Select environment to get from.' });
 	if (!choice) return undefined;
 	return choice.env
+}
+
+export function writeFileWithSettings(fsPath: string, output: string): Promise<void> {
+	const trailingNewline: NEWLINE_SETTING = vscode.workspace.getConfiguration('psl', null).get('trailingNewline');
+	switch (trailingNewline) {
+		case NEWLINE_SETTING.ALWAYS:
+			if (!output.endsWith('\n')) output += detectNewline(output);
+			break;
+		case NEWLINE_SETTING.NEVER:
+			output = output.replace(/(\r?\n)+$/, '');
+			break;
+		default:
+			break;
+	}
+	return fsExtra.writeFile(fsPath, output);
+}
+
+/**
+ * https://github.com/sindresorhus/detect-newline
+ */
+function detectNewline(output: string) {
+	const newlines = (output.match(/(?:\r?\n)/g) || []);
+
+	if (newlines.length === 0) {
+		return '\n';
+	}
+
+	const crlfCount = newlines.filter(el => {
+		return el === '\r\n';
+	}).length;
+
+	const lfCount = newlines.length - crlfCount;
+
+	return crlfCount > lfCount ? '\r\n' : '\n';
 }

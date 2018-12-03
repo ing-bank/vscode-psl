@@ -722,6 +722,22 @@
           "type": "boolean",
           "default": false,
           "description": "Set true to enable the latest developing features (requires restart)."
+        },
+        "psl.trailingNewline": {
+          "scope": "resource",
+          "type": "string",
+          "enum": [
+            "default",
+            "always",
+            "never"
+          ],
+          "enumDescriptions": [
+            "Allows the default behavior, makes no modification.",
+            "Always add a trailing newline if not present.",
+            "Remove trailing newlines if they are present."
+          ],
+          "default": "default",
+          "description": "Adds a trailing newline after a \"Get\" or \"Refresh\"."
         }
       }
     }

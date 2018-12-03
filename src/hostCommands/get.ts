@@ -130,7 +130,7 @@ async function getElement(fsPath: string) {
 		let connection = await utils.getConnection(env);
 		let output = await connection.get(fsPath);
 		await fs.ensureDir(path.dirname(fsPath))
-		await fs.writeFile(fsPath, output);
+		await utils.writeFileWithSettings(fsPath, output);
 		utils.logger.info(`${utils.icons.SUCCESS} ${icon} ${path.basename(fsPath)} GET from ${env.name} succeeded`);
 		connection.close();
 		await vscode.workspace.openTextDocument(fsPath).then(vscode.window.showTextDocument)
@@ -174,7 +174,7 @@ async function getTable(tableName: string, targetDirectory: string, workpacePath
 			let contentArray = content.split(String.fromCharCode(1))
 			let fileName = contentArray[0];
 			let fileContent = contentArray[1];
-			fs.writeFile(path.join(targetDirectory, tableName.toLowerCase(), fileName), fileContent);
+			utils.writeFileWithSettings(path.join(targetDirectory, tableName.toLowerCase(), fileName), fileContent);
 		})
 		utils.logger.info(`${utils.icons.SUCCESS} ${icon} ${tableName} TABLE GET from ${env.name} succeeded`);
 		connection.close();
