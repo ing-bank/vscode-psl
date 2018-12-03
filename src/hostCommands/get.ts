@@ -170,12 +170,13 @@ async function getTable(tableName: string, targetDirectory: string, workpacePath
 		for (let file of tableFiles) {
 			await fs.remove(file);
 		}
-		output.split(String.fromCharCode(0)).forEach((content: string) => {
-			let contentArray = content.split(String.fromCharCode(1))
-			let fileName = contentArray[0];
-			let fileContent = contentArray[1];
-			utils.writeFileWithSettings(path.join(targetDirectory, tableName.toLowerCase(), fileName), fileContent);
-		})
+		const promises = output.split(String.fromCharCode(0)).map(content => {
+			const contentArray = content.split(String.fromCharCode(1));
+			const fileName = contentArray[0];
+			const fileContent = contentArray[1];
+			return utils.writeFileWithSettings(path.join(targetDirectory, tableName.toLowerCase(), fileName), fileContent);
+		});
+		await Promise.all(promises);
 		utils.logger.info(`${utils.icons.SUCCESS} ${icon} ${tableName} TABLE GET from ${env.name} succeeded`);
 		connection.close();
 	}).catch((e: Error) => {
