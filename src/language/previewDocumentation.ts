@@ -1,3 +1,4 @@
+import * as path from 'path';
 import * as request from 'request-light/lib/main';
 import * as vscode from 'vscode';
 
@@ -33,7 +34,11 @@ async function preparePreview(textEditor: vscode.TextEditor) {
 	const documentationServer: string = checkForDocumentationServer();
 	if (!documentationServer) return;
 
-	const markdown = await getMarkdownFromApi(textEditor.document.getText(), documentationServer);
+	const markdown = await getMarkdownFromApi(
+		textEditor.document.getText(),
+		path.basename(textEditor.document.fileName),
+		documentationServer,
+	);
 	if (!markdown) return;
 	showPreview(markdown);
 }
@@ -43,7 +48,7 @@ async function showPreview(markdown: string) {
 	vscode.commands.executeCommand('markdown.showPreview', untitledDoc.uri);
 }
 
-async function getMarkdownFromApi(pslText: string, documentationServer: string) {
+async function getMarkdownFromApi(pslText: string, fileName: string, documentationServer: string) {
 	try {
 		const data: string = JSON.stringify({
 			sourceText: pslText,
@@ -55,7 +60,7 @@ async function getMarkdownFromApi(pslText: string, documentationServer: string) 
 				'Content-Type': 'application/json',
 			},
 			type: 'POST',
-			url: documentationServer,
+			url: documentationServer + fileName,
 		});
 		return response.responseText;
 	}
