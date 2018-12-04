@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
+# v1.7.0
+
+* Adds rule for "TblColDocumentation" from psl-lint (thanks [@ManikandanKKA](https://github.com/ManikandanKKA))
+* Add a setting to check trailing newline after a "Get" or "Refresh".
+* Adds a command to render markdown documentation of a PSL document when a server is present.
+
 # v1.6.0
 
 * Adds rule "PropertyIsDummy" from psl-lint (thanks [@kewtree1408](https://github.com/kewtree1408))
