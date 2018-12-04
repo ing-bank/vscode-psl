@@ -245,6 +245,11 @@
         "command": "psl.refreshTable",
         "title": "Table Refresh from Host",
         "category": "PSL"
+      },
+      {
+        "command": "psl.previewDocumentation",
+        "title": "Preview Documentation",
+        "category": "PSL"
       }
     ],
     "menus": {
@@ -563,6 +568,11 @@
       ],
       "editor/title": [
         {
+          "command": "psl.previewDocumentation",
+          "group": "navigation@-206",
+          "when": "resourceLangId == psl && psl.hasDocumentationServer"
+        },
+        {
           "command": "psl.refreshElement",
           "group": "navigation@-205",
           "when": "resourceLangId == profileData"
@@ -670,6 +680,11 @@
           "group": "PSL"
         },
         {
+          "when": "resourceLangId == psl && psl.hasDocumentationServer",
+          "command": "psl.previewDocumentation",
+          "group": "PSL"
+        },
+        {
           "when": "resourceLangId == profileColumn",
           "command": "psl.refreshTable",
           "group": "PSL"
@@ -723,6 +738,11 @@
           "default": false,
           "description": "Set true to enable the latest developing features (requires restart)."
         },
+        "psl.documentationServer": {
+          "scope": "resource",
+          "type": "string",
+          "description": "HTTP POST endpoint that responds with PSL documentation in markdown format."
+        },
         "psl.trailingNewline": {
           "scope": "resource",
           "type": "string",
@@ -767,6 +787,7 @@
     "fs-extra": "^5.0.0",
     "jsonc-parser": "^1.0.0",
     "minimatch": "^3.0.4",
+    "request-light": "^0.2.4",
     "vscode-json-languageservice": "^3.2.0"
   },
   "jest": {
