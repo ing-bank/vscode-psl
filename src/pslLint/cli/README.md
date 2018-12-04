@@ -18,6 +18,7 @@ This module works by adding rules that are automatically checked at the appropri
 * TodoInfo
 * TwoEmptyLines
 * PropertyIsDummy
+* TblColDocumentation
 
 
 ## Contributing
