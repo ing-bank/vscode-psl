@@ -5,30 +5,36 @@ node_js:
   - "10"
 
 stages:
-  - Build
-  - name: Deploy lint
-    if: repo = ing-bank/vscode-psl AND tag =~ ^lint
-  - name: Deploy vscode
-    if: repo = ing-bank/vscode-psl AND tag =~ ^vscode
+  - build
+  - name: deploy lint
+    if: tag =~ ^lint
+  - name: deploy vscode
+    if: tag =~ ^vscode
 
 jobs:
   include:
-    - stage: Build
+    - stage: build
       script:
         - npm run compile
         - npm run compile-lint
-      name: Compile
+      name: compile
     - script:
-        - npm run linter
-      name: Lint
+        - npm run lint
+      name: lint
     - script:
         - npm run test
-      name: Test
+      name: test
 
-    - stage: Deploy lint
-      script: cp ./src/pslLint/cli/.npmrc.psl-lint .npmrc && npm run compile-lint && npm pack ./src/pslLint/cli | xargs npm publish
+    - stage: deploy lint
+      script: cp ./src/pslLint/cli/.npmrc.psl-lint .npmrc && npm run compile-lint
+      deploy:
+        provider: script
+        script: npm publish ./src/pslLint/cli
       name: npm
-    
-    - stage: Deploy vscode
-      script: npm run compile && npm i -g vsce && vsce package && vsce publish -p $VSCODE_TOKEN
+
+    - stage: deploy vscode
+      script: npm run compile && npm i -g vsce && vsce package
+      deploy:
+        provider: script
+        script: vsce publish -p $VSCODE_TOKEN
       name: marketplace
