@@ -69,7 +69,7 @@ export class RuntimeStart extends MethodRule {
 					const startLine = lastStart.id.position.line;
 					const commitLine = runtimeMethod.id.position.line;
 					const identifierTokens: Token[] = this.getAllIdentifersInRange(
-						this.parsedDocument.tokens,
+						this.parsedPsl.tokens,
 						startLine,
 						commitLine,
 					);
@@ -155,7 +155,7 @@ export class RuntimeStart extends MethodRule {
 
 	private addToWhitelist(runtimeMethod: Identifier) {
 		let acceptVariables: string[] = [];
-		const commentsAbove: Token[] = getCommentsOnLine(this.parsedDocument, runtimeMethod.id.position.line - 1);
+		const commentsAbove: Token[] = getCommentsOnLine(this.parsedPsl, runtimeMethod.id.position.line - 1);
 		const whiteListComment = commentsAbove[0];
 		if (!whiteListComment || !whiteListComment.isLineComment()) return [];
 

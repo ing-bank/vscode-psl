@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { Member, MemberClass, Method, ParsedDocument, parseText, Property } from './parser';
+import { Member, MemberClass, Method, ParsedPsl, parseText, Property } from './parser';
 import { Position, Token, Type } from './tokenizer';
 
 export interface FinderResult {
@@ -18,18 +18,18 @@ export const dummyPosition = new Position(0, 0);
 
 export class ParsedDocFinder {
 
-	parsedDocument: ParsedDocument;
+	parsedPsl: ParsedPsl;
 	paths: FinderPaths;
 	procName: string;
 
 	private hierarchy: string[] = [];
 
 	constructor(
-		parsedDocument: ParsedDocument,
+		parsedPsl: ParsedPsl,
 		paths: FinderPaths,
 		getWorkspaceDocumentText?: (fsPath: string) => Promise<string>,
 	) {
-		this.parsedDocument = parsedDocument;
+		this.parsedPsl = parsedPsl;
 		this.paths = paths;
 		if (getWorkspaceDocumentText) this.getWorkspaceDocumentText = getWorkspaceDocumentText;
 		this.procName = path.basename(this.paths.routine).split('.')[0];
@@ -58,7 +58,7 @@ export class ParsedDocFinder {
 						fsPath: tableLocation,
 					};
 				}
-				else if (callTokens[0] === this.parsedDocument.extending) {
+				else if (callTokens[0] === this.parsedPsl.extending) {
 					finder = await finder.newFinder(callTokens[0].value);
 					return {
 						fsPath: finder.paths.routine,
@@ -135,7 +135,7 @@ export class ParsedDocFinder {
 				};
 				return ret;
 			});
-			const parsedDocument: ParsedDocument = {
+			const parsedPsl: ParsedPsl = {
 				comments: [],
 				declarations: [],
 				extending: new Token(Type.Alphanumeric, 'Record', dummyPosition),
@@ -145,7 +145,7 @@ export class ParsedDocFinder {
 			};
 			const newPaths: FinderPaths = Object.create(this.paths);
 			newPaths.routine = tableDirectory;
-			return new ParsedDocFinder(parsedDocument, newPaths, this.getWorkspaceDocumentText);
+			return new ParsedDocFinder(parsedPsl, newPaths, this.getWorkspaceDocumentText);
 		}
 		const pathsWithoutExtensions: string[] = this.paths.projectPsl.map(pslPath => path.join(pslPath, routineName));
 
@@ -176,7 +176,7 @@ export class ParsedDocFinder {
 	async searchInDocument(queriedId: string): Promise<FinderResult | undefined> {
 		let foundProperty;
 		if (path.relative(this.paths.routine, this.paths.table) === '..') {
-			foundProperty = this.parsedDocument.properties.find(p => p.id.value.toLowerCase() === queriedId.toLowerCase());
+			foundProperty = this.parsedPsl.properties.find(p => p.id.value.toLowerCase() === queriedId.toLowerCase());
 			if (foundProperty) {
 				const tableName = path.basename(this.paths.routine).toUpperCase();
 				return {
@@ -185,14 +185,14 @@ export class ParsedDocFinder {
 				};
 			}
 		}
-		foundProperty = this.parsedDocument.properties.find(p => p.id.value === queriedId);
+		foundProperty = this.parsedPsl.properties.find(p => p.id.value === queriedId);
 		if (foundProperty) return { member: foundProperty, fsPath: this.paths.routine };
 
-		const foundMethod = this.parsedDocument.methods.find(p => p.id.value === queriedId);
+		const foundMethod = this.parsedPsl.methods.find(p => p.id.value === queriedId);
 		if (foundMethod) return { member: foundMethod, fsPath: this.paths.routine };
 
-		if (this.parsedDocument.extending) {
-			const parentRoutineName = this.parsedDocument.extending.value;
+		if (this.parsedPsl.extending) {
+			const parentRoutineName = this.parsedPsl.extending.value;
 			if (this.hierarchy.indexOf(parentRoutineName) > -1) return;
 			const parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
 			if (!parentFinder) return;
@@ -210,21 +210,21 @@ export class ParsedDocFinder {
 		};
 
 		if (path.relative(this.paths.routine, this.paths.table) === '..') {
-			this.parsedDocument.properties.forEach(property => {
+			this.parsedPsl.properties.forEach(property => {
 				const tableName = path.basename(this.paths.routine).toUpperCase();
 				addToResults({ member: property, fsPath: path.join(this.paths.routine, `${tableName}-${property.id.value}.COL`) });
 			});
 		}
-		this.parsedDocument.properties.forEach(property => {
+		this.parsedPsl.properties.forEach(property => {
 			addToResults({ member: property, fsPath: this.paths.routine });
 		});
 
-		this.parsedDocument.methods.forEach(method => {
+		this.parsedPsl.methods.forEach(method => {
 			addToResults({ member: method, fsPath: this.paths.routine });
 		});
 
-		if (this.parsedDocument.extending) {
-			const parentRoutineName = this.parsedDocument.extending.value;
+		if (this.parsedPsl.extending) {
+			const parentRoutineName = this.parsedPsl.extending.value;
 			if (this.hierarchy.indexOf(parentRoutineName) > -1) return results;
 			const parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
 			if (!parentFinder) return results;
@@ -251,7 +251,7 @@ export class ParsedDocFinder {
 	}
 
 	private findActiveMethod(queriedToken: Token): Method | undefined {
-		const methods = this.parsedDocument.methods.filter(method => queriedToken.position.line >= method.id.position.line);
+		const methods = this.parsedPsl.methods.filter(method => queriedToken.position.line >= method.id.position.line);
 		if (methods) return methods[methods.length - 1];
 	}
 
@@ -401,8 +401,8 @@ export function getLineAfter(method: Method): number {
 	return method.closeParen ? method.closeParen.position.line + 1 : method.id.position.line + 1;
 }
 
-export function getCommentsOnLine(parsedDocument: ParsedDocument, lineNumber: number): Token[] {
-	return parsedDocument.comments.filter(t => {
+export function getCommentsOnLine(parsedPsl: ParsedPsl, lineNumber: number): Token[] {
+	return parsedPsl.comments.filter(t => {
 		return t.position.line === lineNumber;
 	});
 }

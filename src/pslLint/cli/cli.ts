@@ -49,10 +49,10 @@ async function readFile(filename: string): Promise<number> {
 		return errorCount;
 	}
 	const textDocument = (await fs.readFile(fsPath)).toString();
-	const parsedDocument = ProfileComponent.isPsl(fsPath) ? parseText(textDocument) : undefined;
+	const parsedPsl = ProfileComponent.isPsl(fsPath) ? parseText(textDocument) : undefined;
 	const profileComponent = new ProfileComponent(fsPath, textDocument);
 
-	const diagnostics = getDiagnostics(profileComponent, parsedDocument, useConfig);
+	const diagnostics = getDiagnostics(profileComponent, parsedPsl, useConfig);
 
 	diagnostics.forEach(diagnostic => {
 		if (diagnostic.severity === DiagnosticSeverity.Warning || diagnostic.severity === DiagnosticSeverity.Error) {

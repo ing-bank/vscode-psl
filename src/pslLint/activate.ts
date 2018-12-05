@@ -8,7 +8,7 @@ import { getConfig, matchConfig } from './config';
 /**
  * Import rules here.
  */
-import { ParsedDocument } from '../parser/parser';
+import { ParsedPsl } from '../parser/parser';
 import {
 	MemberCamelCase, MemberLength, MemberLiteralCase,
 	MemberStartsWithV, PropertyIsDummy,
@@ -52,10 +52,10 @@ const parameterRules: ParameterRule[] = [];
 
 export function getDiagnostics(
 	profileComponent: ProfileComponent,
-	parsedDocument?: ParsedDocument,
+	parsedPsl?: ParsedPsl,
 	useConfig?: boolean,
 ): Diagnostic[] {
-	const subscription = new RuleSubscription(profileComponent, parsedDocument, useConfig);
+	const subscription = new RuleSubscription(profileComponent, parsedPsl, useConfig);
 	return subscription.reportRules();
 }
 
@@ -74,7 +74,7 @@ class RuleSubscription {
 	private declarationRules: DeclarationRule[];
 	private parameterRules: ParameterRule[];
 
-	constructor(private profileComponent: ProfileComponent, private parsedDocument?: ParsedDocument, useConfig?: boolean) {
+	constructor(private profileComponent: ProfileComponent, private parsedPsl?: ParsedPsl, useConfig?: boolean) {
 		this.diagnostics = [];
 
 		const config = useConfig ? getConfig(this.profileComponent.fsPath) : undefined;
@@ -90,9 +90,9 @@ class RuleSubscription {
 		};
 		const initializePslRules = (rules: PslRule[]) => {
 			const componentInitialized = initializeRules(rules) as PslRule[];
-			const pslParsedDocument = this.parsedDocument as ParsedDocument;
+			const parsedPslDocument = this.parsedPsl as ParsedPsl;
 			return componentInitialized.map(rule => {
-				rule.parsedDocument = pslParsedDocument;
+				rule.parsedPsl = parsedPslDocument;
 				return rule;
 			});
 		};
@@ -121,19 +121,19 @@ class RuleSubscription {
 		if (ProfileComponent.isPsl(this.profileComponent.fsPath)) {
 			addDiagnostics(this.pslRules);
 
-			const parsedDocument = this.parsedDocument as ParsedDocument;
+			const parsedPsl = this.parsedPsl as ParsedPsl;
 
-			for (const property of parsedDocument.properties) {
+			for (const property of parsedPsl.properties) {
 				addDiagnostics(this.memberRules, property);
 				addDiagnostics(this.propertyRules, property);
 			}
 
-			for (const declaration of parsedDocument.declarations) {
+			for (const declaration of parsedPsl.declarations) {
 				addDiagnostics(this.memberRules, declaration);
 				addDiagnostics(this.declarationRules, declaration);
 			}
 
-			for (const method of parsedDocument.methods) {
+			for (const method of parsedPsl.methods) {
 				addDiagnostics(this.memberRules, method);
 				addDiagnostics(this.methodRules, method);
 

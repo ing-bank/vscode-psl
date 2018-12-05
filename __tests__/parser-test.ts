@@ -5,7 +5,7 @@ function getMethod(methodString: string): parser.Method | undefined {
 	const d = parser.parseText(methodString);
 	return d.methods[0];
 }
-function getParsedDoc(documentString: string): parser.ParsedDocument {
+function getParsedPsl(documentString: string): parser.ParsedPsl {
 	return parser.parseText(documentString);
 }
 
@@ -33,7 +33,7 @@ describe('Batch label', () => {
 	// ~p1 source not set up
 	if ER set RM = $$^MSG(1184,"BOFF-ACCUPD"), %BatchExit = 1 do EXC quit`;
 
-	const d = getParsedDoc(batchText);
+	const d = getParsedPsl(batchText);
 	expect(d.methods).toHaveLength(1);
 });
 
@@ -93,7 +93,7 @@ describe('Method Identifiers', () => {
 
 	test('Label from document', () => {
 		const methodString = 'main\r\n';
-		const result = getParsedDoc(methodString);
+		const result = getParsedPsl(methodString);
 		if (!result) {
 			fail();
 			return;
@@ -347,13 +347,13 @@ describe('Argument Types', () => {
 describe('Propertydefs', () => {
 	test('empty propertydef', () => {
 		const propertyString = '\t#PROPERTYDEF';
-		const doc = getParsedDoc(propertyString);
+		const doc = getParsedPsl(propertyString);
 		expect(doc.properties).toHaveLength(0);
 	});
 
 	test('one word propertydef', () => {
 		const propertyString = '\t#PROPERTYDEF test';
-		const doc = getParsedDoc(propertyString);
+		const doc = getParsedPsl(propertyString);
 		expect(doc.properties).toHaveLength(1);
 	});
 });
@@ -394,7 +394,7 @@ public final String toString(String vMask)
 	quit
 `;
 
-	const doc = getParsedDoc(documentString);
+	const doc = getParsedPsl(documentString);
 	expect(doc.methods).toHaveLength(3);
 });
 
@@ -416,7 +416,7 @@ public final Integer toInteger()
 	quit
 `;
 
-	const doc = getParsedDoc(documentString);
+	const doc = getParsedPsl(documentString);
 	expect(doc.extending.value).toBe('Primitive');
 });
 
@@ -438,7 +438,7 @@ public final Integer 900()
 	quit
 `;
 
-	const doc = getParsedDoc(documentString);
+	const doc = getParsedPsl(documentString);
 	expect(doc.methods[0].id.value).toBe('900');
 });
 
@@ -478,7 +478,7 @@ public final String toString(String vMask)
 	quit
 `;
 
-	const doc = getParsedDoc(documentString);
+	const doc = getParsedPsl(documentString);
 	expect(doc.methods.map(method => method.line)).toEqual([9, 18, 27]);
 });
 
@@ -518,7 +518,7 @@ toString
 	quit
 `;
 
-	const doc = getParsedDoc(documentString);
+	const doc = getParsedPsl(documentString);
 	expect(doc.methods.map(method => method.id.value)).toEqual(['toInteger', 'toNumber', 'toString']);
 	expect(doc.methods.map(method => method.line)).toEqual([9, 18, 27]);
 });
@@ -561,7 +561,7 @@ public final String toString(String vMask)
 	quit
 `;
 
-	const doc = getParsedDoc(documentString);
+	const doc = getParsedPsl(documentString);
 	expect(doc.methods).toHaveLength(3);
 });
 
@@ -603,7 +603,7 @@ public final String toString(String vMask)
 	quit
 `;
 
-	const doc = getParsedDoc(documentString);
+	const doc = getParsedPsl(documentString);
 	expect(doc.properties).toHaveLength(1);
 
 });
@@ -646,7 +646,7 @@ public final String toString(String vMask)
 	quit
 `;
 
-	const doc = getParsedDoc(documentString);
+	const doc = getParsedPsl(documentString);
 	expect(toValues(doc.properties[0].modifiers)).toEqual(['public']);
 	expect(doc.properties[0].id.value).toEqual('test');
 
@@ -655,13 +655,13 @@ public final String toString(String vMask)
 describe('type declarations', () => {
 	test('basic type declaration', () => {
 		const declarationString = '\ttype public literal String x = "hi there"';
-		const doc = getParsedDoc(declarationString);
+		const doc = getParsedPsl(declarationString);
 		expect(doc.declarations[0].types[0].value).toEqual('String');
 		expect(doc.declarations[0].id.value).toEqual('x');
 	});
 	test('mutliple type declaration', () => {
 		const declarationString = '\ttype public literal String x,y';
-		const doc = getParsedDoc(declarationString);
+		const doc = getParsedPsl(declarationString);
 		expect(doc.declarations[0].types[0].value).toEqual('String');
 		expect(doc.declarations[0].id.value).toEqual('x');
 		expect(doc.declarations[1].types[0].value).toEqual('String');
@@ -669,7 +669,7 @@ describe('type declarations', () => {
 	});
 	test('mutliple multitype type declaration', () => {
 		const declarationString = '\ttype public literal String x(Number,Boolean),y';
-		const doc = getParsedDoc(declarationString);
+		const doc = getParsedPsl(declarationString);
 		expect(doc.declarations[0].types[0].value).toEqual('String');
 		expect(doc.declarations[0].types[1].value).toEqual('Number');
 		expect(doc.declarations[0].types[2].value).toEqual('Boolean');
@@ -679,7 +679,7 @@ describe('type declarations', () => {
 	});
 	test('mutliple type declaration equal sign', () => {
 		const declarationString = '\ttype String x = "hi", y = "hi"';
-		const doc = getParsedDoc(declarationString);
+		const doc = getParsedPsl(declarationString);
 		expect(doc.declarations[0].types[0].value).toEqual('String');
 		expect(doc.declarations[0].id.value).toEqual('x');
 		expect(doc.declarations[1].types[0].value).toEqual('String');
@@ -687,13 +687,13 @@ describe('type declarations', () => {
 	});
 	test('static type declaration', () => {
 		const declarationString = '\ttype static x';
-		const doc = getParsedDoc(declarationString);
+		const doc = getParsedPsl(declarationString);
 		expect(doc.declarations[0].types[0].value).toEqual('x');
 		expect(doc.declarations[0].id.value).toEqual('x');
 	});
 	test('type type declaration', () => {
 		const declarationString = '\ttype String type';
-		const doc = getParsedDoc(declarationString);
+		const doc = getParsedPsl(declarationString);
 		expect(doc.declarations[0].types[0].value).toEqual('String');
 		expect(doc.declarations[0].id.value).toEqual('type');
 	});
@@ -708,7 +708,7 @@ public static void main2()
 	type Number y
 	quit
 `;
-		const doc = getParsedDoc(documentString);
+		const doc = getParsedPsl(documentString);
 		expect(doc.methods[0].declarations[0].id.value).toEqual('x');
 		expect(doc.methods[1].declarations[0].id.value).toEqual('y');
 	});
