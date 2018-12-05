@@ -1,33 +1,40 @@
 sudo: false
 dist: trusty
-
 language: node_js
-
 node_js:
-  - 8.9.4
+  - "10"
 
-install:
-  - npm install
-  - npm install -g vsce
-  - npm run compile
-  - npm run compile-lint
-  - npm run test
-  - vsce package
- 
-deploy:
-  - provider: script
-    script: cp ./src/pslLint/cli/.npmrc.psl-lint .npmrc && npm pack ./src/pslLint/cli | xargs npm publish
-    skip_cleanup: true
-    on:
-      tags: true
-      condition: $TRAVIS_TAG =~ ^psl-lint
-      all_branches: true
-      repo: ing-bank/vscode-psl
-  - provider: script
-    script: vsce publish -p $VSCODE_TOKEN
-    skip_cleanup: true
-    on:
-      tags: true
-      condition: $TRAVIS_TAG =~ ^vscode-psl
-      all_branches: true
-      repo: ing-bank/vscode-psl
+stages:
+  - build
+  - name: deploy lint
+    if: tag =~ ^lint
+  - name: deploy vscode
+    if: tag =~ ^vscode
+
+jobs:
+  include:
+    - stage: build
+      script:
+        - npm run compile
+        - npm run compile-lint
+      name: compile
+    - script:
+        - npm run lint
+      name: lint
+    - script:
+        - npm run test
+      name: test
+
+    - stage: deploy lint
+      script: cp ./src/pslLint/cli/.npmrc.psl-lint .npmrc && npm run compile-lint
+      deploy:
+        provider: script
+        script: npm publish ./src/pslLint/cli
+      name: npm
+
+    - stage: deploy vscode
+      script: npm run compile && npm i -g vsce && vsce package
+      deploy:
+        provider: script
+        script: vsce publish -p $VSCODE_TOKEN
+      name: marketplace
