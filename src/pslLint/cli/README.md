@@ -6,20 +6,24 @@ This module works by adding rules that are automatically checked at the appropri
 
 ## Current Rules
 
-* TodoInfo
 * MemberCamelCase
 * MemberLength
+* MemberLiteralCase
 * MemberStartsWithV
 * MethodDocumentation
-* MethodSeparator
 * MethodParametersOnNewLine
-* PropertyLiteralCase
+* MethodSeparator
+* MultiLineDeclare
 * RuntimeStart
+* TodoInfo
+* TwoEmptyLines
+* PropertyIsDummy
+* TblColDocumentation
 
 
 ## Contributing
 
-To add a rule, create a class implementing one of the rule interfaces. Then, add an instance of your class to the `addRules` method found in the `activate.ts` module. 
+To add a rule, create a class implementing one of the rule interfaces. Then, add an instance of your class to the `addRules` method found in the `activate.ts` module.
 
 Rules will have a parsed document at their disposal. Auto-complete can guide you to using the parsed document effectively. Use the `todo.ts` and `parameters.ts` modules as examples.
 

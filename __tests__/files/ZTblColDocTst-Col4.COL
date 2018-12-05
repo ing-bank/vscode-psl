@@ -1,0 +1,41 @@
+{
+	"%LIBS" : "SYSDEV",
+	"FID" : "ZTblColDocTst",
+	"DI" : "Col4",
+	"ALIAS" : "HoldAutoallyPlaced",
+	"CMP" : null,
+	"CMPFUNCUDF" : false,
+	"CNV" : null,
+	"DEC" : null,
+	"DEPOSTP" : null,
+	"DEPREP" : null,
+	"DES" : "Test for COL definition without documentation but extra space at the end",
+	"DFT" : "0",
+	"DOM" : null,
+	"ISCUSTOM" : false,
+	"ISMASTER" : false,
+	"LEN" : 1,
+	"MAX" : null,
+	"MDD" : null,
+	"MIN" : null,
+	"NOD" : "KEY",
+	"NULLIND" : false,
+	"POS" : 30,
+	"PTN" : null,
+	"RDBPOS" : null,
+	"RDBTBL" : null,
+	"REQ" : true,
+	"RHD" : "Test for COL definition without documentation but extra space at the end",
+	"SFD" : null,
+	"SIZ" : 1,
+	"SRL" : false,
+	"TBL" : null,
+	"TYP" : "L",
+	"VAL4EXT" : false,
+	"XPO" : null,
+	"XPR" : null
+}
+
+
+
+

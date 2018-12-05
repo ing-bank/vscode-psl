@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as utils from '../parser/utillities';
+import * as utils from '../parser/utilities';
 import * as parser from '../parser/parser';
 import * as lang from './lang';
 import * as path from 'path';

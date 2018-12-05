@@ -5,16 +5,18 @@
 			"/* DOC ----------------------------------------------------------------",
 			"$0",
 			"** ENDDOC */"
-		]
+		],
+		"description": "Adds a documentation comment block"
 	}, 
 	"Separator": {
 		"prefix": "separator",
 		"body": [
 			"// --------------------------------------------------------------------"
-		]
+		],
+		"description": "Adds a comment separator"
 	},
 	"For Loop (with index)": {
-		"prefix": "for",
+		"prefix": "forIndex",
 		"body": [
 			"type Number ${1:<index>}",
 			"for ${1:<index>}=${2:<start>}:${3:<step>}:${4:<end>} {",
@@ -46,6 +48,17 @@
 			"\t* $0",
 			"*/"
 		],
-		"description": "Adds a revision history."
+		"description": "Adds a revision history comment block."
+	},
+	"Method":{
+		"prefix": "method",
+		"body": [
+			"\t// --------------------------------------------------------------------",
+			"${1:private} ${2:void} ${3:<name>}()",
+			"\t/* DOC ----------------------------------------------------------------",
+			"\t$0",
+			"\t** ENDDOC */"
+		],
+		"description": "Adds a method stub with a documentation comment block"
 	}
 }

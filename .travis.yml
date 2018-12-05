@@ -1,3 +1,6 @@
+sudo: false
+dist: trusty
+
 language: node_js
 
 # https://docs.travis-ci.com/user/build-stages/deploy-npm/
@@ -18,3 +21,21 @@ jobs:
     - stage: Run tests
       script:
         - npm run test
+ 
+deploy:
+  - provider: script
+    script: cp ./src/pslLint/cli/.npmrc.psl-lint .npmrc && npm pack ./src/pslLint/cli | xargs npm publish
+    skip_cleanup: true
+    on:
+      tags: true
+      condition: $TRAVIS_TAG =~ ^psl-lint
+      all_branches: true
+      repo: ing-bank/vscode-psl
+  - provider: script
+    script: vsce publish -p $VSCODE_TOKEN
+    skip_cleanup: true
+    on:
+      tags: true
+      condition: $TRAVIS_TAG =~ ^vscode-psl
+      all_branches: true
+      repo: ing-bank/vscode-psl
