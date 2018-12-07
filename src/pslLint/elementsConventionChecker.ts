@@ -151,7 +151,17 @@ export class MemberStartsWithV extends MemberRule {
 	}
 
 	checkStartsWithV(member: Member, diagnostics: Diagnostic[]): void {
-		if (member.id.value.charAt(0) === 'v') {
+		if (member.id.value.charAt(0) !== 'v') return;
+		const isPublic = member.modifiers.findIndex(x => x.value === 'public') > -1;
+		if (isPublic) {
+			diagnostics.push(createDiagnostic(
+				member,
+				`is public and starts with 'v'.`,
+				DiagnosticSeverity.Information,
+				this.ruleName,
+			));
+		}
+		else {
 			diagnostics.push(createDiagnostic(member, `starts with 'v'.`, DiagnosticSeverity.Warning, this.ruleName));
 		}
 	}

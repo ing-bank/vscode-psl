@@ -34,7 +34,16 @@ describe('Members tests', () => {
 	});
 
 	test('Starts with v', () => {
-		expect(utils.diagnosticsOnLine(23, vDiagnostics).length).toBe(1);
+		const diagnosticsOnLine = utils.diagnosticsOnLine(23, vDiagnostics);
+		expect(diagnosticsOnLine.length).toBe(1);
+		expect(diagnosticsOnLine[0].message).toBe(`Declaration "vString" starts with 'v'.`);
+		expect(diagnosticsOnLine[0].severity).toBe(api.DiagnosticSeverity.Warning);
+	});
+	test('Public starts with v', () => {
+		const diagnosticsOnLine = utils.diagnosticsOnLine(24, vDiagnostics);
+		expect(diagnosticsOnLine.length).toBe(1);
+		expect(diagnosticsOnLine[0].message).toBe(`Declaration "vNumber" is public and starts with 'v'.`);
+		expect(diagnosticsOnLine[0].severity).toBe(api.DiagnosticSeverity.Information);
 	});
 
 	test('Property was not called \'dummy\'', () => {
