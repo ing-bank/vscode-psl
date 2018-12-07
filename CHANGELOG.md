@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
+# v1.7.1
+
+* public declarations that start with v are now only diagnosed at INFO level
+
 # v1.7.0
 
 * Adds rule for "TblColDocumentation" from psl-lint (thanks [@ManikandanKKA](https://github.com/ManikandanKKA))
