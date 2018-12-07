@@ -766,6 +766,7 @@
   "scripts": {
     "compile": "tsc -p ./",
     "compile-lint": "tsc -p ./src/pslLint/cli",
+    "compile-parser": "tsc -p ./src/parser",
     "lint": "tslint -c tslint.json --project .",
     "watch": "npm run compile -- -watch",
     "test": "jest"
