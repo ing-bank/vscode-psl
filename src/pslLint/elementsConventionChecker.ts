@@ -92,11 +92,8 @@ export class MemberCamelCase extends MemberRule {
 			if (method.batch) return;
 		}
 
-		const isPublic = member.modifiers.findIndex(x => x.value === 'public') > -1;
-		const publicDeclartion = member.memberClass === MemberClass.declaration && isPublic;
-
 		if (member.id.value.charAt(0) > 'z' || member.id.value.charAt(0) < 'a') {
-			if (publicDeclartion) {
+			if (isPublicDeclaration(member)) {
 				const diagnostic = new Diagnostic(
 					member.id.getRange(),
 					`Declaration "${member.id.value}" is public and does not start with lower case.`,
@@ -152,8 +149,7 @@ export class MemberStartsWithV extends MemberRule {
 
 	checkStartsWithV(member: Member, diagnostics: Diagnostic[]): void {
 		if (member.id.value.charAt(0) !== 'v') return;
-		const isPublic = member.modifiers.findIndex(x => x.value === 'public') > -1;
-		if (isPublic) {
+		if (isPublicDeclaration(member)) {
 			diagnostics.push(createDiagnostic(
 				member,
 				`is public and starts with 'v'.`,
@@ -199,4 +195,9 @@ function printEnum(memberClass: MemberClass): string {
 	const enumName = MemberClass[memberClass];
 	const capitalizedEnumName = enumName.charAt(0).toUpperCase() + enumName.slice(1);
 	return enumName === 'method' ? 'Label' : capitalizedEnumName;
+}
+
+function isPublicDeclaration(member: Member) {
+	const isPublic = member.modifiers.findIndex(x => x.value === 'public') > -1;
+	return member.memberClass === MemberClass.declaration && isPublic;
 }
