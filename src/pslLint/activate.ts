@@ -20,35 +20,39 @@ import { RuntimeStart } from './runtime';
 import { TblColDocumentation } from './tblcolDoc';
 import { TodoInfo } from './todos';
 
+interface Constructor<T> {
+	new (): T;
+}
+
 /**
  * Add new rules here to have them checked at the appropriate time.
  */
-const componentRules: ProfileComponentRule[] = [];
-const fileDefinitionRules: FileDefinitionRule[] = [
-	new TblColDocumentation(),
+const componentRuleConstructors: Constructor<ProfileComponentRule>[] = [];
+const fileDefinitionRuleConstructors: Constructor<FileDefinitionRule>[] = [
+	TblColDocumentation,
 ];
-const pslRules: PslRule[] = [
-	new TodoInfo(),
+const pslRuleConstructors: Constructor<PslRule>[] = [
+	TodoInfo,
 ];
-const memberRules: MemberRule[] = [
-	new MemberCamelCase(),
-	new MemberLength(),
-	new MemberStartsWithV(),
-	new MemberLiteralCase(),
+const memberRuleConstructors: Constructor<MemberRule>[] = [
+	MemberCamelCase,
+	MemberLength,
+	MemberStartsWithV,
+	MemberLiteralCase,
 ];
-const methodRules: MethodRule[] = [
-	new MethodDocumentation(),
-	new MethodSeparator(),
-	new MethodParametersOnNewLine(),
-	new RuntimeStart(),
-	new MultiLineDeclare(),
-	new TwoEmptyLines(),
+const methodRuleConstructors: Constructor<MethodRule>[] = [
+	MethodDocumentation,
+	MethodSeparator,
+	MethodParametersOnNewLine,
+	RuntimeStart,
+	MultiLineDeclare,
+	TwoEmptyLines,
 ];
-const propertyRules: PropertyRule[] = [
-	new PropertyIsDummy(),
+const propertyRuleConstructors: Constructor<PropertyRule>[] = [
+	PropertyIsDummy,
 ];
-const declarationRules: DeclarationRule[] = [];
-const parameterRules: ParameterRule[] = [];
+const declarationRuleConstructors: Constructor<DeclarationRule>[] = [];
+const parameterRuleConstructors: Constructor<ParameterRule>[] = [];
 
 export function getDiagnostics(
 	profileComponent: ProfileComponent,
@@ -79,17 +83,18 @@ class RuleSubscription {
 
 		const config = useConfig ? getConfig(this.profileComponent.fsPath) : undefined;
 
-		const initializeRules = (rules: ProfileComponentRule[]) => {
-			return rules.filter(rule => {
-				if (!config) return true;
-				return matchConfig(path.basename(this.profileComponent.fsPath), rule.ruleName, config);
-			}).map(rule => {
+		const initializeRules = (ruleCtors: Constructor<ProfileComponentRule>[]) => {
+			return ruleCtors.map(ruleCtor => {
+				const rule = new ruleCtor();
 				rule.profileComponent = this.profileComponent;
 				return rule;
+			}).filter(rule => {
+				if (!config) return true;
+				return matchConfig(path.basename(this.profileComponent.fsPath), rule.ruleName, config);
 			});
 		};
-		const initializePslRules = (rules: PslRule[]) => {
-			const componentInitialized = initializeRules(rules) as PslRule[];
+		const initializePslRules = (ruleCtor: Constructor<PslRule>[]) => {
+			const componentInitialized = initializeRules(ruleCtor) as PslRule[];
 			const pslParsedDocument = this.parsedDocument as ParsedDocument;
 			return componentInitialized.map(rule => {
 				rule.parsedDocument = pslParsedDocument;
@@ -97,14 +102,14 @@ class RuleSubscription {
 			});
 		};
 
-		this.componentRules = initializeRules(componentRules);
-		this.fileDefinitionRules = initializeRules(fileDefinitionRules);
-		this.pslRules = initializePslRules(pslRules);
-		this.methodRules = initializePslRules(methodRules);
-		this.memberRules = initializePslRules(memberRules);
-		this.propertyRules = initializePslRules(propertyRules);
-		this.declarationRules = initializePslRules(declarationRules);
-		this.parameterRules = initializePslRules(parameterRules);
+		this.componentRules = initializeRules(componentRuleConstructors);
+		this.fileDefinitionRules = initializeRules(fileDefinitionRuleConstructors);
+		this.pslRules = initializePslRules(pslRuleConstructors);
+		this.methodRules = initializePslRules(methodRuleConstructors);
+		this.memberRules = initializePslRules(memberRuleConstructors);
+		this.propertyRules = initializePslRules(propertyRuleConstructors);
+		this.declarationRules = initializePslRules(declarationRuleConstructors);
+		this.parameterRules = initializePslRules(parameterRuleConstructors);
 	}
 
 	reportRules(): Diagnostic[] {
