@@ -30,6 +30,9 @@ jobs:
       deploy:
         provider: script
         script: npm publish ./src/pslLint/cli
+        on:
+          tags: true
+          all_branches: true
       name: npm
 
     - stage: deploy vscode
@@ -37,4 +40,7 @@ jobs:
       deploy:
         provider: script
         script: vsce publish -p $VSCODE_TOKEN
+        on:
+          tags: true
+          all_branches: true
       name: marketplace
