@@ -63,12 +63,8 @@ export function getDiagnostics(
 	return subscription.reportRules();
 }
 
-/**
- * Interface for adding and executing rules.
- */
 class RuleSubscription {
 
-	private diagnostics: Diagnostic[];
 	private componentRules: ProfileComponentRule[];
 	private pslRules: PslRule[];
 	private fileDefinitionRules: FileDefinitionRule[];
@@ -79,8 +75,6 @@ class RuleSubscription {
 	private parameterRules: ParameterRule[];
 
 	constructor(private profileComponent: ProfileComponent, private parsedDocument?: ParsedDocument, useConfig?: boolean) {
-		this.diagnostics = [];
-
 		const config = useConfig ? getConfig(this.profileComponent.fsPath) : undefined;
 
 		const initializeRules = (ruleCtors: Constructor<ProfileComponentRule>[]) => {
@@ -113,48 +107,50 @@ class RuleSubscription {
 	}
 
 	reportRules(): Diagnostic[] {
-		const addDiagnostics = (rules: ProfileComponentRule[], ...args: any[]) => {
-			rules.forEach(rule => this.diagnostics.push(...rule.report(...args)));
+		const diagnostics: Diagnostic[] = [];
+
+		const collectDiagnostics = (rules: ProfileComponentRule[], ...args: any[]) => {
+			rules.forEach(rule => diagnostics.push(...rule.report(...args)));
 		};
 
-		addDiagnostics(this.componentRules);
+		collectDiagnostics(this.componentRules);
 
 		if (ProfileComponent.isFileDefinition(this.profileComponent.fsPath)) {
-			addDiagnostics(this.fileDefinitionRules);
+			collectDiagnostics(this.fileDefinitionRules);
 		}
 
 		if (ProfileComponent.isPsl(this.profileComponent.fsPath)) {
-			addDiagnostics(this.pslRules);
+			collectDiagnostics(this.pslRules);
 
 			const parsedDocument = this.parsedDocument as ParsedDocument;
 
 			for (const property of parsedDocument.properties) {
-				addDiagnostics(this.memberRules, property);
-				addDiagnostics(this.propertyRules, property);
+				collectDiagnostics(this.memberRules, property);
+				collectDiagnostics(this.propertyRules, property);
 			}
 
 			for (const declaration of parsedDocument.declarations) {
-				addDiagnostics(this.memberRules, declaration);
-				addDiagnostics(this.declarationRules, declaration);
+				collectDiagnostics(this.memberRules, declaration);
+				collectDiagnostics(this.declarationRules, declaration);
 			}
 
 			for (const method of parsedDocument.methods) {
-				addDiagnostics(this.memberRules, method);
-				addDiagnostics(this.methodRules, method);
+				collectDiagnostics(this.memberRules, method);
+				collectDiagnostics(this.methodRules, method);
 
 				for (const parameter of method.parameters) {
-					addDiagnostics(this.memberRules, parameter);
-					addDiagnostics(this.parameterRules, parameter, method);
+					collectDiagnostics(this.memberRules, parameter);
+					collectDiagnostics(this.parameterRules, parameter, method);
 				}
 
 				for (const declaration of method.declarations) {
-					addDiagnostics(this.memberRules, declaration);
-					addDiagnostics(this.declarationRules, declaration, method);
+					collectDiagnostics(this.memberRules, declaration);
+					collectDiagnostics(this.declarationRules, declaration, method);
 				}
 			}
 
 		}
 
-		return this.diagnostics;
+		return diagnostics;
 	}
 }
