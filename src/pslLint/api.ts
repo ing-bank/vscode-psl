@@ -117,6 +117,10 @@ export abstract class ProfileComponentRule {
 
 	profileComponent: ProfileComponent;
 
+	constructor(profileComponent: ProfileComponent) {
+		this.profileComponent = profileComponent;
+	}
+
 	abstract report(...args: any[]): Diagnostic[];
 }
 
@@ -125,6 +129,11 @@ export abstract class FileDefinitionRule extends ProfileComponentRule { }
 export abstract class PslRule extends ProfileComponentRule {
 
 	parsedDocument: ParsedDocument;
+
+	constructor(profileComponent: ProfileComponent, parsedDocument: ParsedDocument) {
+		super(profileComponent);
+		this.parsedDocument = parsedDocument;
+	}
 
 	abstract report(...args: any[]): Diagnostic[];
 }
@@ -148,6 +157,33 @@ export abstract class ParameterRule extends PslRule {
 export abstract class DeclarationRule extends PslRule {
 	abstract report(declaration: Declaration, method?: Method): Diagnostic[];
 }
+
+export type FileDefinitionRuleConstructor = new (profileComponent: ProfileComponent) => FileDefinitionRule;
+export type ProfileComponentRuleConstructor = new (profileComponent: ProfileComponent) => ProfileComponentRule;
+export type PslRuleConstructor = new (
+	profileComponent: ProfileComponent,
+	parsedDocument: ParsedDocument,
+) => PslRule;
+export type MemberRuleConstructor = new (
+	profileComponent: ProfileComponent,
+	parsedDocument: ParsedDocument,
+) => MemberRule;
+export type PropertyRuleConstructor = new (
+	profileComponent: ProfileComponent,
+	parsedDocument: ParsedDocument,
+) => PropertyRule;
+export type MethodRuleConstructor = new (
+	profileComponent: ProfileComponent,
+	parsedDocument: ParsedDocument,
+) => MethodRule;
+export type ParameterRuleConstructor = new (
+	profileComponent: ProfileComponent,
+	parsedDocument: ParsedDocument,
+) => ParameterRule;
+export type DeclarationRuleConstructor = new (
+	profileComponent: ProfileComponent,
+	parsedDocument: ParsedDocument,
+) => DeclarationRule;
 
 type GetTextMethod = (lineNumber: number) => string;
 

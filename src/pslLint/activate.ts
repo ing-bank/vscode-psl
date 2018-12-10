@@ -1,14 +1,12 @@
 import * as path from 'path';
+import { ParsedDocument } from '../parser/parser';
 import {
-	DeclarationRule, Diagnostic, FileDefinitionRule, MemberRule, MethodRule, ParameterRule,
-	ProfileComponent, ProfileComponentRule, PropertyRule, PslRule,
+	DeclarationRule, DeclarationRuleConstructor, Diagnostic, FileDefinitionRule, FileDefinitionRuleConstructor,
+	MemberRule, MemberRuleConstructor, MethodRule, MethodRuleConstructor, ParameterRule, ParameterRuleConstructor,
+	ProfileComponent, ProfileComponentRule, ProfileComponentRuleConstructor, PropertyRule, PropertyRuleConstructor,
+	PslRule, PslRuleConstructor,
 } from './api';
 import { getConfig, matchConfig } from './config';
-
-/**
- * Import rules here.
- */
-import { ParsedDocument } from '../parser/parser';
 import {
 	MemberCamelCase, MemberLength, MemberLiteralCase,
 	MemberStartsWithV, PropertyIsDummy,
@@ -20,27 +18,20 @@ import { RuntimeStart } from './runtime';
 import { TblColDocumentation } from './tblcolDoc';
 import { TodoInfo } from './todos';
 
-interface Constructor<T> {
-	new (): T;
-}
-
-/**
- * Add new rules here to have them checked at the appropriate time.
- */
-const componentRuleConstructors: Constructor<ProfileComponentRule>[] = [];
-const fileDefinitionRuleConstructors: Constructor<FileDefinitionRule>[] = [
+const componentRuleConstructors: ProfileComponentRuleConstructor[] = [];
+const fileDefinitionRuleConstructors: FileDefinitionRuleConstructor[] = [
 	TblColDocumentation,
 ];
-const pslRuleConstructors: Constructor<PslRule>[] = [
+const pslRuleConstructors: PslRuleConstructor[] = [
 	TodoInfo,
 ];
-const memberRuleConstructors: Constructor<MemberRule>[] = [
+const memberRuleConstructors: MemberRuleConstructor[] = [
 	MemberCamelCase,
 	MemberLength,
 	MemberStartsWithV,
 	MemberLiteralCase,
 ];
-const methodRuleConstructors: Constructor<MethodRule>[] = [
+const methodRuleConstructors: MethodRuleConstructor[] = [
 	MethodDocumentation,
 	MethodSeparator,
 	MethodParametersOnNewLine,
@@ -48,11 +39,11 @@ const methodRuleConstructors: Constructor<MethodRule>[] = [
 	MultiLineDeclare,
 	TwoEmptyLines,
 ];
-const propertyRuleConstructors: Constructor<PropertyRule>[] = [
+const propertyRuleConstructors: PropertyRuleConstructor[] = [
 	PropertyIsDummy,
 ];
-const declarationRuleConstructors: Constructor<DeclarationRule>[] = [];
-const parameterRuleConstructors: Constructor<ParameterRule>[] = [];
+const declarationRuleConstructors: DeclarationRuleConstructor[] = [];
+const parameterRuleConstructors: ParameterRuleConstructor[] = [];
 
 export function getDiagnostics(
 	profileComponent: ProfileComponent,
@@ -77,22 +68,19 @@ class RuleSubscription {
 	constructor(private profileComponent: ProfileComponent, private parsedDocument?: ParsedDocument, useConfig?: boolean) {
 		const config = useConfig ? getConfig(this.profileComponent.fsPath) : undefined;
 
-		const initializeRules = (ruleCtors: Constructor<ProfileComponentRule>[]) => {
-			return ruleCtors.map(ruleCtor => {
-				const rule = new ruleCtor();
-				rule.profileComponent = this.profileComponent;
-				return rule;
-			}).filter(rule => {
-				if (!config) return true;
-				return matchConfig(path.basename(this.profileComponent.fsPath), rule.ruleName, config);
+		const filterRule = (ruleCtor: ProfileComponentRuleConstructor | PslRuleConstructor) => {
+			if (!config) return true;
+			return matchConfig(path.basename(this.profileComponent.fsPath), ruleCtor.name, config);
+		};
+		const initializeRules = (ruleCtors: ProfileComponentRuleConstructor[]) => {
+			return ruleCtors.filter(filterRule).map(ruleCtor => {
+				return new ruleCtor(this.profileComponent);
 			});
 		};
-		const initializePslRules = (ruleCtor: Constructor<PslRule>[]) => {
-			const componentInitialized = initializeRules(ruleCtor) as PslRule[];
-			const pslParsedDocument = this.parsedDocument as ParsedDocument;
-			return componentInitialized.map(rule => {
-				rule.parsedDocument = pslParsedDocument;
-				return rule;
+		const initializePslRules = (ruleCtors: PslRuleConstructor[]) => {
+			return ruleCtors.filter(filterRule).map(ruleCtor => {
+				const pslParsedDocument = this.parsedDocument as ParsedDocument;
+				return new ruleCtor(this.profileComponent, pslParsedDocument);
 			});
 		};
 
