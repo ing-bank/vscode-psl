@@ -69,7 +69,8 @@ class RuleSubscription {
 		const config = useConfig ? getConfig(this.profileComponent.fsPath) : undefined;
 
 		const filterRule = (ruleCtor: ProfileComponentRuleConstructor | PslRuleConstructor) => {
-			if (!config) return true;
+			if (!useConfig) return true;
+			if (!config) return false;
 			return matchConfig(path.basename(this.profileComponent.fsPath), ruleCtor.name, config);
 		};
 		const initializeRules = (ruleCtors: ProfileComponentRuleConstructor[]) => {
