@@ -14,15 +14,15 @@ This module works by adding rules that are automatically checked at the appropri
 * MethodParametersOnNewLine
 * MethodSeparator
 * MultiLineDeclare
+* PropertyIsDummy
 * RuntimeStart
+* TblColDocumentation
 * TodoInfo
 * TwoEmptyLines
-* PropertyIsDummy
-* TblColDocumentation
 
 ## Configuration
 
-By creating a file `psl-lint.json` at the root of the project, you can control the behavior of the linter.  The format of the file is as follows:
+By creating a file `psl-lint.json` at the root of the project, you can control the behavior of the linter. The format of the file is as follows:
 
 ```
 {

@@ -61,7 +61,7 @@ These features include:
 
 ### psl-lint
 
-This extension includes support for checking PSL code against common standards. The setting `psl.lint` is by default set to `config`, meaning the linting module will activate upon finding a `psl-lint.json` configuration file. The format of the file is as follows:
+This extension includes support for checking PSL code against common coding standards. The setting `psl.lint` is by default set to `config`, meaning the linting module will activate upon finding a `psl-lint.json` configuration file. The format of the file is as follows:
 
 ```
 {
@@ -80,7 +80,7 @@ This example illustrates how the configuration file is defined. Within `include`
 
 ## Development
 
-If you would like to join the development of this extension, you will need to install [node.js](https://nodejs.org/en/) (with NPM) in order to install the dependencies.
+If you would like to join the development of this extension, you will need to install [node.js](https://nodejs.org/en/) (with npm) in order to install the dependencies.
 
 Once you clone the project, from the command line in the root of this project, run `npm install`.
 
