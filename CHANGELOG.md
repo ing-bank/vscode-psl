@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
+# v1.7.2
+
+* Updates documentation about Code Quality and settings.
+* By default, Code Quality via `psl-lint` will only activate when the `psl-lint.json` configuration file is present.
+
 # v1.7.1
 
 * public declarations that start with v are now only diagnosed at INFO level
