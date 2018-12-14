@@ -27,12 +27,14 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export interface EnvironmentConfig {
-	name: string,
-	host: string,
-	port: number,
-	user: string,
-	password: string,
-	sshLogin: string
+	name: string;
+	host: string;
+	port: number;
+	user: string;
+	password: string;
+	sshLogin?: string;
+	serverType?: string;
+	encoding?: BufferEncoding;
 }
 
 interface GlobalConfig {

@@ -32,6 +32,15 @@
 					"sshLogin": {
 						"type": "string",
 						"description": "The login used to ssh into the Profile Server."
+					},
+					"serverType": {
+						"type": "string",
+						"description": "The server type. Default value is \"SCA$IBS\"."
+					},
+					"encoding": {
+						"type": "string",
+						"description": "Encoding to use in request/response. The default value is \"utf8\".",
+						"enum": ["ascii", "utf8", "utf16le", "ucs2", "base64", "latin1", "binary", "hex"]
 					}
 				}				
 			}
