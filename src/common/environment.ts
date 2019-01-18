@@ -54,7 +54,7 @@ export async function workspaceQuickPick(): Promise<WorkspaceQuickPick | undefin
 		await GlobalFile.read();
 	}
 	catch (e) {
-		let defaultConfig: GlobalConfig = { environments: [{ name: '', host: '', port: 0, user: '', password: '', sshLogin: '' }] }
+		let defaultConfig: GlobalConfig = { environments: [{ name: '', host: '', port: 0, user: '', password: '', sshLogin: '', serverType: 'SCA$IBS', encoding: 'utf8' }] }
 		await GlobalFile.write(defaultConfig);
 		await GlobalFile.show();
 		return;
