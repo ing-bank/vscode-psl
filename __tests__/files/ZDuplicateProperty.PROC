@@ -1,4 +1,4 @@
-public static void ZTEST()
+	#CLASSDEF public
 	#PROPERTYDEF customer 		class = Number 	position = 2 private
 	#PROPERTYDEF account 		class = Integer	position = 3 private
 	#PROPERTYDEF aCCount 		class = Number 	position = 4 private
