@@ -48,9 +48,7 @@ export class PropertyIsDuplicate extends PropertyRule {
 
 	report(property: Property): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
-		if (!this.parsedDocument.extending) {
-			this.isDuplicateProperty(property, diagnostics);
-		}
+		this.isDuplicateProperty(property, diagnostics);
 		return diagnostics;
 	}
 
