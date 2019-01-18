@@ -163,7 +163,7 @@ export class MtmConnection {
 			let partialString: string = fileString.slice(i * 1024, (i * 1024) + 1024);
 			let withPipe: string = '';
 			for (const char of partialString) {
-				withPipe += (char.charCodeAt(0) + '|');
+				withPipe += char.charCodeAt(0) + '|';
 			}
 			let prepareString: string = utils.initCodeObject(withPipe, codeToken)
 			returnString = await this.execute(this.serviceClass, prepareString)
