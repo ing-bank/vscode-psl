@@ -28,7 +28,7 @@ Locate the button at the bottom-right corner titled `Configure Environments`. If
 }
 ```
 
-> Added in v1.8.0 are the fields `serverType` and `encoding`. Their default values are "SCA$IBS" and "utf8", respectively. Use intellisense while editing the configuration file for more details.
+> Added in v1.8.0 are the fields `serverType` and `encoding`. Their default values are "SCA$IBS" and "utf8", respectively.
 
 Here you can store a global array of configurations. Any project can read from this configuration. Use auto-complete and hover suggestions for hints about using the configuration file.
 
