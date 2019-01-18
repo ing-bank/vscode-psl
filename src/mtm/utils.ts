@@ -114,19 +114,19 @@ export function lv2vFormat(messageString: Buffer): Buffer[] {
 		return returnString
 	}
 
-export function parseResponse(serviceClass: number, outputData: Buffer): string {
+export function parseResponse(serviceClass: number, outputData: Buffer, encoding: BufferEncoding): string {
 		// unpacking multiple times to get the token, remove the endiness by extracting from position 2
 		let returnString: string = ''
 		let returnArray: Buffer[];
 		returnArray = lv2vFormat(outputData);
 		returnArray = lv2vFormat(returnArray[1]);
 		returnArray = lv2vFormat(returnArray[1]);
-		returnString = returnArray[0].toString()
+		returnString = returnArray[0].toString(encoding)
 		if (returnString === 'ER') {
-			throw returnArray.map(x => x.toString()).join('')
+			throw returnArray.map(x => x.toString(encoding)).join('')
 		}
 		if (serviceClass === 5) {
-			returnString = returnArray[2].toString() + String.fromCharCode(0) + returnArray[3].toString()
+			returnString = returnArray[2].toString(encoding) + String.fromCharCode(0) + returnArray[3].toString(encoding)
 		}
 		return returnString;
 	}

@@ -7,7 +7,16 @@
 			"type": "array",
 			"description": "A list of all available environments.",
 			"items": {
-				"default": {"name": "" , "host": "" , "port": 0, "user": "" , "password": "" , "sshLogin": "" },
+				"default": {
+					"name": "",
+					"host": "",
+					"port": 0,
+					"user": "",
+					"password": "",
+					"sshLogin": "",
+					"serverType": "SCA$IBS",
+					"encoding": "utf8"
+				},
 				"properties": {
 					"name": {
 						"type": "string",
@@ -32,8 +41,17 @@
 					"sshLogin": {
 						"type": "string",
 						"description": "The login used to ssh into the Profile Server."
+					},
+					"serverType": {
+						"type": "string",
+						"description": "The server type. Default value is \"SCA$IBS\"."
+					},
+					"encoding": {
+						"type": "string",
+						"description": "Encoding to use in request/response. The default value is \"utf8\".",
+						"enum": ["ascii", "utf8", "ucs2", "base64", "latin1", "binary", "hex"]
 					}
-				}				
+				}
 			}
 		}
 	},

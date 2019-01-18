@@ -17,7 +17,7 @@ Profile Scripting Language functionality for Visual Studio Code.
 
 ## Environment Configuration
 
-Locate the button at the bottom-right corner titled `Configure Environments`. If the button is not visible, use the Command Pallete (<kbd>F1</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) to find the `PSL: Configure Environment` command. A JSON object of the following form will appear:
+Locate the button at the bottom-right corner titled `Configure Environments`. If the button is not visible, use the Command Palette (<kbd>F1</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) to find the `PSL: Configure Environment` command. A JSON object of the following form will appear:
 ```json
 {
 	"environments": [
@@ -27,11 +27,16 @@ Locate the button at the bottom-right corner titled `Configure Environments`. If
 			"port": 0,
 			"user": "",
 			"password": "",
-			"sshLogin": ""
+			"sshLogin": "",
+			"serverType": "SCA$IBS",   // added v1.8.0
+			"encoding": "utf8"         // added v1.8.0
 		}
 	]
 }
 ```
+
+> Added in v1.8.0 are the fields `serverType` and `encoding`. Their default values are "SCA$IBS" and "utf8", respectively.
+
 Here you can store a global array of configurations. Any project can read from this configuration. Use auto-complete and hover suggestions for hints about using the configuration file.
 
 Once the global configuration is saved, environments can be activated by using the `Configure Environments` button at the bottom. Multiple environments can be selected, allowing for simultaneous interactions with hosts.
