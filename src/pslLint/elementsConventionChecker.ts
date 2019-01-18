@@ -44,6 +44,36 @@ export class PropertyIsDummy extends PropertyRule {
 	}
 }
 
+export class PropertyIsDuplicate extends PropertyRule {
+
+	report(property: Property): Diagnostic[] {
+		const diagnostics: Diagnostic[] = [];
+		if (!this.parsedDocument.extending) {
+			this.isDuplicateProperty(property, diagnostics);
+		}
+		return diagnostics;
+	}
+
+	isDuplicateProperty(member: Member, diagnostics: Diagnostic[]): void {
+		if (member.modifiers.findIndex(x => x.value === 'literal') > -1) return;
+		for (const property of this.parsedDocument.properties) {
+			if (property.id.position.line > member.id.position.line) continue;
+			if (property.id.value.toLowerCase() === member.id.value.toLowerCase() &&
+				!(property.id.position.line === member.id.position.line)) {
+				const diagnostic = new Diagnostic(
+					member.id.getRange(),
+					`Property ${member.id.value} is declared already above, may be with same or different case`,
+					this.ruleName,
+					DiagnosticSeverity.Information,
+				);
+				diagnostic.source = 'lint';
+				diagnostics.push(diagnostic);
+				break;
+			}
+		}
+	}
+}
+
 export class MemberLiteralCase extends MemberRule {
 
 	report(member: Member): Diagnostic[] {

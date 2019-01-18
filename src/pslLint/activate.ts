@@ -11,7 +11,7 @@ import { getConfig, matchConfig } from './config';
 import { ParsedDocument } from '../parser/parser';
 import {
 	MemberCamelCase, MemberLength, MemberLiteralCase,
-	MemberStartsWithV, PropertyIsDummy,
+	MemberStartsWithV, PropertyIsDummy, PropertyIsDuplicate,
 } from './elementsConventionChecker';
 import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from './methodDoc';
 import { MultiLineDeclare } from './multiLineDeclare';
@@ -46,6 +46,7 @@ const methodRules: MethodRule[] = [
 ];
 const propertyRules: PropertyRule[] = [
 	new PropertyIsDummy(),
+	new PropertyIsDuplicate(),
 ];
 const declarationRules: DeclarationRule[] = [];
 const parameterRules: ParameterRule[] = [];
