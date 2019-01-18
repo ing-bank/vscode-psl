@@ -88,7 +88,7 @@ export async function executeWithProgress(message: string, task: () => Promise<a
 export async function getConnection(env: environment.EnvironmentConfig): Promise<MtmConnection> {
 	let connection: MtmConnection;
 	try {
-		connection = MtmConnection.getSocket('121', 3);
+		connection = MtmConnection.getSocket('121', 3, env.serverType, env.encoding);
 		await connection.open(env.host, env.port, env.user, env.password);
 	}
 	catch (err) {

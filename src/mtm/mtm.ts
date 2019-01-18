@@ -13,7 +13,8 @@ export class MtmConnection {
 	private mrpcId: string;
 
 	private socket: HostSocket = new HostSocket()
-	private servertype: string = 'SCA$IBS';
+	private serverType: string = 'SCA$IBS';
+	private encoding: BufferEncoding = 'utf8';
 	private messageByte: string = String.fromCharCode(28);
 	private token: string = '';
 	private messageId: number = 0;
@@ -22,13 +23,15 @@ export class MtmConnection {
 	private isSql: boolean = false;
 	private recordCount: number = 0;
 
-	private constructor(mrpcId: string, serviceClass: number) {
+	private constructor(mrpcId: string, serviceClass: number, serverType?: string, encoding?: BufferEncoding) {
 		this.mrpcId = mrpcId;
 		this.serviceClass = serviceClass;
+		if (serverType) this.serverType = serverType;
+		if (encoding) this.encoding = encoding;
 	}
 
-	static getSocket(mrpcId: string, serviceClass: number) {
-		return new MtmConnection(mrpcId, serviceClass);
+	static getSocket(mrpcId: string, serviceClass: number, servertype?: string, encoding?: BufferEncoding) {
+		return new MtmConnection(mrpcId, serviceClass, servertype, encoding);
 	}
 
 	async open(host: string, port: number, profileUsername: string, profilePassword: string) {
@@ -152,16 +155,16 @@ export class MtmConnection {
 
 	private async sendToProfile(filename: string) {
 		let returnString: string;
-		let fileString: Buffer = await readFileAsync(filename);
+		let fileString: string = await readFileAsync(filename, {encoding: this.encoding}) as string;
 		let fileContentLength: number = fileString.length;
 		let totalLoop: number = Math.ceil(fileContentLength / 1024);
 		let codeToken: string = '';
 		for (let i = 0; i < totalLoop; i++) {
-			let partialBufferString: Buffer = fileString.slice(i * 1024, (i * 1024) + 1024);
+			let partialString: string = fileString.slice(i * 1024, (i * 1024) + 1024);
 			let withPipe: string = '';
-			partialBufferString.forEach(eachChar => {
-				withPipe = withPipe.concat(eachChar.toString().concat('|'));
-			})
+			for (const char of partialString) {
+				withPipe += char.charCodeAt(0) + '|';
+			}
 			let prepareString: string = utils.initCodeObject(withPipe, codeToken)
 			returnString = await this.execute(this.serviceClass, prepareString)
 			codeToken = returnString;
@@ -321,7 +324,7 @@ export class MtmConnection {
 			messageLength = messageLength + nextMessage.length;
 			message = Buffer.concat([message, nextMessage], messageLength)
 		}
-		return (utils.parseResponse(serviceClass, message.slice(3, message.length)));
+		return (utils.parseResponse(serviceClass, message.slice(3, message.length), this.encoding));
 	}
 
 	private prepareSendingMessage(serviceClass: number, prepareString: string): string {
@@ -331,14 +334,14 @@ export class MtmConnection {
 			prepareString = utils.mrpcMessage(this.mrpcId, version.toString(), prepareString)
 		}
 		let sendingMessage = utils.sendingMessage(tokenMessage, prepareString);
-		sendingMessage = this.servertype + this.messageByte + sendingMessage
+		sendingMessage = this.serverType + this.messageByte + sendingMessage
 		sendingMessage = utils.pack(sendingMessage.length + 2) + sendingMessage;
 		this.messageId++;
 		return sendingMessage;
 	}
 }
 
-function readFileAsync(file: string, options?: any): Promise<Buffer> {
+function readFileAsync(file: string, options?: {encoding?: string, flag?: string}): Promise<Buffer | string> {
 	return new Promise((resolve, reject) => {
 		fs.readFile(file, options, (err, data) => {
 			if (err) {
