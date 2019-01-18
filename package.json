@@ -2,7 +2,7 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "preview": true,
   "publisher": "ing-bank",
   "engines": {
@@ -23,7 +23,8 @@
     "onCommand:psl.configureEnvironment",
     "onCommand:psl.sendElement",
     "onCommand:psl.compileAndLink",
-    "onCommand:psl.runPSL"
+    "onCommand:psl.runPSL",
+    "onCommand:psl.launchHostTerminal"
   ],
   "main": "./out/src/extension",
   "contributes": {
