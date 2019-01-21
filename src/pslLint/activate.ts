@@ -54,6 +54,9 @@ export function getDiagnostics(
 	return subscription.reportRules();
 }
 
+/**
+ * Manages which rules need to be applied to a given component.
+ */
 class RuleSubscription {
 
 	private componentRules: ProfileComponentRule[];
