@@ -113,8 +113,15 @@ export class DiagnosticRelatedInformation {
 
 export abstract class ProfileComponentRule {
 
+	/**
+	 * The rule name as it is known in the `psl-lint.json` configuration.
+	 * This is automatically the same as the rule class name.
+	 */
 	readonly ruleName: string = this.constructor.name;
 
+	/**
+	 * The current component being checked.
+	 */
 	profileComponent: ProfileComponent;
 
 	constructor(profileComponent: ProfileComponent) {
@@ -128,6 +135,9 @@ export abstract class FileDefinitionRule extends ProfileComponentRule { }
 
 export abstract class PslRule extends ProfileComponentRule {
 
+	/**
+	 * A parsed version of a PSL component.
+	 */
 	parsedDocument: ParsedDocument;
 
 	constructor(profileComponent: ProfileComponent, parsedDocument: ParsedDocument) {
@@ -135,25 +145,36 @@ export abstract class PslRule extends ProfileComponentRule {
 		this.parsedDocument = parsedDocument;
 	}
 
-	abstract report(...args: any[]): Diagnostic[];
 }
 
+/**
+ * A rule that apply to a Property, Declaration, Parameter, or Method equally.
+ */
 export abstract class MemberRule extends PslRule {
 	abstract report(member: Member): Diagnostic[];
 }
 
+/**
+ * A rule that only apply to a Property.
+ */
 export abstract class PropertyRule extends PslRule {
 	abstract report(property: Property): Diagnostic[];
 }
-
+/**
+ * A rule that only apply to a Method.
+ */
 export abstract class MethodRule extends PslRule {
 	abstract report(method: Method): Diagnostic[];
 }
-
+/**
+ * A rule that only apply to a Parameter.
+ */
 export abstract class ParameterRule extends PslRule {
 	abstract report(parameter: Parameter, method: Method): Diagnostic[];
 }
-
+/**
+ * A rule that only apply to a Declaration.
+ */
 export abstract class DeclarationRule extends PslRule {
 	abstract report(declaration: Declaration, method?: Method): Diagnostic[];
 }
@@ -192,25 +213,38 @@ type GetTextMethod = (lineNumber: number) => string;
  * The file may be PSL or non-PSL (such as a TBL or COL).
  */
 export class ProfileComponent {
-
+	/*
+	* Utility method to check a path.
+	*/
 	static isPsl(fsPath: string): boolean {
 		return path.extname(fsPath) === '.PROC'
 			|| path.extname(fsPath) === '.BATCH'
 			|| path.extname(fsPath) === '.TRIG'
 			|| path.extname(fsPath).toUpperCase() === '.PSL';
 	}
-
+	/*
+	* Utility method to check a path.
+	*/
 	static isFileDefinition(fsPath: string): boolean {
 		return path.extname(fsPath) === '.TBL'
 			|| path.extname(fsPath) === '.COL';
 	}
-
+	/*
+	* Utility method to check a path.
+	*/
 	static isProfileComponent(fsPath: string): boolean {
 		return ProfileComponent.isPsl(fsPath)
 			|| ProfileComponent.isFileDefinition(fsPath);
 	}
 
+	/**
+	 * The path on the file system to the component.
+	 */
 	fsPath: string;
+
+	/**
+	 * The text contents of the component.
+	 */
 	textDocument: string;
 
 	private indexedDocument?: Map<number, string>;

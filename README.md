@@ -28,8 +28,8 @@ Locate the button at the bottom-right corner titled `Configure Environments`. If
 			"user": "",
 			"password": "",
 			"sshLogin": "",
-			"serverType": "SCA$IBS",   // added v1.8.0
-			"encoding": "utf8"         // added v1.8.0
+			"serverType": "SCA$IBS",
+			"encoding": "utf8"
 		}
 	]
 }
@@ -66,7 +66,7 @@ These features include:
 
 ### psl-lint
 
-This extension includes support for checking PSL code against common coding standards. The setting `psl.lint` is by default set to `config`, meaning the linting module will activate upon finding a `psl-lint.json` configuration file. The format of the file is as follows:
+This extension includes support for checking PSL against common coding standards. The setting `psl.lint` is by default set to `config`, meaning the linting module will activate upon finding a `psl-lint.json` configuration file. Here is a sample:
 
 ```
 {
@@ -81,7 +81,9 @@ This extension includes support for checking PSL code against common coding stan
 }
 ```
 
-This example illustrates how the configuration file is defined. Within `include` and `exclude` are filename-to-rules mappings. The filenames can be glob patterns ("Z*" will match all files that start with Z). The rules are written in an array, and must be explicitly stated. The only exception is the "*" rule, which matches all rules. [For more information about which rules are available, and how the linting can be used outside of vscode, visit the package at npm](https://www.npmjs.com/package/psl-lint).
+Within `include` and `exclude` mappings from filename patterns to rules. These are glob-style patterns ("Z*" will match all files that start with Z). The rules are written in an array, and must be explicitly stated. The only exception is the "*" rule, which matches all rules.
+
+[For more information about which rules are available, and how the linting can be used outside of vscode, visit the package at npm](https://www.npmjs.com/package/psl-lint).
 
 ## Development
 
