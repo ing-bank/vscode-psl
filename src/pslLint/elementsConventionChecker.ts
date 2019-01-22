@@ -1,9 +1,8 @@
 import { Member, MemberClass, Method, Property } from '../parser/parser';
 import {
-	Diagnostic, DiagnosticSeverity, MemberRule,
+	Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity, MemberRule,
 	MethodRule, PropertyRule,
 } from './api';
-import {  } from 'constants';
 
 export class MethodStartsWithZ extends MethodRule {
 
@@ -55,18 +54,25 @@ export class PropertyIsDuplicate extends PropertyRule {
 
 	isDuplicateProperty(property: Property, diagnostics: Diagnostic[]): void {
 
-		const slicedProperty = this.parsedDocument.properties.slice(1,
-			this.parsedDocument.properties.findIndex(x => x.id.value === property.id.value));
+		const slicedProperty = this.parsedDocument.properties.slice(0,
+			this.parsedDocument.properties.findIndex(x => x.id.position.line === property.id.position.line));
 
 		for (const checkProperty of slicedProperty) {
 
 			if (checkProperty.id.value === property.id.value) {
 				const diagnostic = new Diagnostic(
 					property.id.getRange(),
-					`Property ${property.id.value} is declared already`,
+					`Property ${property.id.value} is declared already above with same case`,
 					this.ruleName,
 					DiagnosticSeverity.Information,
 				);
+				const aboveDuplicateProperty = new DiagnosticRelatedInformation(
+					checkProperty.id.getRange(),
+					`Reference to property ${checkProperty.id.value}`,
+				);
+				diagnostic.relatedInformation = [
+					aboveDuplicateProperty,
+				];
 				diagnostic.source = 'lint';
 				diagnostics.push(diagnostic);
 				break;
@@ -79,6 +85,13 @@ export class PropertyIsDuplicate extends PropertyRule {
 					this.ruleName,
 					DiagnosticSeverity.Information,
 				);
+				const aboveDuplicateProperty = new DiagnosticRelatedInformation(
+					checkProperty.id.getRange(),
+					`Reference to property ${checkProperty.id.value}`,
+				);
+				diagnostic.relatedInformation = [
+					aboveDuplicateProperty,
+				];
 				diagnostic.source = 'lint';
 				diagnostics.push(diagnostic);
 				break;

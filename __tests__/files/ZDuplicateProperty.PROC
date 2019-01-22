@@ -11,3 +11,4 @@
 	#PROPERTYDEF array class=String private node="array2"
 	#PROPERTYDEF INLITERAL		= 0 class=Integer public literal
 	#PROPERTYDEF customer 		class = Number 	position = 7 private
+	#PROPERTYDEF inliteral		class = Number 	position = 8 private

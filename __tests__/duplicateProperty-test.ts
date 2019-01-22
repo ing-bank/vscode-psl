@@ -21,14 +21,14 @@ describe('Parameter tests', () => {
 	});
 
 	test('line 3', () => {
-		const test1Message = 'Property aCCount is declared already above, may be with same or different case';
+		const test1Message = 'Property aCCount is declared already above with different case';
 		const diagnostics = utils.diagnosticsOnLine(3, propertyisDuplicate);
 		expect(diagnostics.length).toBe(1);
 		expect(diagnostics[0].message).toBe(test1Message);
 	});
 
 	test('line 4', () => {
-		const test1Message = 'Property accounT is declared already above, may be with same or different case';
+		const test1Message = 'Property accounT is declared already above with different case';
 		const diagnostics = utils.diagnosticsOnLine(4, propertyisDuplicate);
 		expect(diagnostics.length).toBe(1);
 		expect(diagnostics[0].message).toBe(test1Message);
@@ -40,35 +40,35 @@ describe('Parameter tests', () => {
 	});
 
 	test('line 6', () => {
-		const test1Message = 'Property customer is declared already above, may be with same or different case';
+		const test1Message = 'Property customer is declared already above with same case';
 		const diagnostics = utils.diagnosticsOnLine(6, propertyisDuplicate);
 		expect(diagnostics.length).toBe(1);
 		expect(diagnostics[0].message).toBe(test1Message);
 	});
 
 	test('line 7', () => {
-		const test1Message = 'Property array is declared already above, may be with same or different case';
+		const test1Message = 'Property array is declared already above with same case';
 		const diagnostics = utils.diagnosticsOnLine(7, propertyisDuplicate);
 		expect(diagnostics.length).toBe(1);
 		expect(diagnostics[0].message).toBe(test1Message);
 	});
 
 	test('line 8', () => {
-		const test1Message = 'Property aRRay is declared already above, may be with same or different case';
+		const test1Message = 'Property aRRay is declared already above with different case';
 		const diagnostics = utils.diagnosticsOnLine(8, propertyisDuplicate);
 		expect(diagnostics.length).toBe(1);
 		expect(diagnostics[0].message).toBe(test1Message);
 	});
 
 	test('line 9', () => {
-		const test1Message = 'Property array is declared already above, may be with same or different case';
+		const test1Message = 'Property array is declared already above with same case';
 		const diagnostics = utils.diagnosticsOnLine(9, propertyisDuplicate);
 		expect(diagnostics.length).toBe(1);
 		expect(diagnostics[0].message).toBe(test1Message);
 	});
 
 	test('line 10', () => {
-		const test1Message = 'Property array is declared already above, may be with same or different case';
+		const test1Message = 'Property array is declared already above with same case';
 		const diagnostics = utils.diagnosticsOnLine(10, propertyisDuplicate);
 		expect(diagnostics.length).toBe(1);
 		expect(diagnostics[0].message).toBe(test1Message);
@@ -80,8 +80,15 @@ describe('Parameter tests', () => {
 	});
 
 	test('line 12', () => {
-		const test1Message = 'Property customer is declared already above, may be with same or different case';
+		const test1Message = 'Property customer is declared already above with same case';
 		const diagnostics = utils.diagnosticsOnLine(12, propertyisDuplicate);
+		expect(diagnostics.length).toBe(1);
+		expect(diagnostics[0].message).toBe(test1Message);
+	});
+
+	test('line 13', () => {
+		const test1Message = 'Property inliteral is declared already above with different case';
+		const diagnostics = utils.diagnosticsOnLine(13, propertyisDuplicate);
 		expect(diagnostics.length).toBe(1);
 		expect(diagnostics[0].message).toBe(test1Message);
 	});
