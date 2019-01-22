@@ -3,6 +3,7 @@ import {
 	Diagnostic, DiagnosticSeverity, MemberRule,
 	MethodRule, PropertyRule,
 } from './api';
+import {  } from 'constants';
 
 export class MethodStartsWithZ extends MethodRule {
 
@@ -52,15 +53,29 @@ export class PropertyIsDuplicate extends PropertyRule {
 		return diagnostics;
 	}
 
-	isDuplicateProperty(member: Member, diagnostics: Diagnostic[]): void {
-		if (member.modifiers.findIndex(x => x.value === 'literal') > -1) return;
-		for (const property of this.parsedDocument.properties) {
-			if (property.id.position.line > member.id.position.line) continue;
-			if (property.id.value.toLowerCase() === member.id.value.toLowerCase() &&
-				!(property.id.position.line === member.id.position.line)) {
+	isDuplicateProperty(property: Property, diagnostics: Diagnostic[]): void {
+
+		const slicedProperty = this.parsedDocument.properties.slice(1,
+			this.parsedDocument.properties.findIndex(x => x.id.value === property.id.value));
+
+		for (const checkProperty of slicedProperty) {
+
+			if (checkProperty.id.value === property.id.value) {
 				const diagnostic = new Diagnostic(
-					member.id.getRange(),
-					`Property ${member.id.value} is declared already above, may be with same or different case`,
+					property.id.getRange(),
+					`Property ${property.id.value} is declared already`,
+					this.ruleName,
+					DiagnosticSeverity.Information,
+				);
+				diagnostic.source = 'lint';
+				diagnostics.push(diagnostic);
+				break;
+			}
+
+			if (checkProperty.id.value.toLowerCase() === property.id.value.toLowerCase()) {
+				const diagnostic = new Diagnostic(
+					property.id.getRange(),
+					`Property ${property.id.value} is declared already above with different case`,
 					this.ruleName,
 					DiagnosticSeverity.Information,
 				);
