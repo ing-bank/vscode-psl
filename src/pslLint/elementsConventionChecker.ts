@@ -1,6 +1,6 @@
 import { Member, MemberClass, Method, Property } from '../parser/parser';
 import {
-	Diagnostic, DiagnosticSeverity, MemberRule,
+	Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity, MemberRule,
 	MethodRule, PropertyRule,
 } from './api';
 
@@ -40,6 +40,62 @@ export class PropertyIsDummy extends PropertyRule {
 			diagnostics.push(
 				createDiagnostic(member, 'Usage of "dummy" property is discouraged', DiagnosticSeverity.Information, this.ruleName),
 			);
+		}
+	}
+}
+
+export class PropertyIsDuplicate extends PropertyRule {
+
+	report(property: Property): Diagnostic[] {
+		const diagnostics: Diagnostic[] = [];
+		this.isDuplicateProperty(property, diagnostics);
+		return diagnostics;
+	}
+
+	isDuplicateProperty(property: Property, diagnostics: Diagnostic[]): void {
+
+		const slicedProperty = this.parsedDocument.properties.slice(0,
+			this.parsedDocument.properties.findIndex(x => x.id.position.line === property.id.position.line));
+
+		for (const checkProperty of slicedProperty) {
+
+			if (checkProperty.id.value === property.id.value) {
+				const diagnostic = new Diagnostic(
+					property.id.getRange(),
+					`Property "${property.id.value}" is already declared.`,
+					this.ruleName,
+					DiagnosticSeverity.Information,
+				);
+				const aboveDuplicateProperty = new DiagnosticRelatedInformation(
+					checkProperty.id.getRange(),
+					`Reference to property "${checkProperty.id.value}".`,
+				);
+				diagnostic.relatedInformation = [
+					aboveDuplicateProperty,
+				];
+				diagnostic.source = 'lint';
+				diagnostics.push(diagnostic);
+				break;
+			}
+
+			if (checkProperty.id.value.toLowerCase() === property.id.value.toLowerCase()) {
+				const diagnostic = new Diagnostic(
+					property.id.getRange(),
+					`Property "${property.id.value}" is already declared with different case.`,
+					this.ruleName,
+					DiagnosticSeverity.Information,
+				);
+				const aboveDuplicateProperty = new DiagnosticRelatedInformation(
+					checkProperty.id.getRange(),
+					`Reference to property "${checkProperty.id.value}".`,
+				);
+				diagnostic.relatedInformation = [
+					aboveDuplicateProperty,
+				];
+				diagnostic.source = 'lint';
+				diagnostics.push(diagnostic);
+				break;
+			}
 		}
 	}
 }
