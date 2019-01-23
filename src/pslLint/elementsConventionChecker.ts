@@ -62,13 +62,13 @@ export class PropertyIsDuplicate extends PropertyRule {
 			if (checkProperty.id.value === property.id.value) {
 				const diagnostic = new Diagnostic(
 					property.id.getRange(),
-					`Property ${property.id.value} is declared already above with same case`,
+					`Property "${property.id.value}" is already declared.`,
 					this.ruleName,
 					DiagnosticSeverity.Information,
 				);
 				const aboveDuplicateProperty = new DiagnosticRelatedInformation(
 					checkProperty.id.getRange(),
-					`Reference to property ${checkProperty.id.value}`,
+					`Reference to property "${checkProperty.id.value}".`,
 				);
 				diagnostic.relatedInformation = [
 					aboveDuplicateProperty,
@@ -81,13 +81,13 @@ export class PropertyIsDuplicate extends PropertyRule {
 			if (checkProperty.id.value.toLowerCase() === property.id.value.toLowerCase()) {
 				const diagnostic = new Diagnostic(
 					property.id.getRange(),
-					`Property ${property.id.value} is declared already above with different case`,
+					`Property "${property.id.value}" is already declared with different case.`,
 					this.ruleName,
 					DiagnosticSeverity.Information,
 				);
 				const aboveDuplicateProperty = new DiagnosticRelatedInformation(
 					checkProperty.id.getRange(),
-					`Reference to property ${checkProperty.id.value}`,
+					`Reference to property "${checkProperty.id.value}".`,
 				);
 				diagnostic.relatedInformation = [
 					aboveDuplicateProperty,
