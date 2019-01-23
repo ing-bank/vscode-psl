@@ -9,7 +9,7 @@ import {
 import { getConfig, matchConfig } from './config';
 import {
 	MemberCamelCase, MemberLength, MemberLiteralCase,
-	MemberStartsWithV, PropertyIsDummy,
+	MemberStartsWithV, PropertyIsDummy, PropertyIsDuplicate,
 } from './elementsConventionChecker';
 import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from './methodDoc';
 import { MultiLineDeclare } from './multiLineDeclare';
@@ -41,6 +41,7 @@ const methodRuleConstructors: MethodRuleConstructor[] = [
 ];
 const propertyRuleConstructors: PropertyRuleConstructor[] = [
 	PropertyIsDummy,
+	PropertyIsDuplicate,
 ];
 const declarationRuleConstructors: DeclarationRuleConstructor[] = [];
 const parameterRuleConstructors: ParameterRuleConstructor[] = [];

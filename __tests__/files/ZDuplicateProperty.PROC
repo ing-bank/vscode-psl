@@ -1,0 +1,14 @@
+	#CLASSDEF public
+	#PROPERTYDEF customer 		class = Number 	position = 2 private
+	#PROPERTYDEF account 		class = Integer	position = 3 private
+	#PROPERTYDEF aCCount 		class = Number 	position = 4 private
+	#PROPERTYDEF accounT 		class = Number 	position = 5 private
+	#PROPERTYDEF array class=String private node="account1"
+	#PROPERTYDEF customer 		class = Number 	position = 6 private
+	#PROPERTYDEF array class=String private node="account2"
+	#PROPERTYDEF aRRay class=String private node="array2"
+	#PROPERTYDEF array class=String private node="array2"
+	#PROPERTYDEF array class=String private node="array2"
+	#PROPERTYDEF INLITERAL		= 0 class=Integer public literal
+	#PROPERTYDEF customer 		class = Number 	position = 7 private
+	#PROPERTYDEF inliteral		class = Number 	position = 8 private
