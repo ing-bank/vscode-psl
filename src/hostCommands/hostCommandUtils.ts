@@ -8,11 +8,11 @@ const outputChannel = vscode.window.createOutputChannel('Profile Host');
 
 export const logger = {
 	info: (message: string) => {
-		outputChannel.show(true);
+		outputChannel.show();
 		outputChannel.appendLine(`[INFO][${new Date().toTimeString().split(' ')[0]}]    ${message.trim()}\n`)
 	},
 	error: (message: string) => {
-		outputChannel.show(true);
+		outputChannel.show();
 		outputChannel.appendLine(`[ERR!][${new Date().toTimeString().split(' ')[0]}]    ${message.trim()}\n`)
 	}
 }

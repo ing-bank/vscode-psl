@@ -1,10 +1,6 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
-# v1.8.1
-
-* Do not change focus to output channel after writing
-
 # v1.8.0
 
 * Adds fields `serverType` and `encoding` to environments.json (thanks [@joelgomes85](https://github.com/joelgomes85) for opening the issue)
