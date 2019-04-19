@@ -1,5 +1,5 @@
 import {
-	BinaryOperator, Declaration, Expression, Identifier, MultiSet, NumericLiteral,
+	BinaryOperator, DeclarationStatement, Expression, Identifier, MultiSet, NumericLiteral,
 	PostCondition, Statement, StatementParser, StringLiteral, SyntaxKind, TypeIdentifier, Value,
 } from '../src/parser/statementParser';
 import { getTokens, Token } from '../src/parser/tokenizer';
@@ -756,7 +756,7 @@ describe('recursive tests', () => {
 	test('type statement', () => {
 		const parser = parse('type String x');
 		const statement = parser.parseTypeStatement() as Statement;
-		const declaration = statement.expressions[0] as Declaration;
+		const declaration = statement.expressions[0] as DeclarationStatement;
 		const typeIdentifier = declaration.type as TypeIdentifier;
 		expect(typeIdentifier.id.value).toBe('String');
 		expect(declaration.id.value).toBe('x');
@@ -765,7 +765,7 @@ describe('recursive tests', () => {
 	test('type statement with arg', () => {
 		const parser = parse('type void x(Number)');
 		const statement = parser.parseTypeStatement() as Statement;
-		const declaration = statement.expressions[0] as Declaration;
+		const declaration = statement.expressions[0] as DeclarationStatement;
 		const args = declaration.args as Identifier[];
 		const arrayTypeNumber = args[0] as Identifier;
 		const typeIdentifier = declaration.type as TypeIdentifier;
@@ -777,7 +777,7 @@ describe('recursive tests', () => {
 	test('type statement with 2 arg', () => {
 		const parser = parse('type void x(Number, String)');
 		const statement = parser.parseTypeStatement() as Statement;
-		const declaration = statement.expressions[0] as Declaration;
+		const declaration = statement.expressions[0] as DeclarationStatement;
 		const args = declaration.args as Identifier[];
 		const arrayTypeNumber = args[0] as Identifier;
 		const arrayTypeString = args[1] as Identifier;
@@ -791,7 +791,7 @@ describe('recursive tests', () => {
 	test('type statement with no arg', () => {
 		const parser = parse('type void x()');
 		const statement = parser.parseTypeStatement() as Statement;
-		const declaration = statement.expressions[0] as Declaration;
+		const declaration = statement.expressions[0] as DeclarationStatement;
 		const args = declaration.args as Identifier[];
 		const typeIdentifier = declaration.type as TypeIdentifier;
 		expect(typeIdentifier.id.value).toBe('void');
@@ -801,7 +801,7 @@ describe('recursive tests', () => {
 	test('type statement with 2 empty args', () => {
 		const parser = parse('type void x(,)');
 		const statement = parser.parseTypeStatement() as Statement;
-		const declaration = statement.expressions[0] as Declaration;
+		const declaration = statement.expressions[0] as DeclarationStatement;
 		const args = declaration.args as Identifier[];
 		const typeIdentifier = declaration.type as TypeIdentifier;
 		expect(typeIdentifier.id.value).toBe('void');
@@ -812,7 +812,7 @@ describe('recursive tests', () => {
 		const parser = parse('type String x = "something"');
 		const statement = parser.parseTypeStatement() as Statement;
 		const assignment = statement.expressions[0] as BinaryOperator;
-		const declaration = assignment.left as Declaration;
+		const declaration = assignment.left as DeclarationStatement;
 		const something = assignment.right as StringLiteral;
 		const typeIdentifier = declaration.type as TypeIdentifier;
 		expect(typeIdentifier.id.value).toBe('String');
@@ -823,7 +823,7 @@ describe('recursive tests', () => {
 	test('type statement with keywords', () => {
 		const parser = parse('type public new String x');
 		const statement = parser.parseTypeStatement() as Statement;
-		const declaration = statement.expressions[0] as Declaration;
+		const declaration = statement.expressions[0] as DeclarationStatement;
 		const publicToken = declaration.publicToken as Token;
 		const newToken = declaration.newToken as Token;
 		const typeIdentifier = declaration.type as TypeIdentifier;
@@ -845,7 +845,7 @@ describe('recursive tests', () => {
 	test('static declaration', () => {
 		const parser = parse('type static ZTest');
 		const statement = parser.parseStatement() as Statement;
-		const declaration = statement.expressions[0] as Declaration;
+		const declaration = statement.expressions[0] as DeclarationStatement;
 		expect(declaration.type.id.value).toBe('ZTest');
 		expect(declaration.staticToken.value).toBe('static');
 	});
@@ -858,7 +858,7 @@ describe('recursive tests', () => {
 	test('type String', () => {
 		const parser = parse('type String');
 		const statement = parser.parseStatement() as Statement;
-		const declaration = statement.expressions[0] as Declaration;
+		const declaration = statement.expressions[0] as DeclarationStatement;
 		const stringType = declaration.type as TypeIdentifier;
 		expect(statement.kind).toBe(SyntaxKind.TYPE_STATEMENT);
 		expect(stringType.id.value).toBe('String');
@@ -867,7 +867,7 @@ describe('recursive tests', () => {
 	test('type static', () => {
 		const parser = parse('type static');
 		const statement = parser.parseStatement() as Statement;
-		const declaration = statement.expressions[0] as Declaration;
+		const declaration = statement.expressions[0] as DeclarationStatement;
 		expect(declaration.type).toBeUndefined();
 		expect(declaration.staticToken.value).toBe('static');
 	});
