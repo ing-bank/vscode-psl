@@ -159,7 +159,7 @@ export interface Identifier extends Value {
 	closeParen?: Token;
 }
 
-export interface Declaration extends Identifier {
+export interface DeclarationStatement extends Identifier {
 	type: TypeIdentifier;
 	staticToken?: Token;
 	newToken?: Token;
@@ -305,7 +305,7 @@ export class StatementParser {
 		const parseTypeAssignments = (): Expression[] => {
 			if (!this.activeToken || !this.activeToken.isAlphanumeric()) {
 				if (literalToken || newToken || publicToken || staticToken) {
-					const emptyDeclaration: Declaration = {
+					const emptyDeclaration: DeclarationStatement = {
 						id: undefined,
 						kind: SyntaxKind.VARIABLE_DECLARATION,
 						literalToken: undefined,
@@ -321,7 +321,7 @@ export class StatementParser {
 
 			const type: TypeIdentifier = { id: this.activeToken, kind: SyntaxKind.TYPE_IDENTIFIER };
 			if (!this.next(true) || staticToken) {
-				const declaration: Declaration = {
+				const declaration: DeclarationStatement = {
 					id: undefined,
 					kind: SyntaxKind.VARIABLE_DECLARATION,
 					literalToken,
@@ -352,7 +352,7 @@ export class StatementParser {
 				forEachChild(expression, node => {
 					if (!node) return;
 					if (node.kind === SyntaxKind.VARIABLE_DECLARATION) {
-						const declaration = node as Declaration;
+						const declaration = node as DeclarationStatement;
 						if (declaration.args) {
 							declaration.args = declaration.args.map((arg: Identifier) => {
 								if (!arg) return;
@@ -379,7 +379,7 @@ export class StatementParser {
 		};
 	}
 
-	parseAssignment(getLeft: () => Expression | MultiSet | Declaration | undefined): Expression | undefined {
+	parseAssignment(getLeft: () => Expression | MultiSet | DeclarationStatement | undefined): Expression | undefined {
 		const left = getLeft();
 		let rootNode = left;
 		if (this.activeToken && this.activeToken.isEqualSign()) {
@@ -744,7 +744,7 @@ export function forEachChild(node: Node, f: (n: Node) => boolean) {
 		case SyntaxKind.VARIABLE_DECLARATION:
 			goDeeper = f(node);
 			if (!goDeeper) return;
-			const declaration = node as Declaration;
+			const declaration = node as DeclarationStatement;
 			if (declaration.args) declaration.args.forEach(arg => forEachChild(arg, f));
 			f(declaration.type);
 		case SyntaxKind.NUMERIC_LITERAL:

@@ -5,15 +5,16 @@
         "lib": [
             "es2017"
         ],
-        "outDir": "lib",
-        "sourceMap": true,
+        "outDir": "out",
         "declaration": true,
-        "rootDir": "./../.."
+        "sourceMap": true,
+        "rootDir": "."
     },
     "formatCodeOptions": {
         "newLine": "LF"
     },
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "out"
     ]
 }

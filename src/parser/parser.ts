@@ -177,6 +177,11 @@ export interface ParsedDocument {
 	extending: Token;
 
 	/**
+	 * The Token that represents the PSL package.
+	 */
+	pslPackage: string;
+
+	/**
 	 * The tokens corresponding to line and block comments.
 	 */
 	comments: Token[];
@@ -269,6 +274,7 @@ class Parser {
 	private activeProperty: Property;
 	private tokens: Token[];
 	private extending: Token;
+	private pslPackage: string;
 	private comments: Token[];
 
 	constructor(tokenizer?: IterableIterator<Token>) {
@@ -306,6 +312,8 @@ class Parser {
 				}
 				const extending = this.checkForExtends(tokenBuffer);
 				if (extending) this.extending = extending;
+				const pslPackage = this.checkForPSLPackage(tokenBuffer);
+				if (pslPackage) this.pslPackage = pslPackage;
 				if (this.activeMethod && this.activeMethod.batch && this.activeMethod.id.value === 'REVHIST') {
 					continue;
 				}
@@ -327,6 +335,7 @@ class Parser {
 			comments: this.comments,
 			declarations: this.declarations,
 			extending: this.extending,
+			pslPackage: this.pslPackage,
 			methods: this.methods,
 			properties: this.properties,
 			tokens: this.tokens,
@@ -500,6 +509,48 @@ class Parser {
 			else {
 				i++;
 			}
+		}
+		return;
+	}
+
+	private checkForPSLPackage(tokenBuffer: Token[]): string {
+		let i = 0;
+		let foundPackageToken = false;
+
+		let fullPackage = '';
+
+		while (i < tokenBuffer.length) {
+			const token = tokenBuffer[i];
+
+			if (token.isTab() || token.isSpace()) {
+				i++;
+				continue;
+			}
+			else if (token.isNumberSign() && !foundPackageToken) {
+				const nextToken = tokenBuffer[i + 1];
+				if (!nextToken) return;
+				if (nextToken.value === 'PACKAGE') {
+					foundPackageToken = true;
+					i += 2;
+				}
+				else break;
+			}
+			else if (token.isAlphanumeric() && foundPackageToken) {
+				// TODO: Maybe this should return an ordered list of tokens?
+				if (fullPackage === '') {
+					fullPackage = token.value;
+				}
+				else {
+					fullPackage += ('.' + token.value);
+				}
+				i++;
+			}
+			else {
+				i++;
+			}
+		}
+		if (fullPackage !== '') {
+			return fullPackage;
 		}
 		return;
 	}
