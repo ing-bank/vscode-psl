@@ -498,9 +498,8 @@ function getType(c: string): Type {
 	} else if (charCode === 126) {
 		return Type.Tilde;
 	}
-
 	else {
-		return -1;
+		return Type.Undefined;
 	}
 }
 
