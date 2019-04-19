@@ -139,6 +139,7 @@ export class ParsedDocFinder {
 				comments: [],
 				declarations: [],
 				extending: new Token(Type.Alphanumeric, 'Record', dummyPosition),
+				pslPackage: new Token(Type.Alphanumeric, '', dummyPosition), // TODO: Shouldn't we read the TBL.json for this?
 				methods: [],
 				properties: columns,
 				tokens: [],
