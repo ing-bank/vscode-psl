@@ -543,6 +543,7 @@ class Parser {
 				else {
 					fullPackage += ('.' + token.value);
 				}
+				i++;
 			}
 			else {
 				i++;
