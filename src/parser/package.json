@@ -1,6 +1,6 @@
 {
     "name": "psl-parser",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "A parser for the Profile Scripting Language",
     "main": "out/index.js",
     "scripts": {
