@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { Statement, StatementParser } from './statementParser';
 import { getTokens, Token, Type } from './tokenizer';
-import { getLineAfter, dummyPosition } from './utilities';
+import { getLineAfter } from './utilities';
 
 /**
  * Used for checking the type of Member at runtime
@@ -179,7 +179,7 @@ export interface ParsedDocument {
 	/**
 	 * The Token that represents the PSL package.
 	 */
-	pslPackage: Token;
+	pslPackage: string;
 
 	/**
 	 * The tokens corresponding to line and block comments.
@@ -274,7 +274,7 @@ class Parser {
 	private activeProperty: Property;
 	private tokens: Token[];
 	private extending: Token;
-	private pslPackage: Token;
+	private pslPackage: string;
 	private comments: Token[];
 
 	constructor(tokenizer?: IterableIterator<Token>) {
@@ -513,7 +513,7 @@ class Parser {
 		return;
 	}
 
-	private checkForPSLPackage(tokenBuffer: Token[]): Token {
+	private checkForPSLPackage(tokenBuffer: Token[]): string {
 		let i = 0;
 		let foundPackageToken = false;
 
@@ -550,7 +550,7 @@ class Parser {
 			}
 		}
 		if (fullPackage !== '') {
-			return new Token(Type.Alphanumeric, fullPackage, dummyPosition);
+			return fullPackage;
 		}
 		return;
 	}

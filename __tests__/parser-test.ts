@@ -439,7 +439,7 @@ public final Integer toInteger()
 `;
 
 	const doc = getParsedDoc(documentString);
-	expect(doc.pslPackage.value).toBe('custom.core');
+	expect(doc.pslPackage).toBe('custom.core');
 });
 
 test('parse numerical method', () => {
