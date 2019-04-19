@@ -159,7 +159,7 @@ export interface Identifier extends Value {
 	closeParen?: Token;
 }
 
-interface Declaration extends Identifier {
+export interface Declaration extends Identifier {
 	type: TypeIdentifier;
 	staticToken?: Token;
 	newToken?: Token;
