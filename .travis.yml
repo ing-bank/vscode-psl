@@ -32,6 +32,10 @@ jobs:
       deploy:
         provider: script
         script: npm publish ./src/parser
+        skip_cleanup: true
+        on:
+          tags: true
+          all_branches: true
       name: npm
 
     - stage: deploy lint
