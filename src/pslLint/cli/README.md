@@ -14,11 +14,12 @@ This module works by adding rules that are automatically checked at the appropri
 * MethodParametersOnNewLine
 * MethodSeparator
 * MultiLineDeclare
+* PropertyIsDummy
+* PropertyIsDuplicate
 * RuntimeStart
+* TblColDocumentation
 * TodoInfo
 * TwoEmptyLines
-* PropertyIsDummy
-* TblColDocumentation
 
 
 ## Contributing
