@@ -64,7 +64,7 @@ export class PropertyIsDuplicate extends PropertyRule {
 					property.id.getRange(),
 					`Property "${property.id.value}" is already declared.`,
 					this.ruleName,
-					DiagnosticSeverity.Information,
+					DiagnosticSeverity.Warning,
 				);
 				const aboveDuplicateProperty = new DiagnosticRelatedInformation(
 					checkProperty.id.getRange(),
@@ -83,7 +83,7 @@ export class PropertyIsDuplicate extends PropertyRule {
 					property.id.getRange(),
 					`Property "${property.id.value}" is already declared with different case.`,
 					this.ruleName,
-					DiagnosticSeverity.Information,
+					DiagnosticSeverity.Warning,
 				);
 				const aboveDuplicateProperty = new DiagnosticRelatedInformation(
 					checkProperty.id.getRange(),
