@@ -36,8 +36,8 @@ export const extensionToDescription: {[key: string]: string} = {
 export function v2lvFormat(messageValue: string[]) {
 		let lvMessage = ''
 		if (messageValue.length !== 0) {
-			messageValue.forEach(messagString => {
-				lvMessage = lvMessage + lvFormat(messagString)
+			messageValue.forEach(messageString => {
+				lvMessage = lvMessage + lvFormat(messageString)
 			})
 		}
 		return lvMessage
@@ -238,6 +238,14 @@ export function compileObject(compilationToken: string): string {
 export function pslRunObject(compilationToken: string): string {
 	let messageArray = [
 		'PSLRUN',
+		'', compilationToken
+	];
+	return v2lvFormat(messageArray);
+}
+
+export function customRunObject(request: string, compilationToken: string): string {
+	let messageArray = [
+		request,
 		'', compilationToken
 	];
 	return v2lvFormat(messageArray);
