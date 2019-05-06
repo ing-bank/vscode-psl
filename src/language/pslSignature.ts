@@ -4,9 +4,11 @@ import * as parser from '../parser/parser';
 import * as lang from './lang';
 import * as path from 'path';
 import { Token, Position } from '../parser/tokenizer';
+import { previewEnabled } from './activate';
 
 export class PSLSignatureHelpProvider implements vscode.SignatureHelpProvider {
 	public async provideSignatureHelp(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.SignatureHelp> {
+		if (!previewEnabled(document.uri)) return;
 		const workspaceDirectory = vscode.workspace.getWorkspaceFolder(document.uri);
 		if (!workspaceDirectory) return;
 
