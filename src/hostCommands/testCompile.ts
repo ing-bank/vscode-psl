@@ -66,7 +66,7 @@ export async function testCompile(fsPath: string): Promise<boolean> {
 			await textDocument.save();
 			utils.logger.info(`${utils.icons.WAIT} ${icon} ${path.basename(fsPath)} TEST COMPILE in ${env.name}`);
 			let connection = await utils.getConnection(env);
-			let output = await connection.test(fsPath);
+			let output = await connection.testCompile(fsPath);
 			connection.close();
 			let pslDiagnostics = parseCompilerOutput(output, textDocument);
 			testCompileSucceeded = pslDiagnostics.filter(d => d.severity === vscode.DiagnosticSeverity.Error).length === 0;

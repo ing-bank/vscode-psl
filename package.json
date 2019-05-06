@@ -238,6 +238,16 @@
         }
       },
       {
+        "command": "psl.runTest",
+        "title": "Run Test",
+        "category": "PSL"
+      },
+      {
+        "command": "psl.runCoverage",
+        "title": "Run Test (with Coverage)",
+        "category": "PSL"
+      },
+      {
         "command": "psl.sendTable",
         "title": "Table Send to Host",
         "category": "PSL"
@@ -469,62 +479,62 @@
         {
           "when": "resourceLangId == psl",
           "command": "psl.getElement",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileData",
           "command": "psl.getElement",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileTable",
           "command": "psl.getElement",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileColumn",
           "command": "psl.getElement",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileBatch",
           "command": "psl.getElement",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileTrigger",
           "command": "psl.getElement",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == psl",
           "command": "psl.getTable",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileData",
           "command": "psl.getTable",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileTable",
           "command": "psl.getTable",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileColumn",
           "command": "psl.getTable",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileBatch",
           "command": "psl.getTable",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileTrigger",
           "command": "psl.getTable",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == psl",
@@ -535,6 +545,16 @@
           "when": "resourceLangId == psl",
           "command": "psl.runPSL",
           "group": "PSL.2"
+        },
+        {
+          "when": "resourceFilename =~ /^(Utc|Stc)/ && resourceLangId == psl && psl.runTestContext",
+          "command": "psl.runTest",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceFilename =~ /^(Utc|Stc)/ && resourceLangId == psl && psl.runCoverageContext",
+          "command": "psl.runCoverage",
+          "group": "PSL.3"
         },
         {
           "when": "resourceLangId == psl",
@@ -737,7 +757,40 @@
           "scope": "resource",
           "type": "boolean",
           "default": false,
-          "description": "Set true to enable the latest developing features (requires restart)."
+          "description": "Set true to enable the latest developing features."
+        },
+        "psl.customTasks": {
+          "scope": "resource",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "command",
+              "mrpcID",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "type": "string",
+                "enum": [
+                  "runTest",
+                  "runCoverage"
+                ],
+                "enumDescriptions": [
+                  "A command for running tests via PslUtTestCase.",
+                  "A command for running tests with coverage output."
+                ]
+              },
+              "mrpcID": {
+                "type": "string",
+                "description": "The MRPC ID supplied in the client message. For example \"121\" or \"^ZMRPC121\"."
+              },
+              "request": {
+                "type": "string",
+                "description": "The request type. For example \"PSLRUNTEST\"."
+              }
+            }
+          }
         },
         "psl.documentationServer": {
           "scope": "resource",

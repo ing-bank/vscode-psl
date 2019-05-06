@@ -18,7 +18,7 @@ export const logger = {
 }
 
 export const enum icons {
-	ERROR = '✖',
+	ERROR = '❌',
 	GET = '⇩',
 	LINK = '🔗',
 	REFRESH = '🔃',
@@ -86,14 +86,8 @@ export async function executeWithProgress(message: string, task: () => Promise<a
 }
 
 export async function getConnection(env: environment.EnvironmentConfig): Promise<MtmConnection> {
-	let connection: MtmConnection;
-	try {
-		connection = MtmConnection.getSocket('121', 3, env.serverType, env.encoding);
-		await connection.open(env.host, env.port, env.user, env.password);
-	}
-	catch (err) {
-		throw err;
-	}
+	const connection = new MtmConnection(env.serverType, env.encoding);
+	await connection.open(env.host, env.port, env.user, env.password);
 	return connection;
 }
 
