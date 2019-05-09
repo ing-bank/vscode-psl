@@ -129,8 +129,8 @@ function sendToHostTerminal(text: string) {
 }
 
 function terminalSend(text: string) {
-	if (terminal) {
-		terminal.show();
-		terminal.sendText(text, true);
+	const activeTerminal: vscode.Terminal | undefined = vscode.window.activeTerminal;
+	if (activeTerminal) {
+		activeTerminal.sendText(text, true);
 	}
 }
