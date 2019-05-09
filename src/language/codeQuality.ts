@@ -3,7 +3,7 @@ import { PSL_MODE } from '../extension';
 import * as parser from '../parser/parser';
 import { getDiagnostics } from '../pslLint/activate';
 import * as api from '../pslLint/api';
-import { removeConfig, setConfig } from '../pslLint/config';
+import { getConfig, removeConfig, setConfig } from '../pslLint/config';
 import { PSLActionProvider } from './codeAction';
 
 type lintOption = 'none' | 'all' | 'config' | true;
@@ -82,6 +82,9 @@ function prepareRules(
 
 	let useConfig = false;
 	if (lintConfigValue === 'config') {
+		// check if config exist first
+		const config = getConfig(textDocument.uri.fsPath);
+		if (!config) return;
 		useConfig = true;
 	}
 	else if (lintConfigValue !== 'all' && lintConfigValue !== true) {

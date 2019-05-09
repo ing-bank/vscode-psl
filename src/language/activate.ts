@@ -39,43 +39,36 @@ export async function activate(context: vscode.ExtensionContext) {
 		)
 	);
 
-	let preview: boolean = vscode.workspace.getConfiguration('psl', null).get('previewFeatures');
+	PSL_MODES.forEach(mode => {
 
-	if (preview) {
+		// Completion Items
+		context.subscriptions.push(
+			vscode.languages.registerCompletionItemProvider(
+				mode, new PSLCompletionItemProvider(), '.'
+			)
+		);
 
-		PSL_MODES.forEach(mode => {
+		// Signature Help
+		context.subscriptions.push(
+			vscode.languages.registerSignatureHelpProvider(
+				mode, new PSLSignatureHelpProvider(), '(', ','
+			)
+		);
 
-			// Completion Items
-			context.subscriptions.push(
-				vscode.languages.registerCompletionItemProvider(
-					mode, new PSLCompletionItemProvider(), '.'
-				)
-			);
+		// Go-to Definitions
+		context.subscriptions.push(
+			vscode.languages.registerDefinitionProvider(
+				mode, new PSLDefinitionProvider()
+			)
+		);
 
-			// Signature Help
-			context.subscriptions.push(
-				vscode.languages.registerSignatureHelpProvider(
-					mode, new PSLSignatureHelpProvider(), '(', ','
-				)
-			);
-
-			// Go-to Definitions
-			context.subscriptions.push(
-				vscode.languages.registerDefinitionProvider(
-					mode, new PSLDefinitionProvider()
-				)
-			);
-
-			// Hovers
-			context.subscriptions.push(
-				vscode.languages.registerHoverProvider(
-					mode, new PSLHoverProvider()
-				)
-			);
-
-		})
-
-	}
+		// Hovers
+		context.subscriptions.push(
+			vscode.languages.registerHoverProvider(
+				mode, new PSLHoverProvider()
+			)
+		);
+	})
 
 	// Code quality
 	codeQuality.activate(context);
@@ -87,4 +80,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	vscode.languages.setLanguageConfiguration('psl', { wordPattern });
 	vscode.languages.setLanguageConfiguration('profileBatch', { wordPattern });
 	vscode.languages.setLanguageConfiguration('profileTrigger', { wordPattern });
+}
+
+export function previewEnabled(uri: vscode.Uri) {
+	return vscode.workspace.getConfiguration('psl', uri).get('previewFeatures');
 }

@@ -1,6 +1,6 @@
 {
   "name": "psl-lint",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Code quality for PSL",
   "main": "./lib/pslLint/cli/cli.js",
   "bin": {

@@ -1,10 +1,35 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
-# v???
+# v1.9.0
 
-* Updates documentation about Code Quality and settings.
-* By default, Code Quality via `psl-lint` will only activate when the `psl-lint.json` configuration file is present.
+Adds two new custom menu items "Run Test" and "Run Test (with Coverage)". The custom logic must be implemented in your Profile instance. Then it can be called by adding this configuration to your `settings.json`:
+```json
+"psl.customTasks": [
+	{
+		"command": "runCoverage",
+		"mrpcID": "^ZMRPC121",
+		"request": "PSLRUNTESTC"
+	},
+	{
+		"command": "runTest",
+		"mrpcID": "^ZMRPC121",
+		"request": "PSLRUNTEST"
+	}
+]
+```
+
+The `command` names are fixed, but the `mrpcID` and `request` fields can match your implementation.
+
+Other changes include:
+* Adds rule for "PropertyIsDuplicate" from psl-lint (thanks [@Thirurakshan](https://github.com/Thirurakshan))
+* Properly scope preview configuration to resource
+* Change batch section icon
+* Fix code quality to only lint when config file is present
+
+# v1.8.1
+
+* Do not change focus to output channel after writing
 
 # v1.8.0
 

@@ -139,6 +139,7 @@ export class ParsedDocFinder {
 				comments: [],
 				declarations: [],
 				extending: new Token(Type.Alphanumeric, 'Record', dummyPosition),
+				pslPackage: '',
 				methods: [],
 				properties: columns,
 				tokens: [],

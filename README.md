@@ -18,20 +18,21 @@ Profile Scripting Language functionality for Visual Studio Code.
 ## Environment Configuration
 
 Locate the button at the bottom-right corner titled `Configure Environments`. If the button is not visible, use the Command Palette (<kbd>F1</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) to find the `PSL: Configure Environment` command. A JSON object of the following form will appear:
+
 ```json
 {
-	"environments": [
-		{
-			"name": "",
-			"host": "",
-			"port": 0,
-			"user": "",
-			"password": "",
-			"sshLogin": "",
-			"serverType": "SCA$IBS",
-			"encoding": "utf8"
-		}
-	]
+    "environments": [
+        {
+            "name": "",
+            "host": "",
+            "port": 0,
+            "user": "",
+            "password": "",
+            "sshLogin": "",
+            "serverType": "SCA$IBS",   // added v1.8.0
+            "encoding": "utf8"         // added v1.8.0
+        }
+    ]
 }
 ```
 
@@ -44,6 +45,7 @@ Once the global configuration is saved, environments can be activated by using t
 ## Features
 
 The extension is able to communicate with Host via MRPC121 to do the following:
+
 * Get/Refresh elements and entire tables from Host
 * Send elements and entire tables to Host
 * Test Compile .PROC and .PSL files
@@ -58,6 +60,7 @@ These commands can be executed via the Command Pallette (<kbd>F1</kbd> or <kbd>C
 Basic language features also exist for files written in PSL, data configuration, and table files.
 
 These features include:
+
 * Syntax coloring
 * Property and Label outline for PSL files (access by <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> or by enabling the built-in outline).
 * Code Completion, Hoves, and Go-To Definition by activating `psl.previewFeatures`.

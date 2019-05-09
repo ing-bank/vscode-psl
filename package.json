@@ -2,7 +2,7 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "preview": true,
   "publisher": "ing-bank",
   "engines": {
@@ -238,6 +238,16 @@
         }
       },
       {
+        "command": "psl.runTest",
+        "title": "Run Test",
+        "category": "PSL"
+      },
+      {
+        "command": "psl.runCoverage",
+        "title": "Run Test (with Coverage)",
+        "category": "PSL"
+      },
+      {
         "command": "psl.sendTable",
         "title": "Table Send to Host",
         "category": "PSL"
@@ -469,62 +479,62 @@
         {
           "when": "resourceLangId == psl",
           "command": "psl.getElement",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileData",
           "command": "psl.getElement",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileTable",
           "command": "psl.getElement",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileColumn",
           "command": "psl.getElement",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileBatch",
           "command": "psl.getElement",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileTrigger",
           "command": "psl.getElement",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == psl",
           "command": "psl.getTable",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileData",
           "command": "psl.getTable",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileTable",
           "command": "psl.getTable",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileColumn",
           "command": "psl.getTable",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileBatch",
           "command": "psl.getTable",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == profileTrigger",
           "command": "psl.getTable",
-          "group": "PSL.3"
+          "group": "PSL.4"
         },
         {
           "when": "resourceLangId == psl",
@@ -535,6 +545,16 @@
           "when": "resourceLangId == psl",
           "command": "psl.runPSL",
           "group": "PSL.2"
+        },
+        {
+          "when": "resourceFilename =~ /^(Utc|Stc)/ && resourceLangId == psl && psl.runTestContext",
+          "command": "psl.runTest",
+          "group": "PSL.3"
+        },
+        {
+          "when": "resourceFilename =~ /^(Utc|Stc)/ && resourceLangId == psl && psl.runCoverageContext",
+          "command": "psl.runCoverage",
+          "group": "PSL.3"
         },
         {
           "when": "resourceLangId == psl",
@@ -737,7 +757,40 @@
           "scope": "resource",
           "type": "boolean",
           "default": false,
-          "description": "Set true to enable the latest developing features (requires restart)."
+          "description": "Set true to enable the latest developing features."
+        },
+        "psl.customTasks": {
+          "scope": "resource",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "command",
+              "mrpcID",
+              "request"
+            ],
+            "properties": {
+              "command": {
+                "type": "string",
+                "enum": [
+                  "runTest",
+                  "runCoverage"
+                ],
+                "enumDescriptions": [
+                  "A command for running tests via PslUtTestCase.",
+                  "A command for running tests with coverage output."
+                ]
+              },
+              "mrpcID": {
+                "type": "string",
+                "description": "The MRPC ID supplied in the client message. For example \"121\" or \"^ZMRPC121\"."
+              },
+              "request": {
+                "type": "string",
+                "description": "The request type. For example \"PSLRUNTEST\"."
+              }
+            }
+          }
         },
         "psl.documentationServer": {
           "scope": "resource",
@@ -766,6 +819,7 @@
   "scripts": {
     "compile": "tsc -p ./",
     "compile-lint": "tsc -p ./src/pslLint/cli",
+    "compile-parser": "tsc -p ./src/parser",
     "lint": "tslint -c tslint.json --project .",
     "watch": "npm run compile -- -watch",
     "test": "jest"
@@ -779,11 +833,11 @@
     "@types/jest": "^23.3.8",
     "@types/minimatch": "^3.0.3",
     "@types/node": "^9.6.35",
-    "jest": "^23.6.0",
+    "jest": "^24.7.1",
     "ts-jest": "^23.10.4",
     "tslint": "^5.11.0",
-    "typescript": "^2.9.1",
-    "vscode": "^1.1.21"
+    "typescript": "^3.4.5",
+    "vscode": "^1.1.33"
   },
   "dependencies": {
     "fs-extra": "^5.0.0",

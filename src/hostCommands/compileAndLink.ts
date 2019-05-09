@@ -52,7 +52,7 @@ async function compileAndLink(fsPath: string) {
 		promises.push(utils.executeWithProgress(`${icon} ${path.basename(fsPath)} COMPILE AND LINK`, async () => {
 			utils.logger.info(`${utils.icons.WAIT} ${icon} ${path.basename(fsPath)} COMPILE AND LINK in ${env.name}`);
 			let connection = await utils.getConnection(env);
-			let output = await connection.complink(fsPath);
+			let output = await connection.compileAndLink(fsPath);
 			connection.close();
 			if (output.includes('compile and link successful')) utils.logger.info(`${utils.icons.SUCCESS} ${icon} ${path.basename(fsPath)} COMPILE AND LINK ${env.name} successful`)
 			else utils.logger.error(`${utils.icons.ERROR} ${icon} ${output}`);

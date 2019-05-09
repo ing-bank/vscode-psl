@@ -6,6 +6,8 @@ node_js:
 
 stages:
   - build
+  - name: deploy parser
+    if: tag =~ ^parser
   - name: deploy lint
     if: tag =~ ^lint
   - name: deploy vscode
@@ -24,6 +26,17 @@ jobs:
     - script:
         - npm run test
       name: test
+
+    - stage: deploy parser
+      script: cp ./src/parser/.npmrc.psl-parser .npmrc && npm run compile-parser
+      deploy:
+        provider: script
+        script: npm publish ./src/parser
+        skip_cleanup: true
+        on:
+          tags: true
+          all_branches: true
+      name: npm
 
     - stage: deploy lint
       script: cp ./src/pslLint/cli/.npmrc.psl-lint .npmrc && npm run compile-lint
