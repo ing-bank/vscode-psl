@@ -178,6 +178,21 @@
         "category": "PSL"
       },
       {
+        "command": "psl.stepOut",
+        "title": "Terminal Step Out",
+        "category": "PSL"
+      },
+      {
+        "command": "psl.stepIn",
+        "title": "Terminal Step In",
+        "category": "PSL"
+      },
+      {
+        "command": "psl.stepOver",
+        "title": "Terminal Step Over",
+        "category": "PSL"
+      },
+      {
         "command": "psl.getElement",
         "title": "Get Element from Host",
         "category": "PSL"
@@ -721,21 +736,6 @@
       {
         "command": "psl.launchHostTerminal",
         "key": "win+oem_3"
-      },
-      {
-        "key": "Ctrl+E",
-        "command": "psl.stepOut",
-        "when": "terminalFocus && psl.hasHostTerminal"
-      },
-      {
-        "key": "Ctrl+Q",
-        "command": "psl.stepIn",
-        "when": "terminalFocus && psl.hasHostTerminal"
-      },
-      {
-        "key": "Ctrl+W",
-        "command": "psl.stepOver",
-        "when": "terminalFocus && psl.hasHostTerminal"
       }
     ],
     "configuration": {
