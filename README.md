@@ -103,14 +103,14 @@ This extension includes support for checking PSL against common coding standards
 
 ```
 {
-	"version": 1,
-	"include": {
-		"Z*": ["*"],
-		"*": ["TodoInfo"]
-	},
-	"exclude": {
-		"ZRPC*.PROC": ["MemberCamelCase"]
-	}
+    "version": 1,
+    "include": {
+        "Z*": ["*"],
+        "*": ["TodoInfo"]
+    },
+    "exclude": {
+        "ZRPC*.PROC": ["MemberCamelCase"]
+    }
 }
 ```
 
@@ -118,12 +118,51 @@ Within `include` and `exclude` are mappings from filename patterns to Rules. The
 
 [For more information about which Rules are available, and how the linting can be used as a tool outside of VSCode, visit the package at npm](https://www.npmjs.com/package/psl-lint).
 
+## Debugging GT.M
+
+The extension can be configured to help you debug in the Integrated Terminal with the following actions:
+
+* Step In: `ZSTEP INTO:"W $ZPOS ZP @$ZPOS B"`
+* Step Out: `ZSTEP OUTOF:"W $ZPOS ZP @$ZPOS B"`
+* Step Over: `ZSTEP OVER:"W $ZPOS ZP @$ZPOS B"`
+
+The extension can send the text to your active Integrated Terminal.
+
+These can be mapped to keyboard shortcuts by adding the following configuration to your `keybindings.json`. The choice of `key` is completely configurable. Ensure that the `terminalFocus` when clause is present to prevent unexpected behavior.
+
+```
+{
+    "key": "ctrl+q",
+    "command": "psl.stepIn",
+    "when": "terminalFocus"
+},
+{
+    "key": "ctrl+w",
+    "command": "psl.stepOut",
+    "when": "terminalFocus"
+},
+{
+    "key": "ctrl+e",
+    "command": "psl.stepOver",
+    "when": "terminalFocus"
+}
+```
+
+You may even define custom sequences using the `psl.sendToHostTerminal` command. `key` and `args` are completely configurable. You can add as many of these configurations as you would like:
+```
+{
+    "key": "ctrl+1",
+    "args": "d ^DRV\n1\nxxx",
+    "command": "psl.sendToHostTerminal",
+    "when": "terminalFocus"
+}
+```
 
 ## Available Settings
 
-* `psl.lint`	Whether to lint files written in PSL. The default value is `config`, which means linting only activates when the `psl-lint.json` config file is present. [Read more here](#psl-lint).
-* `psl.previewFeatures`	Set true to enable the latest developing features. Default value is false.
-* `psl.trailingNewline`	Adds a trailing newline after a "Get" or "Refresh". The default behavior is to not change the output.
+* `psl.lint`: Whether to lint files written in PSL. The default value is `config`, which means linting only activates when the `psl-lint.json` config file is present. [Read more here](#psl-lint).
+* `psl.previewFeatures`: Set true to enable the latest developing features. Default value is false.
+* `psl.trailingNewline`: Adds a trailing newline after a "Get" or "Refresh". The default behavior is to not change the output.
 
 ## Development
 
