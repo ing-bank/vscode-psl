@@ -42,7 +42,7 @@ Commands to communicate with the Host via MRPC121 can be executed via the Comman
 * `Compile and Link`: Compiles and links PSL or tables
 * `Get Element from Host`: Gets a new element
 * `Refresh from Host`: Refreshes an existing element
-* `Run PSL`: Runs PSL
+* `Run PSL`: Runs PSL and returns the output
 * `Send to Host`: Sends an existing element
 * `Table Get from Host`: Gets all elements related to a table
 * `Table Refresh from Host`: Fetches all elements related to an existing table element
