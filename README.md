@@ -12,7 +12,7 @@ Profile Scripting Language functionality for Visual Studio Code.
 
 Locate the button at the bottom-right corner titled `Configure Environments`. If the button is not visible, use the Command Palette (<kbd>F1</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) to find the `PSL: Configure Environment` command. A JSON object of the following form will appear:
 
-```json
+```
 {
     "environments": [
         {
@@ -42,7 +42,7 @@ Commands to communicate with the Host via MRPC121 can be executed via the Comman
 * `Compile and Link`: Compiles and links PSL or tables
 * `Get Element from Host`: Gets a new element
 * `Refresh from Host`: Refreshes an existing element
-* `Run PSL`: Runs PSL and returns the output
+* `Run PSL`: Runs PSL and displays the output
 * `Send to Host`: Sends an existing element
 * `Table Get from Host`: Gets all elements related to a table
 * `Table Refresh from Host`: Fetches all elements related to an existing table element
@@ -149,6 +149,7 @@ These can be mapped to keyboard shortcuts by adding the following configuration 
 ```
 
 You may even define custom sequences using the `psl.sendToHostTerminal` command. `key` and `args` are completely configurable. You can add as many of these configurations as you would like:
+
 ```
 {
     "key": "ctrl+1",
