@@ -37,7 +37,7 @@ Once the global configuration is saved, environments can be activated by using t
 
 ## Host Communication
 
-Commands to communicate with the Host via MRPC121 can executed via the Command Pallette (<kbd>F1</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>), icons at the top-right corner of the document, right-clicking the document, or right-clicking the file in the Explorer sidebar.
+Commands to communicate with the Host via MRPC121 can be executed via the Command Pallette (<kbd>F1</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>), icons at the top-right corner of the document, right-clicking the document, or right-clicking the file in the Explorer sidebar.
 
 * `Compile and Link`: Compiles and links PSL or tables
 * `Get Element from Host`: Gets a new element
