@@ -114,7 +114,7 @@ This extension includes support for checking PSL against common coding standards
 }
 ```
 
-Within `include` and `exclude` mappings from filename patterns to rules. These are glob-style patterns ("Z*" will match all files that start with Z). The rules are written in an array, and must be explicitly stated. The only exception is the "*" rule, which matches all rules.
+Within `include` and `exclude` are mappings from filename patterns to Rules. These are glob-style patterns ("Z*" will match all files that start with Z). The Rules are written in an array, and must be explicitly stated. The only exception is "*", which matches all Rules.
 
 [For more information about which rules are available, and how the linting can be used as a tool outside of VSCode, visit the package at npm](https://www.npmjs.com/package/psl-lint).
 
