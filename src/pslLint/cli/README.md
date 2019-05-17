@@ -15,12 +15,29 @@ This module works by adding rules that are automatically checked at the appropri
 * MethodSeparator
 * MultiLineDeclare
 * PropertyIsDummy
-* PropertyIsDuplicate
 * RuntimeStart
 * TblColDocumentation
 * TodoInfo
 * TwoEmptyLines
 
+## Configuration
+
+By creating a file `psl-lint.json` at the root of the project, you can control the behavior of the linter. The format of the file is as follows:
+
+```
+{
+	"version": 1,
+	"include": {
+		"Z*": ["*"],
+		"*": ["TodoInfo"]
+	},
+	"exclude": {
+		"ZRPC*.PROC": ["MemberCamelCase"]
+	}
+}
+```
+
+Within `include` and `exclude` are filename-to-rules mappings. The filenames can be glob patterns ("Z*" will match all files that start with Z). The rules are written in an array, and must be explicitly stated. The only exception is the "*" rule, which matches all rules.
 
 ## Contributing
 
