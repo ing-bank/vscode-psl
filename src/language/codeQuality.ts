@@ -105,9 +105,9 @@ function lint(
 	lintDiagnostics: vscode.DiagnosticCollection,
 ) {
 	const profileComponent: api.ProfileComponent = prepareDocument(textDocument);
-	const parsedDocument = api.ProfileComponent.isPsl(profileComponent.fsPath) ?
+	const parsedPsl = api.ProfileComponent.isPsl(profileComponent.fsPath) ?
 		parser.parseText(textDocument.getText()) : undefined;
-	const diagnostics = getDiagnostics(profileComponent, parsedDocument, useConfig);
+	const diagnostics = getDiagnostics(profileComponent, parsedPsl, useConfig);
 	const memberDiagnostics = transform(diagnostics, textDocument.uri);
 	process.nextTick(() => {
 		if (!cancellationToken.isCancellationRequested) {

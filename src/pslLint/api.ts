@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { Declaration, Member, Method, Parameter, ParsedDocument, Property } from './../parser/parser';
+import { Declaration, Member, Method, Parameter, ParsedPsl, Property } from './../parser/parser';
 import { Position, Range } from './../parser/tokenizer';
 
 export enum DiagnosticSeverity {
@@ -124,7 +124,7 @@ export abstract class FileDefinitionRule extends ProfileComponentRule { }
 
 export abstract class PslRule extends ProfileComponentRule {
 
-	parsedDocument: ParsedDocument;
+	parsedPsl: ParsedPsl;
 
 	abstract report(...args: any[]): Diagnostic[];
 }

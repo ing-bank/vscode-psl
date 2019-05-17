@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { MemberClass, ParsedDocument, parseFile } from '../src/parser/parser';
+import { MemberClass, ParsedPsl, parseFile } from '../src/parser/parser';
 import * as tokenizer from '../src/parser/tokenizer';
 import * as utilities from '../src/parser/utilities';
 
@@ -121,8 +121,8 @@ describe('ParsedDocFinder', () => {
 	let parentFilePath: string;
 	let childFilePath: string;
 
-	let parsedParent: ParsedDocument;
-	let parsedChild: ParsedDocument;
+	let parsedParent: ParsedPsl;
+	let parsedChild: ParsedPsl;
 
 	beforeAll(async () => {
 		filesDir = path.resolve('__tests__', 'files');

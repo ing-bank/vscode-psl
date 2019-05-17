@@ -148,7 +148,7 @@ export interface Declaration extends Member {
 /**
  * An abstract syntax tree of a PSL document
  */
-export interface ParsedDocument {
+export interface ParsedPsl {
 
 	/**
 	 * An array of Declarations that are not contained within a method.
@@ -244,12 +244,12 @@ export const NON_TYPE_MODIFIERS = [
 	'public', 'static', 'private',
 ];
 
-export function parseText(sourceText: string): ParsedDocument {
+export function parseText(sourceText: string): ParsedPsl {
 	const parser = new Parser();
-	return parser.parseDocument(sourceText);
+	return parser.parsePsl(sourceText);
 }
 
-export function parseFile(sourcePath: string): Promise<ParsedDocument> {
+export function parseFile(sourcePath: string): Promise<ParsedPsl> {
 	return new Promise((resolve, reject) => {
 		fs.readFile(sourcePath, (err, data) => {
 			if (err) {
@@ -257,7 +257,7 @@ export function parseFile(sourcePath: string): Promise<ParsedDocument> {
 			}
 			else {
 				const parser = new Parser();
-				resolve(parser.parseDocument(data.toString()));
+				resolve(parser.parsePsl(data.toString()));
 			}
 		});
 	});
@@ -286,7 +286,7 @@ class Parser {
 		if (tokenizer) this.tokenizer = tokenizer;
 	}
 
-	parseDocument(documentText: string): ParsedDocument {
+	parsePsl(documentText: string): ParsedPsl {
 		this.tokenizer = getTokens(documentText);
 		while (this.next()) {
 			if (this.activeToken.isAlphanumeric() || this.activeToken.isMinusSign()) {

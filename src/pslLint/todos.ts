@@ -5,7 +5,7 @@ export class TodoInfo extends PslRule {
 
 	report(): Diagnostic[] {
 		let todos: Todo[] = [];
-		for (const token of this.parsedDocument.comments) {
+		for (const token of this.parsedPsl.comments) {
 			if (token.value.includes('TODO')) {
 				const startLine = token.position.line;
 				const startChar = token.position.character;

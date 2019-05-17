@@ -29,7 +29,7 @@ export class PropertyIsDummy extends PropertyRule {
 
 	report(property: Property): Diagnostic[] {
 		const diagnostics: Diagnostic[] = [];
-		if (!this.parsedDocument.extending) {
+		if (!this.parsedPsl.extending) {
 			this.isCalledDummy(property, diagnostics);
 		}
 		return diagnostics;

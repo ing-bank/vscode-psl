@@ -1,6 +1,6 @@
-import { Method, ParsedDocument } from '../parser/parser';
+import { Method, ParsedPsl } from '../parser/parser';
 import { Token } from '../parser/tokenizer';
-import { getCommentsOnLine, getLineAfter} from '../parser/utilities';
+import { getCommentsOnLine, getLineAfter } from '../parser/utilities';
 import { Diagnostic, DiagnosticSeverity, MethodRule } from './api';
 
 export enum Code {
@@ -19,7 +19,7 @@ export class MethodDocumentation extends MethodRule {
 
 		const diagnostics: Diagnostic[] = [];
 
-		if (!hasBlockComment(method, this.parsedDocument)) {
+		if (!hasBlockComment(method, this.parsedPsl)) {
 			const idToken = method.id;
 			const message = `Documentation missing for label "${idToken.value}".`;
 			diagnostics.push(addDiagnostic(idToken, method, message, this.ruleName));
@@ -36,7 +36,7 @@ export class MethodSeparator extends MethodRule {
 
 		const diagnostics: Diagnostic[] = [];
 
-		if (!hasSeparator(method, this.parsedDocument)) {
+		if (!hasSeparator(method, this.parsedPsl)) {
 			const idToken = method.id;
 			const message = `Separator missing for label "${idToken.value}".`;
 			diagnostics.push(addDiagnostic(idToken, method, message, this.ruleName));
@@ -55,7 +55,7 @@ export class TwoEmptyLines extends MethodRule {
 		const diagnostics: Diagnostic[] = [];
 		const idToken = method.id;
 
-		const lineAbove = hasSeparator(method, this.parsedDocument) ?
+		const lineAbove = hasSeparator(method, this.parsedPsl) ?
 			method.id.position.line - 2 : method.id.position.line - 1;
 
 		if (lineAbove < 2) {
@@ -96,12 +96,12 @@ function addDiagnostic(idToken: Token, method: Method, message: string, ruleName
 	return diagnostic;
 }
 
-function hasSeparator(method: Method, parsedDocument: ParsedDocument): boolean {
-	const nextLineCommentTokens: Token[] = getCommentsOnLine(parsedDocument, method.id.position.line - 1);
+function hasSeparator(method: Method, parsedPsl: ParsedPsl): boolean {
+	const nextLineCommentTokens: Token[] = getCommentsOnLine(parsedPsl, method.id.position.line - 1);
 	return nextLineCommentTokens[0] && nextLineCommentTokens[0].isLineComment();
 }
 
-function hasBlockComment(method: Method, parsedDocument: ParsedDocument): boolean {
-	const nextLineCommentTokens: Token[] = getCommentsOnLine(parsedDocument, getLineAfter(method));
+function hasBlockComment(method: Method, parsedPsl: ParsedPsl): boolean {
+	const nextLineCommentTokens: Token[] = getCommentsOnLine(parsedPsl, getLineAfter(method));
 	return nextLineCommentTokens[0] && nextLineCommentTokens[0].isBlockComment();
 }
