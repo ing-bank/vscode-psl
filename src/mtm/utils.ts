@@ -2,9 +2,9 @@ import * as os from 'os';
 import * as path from 'path';
 
 interface FileDetails {
-	fileId: string
-	fileName: string
-	fileBaseName: string
+	fileId: string;
+	fileName: string;
+	fileBaseName: string;
 }
 
 export const extensionToDescription: { [key: string]: string } = {
@@ -31,48 +31,104 @@ export const extensionToDescription: { [key: string]: string } = {
 }
 
 export function v2lvFormat(messageValue: string[]) {
-	let lvMessage = ''
+	let lvMessage = '';
 	if (messageValue.length !== 0) {
 		messageValue.forEach(messageString => {
 			lvMessage = lvMessage + lvFormat(messageString)
-		})
+		});
 	}
-	return lvMessage
+	return lvMessage;
 }
 
-export function lvFormat(messagString: String): string {
-	let returnLvFormat = ''
-	let lvArray = []
-	let messageLength = messagString.length
-	let splitBytes
+/**
+ * This method will take a message string, and create an Length-Value (LV) formatted string.
+ * The LV formatted string's leading bytes determine the length of the full message (length
+ * bytes and the messsage combined).
+ *
+ * There are two distinct cases when adding the length bytes to the original value:
+ *
+ * 1. If the value to pack is less than 255 bytes, the length can be represented by one byte.
+ * 1. If the value is bigger than 255 bytes, the length is represented by multiple bytes.
+ *
+ * In case the length cannot be expressed in one byte, the first byte of the LV packed string
+ * will be a zero byte `0x00`. The second byte represents the number of bytes that are required
+ * for the length (e.g. `0x03` for a three byte length indicator). The maximum number of bytes
+ * that are supported for the length is four. These two indicator bytes are **not** taken into
+ * consideration in the length.
+ *
+ * The bytes that represent the length are base 256. For example:
+ *
+ * ```text
+ * 0x00 0x04 0x05 0x12 0xff 0xff <message>
+ * ```
+ *
+ * The length of the LV packed string is
+ *
+ * ```text
+ * length = 5 * (256 ^ 3) + 12 * (256 ^ 2) + 256 * (256 ^ 1) + 256 * (256 ^ 0)
+ *        = 5 * 16777216 + 12 * 65536 + 256 * 256 + 256 * 1 = 84738304
+ * ```
+ *
+ * The total length of the output string will be 84738304 + 2 (for the `0x00 0x04`). The
+ * total length of the message itself will be 84738304 - 4 = 84738300.
+ *
+ * @exports
+ * @param {string} messageString The message to pack.
+ * @returns {string} The packed string.
+ */
+export function lvFormat(messagString: string): string {
+	let returnLvFormat = '';
+	const lvArray: number[] = [];
+	let messageLength = messagString.length;
+	let splitBytes: number;
 
-	if (messageLength < 255) { splitBytes = 1 }
-	else if (messageLength < 65534) { splitBytes = 2 }
-	else if (messageLength < 16777213) { splitBytes = 3 }
-	else { splitBytes = 4 }
+	if (messageLength < 255) { splitBytes = 1; }
+	else if (messageLength < 65534) { splitBytes = 2; }
+	else if (messageLength < 16777213) { splitBytes = 3; }
+	else { splitBytes = 4; }
 
-	messageLength = splitBytes + messageLength
+	messageLength = splitBytes + messageLength;
 
 	if (messageLength > 255) {
 		for (let loop = 0; loop < splitBytes; loop++) {
-			lvArray.push(messageLength % 256)
-			messageLength = Math.trunc(messageLength / 256)
+			lvArray.push(messageLength % 256);
+			messageLength = Math.trunc(messageLength / 256);
 		}
 		returnLvFormat = String.fromCharCode(0) + String.fromCharCode(splitBytes);
 		for (let loop = splitBytes - 1; loop >= 0; loop--) {
-			returnLvFormat = returnLvFormat + String.fromCharCode(lvArray[loop])
+			returnLvFormat = returnLvFormat + String.fromCharCode(lvArray[loop]);
 		}
 	}
-	else { returnLvFormat = String.fromCharCode(messageLength) }
+	else { returnLvFormat = String.fromCharCode(messageLength); }
 	return (returnLvFormat + messagString);
 }
 
 /**
- * This method does a thing.
+ * This methods will unpack a Length-Value (LV) container into an array
+ * of Buffers.
+ *
+ * One input buffer can contain multiple LV-packed containers. Every LV container
+ * will be stored in a buffer and added to the buffer array.
+ *
+ * As an LV container can contain other LV containers, the unpacked container will
+ * be stored in a buffer rather than a string.
+ *
+ * As an example, consider the following input buffer (spaces added for readability):
+ *
+ * ```text
+ * 0x03 Hi 0x0d 0x06 Hello 0x06 World
+ * ```
+ *
+ *  This buffer will result in the following two buffers in the output buffer array:
+ *
+ * ```text
+ * Hi
+ * 0x06 Hello 0x06 World
+ * ```
  *
  * @export
  * @param {Buffer} messageString The message string
- * @returns {Buffer[]} A buffer array
+ * @returns {Buffer[]} A Buffer array
  */
 export function lv2vFormat(messageString: Buffer): Buffer[] {
 	const returnString: Buffer[] = [];
@@ -105,7 +161,7 @@ export function lv2vFormat(messageString: Buffer): Buffer[] {
 
 		bytePointer++;
 
-		const currentMessage = Buffer.allocUnsafe(currentMessageLength);
+		const currentMessage = Buffer.alloc(currentMessageLength);
 		messageString.copy(currentMessage, 0, bytePointer, bytePointer + currentMessageLength);
 
 		returnString.push(currentMessage);
