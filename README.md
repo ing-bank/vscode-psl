@@ -151,6 +151,7 @@ The `psl.gtmDebug` context value guarantees the shortcuts are only enabled when 
 
 * `psl.lint`: Whether to lint files written in PSL. The default value is `config`, which means linting only activates when the `psl-lint.json` config file is present. [Read more here](#psl-lint).
 * `psl.previewFeatures`: Set true to enable the latest developing features. Default value is false.
+* `psl.gtmDebug`: Set true to keep GT.M Debug on by default.
 * `psl.trailingNewline`: Adds a trailing newline after a "Get" or "Refresh". The default behavior is to not change the output.
 
 ## Development
