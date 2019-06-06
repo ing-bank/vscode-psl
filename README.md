@@ -75,7 +75,7 @@ If an element is not in the table, a prompt will ask where it should be saved.
 
 In the case of `Table Get from Host`, the TBL and COL files will all be retrieved and placed in the `dataqwik/table/{table_name}/` directory. To get an individual TBL or COL file, use the regular `Get Element from Host` command.
 
-These two commands behave differently when they are used in the Explorer sidebar, specifically on a directory. In this case, both `Get` commands will place the new element(s) inside the targeted directory.
+These two commands behave differently when they are used in the Explorer sidebar, specifically on a directory. In this case, both "Get" commands will place the new element(s) inside the targeted directory.
 
 ### Acting on Tables
 
@@ -87,7 +87,7 @@ The "Send" command will act on all existing elements of that table in the projec
 
 ### Acting on Directories
 
-The five commands `Compile and Link`, `Refresh from Host`, `Run PSL`, `Send to Host`, and `Test Compile` can all be executed on directories from the Explorer sidebar. In this case, a dialogue box will open, allowing you to act on multiple elements within the directory at once.
+The five commands `Compile and Link`, `Refresh from Host`, `Run PSL`, `Send to Host`, and `Test Compile` can all be executed on directories from the Explorer sidebar. In this case a dialogue box will open, allowing you to act on multiple elements within the directory at once.
 
 ## Language Features
 
