@@ -68,7 +68,7 @@ properties | `property/` |
 QRY | `dataqwik/query/` |
 RPT | `dataqwik/report/` |
 SCR | `dataqwik/screen/` |
-TABLE | `dataqwik/table/{table_name}/` |
+table files (TBL and COL) | `dataqwik/table/{table_name}/` |
 TRIG | `dataqwik/trigger/` |
 
 If an element is not in the table, a prompt will ask where it should be saved.
@@ -79,7 +79,11 @@ These two commands behave differently when they are used in the Explorer sidebar
 
 ### Acting on Tables
 
-When editing a TBL or COL, the commands `Table Refresh from Host` and `Table Send to Host` are present. The `Send` command will act on all existing elements of that table in the project at once, while the `Refresh` command will fetch all elements related to the table from the Host, even elements not present in the project. `Compile and Link` is also available, allowing you to "Rebuild Data Item Control Files".
+When editing a TBL or COL, the commands `Table Refresh from Host` and `Table Send to Host` are present.
+
+The "Send" command will act on all existing elements of that table in the project at once, while the "Refresh" command will fetch all elements related to the table from the Host, even elements not present in the project. 
+
+`Compile and Link` is also available, allowing you to "Rebuild Data Item Control Files".
 
 ### Acting on Directories
 
