@@ -126,42 +126,24 @@ Within `include` and `exclude` are mappings from filename patterns to Rules. The
 
 The extension can be configured to help you debug in the Integrated Terminal with the following actions:
 
-* Step In: `ZSTEP INTO:"W $ZPOS ZP @$ZPOS B"`
-* Step Out: `ZSTEP OUTOF:"W $ZPOS ZP @$ZPOS B"`
-* Step Over: `ZSTEP OVER:"W $ZPOS ZP @$ZPOS B"`
+* Step In (Ctrl+Q): `ZSTEP INTO:"W $ZPOS ZP @$ZPOS B"`
+* Step Over (Ctrl+W): `ZSTEP OVER:"W $ZPOS ZP @$ZPOS B"`
+* Step Out (Ctrl+E): `ZSTEP OUTOF:"W $ZPOS ZP @$ZPOS B"`
 
-The extension can send the text to your active Integrated Terminal.
+By toggling the status bar item "GT.M Debug", the extension can send the text to your active Integrated Terminal. The default values are presented above, but can be customized to your liking.
 
-These can be mapped to keyboard shortcuts by adding the following configuration to your `keybindings.json`. The choice of `key` is completely configurable. Ensure that the `terminalFocus` when clause is present to prevent unexpected behavior.
-
-```
-{
-    "key": "ctrl+q",
-    "command": "psl.stepIn",
-    "when": "terminalFocus"
-},
-{
-    "key": "ctrl+w",
-    "command": "psl.stepOut",
-    "when": "terminalFocus"
-},
-{
-    "key": "ctrl+e",
-    "command": "psl.stepOver",
-    "when": "terminalFocus"
-}
-```
-
-You may even define custom sequences using the `psl.sendToHostTerminal` command. `key` and `args` are completely configurable. You can add as many of these configurations as you would like:
+You may even define custom sequences using the `psl.sendToHostTerminal` command. `key` and `args` are completely configurable. You can add as many of these configurations as you would like to your `keybindings.json`:
 
 ```
 {
     "key": "ctrl+1",
     "args": "d ^DRV\n1\nxxx",
     "command": "psl.sendToHostTerminal",
-    "when": "terminalFocus"
+    "when": "terminalFocus && psl.gtmDebug"
 }
 ```
+
+The `psl.gtmDebug` context value guarantees the shortcuts are only enabled when "GT.M Debug" is toggled on. This can be omitted for "always on" shortcuts.
 
 ## Available Settings
 
