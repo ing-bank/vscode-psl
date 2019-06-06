@@ -125,11 +125,10 @@ Within `include` and `exclude` are mappings from filename patterns to Rules. The
 ## Debugging GT.M
 
 The extension can be configured to help you debug in the Integrated Terminal with the following actions:
-|Action | Command |
-|---|---|
-| Step In (<kbd>Ctrl</kbd>+<kbd>Q</kbd>) | `ZSTEP INTO:"W $ZPOS ZP @$ZPOS B"` |
-| Step Over (<kbd>Ctrl</kbd>+<kbd>W</kbd>) | `ZSTEP OVER:"W $ZPOS ZP @$ZPOS B"` |
-| Step Out (<kbd>Ctrl</kbd>+<kbd>E</kbd>) | `ZSTEP OUTOF:"W $ZPOS ZP @$ZPOS B"` |
+
+* Step In (<kbd>Ctrl</kbd>+<kbd>Q</kbd>): `ZSTEP INTO:"W $ZPOS ZP @$ZPOS B"`
+* Step Over (<kbd>Ctrl</kbd>+<kbd>W</kbd>): `ZSTEP OVER:"W $ZPOS ZP @$ZPOS B"`
+* Step Out (<kbd>Ctrl</kbd>+<kbd>E</kbd>): `ZSTEP OUTOF:"W $ZPOS ZP @$ZPOS B"`
 
 By toggling the status bar item "GT.M Debug", the extension can send the text to your active Integrated Terminal. The default values are presented above, but can be customized to your liking.
 
