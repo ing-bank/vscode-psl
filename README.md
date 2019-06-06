@@ -132,6 +132,8 @@ The extension can be configured to help you debug in the Integrated Terminal wit
 
 By toggling the status bar item "GT.M Debug", the extension can send the text to your active Integrated Terminal. The default values are presented above, but can be customized to your liking.
 
+The setting `psl.gtmDebugEnabled` can be set to `true` to keep GT.M Debug on by default.
+
 You may even define custom sequences using the `psl.sendToHostTerminal` command. `key` and `args` are completely configurable. You can add as many of these configurations as you would like to your `keybindings.json`:
 
 ```

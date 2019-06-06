@@ -774,6 +774,12 @@
           "default": false,
           "description": "Set true to enable the latest developing features."
         },
+        "psl.gtmDebugEnabled": {
+          "scope": "machine",
+          "type": "boolean",
+          "default": false,
+          "description": "Set true to keep GT.M Debug on by default."
+        },
         "psl.customTasks": {
           "scope": "resource",
           "type": "array",

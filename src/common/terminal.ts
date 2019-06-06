@@ -68,7 +68,7 @@ function terminalSend(text: string) {
 function configureGtmDebug(context: vscode.ExtensionContext) {
 	const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 901);
 	const commandName = 'psl.setGtmDebug';
-	let gtmDebug = false;
+	let gtmDebug = vscode.workspace.getConfiguration('psl').get('gtmDebugEnabled');
 
 	const set = () => {
 		if (gtmDebug) showInformation(context);
@@ -86,8 +86,15 @@ function configureGtmDebug(context: vscode.ExtensionContext) {
 		),
 	);
 
+	vscode.workspace.onDidChangeConfiguration(event => {
+		if (event.affectsConfiguration('psl.gtmDebugEnabled')) {
+			gtmDebug = true;
+			set();
+		}
+	});
+
 	statusBar.command = commandName;
-	statusBar.tooltip = 'GT.M Debugging hotkeys';
+	statusBar.tooltip = 'GT.M Debug hotkeys';
 	statusBar.show();
 }
 
