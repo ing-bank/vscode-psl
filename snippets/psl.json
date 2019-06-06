@@ -71,6 +71,7 @@
 			"",
 			"\t@param\targs\tCommand line arguments",
 			"\t** ENDDOC */",
+			"\t$0",
 			"\treturn 0"
 		],
 		"description": "Add the method signature for a pslmain method."
