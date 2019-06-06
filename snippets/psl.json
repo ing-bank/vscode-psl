@@ -59,6 +59,21 @@
 			"\t$0",
 			"\t** ENDDOC */"
 		],
-		"description": "Adds a method stub with a documentation comment block"
+		"description": "Adds a method stub with a documentation comment block."
+	},
+	"pslmain":{
+		"prefix": "psip",
+		"body": [
+			"\t// --------------------------------------------------------------------",
+			"public static Integer plsmain(void args(String))",
+			"\t/* DOC ----------------------------------------------------------------",
+			"\tCommand line entry point.",
+			"",
+			"\t@param\targs\tCommand line arguments",
+			"\t** ENDDOC */",
+			"\t$0",
+			"\treturn 0"
+		],
+		"description": "Add the method signature for a pslmain method."
 	}
 }
