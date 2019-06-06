@@ -173,8 +173,8 @@
     },
     "commands": [
       {
-        "command": "psl.launchHostTerminal",
-        "title": "Launch Host Terminal",
+        "command": "psl.setGtmDebug",
+        "title": "Set GT.M Debug",
         "category": "PSL"
       },
       {
@@ -732,6 +732,21 @@
         "when": "resourceLangId == psl",
         "command": "psl.testCompile",
         "key": "Ctrl+Shift+B"
+      },
+      {
+        "key": "Ctrl+E",
+        "command": "psl.stepOut",
+        "when": "terminalFocus && psl.gtmDebug"
+      },
+      {
+        "key": "Ctrl+Q",
+        "command": "psl.stepIn",
+        "when": "terminalFocus && psl.gtmDebug"
+      },
+      {
+        "key": "Ctrl+W",
+        "command": "psl.stepOver",
+        "when": "terminalFocus && psl.gtmDebug"
       },
       {
         "command": "psl.launchHostTerminal",
