@@ -4,6 +4,7 @@ import * as terminal from './common/terminal';
 import * as hostEnvironment from './common/environment';
 import * as hostCommands from './hostCommands/activate';
 import * as languageFeatures from './language/activate';
+import * as dbaView from './dbaView/activate';
 
 export const PSL_MODE: vscode.DocumentFilter = { language: 'psl', scheme: 'file' };
 export const BATCH_MODE: vscode.DocumentFilter = { language: 'profileBatch', scheme: 'file' };
@@ -22,6 +23,8 @@ export function activate(context: vscode.ExtensionContext) {
 	terminal.activate(context);
 
 	languageFeatures.activate(context);
+
+	dbaView.activate(context);
 }
 
 

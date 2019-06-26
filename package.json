@@ -276,6 +276,15 @@
         "command": "psl.previewDocumentation",
         "title": "Preview Documentation",
         "category": "PSL"
+      },
+      {
+        "command": "psl.dbaView",
+        "title": "DBA View",
+        "category": "PSL",
+        "icon": {
+          "dark": "icons/dark/triangle-right.svg",
+          "light": "icons/light/triangle-right.svg"
+        }
       }
     ],
     "menus": {
@@ -603,6 +612,10 @@
         }
       ],
       "editor/title": [
+        {
+          "command": "psl.dbaView",
+          "group": "navigation@-207"
+        },
         {
           "command": "psl.previewDocumentation",
           "group": "navigation@-206",
