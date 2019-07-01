@@ -1,9 +1,19 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { EnvironmentConfig, workspaceQuickPick } from '../common/environment';
 import * as utils from '../hostCommands/hostCommandUtils';
 import { MtmConnection } from '../mtm/mtm';
 
+let extensionPath: string;
+
+interface WebviewResources {
+  app: vscode.Uri;
+  vue: vscode.Uri;
+}
+
 export function activate(context: vscode.ExtensionContext) {
+  extensionPath = context.extensionPath;
+
   context.subscriptions.push(
       vscode.commands.registerCommand('psl.dbaView', dbaViewHandler),
   )
@@ -19,31 +29,37 @@ async function dbaViewHandler(context: utils.ExtensionCommandContext) {
         'DBA Viewer', // Title of the panel displayed to the user
         vscode.ViewColumn.One, // Editor column to show the new webview panel in.
         {
-            enableScripts: true
+            enableScripts: true,
+            localResourceRoots: [vscode.Uri.file(path.join(extensionPath, 'webview_resources'))],
         } // Webview options. More on these later.
       );
     
-      panel.webview.html = getWebviewContent();
+      panel.webview.html = getWebviewContent({
+        app: getResourceUri('app.js'),
+        vue: getResourceUri('vue.js'),
+      });
 
       panel.webview.onDidReceiveMessage(
-        message => {
+        async message => {
           switch (message.command) {
             case 'alert':
-                async _ => {
-                  const connection = new MtmConnection();
-                  await connection.open(environment.host, environment.port, environment.user, environment.password);
-                  const result = await connection.sqlQuery('SELECT FID from DBTBL1');
-                  vscode.window.showErrorMessage(result);
-                  panel.webview.postMessage(result);
-                }
+              const connection = new MtmConnection();
+              await connection.open(environment.host, environment.port, environment.user, environment.password);
+              const result = await connection.sqlQuery('SELECT FID from DBTBL1');
+              vscode.window.showErrorMessage(result);
+              panel.webview.postMessage(result);
+
               return;
           }
-        },
-        undefined,
-        context.subscriptions
+        }
       );
     
     
+}
+
+function getResourceUri(resourceName: string) {
+  const onDiskPath = vscode.Uri.file(path.join(extensionPath, 'webview_resources', resourceName));
+  return onDiskPath.with({ scheme: 'vscode-resource' });
 }
 
 async function getEnvironmentFromContext(context: utils.ExtensionCommandContext) {
@@ -70,7 +86,7 @@ async function getEnvironmentFromContext(context: utils.ExtensionCommandContext)
 	return utils.getCommandEnvConfigQuickPick(environments);
 }
 
-function getWebviewContent() {
+function getWebviewContent(resources: WebviewResources) {
     return `<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -111,7 +127,7 @@ function getWebviewContent() {
       </div>
     </div>
     </body>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+    <script src="${ resources.vue.toString() }"></script>
     <script type="text/x-template" id="grid-template">
     <table>
       <thead>
@@ -134,116 +150,6 @@ function getWebviewContent() {
       </tbody>
     </table>
   </script>
-    <script>
-    const vscode = acquireVsCodeApi();
-    // register the grid component
-  Vue.component('demo-grid', {
-    template: '#grid-template',
-    props: {
-      tables: Array,
-      columns: Array,
-      filterKey: String
-    },
-    data: function () {
-      var sortOrders = {}
-      this.columns.forEach(function (key) {
-        sortOrders[key] = 1
-      })
-      return {
-        sortKey: '',
-        sortOrders: sortOrders
-      }
-    },
-    computed: {
-      filteredTables: function () {
-        var sortKey = this.sortKey
-        var filterKey = this.filterKey && this.filterKey.toLowerCase()
-        var order = this.sortOrders[sortKey] || 1
-        var tables = this.tables
-        if (filterKey) {
-          tables = tables.filter(function (row) {
-            return Object.keys(row).some(function (key) {
-              return String(row[key]).toLowerCase().indexOf(filterKey) > -1
-            })
-          })
-        }
-        if (sortKey) {
-          tables = tables.slice().sort(function (a, b) {
-            a = a[sortKey]
-            b = b[sortKey]
-            return (a === b ? 0 : a > b ? 1 : -1) * order
-          })
-        }
-        return tables
-      }
-    },
-    filters: {
-      capitalize: function (str) {
-        return str.charAt(0).toUpperCase() + str.slice(1)
-      }
-    },
-    methods: {
-      sortBy: function (key) {
-        this.sortKey = key
-        this.sortOrders[key] = this.sortOrders[key] * -1
-      }
-    }
-  })
-    
-    var app = new Vue({
-      el: '#app',
-      methods:{
-        init() {
-          this.askTables()
-          window.addEventListener('message', event => {
-            this.parseMessage(message)
-        });
-          //Send message to get the tables
-          console.log('Sunt aici!')
-          
-        },
-        parseMessage(message) {
-          const message = event.data; // The JSON data our extension sent
-          switch(message.id) {
-            case 'tables':
-              this.parseTables(message.data)
-              break;
-            case 'columns':
-              break;
-          }
-        },
-        askTables() {
-          vscode.postMessage({
-            command: 'alert',
-            text: 'test'
-          })
-        },
-        parseTables(tables) {
-          document.getElementById('table-details').textContent(tables)
-          console.log(tables);
-        },
-        askColumns(table) {
-          //Send message to get columns from table
-        },
-        parseColumns(columns) {
-          console.log(columns);
-        }
-      },
-      mounted(){
-        this.init();
-      },
-      data: {
-        searchQuery: '',
-        gridColumns: ['name', 'alias', 'description'],
-        tables: [
-          { name: 'Chuck Norris', alias: Infinity , description: 'Testing...'},
-          { name: 'Bruce Lee', alias: 9000 , description: 'Testing...'},
-          { name: 'Jackie Chan', alias: 7000 , description: 'Testing...'},
-          { name: 'Jet Li', alias: 8000 , description: 'Testing...'}
-        ],
-        
-      }
-    });
-      </script>
+    <script src="${resources.app.toString()}"></script>
     </html>`;
   }
