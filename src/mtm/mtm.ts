@@ -250,6 +250,8 @@ export class MtmConnection {
 		let fileDetails = utils.getObjectType(fileName);
 		let tableReturnString = fileDetails.fileBaseName + String.fromCharCode(1) + await this._get(fileName)
 		let selectStatement = `SELECT COUNT(DI) FROM DBTBL1D WHERE FID='${fileDetails.fileName}' `;
+		// Setting this.recordCount allows SQL to fetch more than the default number of values
+		// We need to find a way to generalize the logic here for other queries
 		this.recordCount = Number(await this._sqlQuery(selectStatement))
 		selectStatement = `SELECT DI FROM DBTBL1D WHERE FID='${fileDetails.fileName}'`;
 		returnString = await this._sqlQuery(selectStatement)
