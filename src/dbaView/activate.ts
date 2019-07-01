@@ -12,6 +12,8 @@ export function activate(context: vscode.ExtensionContext) {
 async function dbaViewHandler(context: utils.ExtensionCommandContext) {
     const environment = await getEnvironmentFromContext(context);
 
+    if (!environment) return;
+
     const panel = vscode.window.createWebviewPanel(
         'dbaView', // Identifies the type of the webview. Used internally
         'DBA Viewer', // Title of the panel displayed to the user
@@ -35,7 +37,6 @@ async function dbaViewHandler(context: utils.ExtensionCommandContext) {
 
 async function getEnvironmentFromContext(context: utils.ExtensionCommandContext) {
 	const c = utils.getFullContext(context);
-	let environment: EnvironmentConfig;
 	let environments: EnvironmentConfig[];
 	try {
 		let fsPath: string;
@@ -55,11 +56,7 @@ async function getEnvironmentFromContext(context: utils.ExtensionCommandContext)
 		utils.logger.error(`${utils.icons.ERROR} No environments selected.`);
 		return;
 	}
-	const choice = await utils.getCommandEnvConfigQuickPick(environments);
-	if (!choice) return;
-	environment = choice;
-
-	return environment;
+	return utils.getCommandEnvConfigQuickPick(environments);
 }
 
 function getTables() {
