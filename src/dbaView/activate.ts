@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import { EnvironmentConfig, workspaceQuickPick } from '../common/environment';
+import * as utils from '../hostCommands/hostCommandUtils';
 import { MtmConnection } from '../mtm/mtm';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -7,7 +9,9 @@ export function activate(context: vscode.ExtensionContext) {
   )
 }
 
-function dbaViewHandler() {
+async function dbaViewHandler(context: utils.ExtensionCommandContext) {
+    const environment = await getEnvironmentFromContext(context);
+
     const panel = vscode.window.createWebviewPanel(
         'dbaView', // Identifies the type of the webview. Used internally
         'DBA Viewer', // Title of the panel displayed to the user
@@ -21,12 +25,41 @@ function dbaViewHandler() {
 
       setTimeout(async _ => {
         const connection = new MtmConnection();
-        await connection.open('localhost',2009,'COERUI','xxx');
+        await connection.open(environment.host, environment.port, environment.user, environment.password);
         const result = await connection.sqlQuery('SELECT FID from DBTBL1');
         panel.webview.postMessage(result);
       }, 10000);
     
     
+}
+
+async function getEnvironmentFromContext(context: utils.ExtensionCommandContext) {
+	const c = utils.getFullContext(context);
+	let environment: EnvironmentConfig;
+	let environments: EnvironmentConfig[];
+	try {
+		let fsPath: string;
+		if (c.mode === utils.ContextMode.EMPTY) {
+			const quickPick = await workspaceQuickPick();
+			if (!quickPick) return;
+			fsPath = quickPick.fsPath;
+		}
+		else fsPath = c.fsPath;
+		environments = await utils.getEnvironment(fsPath);
+	}
+	catch (e) {
+		utils.logger.error(`${utils.icons.ERROR} Invalid environment configuration ${e.message}`);
+		return;
+	}
+	if (environments.length === 0) {
+		utils.logger.error(`${utils.icons.ERROR} No environments selected.`);
+		return;
+	}
+	const choice = await utils.getCommandEnvConfigQuickPick(environments);
+	if (!choice) return;
+	environment = choice;
+
+	return environment;
 }
 
 function getTables() {

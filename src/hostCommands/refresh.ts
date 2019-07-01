@@ -47,7 +47,7 @@ async function refreshElement(fsPath: string) {
 			utils.logger.error(`${utils.icons.ERROR} ${icon} No environments selected.`);
 			return;
 		}
-		let choice = await utils.getCommandenvConfigQuickPick(envs);
+		let choice = await utils.getCommandEnvConfigQuickPick(envs);
 		if (!choice) return;
 		env = choice;
 		utils.logger.info(`${utils.icons.WAIT} ${icon} ${path.basename(fsPath)} REFRESH from ${env.name}`);
@@ -92,7 +92,7 @@ async function refreshTable(tableName: string, targetDirectory: string) {
 	let env;
 	await utils.executeWithProgress(`${icon} ${tableName} TABLE REFRESH`, async () => {
 		let envs = await utils.getEnvironment(targetDirectory);
-		let choice = await utils.getCommandenvConfigQuickPick(envs);
+		let choice = await utils.getCommandEnvConfigQuickPick(envs);
 		if (!choice) return;
 		env = choice;
 		utils.logger.info(`${utils.icons.WAIT} ${icon} ${tableName} TABLE REFRESH from ${env.name}`);
