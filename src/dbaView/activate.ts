@@ -41,13 +41,12 @@ async function dbaViewHandler(context: utils.ExtensionCommandContext) {
 
       panel.webview.onDidReceiveMessage(
         async message => {
-          switch (message.command) {
-            case 'alert':
+          switch (message.what) {
+            case 'tables':
               const connection = new MtmConnection();
               await connection.open(environment.host, environment.port, environment.user, environment.password);
-              const result = await connection.sqlQuery('SELECT FID from DBTBL1');
-              vscode.window.showErrorMessage(result);
-              panel.webview.postMessage(result);
+              const result = await connection.sqlQuery('SELECT FID,ALIAS,DES from DBTBL1');
+              panel.webview.postMessage(buildAnswer('TABLES',['name','alias','description'],result));
 
               return;
           }
@@ -55,6 +54,29 @@ async function dbaViewHandler(context: utils.ExtensionCommandContext) {
       );
     
     
+}
+
+function buildAnswer(what, fields, value) {
+  //separate by lines
+  var dataArray = [];
+  var forParsing = value.split('\n');
+  forParsing.forEach(line => {
+   var splittedLine = line.split('\t');
+   let obj: any = {};
+   var counter = 0;
+   fields.forEach(field => {
+      obj[field]=splittedLine[counter];
+      counter++;
+   });
+   dataArray.push(JSON.stringify(obj));
+ });
+
+
+
+  return {
+    id: what,
+    data: dataArray
+  }
 }
 
 function getResourceUri(resourceName: string) {
@@ -110,11 +132,11 @@ function getWebviewContent(resources: WebviewResources) {
         <form id="search">
           Search <input name="query" v-model="searchQuery">
         </form>
-        <demo-grid
+        <tables-grid
           :tables="tables"
           :columns="gridColumns"
           :filter-key="searchQuery">
-        </demo-grid>
+        </tables-grid>
       </div>
       <div class="container" id="column-list">
         COLUMN LIST
@@ -128,7 +150,7 @@ function getWebviewContent(resources: WebviewResources) {
     </div>
     </body>
     <script src="${ resources.vue.toString() }"></script>
-    <script type="text/x-template" id="grid-template">
+    <script type="text/x-template" id="tables-tpl">
     <table>
       <thead>
         <tr>
