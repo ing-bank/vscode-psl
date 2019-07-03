@@ -68,7 +68,7 @@ function buildAnswer(what, fields, value) {
       obj[field]=splittedLine[counter];
       counter++;
    });
-   dataArray.push(JSON.stringify(obj));
+   dataArray.push(obj);
  });
 
 
@@ -122,6 +122,59 @@ function getWebviewContent(resources: WebviewResources) {
           #column-list { background: #AAA; }
           #table-details { background: #777; }
           #column-details { background: #444; }
+          table {
+            border: 2px solid #42b983;
+            border-radius: 3px;
+            background-color: #fff;
+          }
+          
+          th {
+            background-color: #42b983;
+            color: rgba(255,255,255,0.66);
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+          }
+          
+          tr.active {
+            background-color: lightgray;
+          }
+
+          th, td {
+            min-width: 120px;
+            padding: 10px 20px;
+          }
+          
+          th.active {
+            color: #fff;
+          }
+          
+          th.active .arrow {
+            opacity: 1;
+          }
+          
+          .arrow {
+            display: inline-block;
+            vertical-align: middle;
+            width: 0;
+            height: 0;
+            margin-left: 5px;
+            opacity: 0.66;
+          }
+          
+          .arrow.asc {
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-bottom: 4px solid #fff;
+          }
+          
+          .arrow.dsc {
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid #fff;
+          }
       </style>
       
     </head>
@@ -164,7 +217,7 @@ function getWebviewContent(resources: WebviewResources) {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="entry in filteredTables">
+        <tr v-for="entry in filteredTables" :id=entry.name v-on:click="selectRow(entry)">
           <td v-for="key in columns">
             {{entry[key]}}
           </td>

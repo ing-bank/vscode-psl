@@ -1,7 +1,7 @@
 const vscode = acquireVsCodeApi();
 // register the grid component
-Vue.component('demo-grid', {
-	template: '#grid-template',
+Vue.component('tables-grid', {
+	template: '#tables-tpl',
 	props: {
 		tables: Array,
 		columns: Array,
@@ -49,7 +49,12 @@ Vue.component('demo-grid', {
 		sortBy: function (key) {
 			this.sortKey = key
 			this.sortOrders[key] = this.sortOrders[key] * -1
+		},
+		selectRow: function (row, tr) {
+			console.log(tr);
+			this.$root.selectRow(row);
 		}
+		
 	}
 })
 
@@ -59,37 +64,38 @@ var app = new Vue({
 		init() {
 			this.askTables()
 			window.addEventListener('message', event => {
-				this.parseMessage(message)
+				const message = event.data;
+				this.parseMessage(message);
 			});
-			//Send message to get the tables
-			console.log('Sunt aici!')
 
 		},
 		parseMessage(message) {
-			const message = event.data; // The JSON data our extension sent
+			console.log('Let`s parse the mf!',message);
 			switch (message.id) {
-				case 'tables':
+				case 'TABLES':
 					this.parseTables(message.data)
 					break;
-				case 'columns':
+				case 'COLUMNS':
 					break;
 			}
 		},
 		askTables() {
 			vscode.postMessage({
-				command: 'alert',
-				text: 'test'
+				command: 'get',
+				what: 'tables'
 			})
 		},
 		parseTables(tables) {
-			document.getElementById('table-details').textContent(tables)
-			console.log(tables);
+			this.tables = tables;
 		},
 		askColumns(table) {
 			//Send message to get columns from table
 		},
 		parseColumns(columns) {
 			console.log(columns);
+		},
+		selectRow: function (row) {
+			console.log(row);
 		}
 	},
 	mounted() {
@@ -104,6 +110,6 @@ var app = new Vue({
 			{ name: 'Jackie Chan', alias: 7000, description: 'Testing...' },
 			{ name: 'Jet Li', alias: 8000, description: 'Testing...' }
 		],
-
+		tablesFromMessage: []
 	}
 });
