@@ -5,7 +5,8 @@ Vue.component('tables-grid', {
 	props: {
 		tables: Array,
 		columns: Array,
-		filterKey: String
+		filterKey: String,
+		selectedTable: String
 	},
 	data: function () {
 		var sortOrders = {}
@@ -37,6 +38,11 @@ Vue.component('tables-grid', {
 					return (a === b ? 0 : a > b ? 1 : -1) * order
 				})
 			}
+			//Remove any selected rows
+			$(".selected").each(function() {
+				$( this ).removeClass('selected');
+				$( this ).css("background-color", "transparent");
+			})
 			return tables
 		}
 	},
@@ -50,9 +56,71 @@ Vue.component('tables-grid', {
 			this.sortKey = key
 			this.sortOrders[key] = this.sortOrders[key] * -1
 		},
-		selectRow: function (row, tr) {
-			console.log(tr);
-			this.$root.selectRow(row);
+		selectTable: function (tableName) {
+			this.$root.selectTable(tableName);
+		}
+		
+	}
+})
+
+Vue.component('columns-grid', {
+	template: '#columns-tpl',
+	props: {
+		tables: Array,
+		columns: Array,
+		filterKey: String,
+		selectedColumn: String
+	},
+	data: function () {
+		var sortOrders = {}
+		this.columns.forEach(function (key) {
+			sortOrders[key] = 1
+		})
+		return {
+			sortKey: '',
+			sortOrders: sortOrders
+		}
+	},
+	computed: {
+		filteredColumns: function () {
+			var sortKey = this.sortKey
+			var filterKey = this.filterKey && this.filterKey.toLowerCase()
+			var order = this.sortOrders[sortKey] || 1
+			var tables = this.tables
+			if (filterKey) {
+				tables = tables.filter(function (row) {
+					return Object.keys(row).some(function (key) {
+						return String(row[key]).toLowerCase().indexOf(filterKey) > -1
+					})
+				})
+			}
+			if (sortKey) {
+				tables = tables.slice().sort(function (a, b) {
+					a = a[sortKey]
+					b = b[sortKey]
+					return (a === b ? 0 : a > b ? 1 : -1) * order
+				})
+			}
+			//Remove any selected rows
+			$(".selectedCol").each(function() {
+				$( this ).removeClass('selected');
+				$( this ).css("background-color", "transparent");
+			})
+			return tables
+		}
+	},
+	filters: {
+		capitalize: function (str) {
+			return str.charAt(0).toUpperCase() + str.slice(1)
+		}
+	},
+	methods: {
+		sortBy: function (key) {
+			this.sortKey = key
+			this.sortOrders[key] = this.sortOrders[key] * -1
+		},
+		selectColumn: function (tableName) {
+			this.$root.selectColumn(tableName);
 		}
 		
 	}
@@ -70,12 +138,12 @@ var app = new Vue({
 
 		},
 		parseMessage(message) {
-			console.log('Let`s parse the mf!',message);
 			switch (message.id) {
 				case 'TABLES':
 					this.parseTables(message.data)
 					break;
 				case 'COLUMNS':
+					this.parseColumns(message.data)
 					break;
 			}
 		},
@@ -90,12 +158,34 @@ var app = new Vue({
 		},
 		askColumns(table) {
 			//Send message to get columns from table
+			vscode.postMessage({
+				command: 'get',
+				what: 'columns',
+				table: table
+			})
 		},
 		parseColumns(columns) {
-			console.log(columns);
+			this.columns=columns;
 		},
-		selectRow: function (row) {
-			console.log(row);
+		selectTable: function (tableName) {
+			this.selectedTable=tableName;
+			$(".selected").each(function() {
+				$( this ).removeClass('selected');
+				$( this ).css("background-color", "transparent");
+			})
+			$("#"+tableName).addClass('selected');
+			$("#"+tableName).css("background-color", "yellow");
+			$("#column_query").val("");
+			this.askColumns(tableName);
+		},
+		selectColumn: function(columnName) {
+			this.selectedColumn=columnName;
+			$(".selectedCol").each(function() {
+				$( this ).removeClass('selectedCol');
+				$( this ).css("background-color", "transparent");
+			})
+			$("#"+columnName).addClass('selectedCol');
+			$("#"+columnName).css("background-color", "yellow");
 		}
 	},
 	mounted() {
@@ -103,12 +193,13 @@ var app = new Vue({
 	},
 	data: {
 		searchQuery: '',
+		searchColQuery: '',
 		gridColumns: ['name', 'alias', 'description'],
+		selectedTable: '',
+		selectedColumn: '',
 		tables: [
-			{ name: 'Chuck Norris', alias: Infinity, description: 'Testing...' },
-			{ name: 'Bruce Lee', alias: 9000, description: 'Testing...' },
-			{ name: 'Jackie Chan', alias: 7000, description: 'Testing...' },
-			{ name: 'Jet Li', alias: 8000, description: 'Testing...' }
+		],
+		columns: [
 		],
 		tablesFromMessage: []
 	}
