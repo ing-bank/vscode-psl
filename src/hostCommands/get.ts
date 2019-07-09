@@ -123,7 +123,7 @@ async function getElement(fsPath: string) {
 			utils.logger.error(`${utils.icons.ERROR} ${icon} No environments selected.`);
 			return;
 		}
-		let choice = await utils.getCommandenvConfigQuickPick(envs);
+		let choice = await utils.getCommandEnvConfigQuickPick(envs);
 		if (!choice) return;
 		env = choice;
 		utils.logger.info(`${utils.icons.WAIT} ${icon} ${path.basename(fsPath)} GET from ${env.name}`);
@@ -160,7 +160,7 @@ async function getTable(tableName: string, targetDirectory: string, workpacePath
 			utils.logger.error(`${utils.icons.ERROR} ${icon} No environments selected.`);
 			return;
 		}
-		let choice = await utils.getCommandenvConfigQuickPick(envs);
+		let choice = await utils.getCommandEnvConfigQuickPick(envs);
 		if (!choice) return;
 		env = choice; utils.logger.info(`${utils.icons.WAIT} ${icon} ${tableName} TABLE GET from ${env.name}`);
 		let connection = await utils.getConnection(env);

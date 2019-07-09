@@ -62,7 +62,7 @@ export function getFullContext(context: ExtensionCommandContext | undefined): Ho
 		mode = ContextMode.EMPTY;
 		return { fsPath, mode };
 	}
-	if ((!context || !context.fsPath) && activeTextEditor) {
+	if ((!context || !context.fsPath) && activeTextEditor && !activeTextEditor.document.fileName.startsWith('extension-output')) {
 		fsPath = activeTextEditor.document.fileName;
 		mode = ContextMode.FILE;
 		return { fsPath, mode }
@@ -111,7 +111,7 @@ export async function getEnvironment(fsPath: string): Promise<environment.Enviro
 	}
 }
 
-export async function getCommandenvConfigQuickPick(envs: environment.EnvironmentConfig[]): Promise<environment.EnvironmentConfig | undefined> {
+export async function getCommandEnvConfigQuickPick(envs: environment.EnvironmentConfig[]): Promise<environment.EnvironmentConfig | undefined> {
 	let items: environment.LaunchQuickPick[] = envs.map(env => {
 		return { label: env.name, description: '', env: env };
 	})

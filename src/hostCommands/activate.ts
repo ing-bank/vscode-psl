@@ -8,6 +8,7 @@ import { runCoverageHandler, runPSLHandler, runTestHandler, registerCustomRunCon
 import { sendElementHandler, sendTableHandler } from './send';
 import { testCompileHandler } from './testCompile';
 
+
 const PROFILE_ELEMENTS = [
 	'.FKY',
 	'.G',
@@ -46,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
 		{ id: 'psl.refreshTable', callback: refreshTableHandler },
 		// Custom commands
 		{ id: `psl.${testContext.command}`, callback: runTestHandler },
-		{ id: `psl.${coverageContext.command}`, callback: runCoverageHandler },
+		{ id: `psl.${coverageContext.command}`, callback: runCoverageHandler }
 	];
 
 	for (const command of commands) {
