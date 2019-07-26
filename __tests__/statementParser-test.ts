@@ -568,6 +568,25 @@ describe('recursive tests', () => {
 		const setStatement = statements[1];
 		const equal = setStatement.expressions[0] as BinaryOperator;
 		expect(equal.kind).toBe(SyntaxKind.ASSIGNMENT);
+		const quitStatement = statements[2];
+		expect(quitStatement.kind).toBe(SyntaxKind.QUIT_STATEMENT);
+		expect(quitStatement.expressions.length).toBe(1);
+		const doStatement = statements[3];
+		expect(doStatement.kind).toBe(SyntaxKind.DO_STATEMENT);
+		expect(doStatement.expressions.length).toBe(1);
+	});
+	test('for order empty quit', () => {
+		const parser = parse('for  set seq=tras(seq).order() quit  do f(tras(seq))');
+		const statements = parser.parseLine();
+		const setStatement = statements[1];
+		const equal = setStatement.expressions[0] as BinaryOperator;
+		expect(equal.kind).toBe(SyntaxKind.ASSIGNMENT);
+		const quitStatement = statements[2];
+		expect(quitStatement.kind).toBe(SyntaxKind.QUIT_STATEMENT);
+		expect(quitStatement.expressions.length).toBe(0);
+		const doStatement = statements[3];
+		expect(doStatement.kind).toBe(SyntaxKind.DO_STATEMENT);
+		expect(doStatement.expressions.length).toBe(1);
 	});
 	test('ret identifier', () => {
 		const parser = parse('set ret.x = y');

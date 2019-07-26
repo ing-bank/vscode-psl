@@ -19,6 +19,7 @@ import { MethodParametersOnNewLine } from './parameters';
 import { RuntimeStart } from './runtime';
 import { TblColDocumentation } from './tblcolDoc';
 import { TodoInfo } from './todos';
+import { RedundantDoStatement } from './doBlock';
 
 /**
  * Add new rules here to have them checked at the appropriate time.
@@ -29,6 +30,7 @@ const fileDefinitionRules: FileDefinitionRule[] = [
 ];
 const pslRules: PslRule[] = [
 	new TodoInfo(),
+	new RedundantDoStatement(),
 ];
 const memberRules: MemberRule[] = [
 	new MemberCamelCase(),
