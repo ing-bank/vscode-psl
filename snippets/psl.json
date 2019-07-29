@@ -65,7 +65,7 @@
 		"prefix": "psip",
 		"body": [
 			"\t// --------------------------------------------------------------------",
-			"public static Integer plsmain(void args(String))",
+			"public static Integer pslmain(void args(String))",
 			"\t/* DOC ----------------------------------------------------------------",
 			"\tCommand line entry point.",
 			"",
