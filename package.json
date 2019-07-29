@@ -492,62 +492,10 @@
           "group": "PSL.2"
         },
         {
-          "when": "resourceLangId == psl",
           "command": "psl.getElement",
           "group": "PSL.4"
         },
         {
-          "when": "resourceLangId == profileData",
-          "command": "psl.getElement",
-          "group": "PSL.4"
-        },
-        {
-          "when": "resourceLangId == profileTable",
-          "command": "psl.getElement",
-          "group": "PSL.4"
-        },
-        {
-          "when": "resourceLangId == profileColumn",
-          "command": "psl.getElement",
-          "group": "PSL.4"
-        },
-        {
-          "when": "resourceLangId == profileBatch",
-          "command": "psl.getElement",
-          "group": "PSL.4"
-        },
-        {
-          "when": "resourceLangId == profileTrigger",
-          "command": "psl.getElement",
-          "group": "PSL.4"
-        },
-        {
-          "when": "resourceLangId == psl",
-          "command": "psl.getTable",
-          "group": "PSL.4"
-        },
-        {
-          "when": "resourceLangId == profileData",
-          "command": "psl.getTable",
-          "group": "PSL.4"
-        },
-        {
-          "when": "resourceLangId == profileTable",
-          "command": "psl.getTable",
-          "group": "PSL.4"
-        },
-        {
-          "when": "resourceLangId == profileColumn",
-          "command": "psl.getTable",
-          "group": "PSL.4"
-        },
-        {
-          "when": "resourceLangId == profileBatch",
-          "command": "psl.getTable",
-          "group": "PSL.4"
-        },
-        {
-          "when": "resourceLangId == profileTrigger",
           "command": "psl.getTable",
           "group": "PSL.4"
         },
@@ -562,12 +510,12 @@
           "group": "PSL.2"
         },
         {
-          "when": "resourceFilename =~ /^(Utc|Stc)/ && resourceLangId == psl && psl.runTestContext",
+          "when": "resourceFilename =~ /^(Ut|St)/ && resourceLangId == psl && psl.runTestContext",
           "command": "psl.runTest",
           "group": "PSL.3"
         },
         {
-          "when": "resourceFilename =~ /^(Utc|Stc)/ && resourceLangId == psl && psl.runCoverageContext",
+          "when": "resourceFilename =~ /^(Ut|St)/ && resourceLangId == psl && psl.runCoverageContext",
           "command": "psl.runCoverage",
           "group": "PSL.3"
         },

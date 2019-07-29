@@ -3,6 +3,7 @@ import * as utils from './hostCommandUtils';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as environment from '../common/environment';
+import { MumpsVirtualDocument } from '../language/mumps';
 
 const icon = utils.icons.GET;
 
@@ -106,6 +107,71 @@ export async function getTableHandler(context: utils.ExtensionCommandContext) {
 		return getTable(tableName, target[0].fsPath, chosenEnv.description).catch(() => { });
 	}
 	return;
+}
+
+export async function getCompiledCodeHandler(context: utils.ExtensionCommandContext): Promise<void> {
+	let c = utils.getFullContext(context);
+	if (c.mode === utils.ContextMode.FILE) {
+		return getCompiledCode(c.fsPath).catch(() => {});
+	}
+	else if (c.mode === utils.ContextMode.DIRECTORY) {
+		let files = await vscode.window.showOpenDialog({defaultUri: vscode.Uri.file(c.fsPath), canSelectMany: true, openLabel: 'Refresh'})
+		if (!files) return;
+		for (let fsPath of files.map(file => file.fsPath)) {
+			await getCompiledCode(fsPath).catch(() => {});
+		}
+	}
+	else {
+		let quickPick = await environment.workspaceQuickPick();
+		if (!quickPick) return;
+		let chosenEnv = quickPick;
+		let files = await vscode.window.showOpenDialog({defaultUri: vscode.Uri.file(chosenEnv.fsPath), canSelectMany: true, openLabel: 'Refresh'})
+		if (!files) return;
+		for (let fsPath of files.map(file => file.fsPath)) {
+			await getCompiledCode(fsPath).catch(() => {})
+		}
+	}
+	return;
+}
+
+async function getCompiledCode(fsPath: string) {
+	if (!fs.statSync(fsPath).isFile()) return;
+	let env: environment.EnvironmentConfig;
+	const routineName = `${path.basename(fsPath).split('.')[0]}.m`;
+	return utils.executeWithProgress(`${icon} ${path.basename(fsPath)} GET`, async () => {
+		let envs;
+		try {
+			envs = await utils.getEnvironment(fsPath);
+		}
+		catch (e) {
+			utils.logger.error(`${utils.icons.ERROR} ${icon} Invalid environment configuration.`);
+			return;
+		}
+		if (envs.length === 0) {
+			utils.logger.error(`${utils.icons.ERROR} ${icon} No environments selected.`);
+			return;
+		}
+		let choice = await utils.getCommandenvConfigQuickPick(envs);
+		if (!choice) return;
+		env = choice;
+		utils.logger.info(`${utils.icons.WAIT} ${icon} ${routineName} GET COMPILED from ${env.name}`);
+		let doc = await vscode.workspace.openTextDocument(fsPath);
+		await doc.save();
+		let connection = await utils.getConnection(env);
+		let output = await connection.get(routineName);
+		const uri = vscode.Uri.parse(`${MumpsVirtualDocument.schemes.compiled}:/${env.name}/${routineName}`);
+		const virtualDocument = new MumpsVirtualDocument(routineName, output, uri);
+		utils.logger.info(`${utils.icons.SUCCESS} ${icon} ${routineName} GET COMPILED from ${env.name} succeeded`);
+		connection.close();
+		vscode.window.showTextDocument(virtualDocument.uri, {preview: false});
+	}).catch((e: Error) => {
+		if (env && env.name) {
+			utils.logger.error(`${utils.icons.ERROR} ${icon} error in ${env.name} ${e.message}`);
+		}
+		else {
+			utils.logger.error(`${utils.icons.ERROR} ${icon} ${e.message}`);
+		}
+	})
 }
 
 async function getElement(fsPath: string) {

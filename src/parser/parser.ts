@@ -237,7 +237,7 @@ class _Parameter implements Parameter {
 }
 
 const NON_METHOD_KEYWORDS = [
-	'do', 'set', 'if', 'for', 'while',
+	'do', 'd', 'set', 's', 'if', 'i', 'for', 'f', 'while', 'w',
 ];
 
 export const NON_TYPE_MODIFIERS = [
@@ -702,10 +702,11 @@ class Parser {
 
 	private finalizeMethod(method: _Method) {
 		for (const keyword of NON_METHOD_KEYWORDS) {
-			const index = method.modifiers.map(i => i.value).indexOf(keyword);
-			if (index > -1 && index < method.modifiers.length - 1) {
+			const index = method.modifiers.map(i => i.value.toLowerCase()).indexOf(keyword.toLowerCase());
+			if (index > -1 && index <= method.modifiers.length - 1) {
 				method.modifiers = [method.modifiers[0]];
 				method.parameters = [];
+				break;
 			}
 		}
 		// better way...
