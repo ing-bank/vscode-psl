@@ -3,12 +3,10 @@ import * as lang from './lang';
 import * as path from 'path';
 import * as parser from '../parser/parser';
 import * as utils from '../parser/utilities';
-import { previewEnabled } from './activate';
 
 export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 
 	async provideDefinition(document: vscode.TextDocument, position: vscode.Position, cancellationToknen: vscode.CancellationToken): Promise<vscode.Definition | undefined> {
-		if (!previewEnabled(document.uri)) return;
 		if (cancellationToknen.isCancellationRequested) return;
 		let parsedDoc = parser.parseText(document.getText());
 

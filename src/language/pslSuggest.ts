@@ -4,12 +4,10 @@ import * as parser from '../parser/parser';
 import * as lang from './lang';
 import * as utils from '../parser/utilities';
 import { MemberClass } from '../parser/parser';
-import { previewEnabled } from './activate';
 
 export class PSLCompletionItemProvider implements vscode.CompletionItemProvider {
 
 	async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, cancellationToknen: vscode.CancellationToken): Promise<PSLCompletionItem[] | undefined> {
-		if (!previewEnabled(document.uri)) return;
 		if (cancellationToknen.isCancellationRequested) return;
 		let parsedDoc = parser.parseText(document.getText());
 

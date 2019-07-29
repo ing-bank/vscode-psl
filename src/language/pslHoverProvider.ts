@@ -3,12 +3,10 @@ import * as path from 'path';
 import * as parser from '../parser/parser';
 import * as lang from './lang';
 import * as utils from '../parser/utilities';
-import { previewEnabled } from './activate';
 
 export class PSLHoverProvider implements vscode.HoverProvider {
 
 	async provideHover(document: vscode.TextDocument, position: vscode.Position, cancellationToken: vscode.CancellationToken): Promise<vscode.Hover | undefined> {
-		if (!previewEnabled(document.uri)) return;
 		if (cancellationToken.isCancellationRequested) return;
 		let parsedDoc = parser.parseText(document.getText());
 

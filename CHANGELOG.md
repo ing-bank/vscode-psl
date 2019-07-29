@@ -2,6 +2,7 @@
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
 # v1.10.0
+* Take language features out of preview
 * Enable GT.M debugging in the status bar
 * Added default snippet for pslmain() (thanks [@mischareitsma](https://github.com/mischareitsma))
 * Code coverage visualization
