@@ -1,152 +1,150 @@
-import { workspace, window, ExtensionContext, Disposable, Uri, ViewColumn, Memento, Webview, WebviewPanel, WebviewPanelOnDidChangeViewStateEvent } from 'vscode';
 import * as path from 'path';
+import { Disposable, ExtensionContext, Memento, Uri, ViewColumn, Webview,
+		WebviewPanel, WebviewPanelOnDidChangeViewStateEvent, window, workspace } from 'vscode';
 import LocalWebService from './localWebService';
 import {previewManager} from './previewManager';
 
 export default abstract class BasePreview {
-    private _storage: Memento;
-    private _uri: Uri;
-    private _previewUri: Uri;
-    private _title: string;
-    public _panel: WebviewPanel;
-    private _service: LocalWebService;
-    protected _disposables: Disposable[] = [];
 
+	get visible(): boolean {
+		return this._panel.visible;
+	}
 
-    constructor(context: ExtensionContext, uri: Uri, scheme: string, viewColumn: ViewColumn) {
-        this._storage = context.workspaceState;
-        this._uri = uri;
-        this.initWebview(scheme, viewColumn);
-        this._service = new LocalWebService(context);
-        this.initService();
-    }
+	get webview(): Webview {
+		return this._panel.webview;
+	}
 
-    // Configures the WebView panel to be displayed
-    private initWebview(scheme: string, viewColumn: ViewColumn) {
-        this._previewUri = this._uri.with({
-            scheme: scheme
-        });
-        this._title = `Edit '${path.basename(this._uri.fsPath)}'`;
-        this._panel = window.createWebviewPanel(
-            'psl-tabledataviewer',
-            this._title,
-            viewColumn,
-            {
-                enableScripts: true,
-                enableCommandUris: true,
-                enableFindWidget: true,
-                retainContextWhenHidden: false
-            }
-        );
-        this._panel.onDidDispose(()=>{
-            this.dispose();
-        }, null, this._disposables);
-        this._panel.onDidChangeViewState((e: WebviewPanelOnDidChangeViewStateEvent) => {
+	get storage(): Memento {
+		return this._storage;
+	}
 
-            let active = e.webviewPanel.visible;
-        }, null, this._disposables);
-        this.webview.onDidReceiveMessage((e) => {
-            if (e.error) {
-                window.showErrorMessage(e.error);
-            }
-        }, null, this._disposables);
-        if(!previewManager.find(this.previewUri)){
-            //previewManager.add(this);
-        }
-    
-    }
+	get state(): any {
+		return this.storage.get(this.previewUri.toString());
+	}
 
-    // Creates and starts a LocalWebService
-    private initService(): void {
-        this._service.start();
-    }
+	get theme(): string {
+		return workspace.getConfiguration('dat-preview').get('theme') as string;
+	}
 
-    // Disposes of the resources used by the WebView
-    private dispose(): void {
-        this._panel.dispose();
-        while (this._disposables.length) {
-            const item = this._disposables.pop();
-            if (item) {
-                item.dispose();
-            }
-        }
-        
-    }
+	get uri(): Uri {
+		return this._uri;
+	}
 
-    public isDisposed():boolean{
-        if(this._disposables.length == 0){
-            return true;
-        }
-        return false;
-    }
-    // Updates the content displayed in the WebView
-    public update(content: string, options: any) {
-        this._service.init(content, options);
-        this.webview.html = this.html;
-    }
+	get previewUri(): Uri {
+		return this._previewUri;
+	}
 
-    public getOptions(): any {
-        return {
-            uri: this.previewUri.toString(),
-            state: this.state
-        };
-    }
+	get serviceUrl(): string {
+		return this._service.serviceUrl;
+	}
 
-    public updateOptions(){
-        
-        let options = this.getOptions();
-        this.service.options = options;
-    }
-    public configure() {
-        let options = this.getOptions();
-        this.service.options = options;
-        this.webview.html = this.html;
-        this.refresh(options);
-    }
+	get service(): LocalWebService {
+		return this._service;
+	}
 
-    public reveal(): void{
-        this._panel.reveal(); 
-    }
+	abstract get html(): string;
+	abstract get options(): any;
+	abstract set options(options: any);
 
-    get visible(): boolean { 
-        return this._panel.visible;
-    }
+	public _panel: WebviewPanel;
+	protected _disposables: Disposable[] = [];
+	private _storage: Memento;
+	private _uri: Uri;
+	private _previewUri: Uri;
+	private _title: string;
+	private _service: LocalWebService;
 
-    get webview(): Webview {
-        return this._panel.webview;
-    }
+	constructor(context: ExtensionContext, uri: Uri, scheme: string, viewColumn: ViewColumn) {
+		this._storage = context.workspaceState;
+		this._uri = uri;
+		this.initWebview(scheme, viewColumn);
+		this._service = new LocalWebService(context);
+		this.initService();
+	}
 
-    get storage(): Memento {
-        return this._storage;
-    }
+	public isDisposed(): boolean {
+		if (this._disposables.length === 0) {
+			return true;
+		}
+		return false;
+	}
 
-    get state(): any {
-        return this.storage.get(this.previewUri.toString());
-    }
+	// Updates the content displayed in the WebView
+	public update(content: string, options: any) {
+		this._service.init(content, options);
+		this.webview.html = this.html;
+	}
 
-    get theme(): string {
-        return <string> workspace.getConfiguration('dat-preview').get('theme');
-    }
+	public getOptions(): any {
+		return {
+			state: this.state,
+			uri: this.previewUri.toString(),
+		};
+	}
 
-    get uri(): Uri {
-        return this._uri;
-    }
+	public updateOptions() {
+		const options = this.getOptions();
+		this.service.options = options;
+	}
 
-    get previewUri(): Uri {
-        return this._previewUri;
-    }
+	public configure() {
+		const options = this.getOptions();
+		this.service.options = options;
+		this.webview.html = this.html;
+		this.refresh(options);
+	}
 
-    get serviceUrl(): string {
-        return this._service.serviceUrl;
-    }
+	public reveal(): void {
+		this._panel.reveal();
+	}
+	abstract refresh(options: any): void;
 
-    get service(): LocalWebService {
-        return this._service;
-    }
+	// Configures the WebView panel to be displayed
+	private initWebview(scheme: string, viewColumn: ViewColumn) {
+		this._previewUri = this._uri.with({
+			scheme,
+		});
+		this._title = `Edit '${path.basename(this._uri.fsPath)}'`;
+		this._panel = window.createWebviewPanel(
+			'psl-tabledataviewer',
+			this._title,
+			viewColumn,
+			{
+				enableCommandUris: true,
+				enableFindWidget: true,
+				enableScripts: true,
+				retainContextWhenHidden: false,
+			},
+		);
+		this._panel.onDidDispose(() => {
+			this.dispose();
+		}, null, this._disposables);
+		this._panel.onDidChangeViewState((e: WebviewPanelOnDidChangeViewStateEvent) => {
+			const active = e.webviewPanel.visible;
+		}, null, this._disposables);
+		this.webview.onDidReceiveMessage((e) => {
+			if (e.error) {
+				window.showErrorMessage(e.error);
+			}
+		}, null, this._disposables);
+		if (!previewManager.find(this.previewUri)) {
+			// previewManager.add(this);
+		}
+	}
 
-    abstract get html(): string;
-    abstract refresh(options: any): void;
-    abstract get options():any;
-    abstract set options(options:any);
+	// Creates and starts a LocalWebService
+	private initService(): void {
+		this._service.start();
+	}
 
+	// Disposes of the resources used by the WebView
+	private dispose(): void {
+		this._panel.dispose();
+		while (this._disposables.length) {
+			const item = this._disposables.pop();
+			if (item) {
+				item.dispose();
+			}
+		}
+	}
 }
