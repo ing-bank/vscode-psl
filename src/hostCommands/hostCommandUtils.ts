@@ -1,5 +1,5 @@
+import * as fs from 'fs-extra';
 import * as vscode from 'vscode';
-import * as fsExtra from 'fs-extra';
 export { extensionToDescription } from '../mtm/utils';
 import * as environment from '../common/environment';
 import { MtmConnection } from '../mtm/mtm';
@@ -7,15 +7,16 @@ import { MtmConnection } from '../mtm/mtm';
 const outputChannel = vscode.window.createOutputChannel('Profile Host');
 
 export const logger = {
-	info: (message: string) => {
-		outputChannel.show(true);
-		outputChannel.appendLine(`[INFO][${new Date().toTimeString().split(' ')[0]}]    ${message.trim()}\n`)
-	},
 	error: (message: string) => {
 		outputChannel.show(true);
-		outputChannel.appendLine(`[ERR!][${new Date().toTimeString().split(' ')[0]}]    ${message.trim()}\n`)
-	}
-}
+		outputChannel.appendLine(`[ERR!][${new Date().toTimeString().split(' ')[0]}]    ${message.trim()}\n`);
+	},
+	info: (message: string, hide?: boolean) => {
+		if (!hide) outputChannel.show(true);
+		outputChannel.appendLine(`[INFO][${new Date().toTimeString().split(' ')[0]}]    ${message.trim()}\n`);
+	},
+
+};
 
 export const enum icons {
 	ERROR = '❌',
@@ -30,11 +31,10 @@ export const enum icons {
 	WARN = '⚠',
 }
 
-
 export const enum ContextMode {
 	FILE = 1,
 	DIRECTORY = 2,
-	EMPTY = 3
+	EMPTY = 3,
 }
 
 const enum NEWLINE_SETTING {
@@ -44,20 +44,18 @@ const enum NEWLINE_SETTING {
 
 export interface ExtensionCommandContext {
 	fsPath: string;
-	dialog: boolean
+	dialog: boolean;
 }
-
 
 export interface HostCommandContext {
 	fsPath: string;
 	mode: ContextMode;
 }
 
-
 export function getFullContext(context: ExtensionCommandContext | undefined): HostCommandContext {
 	let fsPath: string = '';
 	let mode: ContextMode;
-	let activeTextEditor = vscode.window.activeTextEditor;
+	const activeTextEditor = vscode.window.activeTextEditor;
 	if (context && context.dialog) {
 		mode = ContextMode.EMPTY;
 		return { fsPath, mode };
@@ -65,7 +63,7 @@ export function getFullContext(context: ExtensionCommandContext | undefined): Ho
 	if ((!context || !context.fsPath) && activeTextEditor) {
 		fsPath = activeTextEditor.document.fileName;
 		mode = ContextMode.FILE;
-		return { fsPath, mode }
+		return { fsPath, mode };
 	}
 	else if (!context) {
 		mode = ContextMode.EMPTY;
@@ -73,7 +71,7 @@ export function getFullContext(context: ExtensionCommandContext | undefined): Ho
 	}
 	else {
 		fsPath = context.fsPath;
-		mode = fsExtra.lstatSync(fsPath).isFile() ? ContextMode.FILE : ContextMode.DIRECTORY;
+		mode = fs.lstatSync(fsPath).isFile() ? ContextMode.FILE : ContextMode.DIRECTORY;
 		return { fsPath, mode };
 	}
 }
@@ -82,7 +80,7 @@ export async function executeWithProgress(message: string, task: () => Promise<a
 	return vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: message }, async () => {
 		await task();
 		return;
-	})
+	});
 }
 
 export async function getConnection(env: environment.EnvironmentConfig): Promise<MtmConnection> {
@@ -92,18 +90,18 @@ export async function getConnection(env: environment.EnvironmentConfig): Promise
 }
 
 export async function getEnvironment(fsPath: string): Promise<environment.EnvironmentConfig[]> {
-	let workspaceFile = new environment.WorkspaceFile(fsPath);
+	const workspaceFile = new environment.WorkspaceFile(fsPath);
 	try {
-		let envs = await workspaceFile.environmentObjects
+		const envs = await workspaceFile.environmentObjects;
 		envs.forEach(env => {
 			if (!env.host || !env.port || !env.user || !env.password) {
 				throw new Error();
 			}
-		})
+		});
 		return envs;
 	}
 	catch (e) {
-		let workspaceFolder = workspaceFile.workspaceFolder;
+		const workspaceFolder = workspaceFile.workspaceFolder;
 		if (workspaceFolder) {
 			throw new Error(`Invalid configuration for Workspace Folder ${workspaceFolder.name}`);
 		}
@@ -112,13 +110,13 @@ export async function getEnvironment(fsPath: string): Promise<environment.Enviro
 }
 
 export async function getCommandenvConfigQuickPick(envs: environment.EnvironmentConfig[]): Promise<environment.EnvironmentConfig | undefined> {
-	let items: environment.LaunchQuickPick[] = envs.map(env => {
-		return { label: env.name, description: '', env: env };
-	})
+	const items: environment.LaunchQuickPick[] = envs.map(env => {
+		return { label: env.name, description: '', env };
+	});
 	if (items.length === 1) return items[0].env;
-	let choice = await vscode.window.showQuickPick(items, { placeHolder: 'Select environment to get from.' });
+	const choice = await vscode.window.showQuickPick(items, { placeHolder: 'Select environment to get from.' });
 	if (!choice) return undefined;
-	return choice.env
+	return choice.env;
 }
 
 export function writeFileWithSettings(fsPath: string, output: string): Promise<void> {
@@ -133,7 +131,7 @@ export function writeFileWithSettings(fsPath: string, output: string): Promise<v
 		default:
 			break;
 	}
-	return fsExtra.writeFile(fsPath, output);
+	return fs.writeFile(fsPath, output);
 }
 
 /**

@@ -42,15 +42,15 @@ async function terminalSendSettings() {
 }
 
 function stepIn() {
-	terminalSend('ZSTEP INTO:"W $ZPOS ZP @$ZPOS B"');
+	terminalSend('ZSTEP INTO:"W $ZPOS,! ZP @$ZPOS B"');
 }
 
 function stepOut() {
-	terminalSend('ZSTEP OUTOF:"W $ZPOS ZP @$ZPOS B"');
+	terminalSend('ZSTEP OUTOF:"W $ZPOS,! ZP @$ZPOS B"');
 }
 
 function stepOver() {
-	terminalSend('ZSTEP OVER:"W $ZPOS ZP @$ZPOS B"');
+	terminalSend('ZSTEP OVER:"W $ZPOS,! ZP @$ZPOS B"');
 }
 
 function sendToHostTerminal(text: string) {

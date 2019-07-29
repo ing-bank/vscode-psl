@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { MemberDiagnostic } from '../language/codeQuality';
 import * as parser from '../parser/parser';
 import { getLineAfter } from '../parser/utilities';
-import { Code, MethodDocumentation, MethodSeparator, TwoEmptyLines } from '../pslLint/methodDoc';
+import { MethodDocumentation, MethodSeparator } from '../pslLint/methodDoc';
 
 function initializeAction(title: string, ...diagnostics: MemberDiagnostic[]) {
 	const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
@@ -41,7 +41,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 
 				const textEdit = vscode.TextEdit.insert(
 					new vscode.Position(method.id.position.line - 1, Number.MAX_VALUE),
-					`${newLine}\t// --------------------------------------------------------------------`,
+					`${newLine}\t// ---------------------------------------------------------------------`,
 				);
 
 				separatorAction.edit.set(document.uri, [textEdit]);
@@ -75,28 +75,6 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 				allDiagnostics.push(diagnostic);
 				allTextEdits.push({ edit: textEdit, priority: 2 });
 
-			}
-
-			if (diagnostic.ruleName === TwoEmptyLines.name) {
-
-				if (!diagnostic.code) return;
-
-				const separatorAction = initializeAction('Add two empty lines above method.', diagnostic);
-				let fixText = '';
-
-				if (diagnostic.code === Code.ONE_EMPTY_LINE) fixText = `${newLine}`;
-				if (diagnostic.code === Code.TWO_EMPTY_LINES) fixText = `${newLine}${newLine}`;
-
-				const textEdit = vscode.TextEdit.insert(
-					new vscode.Position(method.id.position.line - 1, Number.MAX_VALUE),
-					fixText,
-				);
-
-				separatorAction.edit.set(document.uri, [textEdit]);
-				actions.push(separatorAction);
-
-				allDiagnostics.push(diagnostic);
-				allTextEdits.push({ edit: textEdit, priority: 1 });
 			}
 		}
 		if (actions.length > 1) {
