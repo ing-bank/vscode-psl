@@ -1,4 +1,4 @@
-const Base64 = require('js-base64').Base64;
+const Base64 = require('../../public/js-base64').Base64;
 import { ExtensionContext, TextEdit, Uri, ViewColumn, window, workspace, WorkspaceEdit } from 'vscode';
 import BasePreview from './basePreview';
 import { previewManager } from './previewManager';
