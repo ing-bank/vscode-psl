@@ -25,7 +25,7 @@ export default class LocalWebService {
 		this.app.use(cors());
 		this.app.use(express.static(this._staticContentPath));
 		this.app.use(bodyParser.json());
-		this.app.get('/public/state', (res) => {
+		this.app.get('/public/state', (req, res) => {
 			const storage = {
 				content: self._content,
 				options: self._options,
@@ -66,7 +66,7 @@ export default class LocalWebService {
 			prevw.updateOptions();
 			res.send('success');
 		});
-		this.app.post('/public/getOptions', (res) => {
+		this.app.post('/public/getOptions', (req, res) => {
 			const opt = {
 				options: self._options,
 			};

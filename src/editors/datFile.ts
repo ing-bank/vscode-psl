@@ -32,11 +32,9 @@ export function activate(context: ExtensionContext) {
 
 		// Check if the file to be previewed has a header
 		const tableName = path.basename(resource.fsPath, '.DAT').toLowerCase();
-
-		// Get the Workspace corresponding to the resource
 		let workspacePath = workspace.getWorkspaceFolder(resource).uri.fsPath;
 
-		// Go up the directory structure until the base "Profile_Host" directory is reached
+		// Go up the directory structure until the base "Profile" directory is reached
 		if (workspacePath.includes('Profile')) {
 			while (!path.basename(workspacePath).includes('Profile')) {
 				workspacePath = path.dirname(workspacePath);
