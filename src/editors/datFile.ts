@@ -7,7 +7,7 @@ import * as utils from './utilityFunctions';
 export function activate(context: ExtensionContext) {
 
 	// Preview .DAT File Command
-	const datCommand = commands.registerCommand('dat.preview', (arg) => {
+	const datCommand = commands.registerCommand('psl.datPreview', (arg) => {
 		let resource: Uri;
 		if (arg instanceof Uri) {
 			resource = arg;
@@ -115,7 +115,7 @@ export function activate(context: ExtensionContext) {
 						return preview.webview;
 					});
 			})
-			.catch((err) => {
+			.catch(() => {
 				// The table directory does not exist, inform the user that the check cannot be performed and open the preview
 				window.showWarningMessage(tableName + ' could not be found in the Profile Host project. ' +
 											'Header existence could not be analysed');
@@ -125,7 +125,7 @@ export function activate(context: ExtensionContext) {
 	});
 
 	// Clear State Command
-	const clearCommand = commands.registerCommand('dat.clearState', () => {
+	const clearCommand = commands.registerCommand('psl.datClearState', () => {
 		const preview = previewManager.active();
 		if (preview) {
 			const key = preview.previewUri.toString();
@@ -137,7 +137,7 @@ export function activate(context: ExtensionContext) {
 	});
 
 	// Refresh Command
-	const refreshCommand = commands.registerCommand('dat.refresh', () => {
+	const refreshCommand = commands.registerCommand('psl.datRefresh', () => {
 		const preview = previewManager.active();
 		if (preview) {
 			preview.webview.postMessage({
@@ -184,14 +184,14 @@ export function activate(context: ExtensionContext) {
 
 	workspace.onDidOpenTextDocument(document => {
 		if (utils.isStdinFile(document)) {
-			commands.executeCommand('dat.preview', document.uri);
+			commands.executeCommand('psl.datPreview', document.uri);
 		}
 	});
 
 	if (window.activeTextEditor) {
 		const document = window.activeTextEditor.document;
 		if (utils.isStdinFile(document)) {
-			commands.executeCommand('dat.preview', document.uri);
+			commands.executeCommand('psl.datPreview', document.uri);
 		}
 	}
 }
