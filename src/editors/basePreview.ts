@@ -120,7 +120,7 @@ export default abstract class BasePreview {
 			this.dispose();
 		}, null, this._disposables);
 		this._panel.onDidChangeViewState((e: WebviewPanelOnDidChangeViewStateEvent) => {
-			const active = e.webviewPanel.visible;
+			// const active = e.webviewPanel.visible;
 		}, null, this._disposables);
 		this.webview.onDidReceiveMessage((e) => {
 			if (e.error) {
