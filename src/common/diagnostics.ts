@@ -4,22 +4,6 @@ export class PSLDiagnostic {
 
 	static diagnosticCollections: vscode.DiagnosticCollection[] = [];
 
-	message: string;
-	severity: vscode.DiagnosticSeverity;
-	file: string;
-	range: vscode.Range;
-
-	diagnostic: vscode.Diagnostic;
-
-	constructor(message: string, severity: vscode.DiagnosticSeverity, file: string, range: vscode.Range) {
-		this.message = message;
-		this.severity = severity;
-		this.file = file;
-		this.range = range;
-
-		this.diagnostic = new vscode.Diagnostic(this.range, this.message, this.severity);
-	}
-
 	static setDiagnostics(pslDiagnostics: PSLDiagnostic[], envName: string, fsPath: string) {
 		let diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
 		pslDiagnostics.forEach(pslDiagnostic => {
@@ -53,4 +37,19 @@ export class PSLDiagnostic {
 		return collection;
 	}
 
+	message: string;
+	severity: vscode.DiagnosticSeverity;
+	file: string;
+	range: vscode.Range;
+
+	diagnostic: vscode.Diagnostic;
+
+	constructor(message: string, severity: vscode.DiagnosticSeverity, file: string, range: vscode.Range) {
+		this.message = message;
+		this.severity = severity;
+		this.file = file;
+		this.range = range;
+
+		this.diagnostic = new vscode.Diagnostic(this.range, this.message, this.severity);
+	}
 }

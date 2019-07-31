@@ -1,76 +1,77 @@
 import * as vscode from 'vscode';
 
-import { PSL_MODE, BATCH_MODE, TRIG_MODE, DATA_MODE } from '../extension';
+import { BATCH_MODE, DATA_MODE, PSL_MODE, TRIG_MODE } from '../extension';
 
-import { PSLDocumentSymbolProvider } from './pslDocument';
-import { DataHoverProvider, DataDocumentHighlightProvider } from './dataItem';
-import { PSLCompletionItemProvider } from './pslSuggest';
-import { PSLDefinitionProvider } from './pslDefinitionProvider';
-import { PSLHoverProvider } from './pslHoverProvider';
 import * as codeQuality from './codeQuality';
-import { PSLSignatureHelpProvider } from './pslSignature';
+import { DataDocumentHighlightProvider, DataHoverProvider } from './dataItem';
+import { MumpsDocumentProvider, MumpsVirtualDocument } from './mumps';
 import * as previewDocumentation from './previewDocumentation';
-
+import { PSLDefinitionProvider } from './pslDefinitionProvider';
+import { MumpsDocumentSymbolProvider, PSLDocumentSymbolProvider } from './pslDocument';
+import { PSLHoverProvider } from './pslHoverProvider';
+import { PSLSignatureHelpProvider } from './pslSignature';
+import { PSLCompletionItemProvider } from './pslSuggest';
 
 export async function activate(context: vscode.ExtensionContext) {
 
 	const PSL_MODES = [PSL_MODE, BATCH_MODE, TRIG_MODE];
+	const MUMPS_MODES: vscode.DocumentFilter[] = Object.values(MumpsVirtualDocument.schemes).map(scheme => ({ scheme }));
 
-	// Document Symbol Outline
-	PSL_MODES.forEach(mode => {
-		context.subscriptions.push(
-			vscode.languages.registerDocumentSymbolProvider(
-				mode, new PSLDocumentSymbolProvider()
-			)
-		);
-	})
-
-	// Hovers
 	context.subscriptions.push(
+		// Data Hovers
 		vscode.languages.registerHoverProvider(
-			DATA_MODE, new DataHoverProvider()
-		)
-	);
+			DATA_MODE, new DataHoverProvider(),
+		),
 
-	// Document Highlights
-	context.subscriptions.push(
+		// Data Document Highlights
 		vscode.languages.registerDocumentHighlightProvider(
-			DATA_MODE, new DataDocumentHighlightProvider()
-		)
+			DATA_MODE, new DataDocumentHighlightProvider(),
+		),
 	);
 
-	PSL_MODES.forEach(mode => {
-
-		// Completion Items
+	PSL_MODES.forEach(pslMode => {
 		context.subscriptions.push(
+			// Document Symbol Outline
+			vscode.languages.registerDocumentSymbolProvider(
+				pslMode, new PSLDocumentSymbolProvider(),
+			),
+
+			// Completion Items
 			vscode.languages.registerCompletionItemProvider(
-				mode, new PSLCompletionItemProvider(), '.'
-			)
-		);
+				pslMode, new PSLCompletionItemProvider(), '.',
+			),
 
-		// Signature Help
-		context.subscriptions.push(
+			// Signature Help
 			vscode.languages.registerSignatureHelpProvider(
-				mode, new PSLSignatureHelpProvider(), '(', ','
-			)
-		);
+				pslMode, new PSLSignatureHelpProvider(), '(', ',',
+			),
 
-		// Go-to Definitions
-		context.subscriptions.push(
+			// Go-to Definitions
 			vscode.languages.registerDefinitionProvider(
-				mode, new PSLDefinitionProvider()
-			)
-		);
+				pslMode, new PSLDefinitionProvider(),
+			),
 
-		// Hovers
-		context.subscriptions.push(
+			// Hovers
 			vscode.languages.registerHoverProvider(
-				mode, new PSLHoverProvider()
-			)
+				pslMode, new PSLHoverProvider(),
+			),
 		);
-	})
+	});
 
-	// Code quality
+	MUMPS_MODES.forEach(mumpsMode => {
+		context.subscriptions.push(
+			// Content provider for virtual documents
+			vscode.workspace.registerTextDocumentContentProvider(
+				mumpsMode.scheme, new MumpsDocumentProvider(),
+			),
+
+			// Document Symbol Outline
+			vscode.languages.registerDocumentSymbolProvider(
+				mumpsMode, new MumpsDocumentSymbolProvider(),
+			),
+		);
+	});
+
 	codeQuality.activate(context);
 
 	previewDocumentation.activate(context);

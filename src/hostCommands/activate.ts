@@ -3,8 +3,13 @@ import * as vscode from 'vscode';
 
 import { compileAndLinkHandler } from './compileAndLink';
 import { getElementHandler, getTableHandler } from './get';
+
 import { refreshElementHandler, refreshTableHandler } from './refresh';
-import { runCoverageHandler, runPSLHandler, runTestHandler, registerCustomRunContext, testContext, coverageContext } from './run';
+import { runPSLHandler } from './run';
+import {
+	coverageContext, registerCustomRunContext, runCoverageHandler,
+	runTestHandler, testContext,
+} from './runCustom';
 import { sendElementHandler, sendTableHandler } from './send';
 import { testCompileHandler } from './testCompile';
 
@@ -45,6 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
 		{ id: 'psl.sendTable', callback: sendTableHandler },
 		{ id: 'psl.refreshTable', callback: refreshTableHandler },
 		// Custom commands
+		// { id: 'psl.getCompiledCode', callback: getCompiledCodeHandler },
 		{ id: `psl.${testContext.command}`, callback: runTestHandler },
 		{ id: `psl.${coverageContext.command}`, callback: runCoverageHandler },
 	];
@@ -56,7 +62,6 @@ export function activate(context: vscode.ExtensionContext) {
 			),
 		);
 	}
-
 }
 
 function registerProfileElementContext() {

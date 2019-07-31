@@ -369,8 +369,12 @@ class Tokenizer {
 				this.finalizeToken(Type.String);
 			}
 			return true;
-		} else if (this.tokenType === Type.Slash) {
-			if (this.firstSlash) {
+		} else if (this.tokenType === Type.Slash || this.tokenType === Type.SemiColon) {
+			if (this.tokenType === Type.SemiColon) {
+				this.tokenType = Type.LineCommentInit;
+				return false;
+			}
+			else if (this.firstSlash) {
 				this.firstSlash = false;
 				if (this.charType === Type.Slash) {
 					this.tokenType = Type.LineCommentInit;

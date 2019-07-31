@@ -157,3 +157,15 @@ test('comment newline', () => {
 	expect(tokens[1].value).toBe(' this is a comment')
 	expect(tokens[2].type).toBe(Type.NewLine)
 })
+
+test('comment with semicolon', () => {
+	let tokenizer = getTokens('; this is a comment\n')
+	let tokens = [];
+	for (let token of tokenizer) {
+		tokens.push(token);
+	}
+	expect(tokens[0].type).toBe(Type.LineCommentInit)
+	expect(tokens[1].type).toBe(Type.LineComment)
+	expect(tokens[1].value).toBe(' this is a comment')
+	expect(tokens[2].type).toBe(Type.NewLine)
+})
