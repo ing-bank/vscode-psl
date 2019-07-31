@@ -140,133 +140,132 @@ export default class DatPreview extends BasePreview {
         <script src="${this.serviceUrl}/common.js"></script>
         <script src="${this.serviceUrl}/dat.js"></script>
         <script src="${this.serviceUrl}/settings.js"></script>
-        <body style="padding:0px; overflow:hidden" onload="resizeGrid()" onresize="resizeGrid()">
-		<div id="flex">
-			<div id="modal">
-                <div style="margin:5px;">
-                    <img border="0" alt="settings" src="${this.serviceUrl}/img/settings.svg" onclick=loadOptions("${this.serviceUrl}","${this.previewUri}") width=20px height=20px style="cursor:pointer;">
-                    <img border="0" alt="save" src="${this.serviceUrl}/img/save.svg" onclick=saveDocument("${this.serviceUrl}","${this.previewUri}") width=20px height=20px style="cursor:pointer;margin-left:5px;">
-                </div>
-                <div id="settingsFormModal" style="display:none" class="modal">
-                    <div class="modal-content">
-                        <span class="close" onclick="closeModal()">&times;</span>
-                        <form class = "formSettings">
-                            <div class="flexRow">
-                                <div class="flexCol">
-                                    <label for="separator">Separator:</label>
-                                </div>
-                                <div class="flexCol">
-                                    <input type="separator" id="separator">
-                                </div>
-                            </div>
-                            <br>
-                            <div class="flexRow">
-                                <div class="flexCol">
-                                    <label for="quoteMark">Quote mark:</label>
-                                </div>
-                                <div class="flexCol">
-                                    <input type="quoteMark" id="quoteMark">
-                                </div>
-                            </div>
-                            <br>
-                            <div class="flexRow">
-                                <div class="flexCol">
-                                    <label for="hasHeaders">It has headers ?</label>
-                                </div>
-                                <div class="flexCol">
-                                    <select id="hasHeaders">
-                                    <option value="true">true</option>
-                                    <option value="false">false</option>
-                                    </select>
-                                </div>
-                            </div>	
-                            <br>
-                            <div class="flexRow">
-                                <div class="flexCol">
-                                    <label for="capitalizeHeaders">Capitalize headers ?</label>
-                                </div>
-                                <div class="flexCol">
-                                    <select id="capitalizeHeaders">
-                                    <option value="true">true</option>
-                                    <option value="false">false</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="flexRow">
-                                <div class="flexCol">
-                                    <label for="resizeColumns">Resize columns</label>
-                                </div>
-                                <div class="flexCol">
-                                    <select id="resizeColumns">
-                                    <option value="all">all</option>
-                                    <option value="none">none</option>
-                                    <option value="first">first</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="flexRow">
-                                <div class="flexCol">
-                                    <label for="lineNumbers">Line numbers</label>
-                                </div>
-                                <div class="flexCol">
-                                    <select id="lineNumbers">
-                                    <option value="ordinal">ordinal</option>
-                                    <option value="source">source</option>
-                                    <option value="none">none</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="flexRow">
-                                <div class="flexCol">
-                                    <label for="commentCharacter">Comment character:</label>
-                                </div>
-                                <div class="flexCol">
-                                    <input type="commentCharacter" id="commentCharacter">
-                                </div>
-                            </div>
-                            <br>
-                            <div class="flexRow">
-                                <div class="flexCol">
-                                    <label for="skipComments">Skip comments ?</label>
-                                </div>
-                                <div class="flexCol">
-                                    <select id="skipComments">
-                                    <option value="true">true</option>
-                                    <option value="false">false</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="flexRow">
-                                <div class="flexCol">
-                                    <label for="formatValues">Format values</label>
-                                </div>
-                                <div class="flexCol">
-                                    <select id="formatValues">
-                                    <option value="always">always</option>
-                                    <option value="source">none</option>
-                                    <option value="unquoted">unquoted</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <br>
-                            <div class="flexRow">
-                                <div class="flexCol">
-                                    <label for="numberFormat">Number format</label>
-                                </div>
-                                <div class="flexCol">
-                                    <input type="numberFormat" id="numberFormat">
-                                </div>
-                            </div>
-                        </form>
-                        <button class="btnSave" type="button" id="buttonPress" onclick="saveOptions('${this.serviceUrl}','${this.previewUri}')" >Apply settings</button>
-                    </div>
-                </div>
+		<body style="padding:0px; overflow:hidden" onload="resizeGrid()" onresize="resizeGrid()">
+		<div id="modal">
+			<div style="margin:5px;">
+				<img border="0" alt="settings" src="${this.serviceUrl}/img/settings.svg" onclick=loadOptions("${this.serviceUrl}","${this.previewUri}") width=20px height=20px style="cursor:pointer;">
+				<img border="0" alt="save" src="${this.serviceUrl}/img/save.svg" onclick=saveDocument("${this.serviceUrl}","${this.previewUri}") width=20px height=20px style="cursor:pointer;margin-left:5px;">
 			</div>
-        </div>
+			<div id="settingsFormModal" style="display:none" class="modal">
+				<div class="modal-content">
+					<span class="close" onclick="closeModal()">&times;</span>
+					<form class = "formSettings">
+						<div class="flexRow">
+							<div class="flexCol">
+								<label for="separator">Separator:</label>
+							</div>
+							<div class="flexCol">
+								<input type="separator" id="separator">
+							</div>
+						</div>
+						<br>
+						<div class="flexRow">
+							<div class="flexCol">
+								<label for="quoteMark">Quote mark:</label>
+							</div>
+							<div class="flexCol">
+								<input type="quoteMark" id="quoteMark">
+							</div>
+						</div>
+						<br>
+						<div class="flexRow">
+							<div class="flexCol">
+								<label for="hasHeaders">It has headers ?</label>
+							</div>
+							<div class="flexCol">
+								<select id="hasHeaders">
+								<option value="true">true</option>
+								<option value="false">false</option>
+								</select>
+							</div>
+						</div>	
+						<br>
+						<div class="flexRow">
+							<div class="flexCol">
+								<label for="capitalizeHeaders">Capitalize headers ?</label>
+							</div>
+							<div class="flexCol">
+								<select id="capitalizeHeaders">
+								<option value="true">true</option>
+								<option value="false">false</option>
+								</select>
+							</div>
+						</div>
+						<br>
+						<div class="flexRow">
+							<div class="flexCol">
+								<label for="resizeColumns">Resize columns</label>
+							</div>
+							<div class="flexCol">
+								<select id="resizeColumns">
+								<option value="all">all</option>
+								<option value="none">none</option>
+								<option value="first">first</option>
+								</select>
+							</div>
+						</div>
+						<br>
+						<div class="flexRow">
+							<div class="flexCol">
+								<label for="lineNumbers">Line numbers</label>
+							</div>
+							<div class="flexCol">
+								<select id="lineNumbers">
+								<option value="ordinal">ordinal</option>
+								<option value="source">source</option>
+								<option value="none">none</option>
+								</select>
+							</div>
+						</div>
+						<br>
+						<div class="flexRow">
+							<div class="flexCol">
+								<label for="commentCharacter">Comment character:</label>
+							</div>
+							<div class="flexCol">
+								<input type="commentCharacter" id="commentCharacter">
+							</div>
+						</div>
+						<br>
+						<div class="flexRow">
+							<div class="flexCol">
+								<label for="skipComments">Skip comments ?</label>
+							</div>
+							<div class="flexCol">
+								<select id="skipComments">
+								<option value="true">true</option>
+								<option value="false">false</option>
+								</select>
+							</div>
+						</div>
+						<br>
+						<div class="flexRow">
+							<div class="flexCol">
+								<label for="formatValues">Format values</label>
+							</div>
+							<div class="flexCol">
+								<select id="formatValues">
+								<option value="always">always</option>
+								<option value="source">none</option>
+								<option value="unquoted">unquoted</option>
+								</select>
+							</div>
+						</div>
+						<br>
+						<div class="flexRow">
+							<div class="flexCol">
+								<label for="numberFormat">Number format</label>
+							</div>
+							<div class="flexCol">
+								<input type="numberFormat" id="numberFormat">
+							</div>
+						</div>
+					</form>
+					<button class="btnSave" type="button" id="buttonPress" onclick="saveOptions('${this.serviceUrl}','${this.previewUri}')" >Apply settings</button>
+				</div>
+			</div>
+		</div>
+		<div id="flex"></div>
         </body>
         <script type="text/javascript">
             const key = "GrapeCity-Internal-Use-Only,wijmo-designer-beta.azurewebsites.net,141832842148448#B0HbhZmOiI7ckJye0ICbuFkI1pjIEJCLi4TP7JGUpp4KqBnb7gGNndFNkhjd6UmUvkjaJBnWBNXOWJ6S9UXZhFlaxJDVUF4ZpRjeiNERXFVUMNlaRFVQItiNUJzdop4dKFTdCNVMaJzd4pXNCRVY8QkQx3Sev26dwE4amNVcvIjSiVle6RDZPRFSsZTNwgFWu9GU6UUM8R5djpEWnVUeJ3yaUplTy9EUQpXcwVDbJd7bIR4N9Q7bm9mY0ZGOa36cLZVaPJFVhhDRUlEUMtkQQdFO7MWOHhHWNFERqdWOVR4KzF7aRRmcjNmWD5kN5EGT6RTbkVUbvU5L4czcE9mN8dmYsRzKRZVatlnR5o6TOVXO8ZWOklERaVDNkRVaIBDcvp4V5g6av2WMRRTMzkWRycVQwUWaWZ6c9gkN9sSauJkc4syModlY4FXOY56a9E5Tt3UML3CMFFlVhBVSsBnb4Mla4Z4ZIZ5LuZUW4E7NBJUWiojITJCLiIkQCFzNBhTMiojIIJCL8QzMzgDMxQTO0IicfJye35XX3JSSwIjUiojIDJCLi86bpNnblRHeFBCI4VWZoNFelxmRg2Wbql6ViojIOJyes4nI5kkTRJiOiMkIsIibvl6cuVGd8VEIgIXZ7VWaWRncvBXZSBybtpWaXJiOi8kI1xSfis4N8gkI0IyQiwiIu3Waz9WZ4hXRgAydvJVa4xWdNBybtpWaXJiOi8kI1xSfiQjR6QkI0IyQiwiIu3Waz9WZ4hXRgACUBx4TgAybtpWaXJiOi8kI1xSfiMzQwIkI0IyQiwiIlJ7bDBybtpWaXJiOi8kI1xSfiUFO7EkI0IyQiwiIu3Waz9WZ4hXRgACdyFGaDxWYpNmbh9WaGBybtpWaXJiOi8kI1tlOiQmcQJCLiITN8ITNwASMwMDM8EDMyIiOiQncDJCLiQXZu9yclRXazJWZ7Vmc5pXYuEGdlJWLyVmbnl6clRWLv5mapdnI0IyctRkIsIyajFmY5pEIuh6bKJiOiEmTDJCLigDN4gDNxIDN8IzM8EDNxIiOiQWSiwSfiEjd8EDMyIiOiIXZ6JLLcN";
