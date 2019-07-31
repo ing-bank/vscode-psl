@@ -1,29 +1,28 @@
-
-label{
+label {
     font-size: 15px;
 }
-.radioBtns{
+
+.radioBtns {
     display:flex;
     flex-direction:row;
     align-items:center;
 }
-.flexRow{
+
+.flexRow {
     display:flex;
     flex-direction: row;
     width: 400px;
     justify-content: space-between;
 }
 
-.flexCol{
+.flexCol {
     display:flex;
     flex-direction: column;
     width:50%;
     margin-right: 10px;
 }
 
-
-
-input{
+input {
     height:20px;
 }
 
@@ -39,28 +38,27 @@ input{
     overflow: auto; /* Enable scroll if needed */
     background-color: rgb(0,0,0); /* Fallback color */
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-  }
+}
   
-  /* Modal Content */
-  .modal-content {
-    background-color: #fefefe;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-  }
-  
-  /* The Close Button */
-  .close {
-    color: #aaaaaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-  }
-  
-  .close:hover,
-  .close:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
-  }
+/* Modal Content */
+.modal-content {
+	background-color: #fefefe;
+	margin: auto;
+	padding: 20px;
+	border: 1px solid #888;
+	width: 80%;
+}
+
+/* The Close Button */
+.close {
+	color: #aaaaaa;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.close:hover, .close:focus {
+	color: #000;
+	text-decoration: none;
+	cursor: pointer;
+}
