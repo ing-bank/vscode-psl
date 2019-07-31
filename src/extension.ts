@@ -15,13 +15,13 @@ export const COL_MODE: vscode.DocumentFilter = { language: 'profileColumn', sche
 
 export function activate(context: vscode.ExtensionContext) {
 
-	// hostCommands.activate(context);
+	hostCommands.activate(context);
 
-	// hostEnvironment.activate(context);
+	hostEnvironment.activate(context);
 
-	// terminal.activate(context);
+	terminal.activate(context);
 
-	// languageFeatures.activate(context);
+	languageFeatures.activate(context);
 
 	datFileEditor.activate(context);
 }

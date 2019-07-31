@@ -935,12 +935,12 @@
 				"never",
 				"unquoted"
 			],
-			"default": "always",
+			"default": "never",
 			"description": "Specifies whether to format numeric values in DAT files, or to treat them as strings."
 		},
 		"dat-preview.numberFormat": {
 			"type": "string",
-			"default": "g2",
+			"default": "g5",
 			"description": "Specifies a .NET-style format string used to format numeric columns in DAT files."
 		},
 		"dat-preview.theme": {
