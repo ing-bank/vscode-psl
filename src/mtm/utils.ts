@@ -7,7 +7,7 @@ interface FileDetails {
 	fileBaseName: string
 }
 
-export const extensionToDescription: {[key: string]: string} = {
+export const extensionToDescription: { [key: string]: string } = {
 	'BATCH': 'Batch',
 	'COL': 'Column',
 	'DAT': 'Data',
@@ -34,41 +34,41 @@ export const extensionToDescription: {[key: string]: string} = {
 }
 
 export function v2lvFormat(messageValue: string[]) {
-		let lvMessage = ''
-		if (messageValue.length !== 0) {
-			messageValue.forEach(messageString => {
-				lvMessage = lvMessage + lvFormat(messageString)
-			})
-		}
-		return lvMessage
+	let lvMessage = ''
+	if (messageValue.length !== 0) {
+		messageValue.forEach(messageString => {
+			lvMessage = lvMessage + lvFormat(messageString)
+		})
 	}
+	return lvMessage
+}
 
 export function lvFormat(messagString: String): string {
-		let returnLvFormat = ''
-		let lvArray = []
-		let messageLength = messagString.length
-		let splitBytes
+	let returnLvFormat = ''
+	let lvArray = []
+	let messageLength = messagString.length
+	let splitBytes
 
-		if (messageLength < 255) { splitBytes = 1 }
-		else if (messageLength < 65534) { splitBytes = 2 }
-		else if (messageLength < 16777213) { splitBytes = 3 }
-		else { splitBytes = 4 }
+	if (messageLength < 255) { splitBytes = 1 }
+	else if (messageLength < 65534) { splitBytes = 2 }
+	else if (messageLength < 16777213) { splitBytes = 3 }
+	else { splitBytes = 4 }
 
-		messageLength = splitBytes + messageLength
+	messageLength = splitBytes + messageLength
 
-		if (messageLength > 255) {
-			for (let loop = 0; loop < splitBytes; loop++) {
-				lvArray.push(messageLength % 256)
-				messageLength = Math.trunc(messageLength / 256)
-			}
-			returnLvFormat = String.fromCharCode(0) + String.fromCharCode(splitBytes);
-			for (let loop = splitBytes - 1; loop >= 0; loop--) {
-				returnLvFormat = returnLvFormat + String.fromCharCode(lvArray[loop])
-			}
+	if (messageLength > 255) {
+		for (let loop = 0; loop < splitBytes; loop++) {
+			lvArray.push(messageLength % 256)
+			messageLength = Math.trunc(messageLength / 256)
 		}
-		else { returnLvFormat = String.fromCharCode(messageLength) }
-		return (returnLvFormat + messagString);
+		returnLvFormat = String.fromCharCode(0) + String.fromCharCode(splitBytes);
+		for (let loop = splitBytes - 1; loop >= 0; loop--) {
+			returnLvFormat = returnLvFormat + String.fromCharCode(lvArray[loop])
+		}
 	}
+	else { returnLvFormat = String.fromCharCode(messageLength) }
+	return (returnLvFormat + messagString);
+}
 
 /**
  * This method does a thing.
@@ -78,60 +78,60 @@ export function lvFormat(messagString: String): string {
  * @returns {Buffer[]} A buffer array
  */
 export function lv2vFormat(messageString: Buffer): Buffer[] {
-		let returnString: Buffer[] = [];
-		let messageLength = messageString.length;
+	let returnString: Buffer[] = [];
+	let messageLength = messageString.length;
 
-		if (messageLength === 0) { return [] };
+	if (messageLength === 0) { return [] };
 
-		let bytePointer: number = 0;
-		let extractChar: number = 0;
-		let numberOfBufferedLine: number = 0;
-		let byteCalcNumber: number;
+	let bytePointer: number = 0;
+	let extractChar: number = 0;
+	let numberOfBufferedLine: number = 0;
+	let byteCalcNumber: number;
 
-		while (bytePointer < messageLength) {
-			extractChar = messageString.readUInt8(bytePointer);
+	while (bytePointer < messageLength) {
+		extractChar = messageString.readUInt8(bytePointer);
 
-			numberOfBufferedLine = 1;
+		numberOfBufferedLine = 1;
 
-			if (extractChar === 0) {
-				numberOfBufferedLine = messageString.readUInt8(bytePointer + 1);
-				bytePointer = bytePointer + 2;
-				if (numberOfBufferedLine === 0) {
-					continue;
-				}
-				byteCalcNumber = 1;
-				for (let loopFor = numberOfBufferedLine - 1; loopFor >= 0; loopFor--) {
-					extractChar = (messageString.readUInt8(bytePointer + loopFor) * byteCalcNumber) + extractChar;
-					byteCalcNumber = byteCalcNumber * 256
-				}
-			}
-			if (bytePointer > messageLength) {
+		if (extractChar === 0) {
+			numberOfBufferedLine = messageString.readUInt8(bytePointer + 1);
+			bytePointer = bytePointer + 2;
+			if (numberOfBufferedLine === 0) {
 				continue;
 			}
-			returnString.push(messageString.slice(bytePointer + numberOfBufferedLine, bytePointer + extractChar));
-			bytePointer = bytePointer + extractChar;
+			byteCalcNumber = 1;
+			for (let loopFor = numberOfBufferedLine - 1; loopFor >= 0; loopFor--) {
+				extractChar = (messageString.readUInt8(bytePointer + loopFor) * byteCalcNumber) + extractChar;
+				byteCalcNumber = byteCalcNumber * 256
+			}
 		}
-		return returnString
+		if (bytePointer > messageLength) {
+			continue;
+		}
+		returnString.push(messageString.slice(bytePointer + numberOfBufferedLine, bytePointer + extractChar));
+		bytePointer = bytePointer + extractChar;
 	}
+	return returnString
+}
 
 export function parseResponse(serviceClass: number, outputData: Buffer, encoding: BufferEncoding): string {
-		// unpacking multiple times to get the token, remove the endiness by extracting from position 2
-		let returnString: string = ''
-		let returnArray: Buffer[];
-		returnArray = lv2vFormat(outputData);
-		returnArray = lv2vFormat(returnArray[1]);
-		returnArray = lv2vFormat(returnArray[1]);
-		returnString = returnArray[0].toString(encoding)
-		if (returnString === 'ER') {
-			throw returnArray.map(x => x.toString(encoding)).join('')
-		}
-		if (serviceClass === 5) {
-			returnString = returnArray[2].toString(encoding) + String.fromCharCode(0) + returnArray[3].toString(encoding)
-		}
-		return returnString;
+	// unpacking multiple times to get the token, remove the endiness by extracting from position 2
+	let returnString: string = ''
+	let returnArray: Buffer[];
+	returnArray = lv2vFormat(outputData);
+	returnArray = lv2vFormat(returnArray[1]);
+	returnArray = lv2vFormat(returnArray[1]);
+	returnString = returnArray[0].toString(encoding)
+	if (returnString === 'ER') {
+		throw returnArray.map(x => x.toString(encoding)).join('')
 	}
+	if (serviceClass === 5) {
+		returnString = returnArray[2].toString(encoding) + String.fromCharCode(0) + returnArray[3].toString(encoding)
+	}
+	return returnString;
+}
 
-export function sendingMessage(tokenMessage: string,  mrpcMessage: string): string {
+export function sendingMessage(tokenMessage: string, mrpcMessage: string): string {
 	return v2lvFormat([tokenMessage, mrpcMessage])
 }
 
@@ -147,29 +147,29 @@ export function mrpcMessage(mrpcId: string, version: string, prepareString: stri
 
 
 export function tokenMessage(serviceClass: number, token: string, messageId: number): string {
-		let exchangeMessage = [
-			serviceClass.toString(),
-			token,
-			messageId.toString(),
-			'0',
-			''
-		]
-		return v2lvFormat(exchangeMessage);
-	}
+	let exchangeMessage = [
+		serviceClass.toString(),
+		token,
+		messageId.toString(),
+		'0',
+		''
+	]
+	return v2lvFormat(exchangeMessage);
+}
 
 
 export function connectionObject(envUser: string, envPassword: string): string {
-		let perpareString: string[] = [
-			'1',
-			envUser.toString(),
-			'nowhere',
-			envPassword,
-			'',
-			'',
-			netConnMessage()
-		]
-		return v2lvFormat(perpareString);
-	}
+	let perpareString: string[] = [
+		'1',
+		envUser.toString(),
+		'nowhere',
+		envPassword,
+		'',
+		'',
+		netConnMessage()
+	]
+	return v2lvFormat(perpareString);
+}
 
 export function checkObject(localFile: string, token: string): string {
 	let messageArray = [
@@ -285,9 +285,9 @@ export function getObjectType(fileName: string): FileDetails {
 	let elementExtension = elementBaseName.substr(elementBaseName.lastIndexOf('.') + 1, elementBaseName.length)
 	if (elementName.includes('.')) elementName = elementBaseName;
 	return {
-		fileId : getFileDetails(elementExtension),
-		fileName : elementName,
-		fileBaseName : elementBaseName
+		fileId: getFileDetails(elementExtension),
+		fileName: elementName,
+		fileBaseName: elementBaseName
 	}
 }
 
@@ -315,9 +315,25 @@ export function pack(totalLength: number): string {
 	return (firstByte + secondByte);
 }
 
-export function unpack(firstByte: number, secondByte: number): number {
+export function unpack(message: Buffer): { totalBytes: number, startByte: number } {
 	// For ING we use Big Endian !h which is 2 bytes
-	return ((firstByte * 256) + secondByte);
+	if (!message.readUInt8(0) && !message.readUInt8(1)) return longMessageLength(message);
+	return { totalBytes: (message.readUInt8(0) * 256) + message.readUInt8(1), startByte: 3 };
+}
+
+function longMessageLength(message: Buffer): { totalBytes: number, startByte: number } {
+	// the third byte of the message tells us how many bytes are used to encode the length
+	const numberOfBytes = message.readUInt8(2);
+	const lastLengthByte = 3 + numberOfBytes;
+
+	// slice the message to just use the bytes that encode message length
+	const messageLengthBytes = message.slice(3, lastLengthByte);
+	let totalBytes = 0;
+	for (let index = 0; index < messageLengthBytes.length; index++) {
+		const byte = messageLengthBytes.readUInt8(index);
+		totalBytes += byte * 256 ** (messageLengthBytes.length - 1 - index);
+	}
+	return { totalBytes, startByte: lastLengthByte + 1};
 }
 
 function mrpcConnMessage(): string {

@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
+# v1.10.1
+* Allow messages with length > 16^2 - 2 to be read from MTM
+
 # v1.10.0
 * Take language features out of preview
 * Enable GT.M debugging in the status bar

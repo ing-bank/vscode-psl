@@ -317,18 +317,18 @@ export class MtmConnection {
 	}
 
 	private async execute(detail: ServiceDetail, prepareString: string): Promise<string> {
-		let sendingMessage = this.prepareSendingMessage(detail, prepareString);
+		const sendingMessage = this.prepareSendingMessage(detail, prepareString);
 		await this.socket.send(sendingMessage);
 		let message = await this.socket.onceData();
-		let totalBytes = utils.unpack(message.readUInt8(0), message.readUInt8(1))
-		let messageLength = message.length
+		const { totalBytes, startByte } = utils.unpack(message);
+		let messageLength = message.length;
 
 		while (messageLength < totalBytes) {
-			let nextMessage = await this.socket.onceData();
+			const nextMessage = await this.socket.onceData();
 			messageLength = messageLength + nextMessage.length;
-			message = Buffer.concat([message, nextMessage], messageLength)
+			message = Buffer.concat([message, nextMessage], messageLength);
 		}
-		return (utils.parseResponse(detail.serviceClass, message.slice(3, message.length), this.encoding));
+		return (utils.parseResponse(detail.serviceClass, message.slice(startByte, message.length), this.encoding));
 	}
 
 	private prepareSendingMessage(detail: ServiceDetail, prepareString: string): string {
