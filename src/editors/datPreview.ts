@@ -21,7 +21,6 @@ export default class DatPreview extends BasePreview {
 	}
 
 	private _pendingEdits = 0;
-	private _langId = null;
 	private readonly _configuration: string = 'dat-preview';
 	private _options = DatPreview.getDefaultOptions();
 
@@ -91,7 +90,6 @@ export default class DatPreview extends BasePreview {
 	private async doUpdate(header?: string[]): Promise<void> {
 		try {
 			const document = await workspace.openTextDocument(this.uri);
-			this._langId = document ? document.languageId.toLowerCase() : null;
 			let text = document.getText();
 
 			if (header) {
