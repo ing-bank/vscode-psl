@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 
-import * as terminal from './common/terminal';
 import * as hostEnvironment from './common/environment';
+import * as terminal from './common/terminal';
+import * as datFileEditor from './editors/datFile';
 import * as hostCommands from './hostCommands/activate';
 import * as languageFeatures from './language/activate';
 
@@ -12,7 +13,6 @@ export const DATA_MODE: vscode.DocumentFilter = { language: 'profileData', schem
 export const TBL_MODE: vscode.DocumentFilter = { language: 'profileTable', scheme: 'file' };
 export const COL_MODE: vscode.DocumentFilter = { language: 'profileColumn', scheme: 'file' };
 
-
 export function activate(context: vscode.ExtensionContext) {
 
 	hostCommands.activate(context);
@@ -22,9 +22,9 @@ export function activate(context: vscode.ExtensionContext) {
 	terminal.activate(context);
 
 	languageFeatures.activate(context);
-}
 
+	datFileEditor.activate(context);
+}
 
 // this method is called when your extension is deactivated
-export function deactivate() {
-}
+export function deactivate() {}

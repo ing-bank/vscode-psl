@@ -1,7 +1,8 @@
 *.jrnl
 *.log
-out
 node_modules
+out/__tests__
+out/src
 *.vsix
 .project
 .settings
