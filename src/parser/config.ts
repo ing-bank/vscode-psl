@@ -28,9 +28,14 @@ export async function removeConfig(configPath: string) {
  */
 export interface FinderPaths {
 	/**
-	 * Absolute path to the active routine.
+	 * Absolute path to the active routine, if the active component is a routine.
 	 */
-	activeRoutine: string;
+	activeRoutine?: string;
+
+	/**
+	 * Absolute path to the active table, if the active component is a table.
+	 */
+	activeTable?: string;
 
 	/**
 	 * Absolute paths to all possible sources for PSL classes, across all projects. Ordered by priority.
@@ -45,39 +50,47 @@ export interface FinderPaths {
 	/**
 	 * Absolute path to the directory that contains file definitions.
 	 */
-	table: string;
+	tables: string[];
 }
 
-export function getFinderPaths(childDir: string, activeRoutine?: string): FinderPaths {
-	const corePsl = '.vscode/pslcls/';
-	const defaultPslSources = ['dataqwik/procedure/', 'psl/'];
-	const defaultFileDefinitionSources = 'dataqwik/table/';
+export function getFinderPaths(currentDir: string, activeRoutine?: string): FinderPaths {
 
-	const config: ProjectConfig | undefined = activeConfigs.get(childDir);
+	const defaultPslSources = ['dataqwik/procedure/', 'psl/'];
+	const defaultFileDefinitionSources = ['dataqwik/table/'];
+
+	const config: ProjectConfig | undefined = activeConfigs.get(currentDir);
 
 	const projectPsl = [];
-	const load = (base, source) => projectPsl.push(path.join(base, source));
-	const relativePslSources = config && config.pslSources ? config.pslSources : defaultPslSources;
+	const tables = [];
 
+	const loadPsl = (base, source) => projectPsl.push(path.join(base, source));
+	const loadFileDefinition = (base, source) => tables.push(path.join(base, source));
+
+	const relativePslSources = config && config.pslSources ? config.pslSources : defaultPslSources;
+	const relativeFileDefinitionSource = config && config.fileDefinitionSources ?
+		config.fileDefinitionSources : defaultFileDefinitionSources;
+
+	const corePsl = path.join(currentDir, '.vscode/pslcls/');
 	// load core first
 	projectPsl.push(corePsl);
 
 	// load base sources
-	relativePslSources.forEach(source => load(childDir, source));
+	relativePslSources.forEach(source => loadPsl(currentDir, source));
+	relativeFileDefinitionSource.forEach(source => loadFileDefinition(currentDir, source));
 
 	// load parent sources
 	if (config && config.parentProjects) {
-		config.parentProjects.forEach(parent => relativePslSources.forEach(source => load(parent, source)));
-	}
+		for (const parent of config.parentProjects) {
+			relativePslSources.forEach(source => loadPsl(parent, source));
+			relativeFileDefinitionSource.forEach(source => loadFileDefinition(parent, source));
+		}
 
-	const relativeFileDefinitionSource = config && config.fileDefinitionSources ?
-		config.fileDefinitionSources[0] : defaultFileDefinitionSources;
-	const table = relativeFileDefinitionSource;
+	}
 
 	return {
 		activeRoutine,
 		corePsl,
 		projectPsl,
-		table,
+		tables,
 	};
 }

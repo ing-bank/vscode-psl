@@ -46,11 +46,10 @@ export class ParsedDocFinder {
 					};
 				}
 				const tableName = callTokens[0].value.replace('Record', '');
-				const tableLocation = path.join(this.paths.table, tableName.toLowerCase(), tableName.toUpperCase() + '.TBL');
-				const tableLocationExists = await fs.pathExists(tableLocation);
-				if (tableLocationExists) {
+				const fileDefinitionDirectory = await this.resolveFileDefinitionDirectory(tableName);
+				if (fileDefinitionDirectory) {
 					return {
-						fsPath: tableLocation,
+						fsPath: path.join(fileDefinitionDirectory, tableName.toUpperCase() + '.TBL'),
 					};
 				}
 				else if (callTokens[0] === this.parsedDocument.extending) {
@@ -117,9 +116,8 @@ export class ParsedDocFinder {
 
 		if (routineName.startsWith('Record') && routineName !== 'Record') {
 			const tableName = routineName.replace('Record', '');
-			const tableDirectory = path.join(this.paths.table, tableName.toLowerCase());
-			const tableLocationExists = await fs.pathExists(tableDirectory);
-			if (!tableLocationExists) return;
+			const tableDirectory = await this.resolveFileDefinitionDirectory(tableName.toLowerCase());
+			if (!tableDirectory) return;
 			const columns: Property[] = (await fs.readdir(tableDirectory)).filter(file => file.endsWith('.COL')).map(col => {
 				const colName = col.replace(`${tableName}-`, '').replace('.COL', '');
 				const ret: Property = {
@@ -134,13 +132,14 @@ export class ParsedDocFinder {
 				comments: [],
 				declarations: [],
 				extending: new Token(Type.Alphanumeric, 'Record', dummyPosition),
-				pslPackage: '',
 				methods: [],
 				properties: columns,
+				pslPackage: '',
 				tokens: [],
 			};
 			const newPaths: FinderPaths = Object.create(this.paths);
-			newPaths.activeRoutine = tableDirectory;
+			newPaths.activeRoutine = '';
+			newPaths.activeTable = tableDirectory;
 			return new ParsedDocFinder(parsedDocument, newPaths, this.getWorkspaceDocumentText);
 		}
 		const pathsWithoutExtensions: string[] = this.paths.projectPsl.map(pslPath => path.join(pslPath, routineName));
@@ -171,28 +170,30 @@ export class ParsedDocFinder {
 
 	async searchInDocument(queriedId: string): Promise<FinderResult | undefined> {
 		let foundProperty;
-		if (path.relative(this.paths.activeRoutine, this.paths.table) === '..') {
+		if (this.paths.activeTable) {
 			foundProperty = this.parsedDocument.properties.find(p => p.id.value.toLowerCase() === queriedId.toLowerCase());
 			if (foundProperty) {
-				const tableName = path.basename(this.paths.activeRoutine).toUpperCase();
+				const tableName = path.basename(this.paths.activeTable).toUpperCase();
 				return {
-					fsPath: path.join(this.paths.activeRoutine, `${tableName}-${foundProperty.id.value}.COL`),
+					fsPath: path.join(this.paths.activeTable, `${tableName}-${foundProperty.id.value}.COL`),
 					member: foundProperty,
 				};
 			}
 		}
-		foundProperty = this.parsedDocument.properties.find(p => p.id.value === queriedId);
-		if (foundProperty) return { member: foundProperty, fsPath: this.paths.activeRoutine };
+		else {
+			foundProperty = this.parsedDocument.properties.find(p => p.id.value === queriedId);
+			if (foundProperty) return { member: foundProperty, fsPath: this.paths.activeRoutine };
 
-		const foundMethod = this.parsedDocument.methods.find(p => p.id.value === queriedId);
-		if (foundMethod) return { member: foundMethod, fsPath: this.paths.activeRoutine };
+			const foundMethod = this.parsedDocument.methods.find(p => p.id.value === queriedId);
+			if (foundMethod) return { member: foundMethod, fsPath: this.paths.activeRoutine };
 
-		if (this.parsedDocument.extending) {
-			const parentRoutineName = this.parsedDocument.extending.value;
-			if (this.hierarchy.indexOf(parentRoutineName) > -1) return;
-			const parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
-			if (!parentFinder) return;
-			return parentFinder.searchInDocument(queriedId);
+			if (this.parsedDocument.extending) {
+				const parentRoutineName = this.parsedDocument.extending.value;
+				if (this.hierarchy.indexOf(parentRoutineName) > -1) return;
+				const parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
+				if (!parentFinder) return;
+				return parentFinder.searchInDocument(queriedId);
+			}
 		}
 	}
 
@@ -205,11 +206,14 @@ export class ParsedDocFinder {
 			}
 		};
 
-		if (path.relative(this.paths.activeRoutine, this.paths.table) === '..') {
+		if (this.paths.activeTable) {
 			this.parsedDocument.properties.forEach(property => {
-				const tableName = path.basename(this.paths.activeRoutine).toUpperCase();
-				addToResults({ member: property, fsPath: path.join(this.paths.activeRoutine, `${tableName}-${property.id.value}.COL`) });
+				const tableName = path.basename(this.paths.activeTable).toUpperCase();
+				addToResults(
+					{ member: property, fsPath: path.join(this.paths.activeTable, `${tableName}-${property.id.value}.COL`) },
+				);
 			});
+			return results;
 		}
 		this.parsedDocument.properties.forEach(property => {
 			addToResults({ member: property, fsPath: this.paths.activeRoutine });
@@ -227,6 +231,16 @@ export class ParsedDocFinder {
 			return parentFinder.findAllInDocument(results);
 		}
 		return results;
+	}
+
+	async resolveFileDefinitionDirectory(tableName: string): Promise<string> {
+		for (const tableSource of this.paths.tables) {
+			const directory = path.join(tableSource, tableName.toLowerCase());
+			if (await fs.pathExists(directory)) {
+				return directory;
+			}
+		}
+		return '';
 	}
 
 	private async searchForParent(parentRoutineName: string): Promise<ParsedDocFinder | undefined> {

@@ -8,8 +8,8 @@ import * as lang from './lang';
 
 export class PSLCompletionItemProvider implements vscode.CompletionItemProvider {
 
-	async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, cancellationToknen: vscode.CancellationToken): Promise<PSLCompletionItem[] | undefined> {
-		if (cancellationToknen.isCancellationRequested) return;
+	async provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, cancellationToken: vscode.CancellationToken): Promise<PSLCompletionItem[] | undefined> {
+		if (cancellationToken.isCancellationRequested) return;
 		let parsedDoc = parser.parseText(document.getText());
 
 		// get tokens on line and current token
@@ -27,11 +27,11 @@ export class PSLCompletionItemProvider implements vscode.CompletionItemProvider 
 		let result = await finder.resolveResult(callTokens.slice(0, -1));
 		let resultFinder = result.member ? await finder.newFinder(result.member.types[0].value) : await finder.newFinder(path.basename(result.fsPath).split('.')[0]);
 		let resolvedResults = await resultFinder.findAllInDocument();
-		if (resolvedResults) return getCompletionItems(resolvedResults, paths.table);
+		if (resolvedResults) return getCompletionItems(resolvedResults, finder);
 	}
 
 	async resolveCompletionItem(item: PSLCompletionItem) {
-		let { code, markdown } = await lang.getDocumentation(item.result, item.tableDirectory);
+		let { code, markdown } = await lang.getDocumentation(item.result, item.finder);
 
 		let clean = markdown.replace(/\s*(DOC)?\s*\-+/, '').replace(/\*+\s+ENDDOC/, '').trim();
 		clean = clean
@@ -45,12 +45,12 @@ export class PSLCompletionItemProvider implements vscode.CompletionItemProvider 
 	}
 }
 
-async function getCompletionItems(results: utils.FinderResult[], tableDirectory: string): Promise<PSLCompletionItem[]> {
+async function getCompletionItems(results: utils.FinderResult[], finder: utils.ParsedDocFinder): Promise<PSLCompletionItem[]> {
 	let ret = results.map(async result => {
 		const item = new PSLCompletionItem(result.member.id.value);
 		item.kind = result.member.memberClass === MemberClass.method ? vscode.CompletionItemKind.Method : vscode.CompletionItemKind.Property;
 		item.result = result;
-		item.tableDirectory = tableDirectory;
+		item.finder = finder;
 		return item;
 	})
 	return Promise.all(ret);
@@ -58,5 +58,5 @@ async function getCompletionItems(results: utils.FinderResult[], tableDirectory:
 
 class PSLCompletionItem extends vscode.CompletionItem {
 	result: utils.FinderResult;
-	tableDirectory: string;
+	finder: utils.ParsedDocFinder;
 }

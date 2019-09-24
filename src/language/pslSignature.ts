@@ -39,19 +39,19 @@ export class PSLSignatureHelpProvider implements vscode.SignatureHelpProvider {
 		let finder = new utils.ParsedDocFinder(parsedDoc, paths, lang.getWorkspaceDocumentText);
 		let resolvedResult = await finder.resolveResult(callTokens);
 		if (!resolvedResult.member || resolvedResult.member.memberClass !== parser.MemberClass.method) return;
-		if (resolvedResult) return getSignature(resolvedResult, paths.table, parameterIndex);
+		if (resolvedResult) return getSignature(resolvedResult, parameterIndex, finder);
 	}
 }
 
-async function getSignature(result: utils.FinderResult, tableDirectory: string, parameterIndex: number): Promise<vscode.SignatureHelp> {
-	let { code, markdown } = await lang.getDocumentation(result, tableDirectory);
+async function getSignature(result: utils.FinderResult, parameterIndex: number, finder: utils.ParsedDocFinder): Promise<vscode.SignatureHelp> {
+	let { code, markdown } = await lang.getDocumentation(result, finder);
 
 	let clean = markdown.replace(/\s*(DOC)?\s*\-+/, '').replace(/\*+\s+ENDDOC/, '').trim();
 	clean = clean
 		.split(/\r?\n/g).map(l => l.trim()).join('\n')
 		.replace(/(@\w+)/g, '*$1*')
 		.replace(/(\*(@(param|publicnew|public|throws?))\*)\s+([A-Za-z\-0-9%_\.]+)/g, '$1 `$4`');
-		
+
 	let method = result.member as parser.Method;
 	let argString: string = method.parameters.map((param: parser.Parameter) => `${param.types[0].value} ${param.id.value}`).join(', ');
 	code = `${method.id.value}(${argString})`;

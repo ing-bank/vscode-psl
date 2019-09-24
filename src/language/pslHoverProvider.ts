@@ -23,14 +23,12 @@ export class PSLHoverProvider implements vscode.HoverProvider {
 		let paths: FinderPaths = getFinderPaths(workspaceDirectory.uri.fsPath, document.fileName);
 		let finder = new utils.ParsedDocFinder(parsedDoc, paths, lang.getWorkspaceDocumentText);
 		let resolvedResult = await finder.resolveResult(callTokens);
-		if (resolvedResult) return getHover(resolvedResult, paths.table);
+		if (resolvedResult) return getHover(resolvedResult, finder);
 	}
 }
 
-
-
-async function getHover(result: utils.FinderResult, tableDirectory: string): Promise<vscode.Hover> {
-	let { code, markdown } = await lang.getDocumentation(result, tableDirectory);
+async function getHover(result: utils.FinderResult, finder: utils.ParsedDocFinder): Promise<vscode.Hover> {
+	let { code, markdown } = await lang.getDocumentation(result, finder);
 
 	let clean = markdown.replace(/\s*(DOC)?\s*\-+/, '').replace(/\*+\s+ENDDOC/, '').trim();
 	clean = clean
