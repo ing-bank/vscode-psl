@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import * as lang from './lang';
+import { FinderPaths, getFinderPaths } from '../parser/config';
 import * as parser from '../parser/parser';
 import * as utils from '../parser/utilities';
+import * as lang from './lang';
 
 export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 
@@ -19,7 +20,7 @@ export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 
 		let callTokens = utils.getCallTokens(tokensOnLine, index);
 		if (callTokens.length === 0) return;
-		let paths: utils.FinderPaths = utils.getFinderPaths(workspaceDirectory.uri.fsPath, document.fileName);
+		let paths: FinderPaths = getFinderPaths(workspaceDirectory.uri.fsPath, document.fileName);
 		let finder = new utils.ParsedDocFinder(parsedDoc, paths, lang.getWorkspaceDocumentText);
 		let resolvedResult = await finder.resolveResult(callTokens);
 		if (resolvedResult) return getLocation(resolvedResult);

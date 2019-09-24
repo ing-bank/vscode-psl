@@ -1,9 +1,10 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
+import * as vscode from 'vscode';
+import { FinderPaths, getFinderPaths } from '../parser/config';
 import * as parser from '../parser/parser';
-import * as lang from './lang';
-import * as utils from '../parser/utilities';
 import { MemberClass } from '../parser/parser';
+import * as utils from '../parser/utilities';
+import * as lang from './lang';
 
 export class PSLCompletionItemProvider implements vscode.CompletionItemProvider {
 
@@ -21,7 +22,7 @@ export class PSLCompletionItemProvider implements vscode.CompletionItemProvider 
 
 		let callTokens = utils.getCallTokens(tokensOnLine, index);
 		if (callTokens.length === 0) return;
-		let paths: utils.FinderPaths = utils.getFinderPaths(workspaceDirectory.uri.fsPath, document.fileName);
+		let paths: FinderPaths = getFinderPaths(workspaceDirectory.uri.fsPath, document.fileName);
 		let finder = new utils.ParsedDocFinder(parsedDoc, paths, lang.getWorkspaceDocumentText);
 		let result = await finder.resolveResult(callTokens.slice(0, -1));
 		let resultFinder = result.member ? await finder.newFinder(result.member.types[0].value) : await finder.newFinder(path.basename(result.fsPath).split('.')[0]);

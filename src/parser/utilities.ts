@@ -1,30 +1,12 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import { FinderPaths } from './config';
 import { Member, MemberClass, Method, ParsedDocument, parseText, Property } from './parser';
 import { Position, Token, Type } from './tokenizer';
 
 export interface FinderResult {
 	fsPath: string;
 	member?: Member;
-}
-
-export interface FinderPaths {
-	activeRoutine: string;
-	projectPsl: string[];
-	corePsl: string;
-	table: string;
-}
-
-export function getFinderPaths(base: string, activeRoutine?: string): FinderPaths {
-	const relativeCorePath = '.vscode/pslcls/';
-	const relativeProjectPath = ['dataqwik/procedure/', 'test/psl/utgood/', 'test/psl/stgood/'];
-	const relativeTablePath = 'dataqwik/table/';
-	return {
-		activeRoutine,
-		corePsl: path.join(base, relativeCorePath),
-		projectPsl: relativeProjectPath.concat(relativeCorePath).map(pslPath => path.join(base, pslPath)),
-		table: path.join(base, relativeTablePath),
-	}
 }
 
 export const dummyPosition = new Position(0, 0);

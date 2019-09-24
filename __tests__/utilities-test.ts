@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { FinderPaths } from '../src/parser/config';
 import { MemberClass, ParsedDocument, parseFile } from '../src/parser/parser';
 import * as tokenizer from '../src/parser/tokenizer';
 import * as utilities from '../src/parser/utilities';
@@ -135,7 +136,7 @@ describe('ParsedDocFinder', () => {
 	});
 
 	test('Find dummy in child', async () => {
-		const paths: utilities.FinderPaths = {
+		const paths: FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
 			activeRoutine: childFilePath,
@@ -149,7 +150,7 @@ describe('ParsedDocFinder', () => {
 	});
 
 	test('Find property in child', async () => {
-		const paths: utilities.FinderPaths = {
+		const paths: FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
 			activeRoutine: childFilePath,
@@ -163,7 +164,7 @@ describe('ParsedDocFinder', () => {
 	});
 
 	test('Find method in child', async () => {
-		const paths: utilities.FinderPaths = {
+		const paths: FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
 			activeRoutine: childFilePath,
@@ -177,7 +178,7 @@ describe('ParsedDocFinder', () => {
 	});
 
 	test('Find method overriden method in child', async () => {
-		const paths: utilities.FinderPaths = {
+		const paths: FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
 			activeRoutine: childFilePath,
@@ -191,7 +192,7 @@ describe('ParsedDocFinder', () => {
 	});
 
 	test('Find method inherited method in parent', async () => {
-		const paths: utilities.FinderPaths = {
+		const paths: FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
 			activeRoutine: childFilePath,
@@ -205,7 +206,7 @@ describe('ParsedDocFinder', () => {
 	});
 
 	test('Find method in parent', async () => {
-		const paths: utilities.FinderPaths = {
+		const paths: FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
 			activeRoutine: parentFilePath,
@@ -219,7 +220,7 @@ describe('ParsedDocFinder', () => {
 	});
 
 	test('Find y in methodInChild', async () => {
-		const paths: utilities.FinderPaths = {
+		const paths: FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
 			activeRoutine: childFilePath,
@@ -233,7 +234,7 @@ describe('ParsedDocFinder', () => {
 	});
 
 	test('Do not find x', async () => {
-		const paths: utilities.FinderPaths = {
+		const paths: FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
 			activeRoutine: childFilePath,
@@ -245,7 +246,7 @@ describe('ParsedDocFinder', () => {
 	});
 
 	test('Do not find reallySpecificName', async () => {
-		const paths: utilities.FinderPaths = {
+		const paths: FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
 			activeRoutine: childFilePath,
@@ -257,7 +258,7 @@ describe('ParsedDocFinder', () => {
 	});
 
 	test('Do find reallySpecificName', async () => {
-		const paths: utilities.FinderPaths = {
+		const paths: FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
 			activeRoutine: parentFilePath,

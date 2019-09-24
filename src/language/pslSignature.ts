@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
-import * as utils from '../parser/utilities';
+import { FinderPaths, getFinderPaths } from '../parser/config';
 import * as parser from '../parser/parser';
+import { Position, Token } from '../parser/tokenizer';
+import * as utils from '../parser/utilities';
 import * as lang from './lang';
-import { Token, Position } from '../parser/tokenizer';
 
 export class PSLSignatureHelpProvider implements vscode.SignatureHelpProvider {
 	public async provideSignatureHelp(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.SignatureHelp> {
@@ -34,7 +35,7 @@ export class PSLSignatureHelpProvider implements vscode.SignatureHelpProvider {
 		let { callTokens, parameterIndex } = utils.findCallable(tokensOnLine, index);
 
 		if (callTokens.length === 0) return;
-		let paths: utils.FinderPaths = utils.getFinderPaths(workspaceDirectory.uri.fsPath, document.fileName);
+		let paths: FinderPaths = getFinderPaths(workspaceDirectory.uri.fsPath, document.fileName);
 		let finder = new utils.ParsedDocFinder(parsedDoc, paths, lang.getWorkspaceDocumentText);
 		let resolvedResult = await finder.resolveResult(callTokens);
 		if (!resolvedResult.member || resolvedResult.member.memberClass !== parser.MemberClass.method) return;
