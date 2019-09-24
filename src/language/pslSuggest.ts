@@ -21,12 +21,7 @@ export class PSLCompletionItemProvider implements vscode.CompletionItemProvider 
 
 		let callTokens = utils.getCallTokens(tokensOnLine, index);
 		if (callTokens.length === 0) return;
-		let paths: utils.FinderPaths = {
-			routine: document.fileName,
-			corePsl: path.join(workspaceDirectory.uri.fsPath, lang.relativeCorePath),
-			projectPsl: lang.relativeProjectPath.concat(lang.relativeCorePath).map(pslPath => path.join(workspaceDirectory.uri.fsPath, pslPath)),
-			table: path.join(workspaceDirectory.uri.fsPath, lang.relativeTablePath),
-		}
+		let paths: utils.FinderPaths = utils.getFinderPaths(workspaceDirectory.uri.fsPath, document.fileName);
 		let finder = new utils.ParsedDocFinder(parsedDoc, paths, lang.getWorkspaceDocumentText);
 		let result = await finder.resolveResult(callTokens.slice(0, -1));
 		let resultFinder = result.member ? await finder.newFinder(result.member.types[0].value) : await finder.newFinder(path.basename(result.fsPath).split('.')[0]);

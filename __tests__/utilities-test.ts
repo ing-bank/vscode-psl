@@ -138,7 +138,7 @@ describe('ParsedDocFinder', () => {
 		const paths: utilities.FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
-			routine: childFilePath,
+			activeRoutine: childFilePath,
 			table: '',
 		};
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
@@ -152,7 +152,7 @@ describe('ParsedDocFinder', () => {
 		const paths: utilities.FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
-			routine: childFilePath,
+			activeRoutine: childFilePath,
 			table: '',
 		};
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
@@ -166,7 +166,7 @@ describe('ParsedDocFinder', () => {
 		const paths: utilities.FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
-			routine: childFilePath,
+			activeRoutine: childFilePath,
 			table: '',
 		};
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
@@ -180,7 +180,7 @@ describe('ParsedDocFinder', () => {
 		const paths: utilities.FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
-			routine: childFilePath,
+			activeRoutine: childFilePath,
 			table: '',
 		};
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
@@ -194,7 +194,7 @@ describe('ParsedDocFinder', () => {
 		const paths: utilities.FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
-			routine: childFilePath,
+			activeRoutine: childFilePath,
 			table: '',
 		};
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
@@ -208,7 +208,7 @@ describe('ParsedDocFinder', () => {
 		const paths: utilities.FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
-			routine: parentFilePath,
+			activeRoutine: parentFilePath,
 			table: '',
 		};
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedParent, paths);
@@ -222,7 +222,7 @@ describe('ParsedDocFinder', () => {
 		const paths: utilities.FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
-			routine: childFilePath,
+			activeRoutine: childFilePath,
 			table: '',
 		};
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
@@ -236,7 +236,7 @@ describe('ParsedDocFinder', () => {
 		const paths: utilities.FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
-			routine: childFilePath,
+			activeRoutine: childFilePath,
 			table: '',
 		};
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
@@ -248,7 +248,7 @@ describe('ParsedDocFinder', () => {
 		const paths: utilities.FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
-			routine: childFilePath,
+			activeRoutine: childFilePath,
 			table: '',
 		};
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
@@ -260,7 +260,7 @@ describe('ParsedDocFinder', () => {
 		const paths: utilities.FinderPaths = {
 			corePsl: '',
 			projectPsl: [filesDir],
-			routine: parentFilePath,
+			activeRoutine: parentFilePath,
 			table: '',
 		};
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedParent, paths);
