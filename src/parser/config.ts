@@ -48,12 +48,12 @@ export interface FinderPaths {
 	table: string;
 }
 
-export function getFinderPaths(base: string, activeRoutine?: string): FinderPaths {
+export function getFinderPaths(childDir: string, activeRoutine?: string): FinderPaths {
 	const corePsl = '.vscode/pslcls/';
-	const defaultPslSources = ['dataqwik/procedure/', 'test/psl/utgood/', 'test/psl/stgood/'];
+	const defaultPslSources = ['dataqwik/procedure/', 'psl/'];
 	const defaultFileDefinitionSources = 'dataqwik/table/';
 
-	const config: ProjectConfig | undefined = activeConfigs.get(base);
+	const config: ProjectConfig | undefined = activeConfigs.get(childDir);
 
 	const projectPsl = [];
 	const load = (base, source) => projectPsl.push(path.join(base, source));
@@ -63,7 +63,7 @@ export function getFinderPaths(base: string, activeRoutine?: string): FinderPath
 	projectPsl.push(corePsl);
 
 	// load base sources
-	relativePslSources.forEach(source => load(base, source));
+	relativePslSources.forEach(source => load(childDir, source));
 
 	// load parent sources
 	if (config && config.parentProjects) {
