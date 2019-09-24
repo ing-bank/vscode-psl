@@ -45,7 +45,7 @@ export function transform(config: Config): RegexConfig {
 }
 
 export async function removeConfig(configPath: string) {
-	const configBaseDir: ConfigBaseDir = await path.dirname(configPath);
+	const configBaseDir: ConfigBaseDir = path.dirname(configPath);
 	activeConfigs.delete(configBaseDir);
 }
 
