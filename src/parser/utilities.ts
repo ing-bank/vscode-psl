@@ -119,7 +119,7 @@ export class ParsedDocFinder {
 			const tableDirectory = await this.resolveFileDefinitionDirectory(tableName.toLowerCase());
 			if (!tableDirectory) return;
 			const columns: Property[] = (await fs.readdir(tableDirectory)).filter(file => file.endsWith('.COL')).map(col => {
-				const colName = col.replace(`${tableName}-`, '').replace('.COL', '');
+				const colName = col.replace(`${tableName}-`, '').replace('.COL', '').toLowerCase();
 				const ret: Property = {
 					id: new Token(Type.Alphanumeric, colName, dummyPosition),
 					memberClass: MemberClass.column,
