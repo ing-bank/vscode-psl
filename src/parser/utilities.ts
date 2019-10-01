@@ -1,4 +1,5 @@
 import * as fs from 'fs-extra';
+import * as jsonc from 'jsonc-parser';
 import * as path from 'path';
 import { FinderPaths } from './config';
 import { Member, MemberClass, Method, ParsedDocument, parseText, Property } from './parser';
@@ -128,10 +129,14 @@ export class ParsedDocFinder {
 				};
 				return ret;
 			});
+			const text = await this.getWorkspaceDocumentText(path.join(tableDirectory, `${tableName.toUpperCase()}.TBL`));
+			const parsed = jsonc.parse(text);
+			const parentFileId = parsed.PARFID;
+			const extendingValue = parentFileId ? `Record${parentFileId}` : 'Record';
 			const parsedDocument: ParsedDocument = {
 				comments: [],
 				declarations: [],
-				extending: new Token(Type.Alphanumeric, 'Record', dummyPosition),
+				extending: new Token(Type.Alphanumeric, extendingValue, dummyPosition),
 				methods: [],
 				properties: columns,
 				pslPackage: '',
@@ -175,26 +180,26 @@ export class ParsedDocFinder {
 			if (foundProperty) {
 				const tableName = path.basename(this.paths.activeTable).toUpperCase();
 				return {
-					fsPath: path.join(this.paths.activeTable, `${tableName}-${foundProperty.id.value}.COL`),
+					fsPath: path.join(this.paths.activeTable, `${tableName}-${foundProperty.id.value.toUpperCase()}.COL`),
 					member: foundProperty,
 				};
 			}
 		}
-		else {
-			foundProperty = this.parsedDocument.properties.find(p => p.id.value === queriedId);
-			if (foundProperty) return { member: foundProperty, fsPath: this.paths.activeRoutine };
 
-			const foundMethod = this.parsedDocument.methods.find(p => p.id.value === queriedId);
-			if (foundMethod) return { member: foundMethod, fsPath: this.paths.activeRoutine };
+		foundProperty = this.parsedDocument.properties.find(p => p.id.value === queriedId);
+		if (foundProperty) return { member: foundProperty, fsPath: this.paths.activeRoutine };
 
-			if (this.parsedDocument.extending) {
-				const parentRoutineName = this.parsedDocument.extending.value;
-				if (this.hierarchy.indexOf(parentRoutineName) > -1) return;
-				const parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
-				if (!parentFinder) return;
-				return parentFinder.searchInDocument(queriedId);
-			}
+		const foundMethod = this.parsedDocument.methods.find(p => p.id.value === queriedId);
+		if (foundMethod) return { member: foundMethod, fsPath: this.paths.activeRoutine };
+
+		if (this.parsedDocument.extending) {
+			const parentRoutineName = this.parsedDocument.extending.value;
+			if (this.hierarchy.indexOf(parentRoutineName) > -1) return;
+			const parentFinder: ParsedDocFinder | undefined = await this.searchForParent(parentRoutineName);
+			if (!parentFinder) return;
+			return parentFinder.searchInDocument(queriedId);
 		}
+
 	}
 
 	async findAllInDocument(results?: FinderResult[]): Promise<FinderResult[] | undefined> {
@@ -210,10 +215,9 @@ export class ParsedDocFinder {
 			this.parsedDocument.properties.forEach(property => {
 				const tableName = path.basename(this.paths.activeTable).toUpperCase();
 				addToResults(
-					{ member: property, fsPath: path.join(this.paths.activeTable, `${tableName}-${property.id.value}.COL`) },
+					{ member: property, fsPath: path.join(this.paths.activeTable, `${tableName}-${property.id.value.toUpperCase()}.COL`) },
 				);
 			});
-			return results;
 		}
 		this.parsedDocument.properties.forEach(property => {
 			addToResults({ member: property, fsPath: this.paths.activeRoutine });
