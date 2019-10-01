@@ -1,6 +1,38 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
+# v1.11.0
+
+Allow sources to be split across multiple projects with a `profile-project.json`. Current functionality is *unstable* and is 
+subject to change (versioned `0.0.1`).
+
+```json
+{
+	"version": "0.0.1",
+	"parentProjects": [
+		"profile-application",
+		"profile-framework"
+	],
+	"pslSources": [
+		"dataqwik/procedure/",
+		"psl/"
+	],
+	"fileDefinitionSources": [
+		"dataqwik/table/"
+	]
+}
+```
+
+This file can be used to configure sources, not only for the current project, but across multiple projects in a vscode workspace.
+All fields are optional. In the example above, `pslSources` and `fileDefinitionSources` are populated with their default
+values. The names in the `parentProjects` array refer to the names of the vscode workspace themselves. For more about
+workspace visit the [official documentation](https://code.visualstudio.com/docs/editor/multi-root-workspaces) for more information.
+
+Other changes include:
+
+* Data Items from PARFID's can now be resolved by Completion/Hover/Go-To
+* Data Item Completion now uses lowercase
+
 # v1.10.1
 * Allow messages with length > 16^2 - 2 to be read from MTM
 
