@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import * as utils from '../parser/utilities';
+import { FinderPaths, getFinderPaths } from '../parser/config';
 import * as parser from '../parser/parser';
+import { Position, Token } from '../parser/tokenizer';
+import * as utils from '../parser/utilities';
 import * as lang from './lang';
-import * as path from 'path';
-import { Token, Position } from '../parser/tokenizer';
 
 export class PSLSignatureHelpProvider implements vscode.SignatureHelpProvider {
 	public async provideSignatureHelp(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.SignatureHelp> {
@@ -35,28 +35,23 @@ export class PSLSignatureHelpProvider implements vscode.SignatureHelpProvider {
 		let { callTokens, parameterIndex } = utils.findCallable(tokensOnLine, index);
 
 		if (callTokens.length === 0) return;
-		let paths: utils.FinderPaths = {
-			routine: document.fileName,
-			corePsl: path.join(workspaceDirectory.uri.fsPath, lang.relativeCorePath),
-			projectPsl: lang.relativeProjectPath.concat(lang.relativeCorePath).map(pslPath => path.join(workspaceDirectory.uri.fsPath, pslPath)),
-			table: path.join(workspaceDirectory.uri.fsPath, lang.relativeTablePath),
-		}
+		let paths: FinderPaths = getFinderPaths(workspaceDirectory.uri.fsPath, document.fileName);
 		let finder = new utils.ParsedDocFinder(parsedDoc, paths, lang.getWorkspaceDocumentText);
 		let resolvedResult = await finder.resolveResult(callTokens);
 		if (!resolvedResult.member || resolvedResult.member.memberClass !== parser.MemberClass.method) return;
-		if (resolvedResult) return getSignature(resolvedResult, paths.table, parameterIndex);
+		if (resolvedResult) return getSignature(resolvedResult, parameterIndex, finder);
 	}
 }
 
-async function getSignature(result: utils.FinderResult, tableDirectory: string, parameterIndex: number): Promise<vscode.SignatureHelp> {
-	let { code, markdown } = await lang.getDocumentation(result, tableDirectory);
+async function getSignature(result: utils.FinderResult, parameterIndex: number, finder: utils.ParsedDocFinder): Promise<vscode.SignatureHelp> {
+	let { code, markdown } = await lang.getDocumentation(result, finder);
 
 	let clean = markdown.replace(/\s*(DOC)?\s*\-+/, '').replace(/\*+\s+ENDDOC/, '').trim();
 	clean = clean
 		.split(/\r?\n/g).map(l => l.trim()).join('\n')
 		.replace(/(@\w+)/g, '*$1*')
 		.replace(/(\*(@(param|publicnew|public|throws?))\*)\s+([A-Za-z\-0-9%_\.]+)/g, '$1 `$4`');
-		
+
 	let method = result.member as parser.Method;
 	let argString: string = method.parameters.map((param: parser.Parameter) => `${param.types[0].value} ${param.id.value}`).join(', ');
 	code = `${method.id.value}(${argString})`;

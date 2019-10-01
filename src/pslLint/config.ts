@@ -21,7 +21,7 @@ interface RegexConfigObj {
 }
 
 export async function setConfig(configPath: string) {
-	const configBaseDir: ConfigBaseDir = await path.dirname(configPath);
+	const configBaseDir: ConfigBaseDir = path.dirname(configPath);
 	const config: Config = await fs.readFile(configPath).then(b => JSON.parse(b.toString()));
 	activeConfigs.set(configBaseDir, transform(config));
 }
@@ -45,7 +45,7 @@ export function transform(config: Config): RegexConfig {
 }
 
 export async function removeConfig(configPath: string) {
-	const configBaseDir: ConfigBaseDir = await path.dirname(configPath);
+	const configBaseDir: ConfigBaseDir = path.dirname(configPath);
 	activeConfigs.delete(configBaseDir);
 }
 

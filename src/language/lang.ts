@@ -15,7 +15,7 @@ export const relativeCorePath = '.vscode/pslcls/';
 export const relativeProjectPath = ['dataqwik/procedure/', 'test/psl/utgood/', 'test/psl/stgood/'];
 export const relativeTablePath = 'dataqwik/table/';
 
-export async function getDocumentation(result: utils.FinderResult, tableDirectory: string): Promise<Documentation> {
+export async function getDocumentation(result: utils.FinderResult, finder: utils.ParsedDocFinder): Promise<Documentation> {
 	const { fsPath, member } = result;
 	if (!member) {
 		// handle tables here
@@ -95,12 +95,18 @@ export async function getDocumentation(result: utils.FinderResult, tableDirector
 
 		if (member.types[0].value.startsWith('Record')) {
 			const tableName = member.types[0].value.replace('Record', '');
-			const tableLocation = path.join(tableDirectory, tableName.toLowerCase(), tableName.toUpperCase() + '.TBL');
-			const text = await getWorkspaceDocumentText(tableLocation);
-			const parsed = jsonc.parse(text);
-			const doc = text.split('}')[1];
+			const tableDirectory = await finder.resolveFileDefinitionDirectory(tableName);
+			if (tableDirectory) {
+				const tableLocation = path.join(
+					tableDirectory,
+					tableName.toUpperCase() + '.TBL',
+				);
+				const text = await getWorkspaceDocumentText(tableLocation);
+				const parsed = jsonc.parse(text);
+				const doc = text.split('}')[1];
 
-			markdown = `${parsed.DES}\n\n${doc}`;
+				markdown = `${parsed.DES}\n\n${doc}`;
+			}
 		}
 		return { code, markdown };
 	}
@@ -108,7 +114,7 @@ export async function getDocumentation(result: utils.FinderResult, tableDirector
 }
 
 export async function getWorkspaceDocumentText(fsPath: string): Promise<string> {
-	return fs.stat(fsPath).then(() => {
+	return fs.stat(fsPath).then(_ => {
 		return vscode.workspace.openTextDocument(fsPath).then(textDocument => textDocument.getText(), () => '');
 	}).catch(() => '');
 }

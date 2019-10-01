@@ -11,6 +11,7 @@ import { MumpsDocumentSymbolProvider, PSLDocumentSymbolProvider } from './pslDoc
 import { PSLHoverProvider } from './pslHoverProvider';
 import { PSLSignatureHelpProvider } from './pslSignature';
 import { PSLCompletionItemProvider } from './pslSuggest';
+import { setConfig, removeConfig } from '../parser/config';
 
 export async function activate(context: vscode.ExtensionContext) {
 
@@ -72,6 +73,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		);
 	});
 
+	projectActivate(context);
 	codeQuality.activate(context);
 
 	previewDocumentation.activate(context);
@@ -85,4 +87,31 @@ export async function activate(context: vscode.ExtensionContext) {
 
 export function previewEnabled(uri: vscode.Uri) {
 	return vscode.workspace.getConfiguration('psl', uri).get('previewFeatures');
+}
+
+async function projectActivate(context: vscode.ExtensionContext) {
+	const workspaces = new Map();
+	if (vscode.workspace.workspaceFolders) {
+		vscode.workspace.workspaceFolders.forEach(workspace => {
+			workspaces.set(workspace.name, workspace.uri.fsPath);
+		});
+	}
+	return Promise.all(
+		vscode.workspace.workspaceFolders
+			.map(workspace => new vscode.RelativePattern(workspace, 'profile-project.json'))
+			.map(async pattern => {
+				const watcher = vscode.workspace.createFileSystemWatcher(pattern);
+				context.subscriptions.push(watcher.onDidChange(uri => {
+					setConfig(uri.fsPath, workspaces);
+				}), watcher.onDidCreate(uri => {
+					setConfig(uri.fsPath, workspaces);
+				}));
+				watcher.onDidDelete(uri => {
+					removeConfig(uri.fsPath);
+				});
+				const uris = await vscode.workspace.findFiles(pattern);
+				if (!uris.length) return;
+				await setConfig(uris[0].fsPath, workspaces);
+			}),
+	);
 }
