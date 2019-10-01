@@ -115,7 +115,93 @@ describe('completion', () => {
 	});
 });
 
-describe('ParsedDocFinder', () => {
+describe('ParsedDocFinder.resolveResult', () => {
+	let filesDir: string;
+
+	let parentFilePath: string;
+	let procedureNameFilePath: string;
+
+	let parsedParent: ParsedDocument;
+
+	beforeAll(async () => {
+		filesDir = path.resolve('__tests__', 'files');
+
+		parentFilePath = path.join(filesDir, 'ZParent.PROC');
+		procedureNameFilePath = path.join(filesDir, 'ZProcedureName.PROC');
+
+		parsedParent = await parseFile(parentFilePath);
+	});
+
+	test('Find local method', async () => {
+		const paths: utilities.FinderPaths = {
+			corePsl: '',
+			projectPsl: [filesDir],
+			routine: parentFilePath,
+			table: '',
+		};
+		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedParent, paths);
+		let result = await finder.resolveResult([
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodInParent', { character: 15, line: 4 })
+		]);
+		expect(result).toBeDefined();
+		expect(result.member.memberClass).toBe(MemberClass.method);
+		expect(result.member.id.value).toBe('methodInParent');
+		expect(result.fsPath).toBe(parentFilePath);
+	});
+
+	test('Find method in current procedure', async () => {
+		const paths: utilities.FinderPaths = {
+			corePsl: '',
+			projectPsl: [filesDir],
+			routine: parentFilePath,
+			table: '',
+		};
+		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedParent, paths);
+		let result = await finder.resolveResult([
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'ZParent', { character: 26, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodInParent', { character: 15, line: 4 })
+		]);
+		expect(result).toBeDefined();
+		expect(result.member.memberClass).toBe(MemberClass.method);
+		expect(result.member.id.value).toBe('methodInParent');
+		expect(result.fsPath).toBe(parentFilePath);
+	});
+
+	test('Find method in external procedure', async () => {
+		const paths: utilities.FinderPaths = {
+			corePsl: '',
+			projectPsl: [filesDir],
+			routine: parentFilePath,
+			table: '',
+		};
+		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedParent, paths);
+		let result = await finder.resolveResult([
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'ZProcedureName', { character: 26, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodName', { character: 15, line: 4 })
+		]);
+		expect(result).toBeDefined();
+		expect(result.member.memberClass).toBe(MemberClass.method);
+		expect(result.member.id.value).toBe('methodName');
+		expect(result.fsPath).toBe(procedureNameFilePath);
+	});
+
+	test('Find external procedure', async () => {
+		const paths: utilities.FinderPaths = {
+			corePsl: '',
+			projectPsl: [filesDir],
+			routine: parentFilePath,
+			table: '',
+		};
+		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedParent, paths);
+		let result = await finder.resolveResult([
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'ZProcedureName', { character: 26, line: 4 })
+		]);
+		expect(result).toBeDefined();
+		expect(result.fsPath).toBe(procedureNameFilePath);
+	});
+});
+
+describe('ParsedDocFinder.searchParser', () => {
 	let filesDir: string;
 
 	let parentFilePath: string;
