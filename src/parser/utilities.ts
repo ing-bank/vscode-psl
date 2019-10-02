@@ -64,12 +64,12 @@ export class ParsedDocFinder {
 						fsPath: this.paths.activeRoutine,
 					};
 				}
-				
+
 				// naive check for custom procedures (does it match an existing psl file?)
 				finder = await finder.newFinder(callTokens[0].value);
 				if (finder) {
 					return {
-						fsPath: finder.paths.routine,
+						fsPath: finder.paths.activeRoutine,
 					};
 				}
 			}
@@ -106,7 +106,7 @@ export class ParsedDocFinder {
 					else {
 						result = await finder.searchParser(token);
 					}
-				
+
 					// naive check for custom procedures (does it match an existing psl file?)
 					let procedureFinder = await finder.newFinder(callTokens[0].value);
 					if (procedureFinder) {
