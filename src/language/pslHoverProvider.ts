@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
+import { FinderPaths, getFinderPaths } from '../parser/config';
 import * as parser from '../parser/parser';
-import * as lang from './lang';
 import * as utils from '../parser/utilities';
+import * as lang from './lang';
 
 export class PSLHoverProvider implements vscode.HoverProvider {
 
@@ -20,22 +20,15 @@ export class PSLHoverProvider implements vscode.HoverProvider {
 
 		let callTokens = utils.getCallTokens(tokensOnLine, index);
 		if (callTokens.length === 0) return;
-		let paths: utils.FinderPaths = {
-			routine: document.fileName,
-			corePsl: path.join(workspaceDirectory.uri.fsPath, lang.relativeCorePath),
-			projectPsl: lang.relativeProjectPath.concat(lang.relativeCorePath).map(pslPath => path.join(workspaceDirectory.uri.fsPath, pslPath)),
-			table: path.join(workspaceDirectory.uri.fsPath, lang.relativeTablePath),
-		}
+		let paths: FinderPaths = getFinderPaths(workspaceDirectory.uri.fsPath, document.fileName);
 		let finder = new utils.ParsedDocFinder(parsedDoc, paths, lang.getWorkspaceDocumentText);
 		let resolvedResult = await finder.resolveResult(callTokens);
-		if (resolvedResult) return getHover(resolvedResult, paths.table);
+		if (resolvedResult) return getHover(resolvedResult, finder);
 	}
 }
 
-
-
-async function getHover(result: utils.FinderResult, tableDirectory: string): Promise<vscode.Hover> {
-	let { code, markdown } = await lang.getDocumentation(result, tableDirectory);
+async function getHover(result: utils.FinderResult, finder: utils.ParsedDocFinder): Promise<vscode.Hover> {
+	let { code, markdown } = await lang.getDocumentation(result, finder);
 
 	let clean = markdown.replace(/\s*(DOC)?\s*\-+/, '').replace(/\*+\s+ENDDOC/, '').trim();
 	clean = clean

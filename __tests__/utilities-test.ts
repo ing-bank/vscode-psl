@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { FinderPaths } from '../src/parser/config';
 import { MemberClass, ParsedDocument, parseFile } from '../src/parser/parser';
 import * as tokenizer from '../src/parser/tokenizer';
 import * as utilities from '../src/parser/utilities';
@@ -210,6 +211,15 @@ describe('ParsedDocFinder.searchParser', () => {
 	let parsedParent: ParsedDocument;
 	let parsedChild: ParsedDocument;
 
+	const getPaths = (activeRoutine: string): FinderPaths => {
+		return {
+			activeRoutine,
+			corePsl: '',
+			projectPsl: [filesDir],
+			tables: [],
+		};
+	}
+
 	beforeAll(async () => {
 		filesDir = path.resolve('__tests__', 'files');
 
@@ -221,12 +231,7 @@ describe('ParsedDocFinder.searchParser', () => {
 	});
 
 	test('Find dummy in child', async () => {
-		const paths: utilities.FinderPaths = {
-			corePsl: '',
-			projectPsl: [filesDir],
-			routine: childFilePath,
-			table: '',
-		};
+		const paths = getPaths(childFilePath);
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
 		const result = await searchParser(finder, 'dummy', { character: 0, line: 0 });
 		expect(result.member.memberClass).toBe(MemberClass.property);
@@ -235,12 +240,7 @@ describe('ParsedDocFinder.searchParser', () => {
 	});
 
 	test('Find property in child', async () => {
-		const paths: utilities.FinderPaths = {
-			corePsl: '',
-			projectPsl: [filesDir],
-			routine: childFilePath,
-			table: '',
-		};
+		const paths = getPaths(childFilePath);
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
 		const result = await searchParser(finder, 'propInChild', { character: 0, line: 0 });
 		expect(result.member.memberClass).toBe(MemberClass.property);
@@ -249,12 +249,7 @@ describe('ParsedDocFinder.searchParser', () => {
 	});
 
 	test('Find method in child', async () => {
-		const paths: utilities.FinderPaths = {
-			corePsl: '',
-			projectPsl: [filesDir],
-			routine: childFilePath,
-			table: '',
-		};
+		const paths = getPaths(childFilePath);
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
 		const result = await searchParser(finder, 'methodInChild', { character: 0, line: 0 });
 		expect(result.member.memberClass).toBe(MemberClass.method);
@@ -263,12 +258,7 @@ describe('ParsedDocFinder.searchParser', () => {
 	});
 
 	test('Find method overriden method in child', async () => {
-		const paths: utilities.FinderPaths = {
-			corePsl: '',
-			projectPsl: [filesDir],
-			routine: childFilePath,
-			table: '',
-		};
+		const paths = getPaths(childFilePath);
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
 		const result = await searchParser(finder, 'methodInParentAndChild', { character: 0, line: 0 });
 		expect(result.member.memberClass).toBe(MemberClass.method);
@@ -277,12 +267,7 @@ describe('ParsedDocFinder.searchParser', () => {
 	});
 
 	test('Find method inherited method in parent', async () => {
-		const paths: utilities.FinderPaths = {
-			corePsl: '',
-			projectPsl: [filesDir],
-			routine: childFilePath,
-			table: '',
-		};
+		const paths = getPaths(childFilePath);
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
 		const result = await searchParser(finder, 'methodInParent', { character: 0, line: 0 });
 		expect(result.member.memberClass).toBe(MemberClass.method);
@@ -291,12 +276,7 @@ describe('ParsedDocFinder.searchParser', () => {
 	});
 
 	test('Find method in parent', async () => {
-		const paths: utilities.FinderPaths = {
-			corePsl: '',
-			projectPsl: [filesDir],
-			routine: parentFilePath,
-			table: '',
-		};
+		const paths = getPaths(parentFilePath);
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedParent, paths);
 		const result = await searchParser(finder, 'methodInParent', { character: 0, line: 0 });
 		expect(result.member.memberClass).toBe(MemberClass.method);
@@ -305,12 +285,7 @@ describe('ParsedDocFinder.searchParser', () => {
 	});
 
 	test('Find y in methodInChild', async () => {
-		const paths: utilities.FinderPaths = {
-			corePsl: '',
-			projectPsl: [filesDir],
-			routine: childFilePath,
-			table: '',
-		};
+		const paths = getPaths(childFilePath);
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
 		const result = await searchParser(finder, 'y', { character: 0, line: 12 });
 		expect(result.member.memberClass).toBe(MemberClass.declaration);
@@ -319,36 +294,21 @@ describe('ParsedDocFinder.searchParser', () => {
 	});
 
 	test('Do not find x', async () => {
-		const paths: utilities.FinderPaths = {
-			corePsl: '',
-			projectPsl: [filesDir],
-			routine: childFilePath,
-			table: '',
-		};
+		const paths = getPaths(childFilePath);
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
 		const result = await searchParser(finder, 'x', { character: 0, line: 12 });
 		expect(result).toBeUndefined();
 	});
 
 	test('Do not find reallySpecificName', async () => {
-		const paths: utilities.FinderPaths = {
-			corePsl: '',
-			projectPsl: [filesDir],
-			routine: childFilePath,
-			table: '',
-		};
+		const paths = getPaths(childFilePath);
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedChild, paths);
 		const result = await searchParser(finder, 'reallySpecificName', { character: 0, line: 10 });
 		expect(result).toBeUndefined();
 	});
 
 	test('Do find reallySpecificName', async () => {
-		const paths: utilities.FinderPaths = {
-			corePsl: '',
-			projectPsl: [filesDir],
-			routine: parentFilePath,
-			table: '',
-		};
+		const paths = getPaths(parentFilePath);
 		const finder: utilities.ParsedDocFinder = new utilities.ParsedDocFinder(parsedParent, paths);
 		const result = await searchParser(finder, 'reallySpecificName', { character: 0, line: 10 });
 		expect(result.member.memberClass).toBe(MemberClass.declaration);
