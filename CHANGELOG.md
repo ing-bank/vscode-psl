@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
+# v1.11.1
+
+* Scope the setting `psl.trailingNewline` to resource
+
 # v1.11.0
 
 Allow sources to be split across multiple projects with a `profile-project.json`. Current functionality is *unstable* and is 
