@@ -120,7 +120,7 @@ export async function getCommandenvConfigQuickPick(envs: environment.Environment
 }
 
 export function writeFileWithSettings(fsPath: string, output: string): Promise<void> {
-	const trailingNewline: NEWLINE_SETTING = vscode.workspace.getConfiguration('psl', vscode.Uri.parse(fsPath)).get('trailingNewline');
+	const trailingNewline: NEWLINE_SETTING = vscode.workspace.getConfiguration('psl', vscode.Uri.file(fsPath)).get('trailingNewline');
 	switch (trailingNewline) {
 		case NEWLINE_SETTING.ALWAYS:
 			if (!output.endsWith('\n')) output += detectNewline(output);

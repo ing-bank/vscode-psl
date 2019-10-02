@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
-# v1.11.1
+# v1.11.2
 
 * Scope the setting `psl.trailingNewline` to resource
 
