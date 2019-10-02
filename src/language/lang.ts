@@ -11,10 +11,6 @@ export interface Documentation {
 	markdown: string;
 }
 
-export const relativeCorePath = '.vscode/pslcls/';
-export const relativeProjectPath = ['dataqwik/procedure/', 'test/psl/utgood/', 'test/psl/stgood/'];
-export const relativeTablePath = 'dataqwik/table/';
-
 export async function getDocumentation(result: utils.FinderResult, finder: utils.ParsedDocFinder): Promise<Documentation> {
 	const { fsPath, member } = result;
 	if (!member) {
