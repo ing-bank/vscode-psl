@@ -51,6 +51,9 @@ function buildText(method: parser.Method): string {
 		if (p.ret) {
 			parameterString += 'ret ';
 		}
+		if (p.noret) {
+			parameterString += 'noret ';
+		}
 		if (p.literal) {
 			parameterString += 'literal ';
 		}

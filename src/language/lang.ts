@@ -53,7 +53,7 @@ export async function getDocumentation(result: utils.FinderResult, finder: utils
 		const sigArray: Token[] = [...method.modifiers, method.types[0], method.id];
 		const sig: string = sigArray.filter(Boolean).map(t => t.value).join(' ');
 		const argString: string = method.parameters
-			.map(param => `${param.types[0].value} ${param.id.value}`)
+			.map(param => getParameterDocumentation(param))
 			.join('\n\u200B , ');
 		let code = '';
 		if (method.parameters.length === 0) code = `${sig}(${argString})`;
@@ -106,7 +106,20 @@ export async function getDocumentation(result: utils.FinderResult, finder: utils
 		}
 		return { code, markdown };
 	}
+}
 
+function getParameterDocumentation(param: parser.Parameter): string {
+	let decorators = "";
+	if (param.req) {
+		decorators += "req ";
+	}
+	if (param.ret) {
+		decorators += "ret ";
+	}
+	if (param.noret) {
+		decorators += "noret ";
+	}
+	return `${decorators}${param.types[0].value} ${param.id.value}`;
 }
 
 export async function getWorkspaceDocumentText(fsPath: string): Promise<string> {
