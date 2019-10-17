@@ -355,6 +355,21 @@ function getChildNode(tokensOnLine: Token[], index: number): Node | undefined {
 		if (!routineToken) return undefined;
 		return { parent: { token: routineToken, routine: true }, token: currentToken };
 	}
+	
+	if (currentToken.isDollarSign()) {
+		let methodStartsAtIndex = -1;
+		if (previousToken && previousToken.isDollarSign()) {
+			methodStartsAtIndex = index + 1;
+		}
+		else if (nextToken && nextToken.isDollarSign()) {
+			methodStartsAtIndex = index + 2;
+		}
+
+		if (methodStartsAtIndex >= 0) {
+			return getChildNode(tokensOnLine, methodStartsAtIndex);
+		}
+	}
+	
 	if (currentToken.isAlphanumeric()) {
 		return { token: currentToken, routine };
 	}
