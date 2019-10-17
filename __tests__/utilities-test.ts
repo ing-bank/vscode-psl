@@ -27,6 +27,27 @@ describe('getCallTokens', () => {
 		expect(result.length).toBe(0);
 	});
 
+	test('Do not get anything for dollar signs with no alphanumeric token next', async () => {
+		const tokensOnLine = [
+			new tokenizer.Token(tokenizer.Type.Tab, 		 '\t', { character: 0, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'set', { character: 1, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 4, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'value', { character: 5, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 10, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.EqualSign, 	 '=', { character: 11, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space, 		 ' ', { character: 12, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 13, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 14, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space, 		 ' ', { character: 15, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodName', { character: 16, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Caret, 		  '^', { character: 26, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'ZProcedureName', { character: 27, line: 4 })
+		];
+		const index = 8
+		let result = utilities.getCallTokens(tokensOnLine, index);
+		expect(result.length).toBe(0);
+	});
+
 	test('Get field under cursor', async () => {
 		const tokensOnLine = [
 			new tokenizer.Token(tokenizer.Type.Tab, 		 '\t', { character: 0, line: 4 }),
