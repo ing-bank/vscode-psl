@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { PSL_MODE } from '../extension';
+import { BATCH_MODE, PSL_MODE, TRIG_MODE } from '../extension';
 import * as parser from '../parser/parser';
 import { getDiagnostics } from '../pslLint/activate';
 import * as api from '../pslLint/api';
@@ -38,11 +38,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		lintDiagnostics.delete(closedDocument.uri);
 	});
 
-	context.subscriptions.push(
-		vscode.languages.registerCodeActionsProvider(
-			PSL_MODE, new PSLActionProvider(),
-		),
-	);
+	const actionProvider = new PSLActionProvider();
+
+	for (const mode of [PSL_MODE, BATCH_MODE, TRIG_MODE]) {
+		context.subscriptions.push(
+			vscode.languages.registerCodeActionsProvider(
+				mode, actionProvider,
+			),
+		);
+	}
 }
 
 async function pslLintConfigurationWatchers(context: vscode.ExtensionContext) {

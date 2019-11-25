@@ -54,7 +54,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 			if (diagnostic.ruleName === MethodDocumentation.name) {
 				const documentationAction = initializeAction('Add documentation block.', diagnostic);
 
-				let docText = `\t/* DOC ----------------------------------------------------------------${newLine}\t`
+				let docText = `\t/* DOC -----------------------------------------------------------------${newLine}\t`
 					+ `TODO: description of label ${method.id.value}${newLine}${newLine}`;
 				const terminator = `\t** ENDDOC */${newLine}`;
 				if (method.parameters.length > 0) {
