@@ -56,11 +56,19 @@ export class DirectMode {
 	}
 
 	zStep(step: 'INTO' | 'OUTOF' | 'OVER'): Observable<string> {
-		return this.execute(`ZSTEP ${step}:"ZPRINT @$ZPOS"`);
+		return this.execute(`ZSTEP ${step}`);
 	}
 
 	zContinue(): Observable<string> {
 		return this.execute(`ZCONTINUE`);
+	}
+
+	getBreakPoints(): Observable<string> {
+		return this.execute(`ZSHOW "B"`);
+	}
+
+	setBreakPoint(location: string): Observable<string> {
+		return this.execute(`ZBREAK ${location}`);
 	}
 
 	listen(): void {

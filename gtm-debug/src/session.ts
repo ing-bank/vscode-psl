@@ -10,6 +10,8 @@ import {
 } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { DirectMode } from './directMode';
+import { Observable, forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 const { Subject } = require('await-notify');
 
 /**
@@ -32,6 +34,8 @@ export class GtmDebugSession extends LoggingDebugSession {
 
 	private variableHandles = new Handles<string>();
 	private configurationDone = new Subject();
+
+	private sources = new Map<string, string>();
 
 	/**
 	 * Creates a new debug adapter that is used for one debug session.
@@ -59,6 +63,8 @@ export class GtmDebugSession extends LoggingDebugSession {
 
 		// make VS Code send the breakpointLocations request
 		response.body.supportsBreakpointLocationsRequest = true;
+
+		// response.body.supportsFunctionBreakpoints = true;
 
 		this.sendResponse(response);
 
@@ -114,17 +120,37 @@ export class GtmDebugSession extends LoggingDebugSession {
 		this.sendResponse(response);
 	}
 
+	protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): void {
+		if (!args.source?.name || !args.breakpoints) {
+			this.sendResponse(response);
+			return;
+		}
+		const routineName = args.source.name.replace('.m', '');
+		args.breakpoints?.forEach(breakpoint => {
+			this.directMode.setBreakPoint(`+${breakpoint.line}^${routineName}`);
+		});
+		response.body = {
+			breakpoints: args.breakpoints.map(b => ({ ...b, verified: true }))
+		}
+		this.sendResponse(response);
+	}
+
 	protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void {
 		this.directMode.zShow().subscribe(stack => {
 			const frames = stack.match(/(%?\w+)?\+?(\d+)?\^(%?\w+(\+\d+)?)/g);
 			if (frames) {
-				response.body = {
-					stackFrames: frames.map(
-						(f, i) => new StackFrame(i, f, this.createSource(f))
-					),
-					totalFrames: frames.length
-				};
-				this.sendResponse(response);
+				forkJoin(frames.map(location => {
+					return this.createSource(location);
+				})).subscribe(sources => {
+					const stackFrames = sources.map((sourced, i) => {
+						return new StackFrame(i, sourced.location, sourced.source, sourced.documentLineNumber);
+					})
+					response.body = {
+						stackFrames,
+						totalFrames: frames.length
+					};
+					this.sendResponse(response);
+				})
 			}
 		});
 	}
@@ -171,7 +197,7 @@ export class GtmDebugSession extends LoggingDebugSession {
 
 	protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void {
 		this.directMode.zContinue().subscribe(output => {
-			this.sendEvent(new OutputEvent(output, 'console'));
+			this.sendEvent(new OutputEvent(output, 'stdout'));
 			this.sendEvent(new StoppedEvent('breakpoint', GtmDebugSession.THREAD_ID));
 		})
 		response.body = { allThreadsContinued: true }
@@ -180,7 +206,7 @@ export class GtmDebugSession extends LoggingDebugSession {
 
 	protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments): void {
 		this.directMode.zStep('OVER').subscribe(output => {
-			this.sendEvent(new OutputEvent(output, 'console'));
+			this.sendEvent(new OutputEvent(output, 'stdout'));
 			this.sendEvent(new StoppedEvent('step', GtmDebugSession.THREAD_ID));
 		})
 		this.sendResponse(response);
@@ -188,7 +214,7 @@ export class GtmDebugSession extends LoggingDebugSession {
 
 	protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments, request?: DebugProtocol.Request): void {
 		this.directMode.zStep('INTO').subscribe(output => {
-			this.sendEvent(new OutputEvent(output, 'console'));
+			this.sendEvent(new OutputEvent(output, 'stdout'));
 
 			this.sendEvent(new StoppedEvent('step', GtmDebugSession.THREAD_ID));
 		})
@@ -197,7 +223,7 @@ export class GtmDebugSession extends LoggingDebugSession {
 
 	protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments, request?: DebugProtocol.Request): void {
 		this.directMode.zStep('OUTOF').subscribe(output => {
-			this.sendEvent(new OutputEvent(output, 'console'));
+			this.sendEvent(new OutputEvent(output, 'stdout'));
 
 			this.sendEvent(new StoppedEvent('step', GtmDebugSession.THREAD_ID));
 		})
@@ -216,8 +242,26 @@ export class GtmDebugSession extends LoggingDebugSession {
 		}
 	}
 
-	private createSource(location: string) {
-		const routineName = location.split('^')[1];
-		return new Source(`${routineName}.m`)
+	private createSource(location: string): Observable<Sourced> {
+		const [, label, line, routineName] = (/(%?\w+)?\+?(\d+)?\^(%?\w+(\+\d+)?)/).exec(location) as RegExpExecArray;
+		return this.directMode.zPrint(`^${routineName}`).pipe(
+			map(sourceCode => {
+				this.sources.set(routineName, sourceCode);
+				const labelLineNumber: number = label ? sourceCode.split(/\r?\n/).findIndex(line => line.startsWith(label)) + 1 : 0;
+				const documentLineNumber = labelLineNumber + (line ? Number.parseInt(line) : 0)
+				return {
+					source: new Source(`${routineName}.m`),
+					documentLineNumber,
+					location,
+				}
+			})
+		)
 	}
+}
+
+
+interface Sourced {
+	source: Source;
+	documentLineNumber: number;
+	location: string;
 }
