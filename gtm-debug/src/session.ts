@@ -6,11 +6,11 @@ import {
 	Logger, logger,
 	LoggingDebugSession,
 	InitializedEvent, StoppedEvent,
-	Thread, StackFrame, Scope, Source, Handles, OutputEvent
+	Thread, StackFrame, Scope, Source, Handles, OutputEvent, LoadedSourceEvent
 } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { DirectMode } from './directMode';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 const { Subject } = require('await-notify');
 
@@ -35,7 +35,9 @@ export class GtmDebugSession extends LoggingDebugSession {
 	private variableHandles = new Handles<string>();
 	private configurationDone = new Subject();
 
-	private sources = new Map<string, string>();
+	private sources = new Map<string, { sourceCode: string, source: Source }>();
+	private functionBreakpoints: DebugProtocol.FunctionBreakpoint[] = [];
+	private sourceBreakpoints = new Map<string, DebugProtocol.SourceBreakpoint[]>();
 
 	/**
 	 * Creates a new debug adapter that is used for one debug session.
@@ -61,17 +63,11 @@ export class GtmDebugSession extends LoggingDebugSession {
 		// the adapter implements the configurationDoneRequest.
 		response.body.supportsConfigurationDoneRequest = true;
 
-		// make VS Code send the breakpointLocations request
-		response.body.supportsBreakpointLocationsRequest = true;
+		response.body.supportsFunctionBreakpoints = true;
 
-		// response.body.supportsFunctionBreakpoints = true;
+		response.body.supportsLoadedSourcesRequest = true;
 
 		this.sendResponse(response);
-
-		// since this debug adapter can accept configuration requests like 'setBreakpoint' at any time,
-		// we request them early by sending an 'initializeRequest' to the frontend.
-		// The frontend will end the configuration sequence by calling 'configurationDone' request.
-		this.sendEvent(new InitializedEvent());
 	}
 
 	/**
@@ -105,7 +101,7 @@ export class GtmDebugSession extends LoggingDebugSession {
 				this.sendEvent(new StoppedEvent('exception', GtmDebugSession.THREAD_ID));
 			}
 		})
-		this.sendEvent(new StoppedEvent('entry', GtmDebugSession.THREAD_ID));
+		this.sendEvent(new InitializedEvent());
 
 		this.sendResponse(response);
 	}
@@ -125,14 +121,55 @@ export class GtmDebugSession extends LoggingDebugSession {
 			this.sendResponse(response);
 			return;
 		}
+		const breakpoints: DebugProtocol.SourceBreakpoint[] = args.breakpoints;
+		const sourceName = args.source.name;
+		const breakpointsForSource = this.sourceBreakpoints.get(sourceName);
+
 		const routineName = args.source.name.replace('.m', '');
-		args.breakpoints?.forEach(breakpoint => {
-			this.directMode.setBreakPoint(`+${breakpoint.line}^${routineName}`);
-		});
-		response.body = {
-			breakpoints: args.breakpoints.map(b => ({ ...b, verified: true }))
+
+		if (breakpointsForSource) {
+			breakpointsForSource.forEach(breakpoint => {
+				const location = `+${breakpoint.line}^${routineName}`;
+				this.directMode.setBreakPoint(`-${location}`).subscribe();
+			});
 		}
-		this.sendResponse(response);
+
+		breakpoints.forEach(breakpoint => {
+			const location = `+${breakpoint.line}^${routineName}`;
+			this.createSource(location).subscribe(source => {
+				const verifiedBreakpoints = breakpoints.map(b => ({ ...b, verified: true, source: source.source }));
+
+				response.body = {
+					breakpoints: verifiedBreakpoints
+				};
+				this.sourceBreakpoints.set(sourceName, verifiedBreakpoints);
+				this.sendResponse(response);
+			});
+			this.directMode.setBreakPoint(location).subscribe();
+		});
+	}
+
+	protected setFunctionBreakPointsRequest(response: DebugProtocol.SetFunctionBreakpointsResponse, args: DebugProtocol.SetFunctionBreakpointsArguments) {
+		this.functionBreakpoints.forEach(breakpoint => {
+			this.directMode.setBreakPoint(`-${breakpoint.name}`).subscribe();
+		});
+
+		if (!args.breakpoints) {
+			this.sendResponse(response);
+			return;
+		}
+		args.breakpoints?.forEach(breakpoint => {
+			const location = breakpoint.name;
+			this.createSource(location).subscribe(source => {
+				const verifiedBreakpoints = args.breakpoints.map(b => ({ ...b, verified: true, source: source.source }));
+				response.body = {
+					breakpoints: verifiedBreakpoints
+				};
+				this.functionBreakpoints = verifiedBreakpoints;
+				this.sendResponse(response);
+			});
+			this.directMode.setBreakPoint(location).subscribe();
+		});
 	}
 
 	protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void {
@@ -155,17 +192,32 @@ export class GtmDebugSession extends LoggingDebugSession {
 		});
 	}
 
-	protected sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments, request?: DebugProtocol.Request) {
+	protected sourceRequest(response: DebugProtocol.SourceResponse, args: DebugProtocol.SourceArguments) {
 		let location: string | undefined;
 
 		if (args.source?.name) {
 			const routineName = args.source.name.replace('.m', '');
 			location = `^${routineName}`;
 		}
+		else if (args.source?.path) {
+			const routineName = args.source.path.replace('.m', '');
+			location = `^${routineName}`;
+		}
 		this.directMode.zPrint(location).subscribe(content => {
 			response.body = { content };
 			this.sendResponse(response);
 		});
+	}
+
+	protected loadedSourcesRequest(response: DebugProtocol.LoadedSourcesResponse, args: DebugProtocol.LoadedSourcesArguments): void {
+		const sources: Source[] = [];
+		for (const source of this.sources.values()) {
+			sources.push(source.source);
+		}
+		response.body = {
+			sources
+		}
+		this.sendResponse(response);
 	}
 
 	protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void {
@@ -177,7 +229,7 @@ export class GtmDebugSession extends LoggingDebugSession {
 		this.sendResponse(response);
 	}
 
-	protected variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments, request?: DebugProtocol.Request) {
+	protected variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments) {
 		this.directMode.zWrite().subscribe(variableOutput => {
 			const variables: DebugProtocol.Variable[] = variableOutput.split('\n').map(v => {
 				return {
@@ -188,14 +240,14 @@ export class GtmDebugSession extends LoggingDebugSession {
 			})
 
 			response.body = {
-				variables: variables
+				variables
 			};
 
 			this.sendResponse(response);
 		});
 	}
 
-	protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void {
+	protected continueRequest(response: DebugProtocol.ContinueResponse): void {
 		this.directMode.zContinue().subscribe(output => {
 			this.sendEvent(new OutputEvent(output, 'stdout'));
 			this.sendEvent(new StoppedEvent('breakpoint', GtmDebugSession.THREAD_ID));
@@ -204,7 +256,7 @@ export class GtmDebugSession extends LoggingDebugSession {
 		this.sendResponse(response);
 	}
 
-	protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments): void {
+	protected nextRequest(response: DebugProtocol.NextResponse): void {
 		this.directMode.zStep('OVER').subscribe(output => {
 			this.sendEvent(new OutputEvent(output, 'stdout'));
 			this.sendEvent(new StoppedEvent('step', GtmDebugSession.THREAD_ID));
@@ -212,7 +264,7 @@ export class GtmDebugSession extends LoggingDebugSession {
 		this.sendResponse(response);
 	}
 
-	protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments, request?: DebugProtocol.Request): void {
+	protected stepInRequest(response: DebugProtocol.StepInResponse): void {
 		this.directMode.zStep('INTO').subscribe(output => {
 			this.sendEvent(new OutputEvent(output, 'stdout'));
 
@@ -221,7 +273,7 @@ export class GtmDebugSession extends LoggingDebugSession {
 		this.sendResponse(response);
 	}
 
-	protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments, request?: DebugProtocol.Request): void {
+	protected stepOutRequest(response: DebugProtocol.StepOutResponse): void {
 		this.directMode.zStep('OUTOF').subscribe(output => {
 			this.sendEvent(new OutputEvent(output, 'stdout'));
 
@@ -240,22 +292,46 @@ export class GtmDebugSession extends LoggingDebugSession {
 				this.sendResponse(response);
 			});
 		}
+		else if (args.context === 'watch') {
+			this.directMode.execute(args.expression).subscribe(result => {
+				response.body = {
+					result: `"${result.trim()}"`,
+					type: 'string',
+					variablesReference: 0,
+				};
+				this.sendResponse(response);
+			});
+		}
 	}
 
 	private createSource(location: string): Observable<Sourced> {
 		const [, label, line, routineName] = (/(%?\w+)?\+?(\d+)?\^(%?\w+(\+\d+)?)/).exec(location) as RegExpExecArray;
-		return this.directMode.zPrint(`^${routineName}`).pipe(
-			map(sourceCode => {
-				this.sources.set(routineName, sourceCode);
-				const labelLineNumber: number = label ? sourceCode.split(/\r?\n/).findIndex(line => line.startsWith(label)) + 1 : 0;
-				const documentLineNumber = labelLineNumber + (line ? Number.parseInt(line) : 0)
-				return {
-					source: new Source(`${routineName}.m`),
-					documentLineNumber,
-					location,
-				}
+		if (!this.sources.has(routineName)) {
+			return this.directMode.zPrint(`^${routineName}`).pipe(
+				map(sourceCode => {
+					const source = new Source(`${routineName}.m`, `${routineName}.m`, 1);
+					this.sources.set(routineName, { sourceCode, source });
+					this.sendEvent(new LoadedSourceEvent('new', source));
+					const labelLineNumber: number = label ? sourceCode.split(/\r?\n/).findIndex(line => line.startsWith(label)) + 1 : 0;
+					const documentLineNumber = labelLineNumber + (line ? Number.parseInt(line) : 0)
+					return {
+						source,
+						documentLineNumber,
+						location,
+					}
+				})
+			)
+		}
+		else {
+			const source = this.sources.get(routineName) as { sourceCode: string, source: Source };
+			const labelLineNumber: number = label ? source.sourceCode.split(/\r?\n/).findIndex(line => line.startsWith(label)) + 1 : 0;
+			const documentLineNumber = labelLineNumber + (line ? Number.parseInt(line) : 0);
+			return of({
+				source: source.source,
+				documentLineNumber,
+				location,
 			})
-		)
+		}
 	}
 }
 
