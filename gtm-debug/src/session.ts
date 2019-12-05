@@ -38,6 +38,7 @@ export class GtmDebugSession extends LoggingDebugSession {
 	private sources = new Map<string, { sourceCode: string, source: Source }>();
 	private functionBreakpoints: DebugProtocol.FunctionBreakpoint[] = [];
 	private sourceBreakpoints = new Map<string, DebugProtocol.SourceBreakpoint[]>();
+	private globalVariableReference: number = this.variableHandles.create("global");
 
 	/**
 	 * Creates a new debug adapter that is used for one debug session.
@@ -223,28 +224,86 @@ export class GtmDebugSession extends LoggingDebugSession {
 	protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void {
 		response.body = {
 			scopes: [
-				new Scope("Global", this.variableHandles.create("global"), false),
+				new Scope("Global", this.globalVariableReference, false),
 			]
 		};
 		this.sendResponse(response);
 	}
 
 	protected variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments) {
-		this.directMode.zWrite().subscribe(variableOutput => {
-			const variables: DebugProtocol.Variable[] = variableOutput.split('\n').map(v => {
-				return {
-					name: v.split('=')[0],
-					value: v.split('=').slice(1).join('='),
-					variablesReference: 0
-				}
-			})
+		const id = this.variableHandles.get(args.variablesReference);
+		const variables: DebugProtocol.Variable[] = [];
+		const noded: string[] = [];
+		if (args.variablesReference === this.globalVariableReference) {
+			this.directMode.zWrite().subscribe(variableOutput => {
+				variableOutput.split('\n').forEach(v => {
+					if (!v) { return; }
+					const variable = this.loadVariable(v);
+					if (variable.node && !noded.includes(variable.name)) {
+						const variablesReference = this.variableHandles.create(variable.name);
+						variables.push({
+							name: variable.name,
+							variablesReference,
+							value: 'Tree',
+						});
+						noded.push(variable.name);
+					}
+					else if (!variable.node) {
+						variables.push({
+							name: variable.name,
+							variablesReference: 0,
+							value: variable.value,
+						});
+					}
+				});
 
-			response.body = {
-				variables
-			};
+				response.body = {
+					variables
+				};
 
-			this.sendResponse(response);
-		});
+				this.sendResponse(response);
+			});
+		}
+		else if (id) {
+			this.directMode.zWrite(id).subscribe(variableOutput => {
+				variableOutput.split('\n').forEach(v => {
+					if (!v) { return; }
+					const variable = this.loadVariable(v);
+					if (variable.node) {
+						variables.push({
+							name: variable.node,
+							variablesReference: 0,
+							value: variable.value,
+						});
+					}
+				});
+
+				response.body = {
+					variables
+				};
+
+				this.sendResponse(response);
+			});
+		}
+
+	}
+
+	private loadVariable(zWriteLine: string): MumpsVariable {
+		const left = zWriteLine.split('=')[0];
+		const leftParen = left.indexOf('(');
+		if (leftParen === -1) {
+			return {
+				name: left,
+				value: zWriteLine.split('=').slice(1).join('='),
+			}
+		}
+		else {
+			return {
+				name: left.slice(0, leftParen),
+				node: left.slice(leftParen),
+				value: zWriteLine.split('=').slice(1).join('='),
+			}
+		}
 	}
 
 	protected continueRequest(response: DebugProtocol.ContinueResponse): void {
@@ -340,4 +399,10 @@ interface Sourced {
 	source: Source;
 	documentLineNumber: number;
 	location: string;
+}
+
+interface MumpsVariable {
+	name: string;
+	node?: string;
+	value: string;
 }

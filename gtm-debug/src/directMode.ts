@@ -47,8 +47,8 @@ export class DirectMode {
 		return this.execute(`ZPRINT ${location || ''}`);
 	}
 
-	zWrite(): Observable<string> {
-		return this.execute(`ZWRITE`);
+	zWrite(pattern?: string): Observable<string> {
+		return this.execute(`ZWRITE ${pattern || ''}`);
 	}
 
 	zShow(): Observable<string> {
