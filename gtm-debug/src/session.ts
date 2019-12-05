@@ -241,11 +241,17 @@ export class GtmDebugSession extends LoggingDebugSession {
 					const variable = this.loadVariable(v);
 					if (variable.node && !noded.includes(variable.name)) {
 						const variablesReference = this.variableHandles.create(variable.name);
-						variables.push({
-							name: variable.name,
-							variablesReference,
-							value: 'Tree',
-						});
+						const toUpdate = variables.find(v => v.name === variable.name);
+						if (toUpdate) {
+							toUpdate.variablesReference = variablesReference;
+						}
+						else {
+							variables.push({
+								name: variable.name,
+								variablesReference,
+								value: 'Tree',
+							});
+						}
 						noded.push(variable.name);
 					}
 					else if (!variable.node) {
@@ -265,7 +271,7 @@ export class GtmDebugSession extends LoggingDebugSession {
 			});
 		}
 		else if (id) {
-			this.directMode.zWrite(id).subscribe(variableOutput => {
+			this.directMode.zWrite(id.replace('*', '')).subscribe(variableOutput => {
 				variableOutput.split('\n').forEach(v => {
 					if (!v) { return; }
 					const variable = this.loadVariable(v);
