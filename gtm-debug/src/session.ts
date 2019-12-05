@@ -134,18 +134,17 @@ export class GtmDebugSession extends LoggingDebugSession {
 			});
 		}
 
-		breakpoints.forEach(breakpoint => {
-			const location = `+${breakpoint.line}^${routineName}`;
-			this.createSource(location).subscribe(source => {
-				const verifiedBreakpoints = breakpoints.map(b => ({ ...b, verified: true, source: source.source }));
-
-				response.body = {
-					breakpoints: verifiedBreakpoints
-				};
-				this.sourceBreakpoints.set(sourceName, verifiedBreakpoints);
-				this.sendResponse(response);
+		this.createSource(`^${routineName}`).subscribe(source => {
+			const verifiedBreakpoints = breakpoints.map(breakpoint => {
+				const location = `+${breakpoint.line}^${routineName}`;
+				this.directMode.setBreakPoint(location).subscribe();
+				return { ...breakpoint, verified: true, source: source.source }
 			});
-			this.directMode.setBreakPoint(location).subscribe();
+			response.body = {
+				breakpoints: verifiedBreakpoints
+			};
+			this.sourceBreakpoints.set(sourceName, verifiedBreakpoints);
+			this.sendResponse(response);
 		});
 	}
 
@@ -153,22 +152,23 @@ export class GtmDebugSession extends LoggingDebugSession {
 		this.functionBreakpoints.forEach(breakpoint => {
 			this.directMode.setBreakPoint(`-${breakpoint.name}`).subscribe();
 		});
-
 		if (!args.breakpoints) {
 			this.sendResponse(response);
 			return;
 		}
-		args.breakpoints?.forEach(breakpoint => {
+		forkJoin(args.breakpoints.map(breakpoint => {
 			const location = breakpoint.name;
-			this.createSource(location).subscribe(source => {
-				const verifiedBreakpoints = args.breakpoints.map(b => ({ ...b, verified: true, source: source.source }));
-				response.body = {
-					breakpoints: verifiedBreakpoints
-				};
-				this.functionBreakpoints = verifiedBreakpoints;
-				this.sendResponse(response);
-			});
 			this.directMode.setBreakPoint(location).subscribe();
+			return this.createSource(location);
+		})).subscribe(sources => {
+			const verifiedBreakpoints = args.breakpoints.map((b, i) => {
+				return { ...b, verified: true, source: sources[i].source }
+			});
+			this.functionBreakpoints = verifiedBreakpoints;
+			response.body = {
+				breakpoints: this.functionBreakpoints
+			}
+			this.sendResponse(response);
 		});
 	}
 
@@ -184,7 +184,7 @@ export class GtmDebugSession extends LoggingDebugSession {
 					})
 					response.body = {
 						stackFrames,
-						totalFrames: frames.length
+						totalFrames: frames.length,
 					};
 					this.sendResponse(response);
 				})
