@@ -1,3 +1,7 @@
+## v0.0.4
+
+Tree variable expansion
+
 ## v0.0.3
 
 Set source and function breakpoints from the UI. Corresponding routines will be available in "Loaded Scripts".

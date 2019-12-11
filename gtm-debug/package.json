@@ -1,7 +1,7 @@
 {
 	"name": "gtm-debug",
 	"displayName": "GT.M Debug",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"publisher": "ing-bank",
 	"description": "Debugger for GT.M database",
 	"author": {
