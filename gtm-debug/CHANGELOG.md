@@ -1,3 +1,7 @@
+## v0.0.5
+
+Kill Direct Mode process on debug disconnect
+
 ## v0.0.4
 
 Tree variable expansion

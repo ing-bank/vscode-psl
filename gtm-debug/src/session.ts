@@ -294,6 +294,12 @@ export class GtmDebugSession extends LoggingDebugSession {
 
 	}
 
+	protected disconnectRequest(response: DebugProtocol.DisconnectResponse, args: DebugProtocol.DisconnectArguments, request?: DebugProtocol.Request): void {
+		this.directMode.dmProcess.kill('SIGINT');
+		this.shutdown();
+		this.sendResponse(response);
+	}
+
 	private loadVariable(zWriteLine: string): MumpsVariable {
 		const left = zWriteLine.split('=')[0];
 		const leftParen = left.indexOf('(');
