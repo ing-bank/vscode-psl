@@ -2,7 +2,7 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "1.11.3",
+  "version": "1.11.4",
   "preview": true,
   "publisher": "ing-bank",
   "engines": {
@@ -802,11 +802,11 @@
     "@types/jest": "^23.3.8",
     "@types/minimatch": "^3.0.3",
     "@types/node": "^9.6.35",
-    "jest": "^24.7.1",
-    "ts-jest": "^23.10.4",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.5",
     "tslint": "^5.11.0",
     "typescript": "^3.4.5",
-    "vscode": "^1.1.33"
+    "vscode": "^1.1.37"
   },
   "dependencies": {
     "fs-extra": "^5.0.0",

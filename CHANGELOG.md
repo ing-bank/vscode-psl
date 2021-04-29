@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to the "vscode-psl" extension will be documented in this file.
 
+## v1.11.4
+
+Dependency updates
+
 ## v1.11.3
 
 * Code actions for batches and triggers
