@@ -1,0 +1,46 @@
+public void method1()
+	/*
+
+	*/
+	do {
+		write "something"
+	}
+
+	type Boolean x = false
+
+	// no quit
+	if x do {
+
+	}
+	type Number abcd =123
+	// with quit
+	if x do { quit:abcd>100
+
+	}
+	else if abcd=100 do {
+
+	}
+	else do {
+
+	}
+
+	while abcd<100 do {
+
+	}
+	// with post conditional quit
+	while abcd<100 do { quit:abcd=88
+
+	}
+
+	type Number i
+	// conventional
+	for i=0:1:10 do {
+		
+	}
+
+	type String dummy = ""
+	for  set dummy = abcd(dummy).order() quit:dummy.isNull()  do {
+		
+	}
+
+	quit
