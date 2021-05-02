@@ -158,7 +158,7 @@
 				},
 				{
 					"name": "storage.modifier.psl",
-					"match": "\\b(?<!\\.)(set|type|final|literal|new|private|readonly|protected|public|req|ret|static|super|kill|lock|unlock)\\b"
+					"match": "\\b(?<!\\.)(set|type|final|literal|new|private|readonly|protected|public|req|ret|noret|static|super|kill|lock|unlock)\\b"
 				},
 				{
 					"name": "keyword.control.psl",

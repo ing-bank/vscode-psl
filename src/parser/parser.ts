@@ -119,6 +119,11 @@ export interface Parameter extends Member {
 	ret: boolean;
 
 	/**
+	 * If the noret keyword is used
+	 */
+	noret: boolean;
+
+	/**
 	 * If the literal keyword is used.
 	 */
 	literal: boolean;
@@ -221,6 +226,7 @@ class _Parameter implements Parameter {
 	types: Token[];
 	req: boolean;
 	ret: boolean;
+	noret: boolean;
 	literal: boolean;
 	id: Token;
 	memberClass: MemberClass;
@@ -231,6 +237,7 @@ class _Parameter implements Parameter {
 		this.modifiers = [];
 		this.req = false;
 		this.ret = false;
+		this.noret = false;
 		this.literal = false;
 		this.memberClass = MemberClass.parameter;
 	}
@@ -762,6 +769,10 @@ class Parser {
 				else if (this.activeToken.value === 'ret') {
 					param.modifiers.push(this.activeToken);
 					param.ret = true;
+				}
+				else if (this.activeToken.value === 'noret') {
+					param.modifiers.push(this.activeToken);
+					param.noret = true;
 				}
 				else if (this.activeToken.value === 'literal') {
 					param.modifiers.push(this.activeToken);
