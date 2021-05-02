@@ -8,6 +8,163 @@ function getTokens(str: string): tokenizer.Token[] {
 	return [...tokenizer.getTokens(str)];
 }
 
+describe('getCallTokens', () => {
+	test('Do not get equal sign under cursor', async () => {
+		const tokensOnLine = [
+			new tokenizer.Token(tokenizer.Type.Tab, 		 '\t', { character: 0, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'set', { character: 1, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 4, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'value', { character: 5, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 10, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.EqualSign, 	 '=', { character: 11, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space, 		 ' ', { character: 12, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 13, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 14, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodName', { character: 15, line: 4 })
+		];
+		const index = 5
+		let result = utilities.getCallTokens(tokensOnLine, index);
+		expect(result.length).toBe(0);
+	});
+
+	test('Do not get anything for dollar signs with no alphanumeric token next', async () => {
+		const tokensOnLine = [
+			new tokenizer.Token(tokenizer.Type.Tab, 		 '\t', { character: 0, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'set', { character: 1, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 4, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'value', { character: 5, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 10, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.EqualSign, 	 '=', { character: 11, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space, 		 ' ', { character: 12, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 13, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 14, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space, 		 ' ', { character: 15, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodName', { character: 16, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Caret, 		  '^', { character: 26, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'ZProcedureName', { character: 27, line: 4 })
+		];
+		const index = 8
+		let result = utilities.getCallTokens(tokensOnLine, index);
+		expect(result.length).toBe(0);
+	});
+
+	test('Get field under cursor', async () => {
+		const tokensOnLine = [
+			new tokenizer.Token(tokenizer.Type.Tab, 		 '\t', { character: 0, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'set', { character: 1, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 4, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'value', { character: 5, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 10, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.EqualSign, 	 '=', { character: 11, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space, 		 ' ', { character: 12, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 13, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 14, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodName', { character: 15, line: 4 })
+		];
+		const index = 3
+		let result = utilities.getCallTokens(tokensOnLine, index);
+		expect(result[0].value).toBe("value");
+	});
+
+	test('Get returning method under cursor for first dollar sign', async () => {
+		const tokensOnLine = [
+			new tokenizer.Token(tokenizer.Type.Tab, 		 '\t', { character: 0, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'set', { character: 1, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 4, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'value', { character: 5, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 10, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.EqualSign, 	 '=', { character: 11, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space, 		 ' ', { character: 12, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 13, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 14, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodName', { character: 15, line: 4 })
+		];
+		const index = 7
+		let result = utilities.getCallTokens(tokensOnLine, index);
+		expect(result[0].value).toBe("methodName");
+	});
+
+	test('Get returning method and procedure for second dollar sign', async () => {
+		const tokensOnLine = [
+			new tokenizer.Token(tokenizer.Type.Tab, 		 '\t', { character: 0, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'set', { character: 1, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 4, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'value', { character: 5, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 10, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.EqualSign, 	 '=', { character: 11, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space, 		 ' ', { character: 12, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 13, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 14, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodName', { character: 15, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Caret, 		  '^', { character: 25, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'ZProcedureName', { character: 26, line: 4 })
+		];
+		const index = 8
+		let result = utilities.getCallTokens(tokensOnLine, index);
+		expect(result[0].value).toBe("ZProcedureName");
+		expect(result[1].value).toBe("methodName");
+	});
+
+	test('Get method under cursor', async () => {
+		const tokensOnLine = [
+			new tokenizer.Token(tokenizer.Type.Tab, 		 '\t', { character: 0, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'set', { character: 1, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 4, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'value', { character: 5, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 10, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.EqualSign, 	 '=', { character: 11, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space, 		 ' ', { character: 12, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 13, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 14, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodName', { character: 15, line: 4 })
+		];
+		const index = 9
+		let result = utilities.getCallTokens(tokensOnLine, index);
+		expect(result[0].value).toBe("methodName");
+	});
+
+	test('Get method and procedure with cursor on method', async () => {
+		const tokensOnLine = [
+			new tokenizer.Token(tokenizer.Type.Tab, 		 '\t', { character: 0, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'set', { character: 1, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 4, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'value', { character: 5, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 10, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.EqualSign, 	 '=', { character: 11, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space, 		 ' ', { character: 12, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 13, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 14, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodName', { character: 15, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Caret, 		  '^', { character: 25, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'ZProcedureName', { character: 26, line: 4 })
+		];
+		const index = 9
+		let result = utilities.getCallTokens(tokensOnLine, index);
+		expect(result[0].value).toBe("ZProcedureName");
+		expect(result[1].value).toBe("methodName");
+	});
+
+	test('Return procedure with cursor on procedure', async () => {
+		const tokensOnLine = [
+			new tokenizer.Token(tokenizer.Type.Tab, 		 '\t', { character: 0, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'set', { character: 1, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 4, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'value', { character: 5, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space,        ' ', { character: 10, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.EqualSign, 	 '=', { character: 11, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Space, 		 ' ', { character: 12, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 13, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.DollarSign, 	 '$', { character: 14, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'methodName', { character: 15, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Caret, 		  '^', { character: 25, line: 4 }),
+			new tokenizer.Token(tokenizer.Type.Alphanumeric, 'ZProcedureName', { character: 26, line: 4 })
+		];
+		const index = 11
+		let result = utilities.getCallTokens(tokensOnLine, index);
+		expect(result[0].value).toBe("ZProcedureName");
+	});
+});
+
 describe('completion', () => {
 	test('empty', () => {
 		const tokensOnLine: tokenizer.Token[] = [];
