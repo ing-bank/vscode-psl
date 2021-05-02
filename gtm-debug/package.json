@@ -1,0 +1,121 @@
+{
+	"name": "gtm-debug",
+	"displayName": "GT.M Debug",
+	"version": "0.0.5",
+	"publisher": "ing-bank",
+	"description": "Debugger for GT.M database",
+	"author": {
+		"name": "Alexander Tiplea",
+		"email": "alexander.tiplea@ing.com"
+	},
+	"license": "MIT",
+	"keywords": [
+		"multi-root ready"
+	],
+	"engines": {
+		"vscode": "^1.40.0",
+		"node": "^12.04.0"
+	},
+	"categories": [
+		"Debuggers"
+	],
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ing-bank/vscode-psl/tree/gtm-debug/gtm-debug"
+	},
+	"scripts": {
+		"prepublish": "tsc -p ./src",
+		"compile": "tsc -p ./src",
+		"tslint": "tslint ./src/**/*.ts",
+		"watch": "tsc -w -p ./src",
+		"test": "mocha -u tdd ./out/tests/",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"package": "vsce package",
+		"publish": "vsce publish"
+	},
+	"dependencies": {
+		"await-notify": "1.0.1",
+		"rxjs": "^6.5.3",
+		"vscode-debugadapter": "1.37.0"
+	},
+	"devDependencies": {
+		"@types/node": "^12",
+		"typescript": "^3.7.0",
+		"vscode": "1.1.36",
+		"tslint": "5.18.0",
+		"vsce": "1.66.0"
+	},
+	"main": "./out/extension",
+	"activationEvents": [
+		"onDebug"
+	],
+	"contributes": {
+		"breakpoints": [
+			{
+				"language": "mumps"
+			}
+		],
+		"debuggers": [
+			{
+				"type": "gtm",
+				"label": "GT.M Debug",
+				"program": "./out/debugAdapter.js",
+				"runtime": "node",
+				"configurationAttributes": {
+					"launch": {
+						"required": [
+							"command"
+						],
+						"properties": {
+							"command": {
+								"type": "string",
+								"description": "An executable that can supply Direct Mode."
+							},
+							"args": {
+								"type": "array",
+								"description": "An executable that can supply Direct Mode."
+							}
+						}
+					}
+				},
+				"initialConfigurations": [
+					{
+						"type": "gtm",
+						"request": "launch",
+						"name": "GT.M Docker",
+						"command": "docker",
+						"args": [
+							"exec",
+							"-i",
+							"gtm-container",
+							"ksh",
+							"-c",
+							"'/dm'"
+						]
+					}
+				],
+				"configurationSnippets": [
+					{
+						"label": "GT.M Debug: Launch Docker",
+						"description": "A new configuration for debugging with docker",
+						"body": {
+							"type": "gtm",
+							"request": "launch",
+							"name": "GT.M Docker",
+							"command": "docker",
+							"args": [
+								"exec",
+								"-i",
+								"gtm-container",
+								"ksh",
+								"-c",
+								"'/dm'"
+							]
+						}
+					}
+				]
+			}
+		]
+	}
+}

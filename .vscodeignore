@@ -14,3 +14,4 @@ vsc-extension-quickstart.md
 python_scripts/**
 images/**
 package-lock.json
+gtm-debug
