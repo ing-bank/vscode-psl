@@ -64,6 +64,14 @@ export class ParsedDocFinder {
 						fsPath: this.paths.activeRoutine,
 					};
 				}
+
+				// naive check for custom procedures (does it match an existing psl file?)
+				finder = await finder.newFinder(callTokens[0].value);
+				if (finder) {
+					return {
+						fsPath: finder.paths.activeRoutine,
+					};
+				}
 			}
 
 			// handle static types
@@ -98,6 +106,13 @@ export class ParsedDocFinder {
 					else {
 						result = await finder.searchParser(token);
 					}
+
+					// naive check for custom procedures (does it match an existing psl file?)
+					let procedureFinder = await finder.newFinder(callTokens[0].value);
+					if (procedureFinder) {
+						finder = procedureFinder;
+						continue;
+					}
 				}
 
 				if (!result || (result.fsPath === this.paths.activeRoutine && !result.member)) {
@@ -114,7 +129,7 @@ export class ParsedDocFinder {
 	}
 
 	async newFinder(routineName: string): Promise<ParsedDocFinder | undefined> {
-
+		
 		if (routineName.startsWith('Record') && routineName !== 'Record') {
 			const tableName = routineName.replace('Record', '');
 			const tableDirectory = await this.resolveFileDefinitionDirectory(tableName.toLowerCase());

@@ -1,0 +1,10 @@
+	#CLASSDEF public
+
+	#PROPERTYDEF	dummy					class = String	position = 2
+
+private void String methodName()
+	type String value = $$value()
+	quit
+
+private String value()
+	return "X"
