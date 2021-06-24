@@ -44,7 +44,7 @@
 		"prefix": "revisionHistory",
 		"body": [
 			"/* Revision History ----------------------------------------------------",
-			"${1:<date>}, ${2:<name>}, ${3:<change request/story name>}",
+			"${1:$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE}, ${2:<name>}, ${3:<change request/story name>}",
 			"\t* $0",
 			"*/"
 		],
@@ -60,6 +60,16 @@
 			"\t** ENDDOC */"
 		],
 		"description": "Adds a method stub with a documentation comment block."
+	},
+	"Property": {
+		"prefix": "pslProperty",
+		"body": [
+			"// --------------------------------------------------------------------",
+			"#PROPERTYDEF $1 class = $2",
+			"/* DOC ----------------------------------------------------------------",
+			"$0",
+			"** ENDDOC */"
+		]
 	},
 	"pslmain":{
 		"prefix": "psip",
