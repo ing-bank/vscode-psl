@@ -1,0 +1,11 @@
+{
+	"extends": "../../tsconfig.common.json",
+	"compilerOptions": {
+		"outDir": "out",
+		"rootDir": "src",
+	},
+	"exclude": [
+		"node_modules",
+		"out",
+	]
+}

@@ -1,18 +1,16 @@
 {
+    "extends": "./tsconfig.common.json",
     "compilerOptions": {
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "moduleResolution": "node",
-        "module": "commonjs",
-        "target": "es6",
         "outDir": "out",
-        "lib": [
-            "es6"
-        ],
-        "inlineSourceMap": true,
-        "rootDir": "."
+        "rootDir": "src",
     },
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "modules",
+        "out",
+        "__tests__" // Test files can be run as `.ts` files with jest, no need to compile, can be ignored.
+    ],
+    "references": [
+        {"path": "./modules/psl-parser"}
     ]
 }

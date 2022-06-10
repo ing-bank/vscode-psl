@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"moduleResolution": "node",
+		"module": "commonjs",
+		"target": "es6",
+		"lib": [
+			"es6"
+		],
+		"inlineSourceMap": true,
+		"composite": true
+	}
+}

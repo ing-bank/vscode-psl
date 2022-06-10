@@ -1,0 +1,23 @@
+{
+	"name": "psl-parser",
+	"version": "0.0.4-dev",
+	"description": "A parser for the Profile Scripting Language",
+	"main": "./out/index.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ing-bank/vscode-psl"
+	},
+	"scripts": {
+		"compile": "tsc -p ./",
+		"clean": "rm -rf out/ tsconfig.tsbuildinfo",
+		"test": "jest"
+	},
+	"keywords": [
+		"psl",
+		"parser"
+	],
+	"license": "MIT",
+	"devDependencies": {
+		"typescript": "^4.7.3"
+	}
+}

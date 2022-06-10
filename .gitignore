@@ -6,8 +6,10 @@ node_modules/
 .settings
 .classpath
 
-# Project outputs etc.
+# Project outputs and other TypeScript stuff
 out/
+tsconfig.tsbuildinfo
+
 src/hostif/target/*
 src/pslLint/cli/lib/*
 
