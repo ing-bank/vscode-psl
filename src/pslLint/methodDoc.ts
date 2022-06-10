@@ -1,6 +1,6 @@
-import { Method, ParsedDocument } from '../parser/parser';
-import { Token } from '../parser/tokenizer';
-import { getCommentsOnLine, getLineAfter} from '../parser/utilities';
+import { Method, ParsedDocument, getLineAfter } from 'psl-parser';
+import { Token } from 'psl-parser';
+import { getCommentsOnLine } from '../parser/utilities';
 import { Diagnostic, DiagnosticSeverity, MethodRule } from './api';
 
 export enum Code {

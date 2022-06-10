@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { FinderPaths, getFinderPaths } from '../parser/config';
-import * as parser from '../parser/parser';
+import * as parser from 'psl-parser';
 import * as utils from '../parser/utilities';
 import * as lang from './lang';
 

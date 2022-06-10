@@ -1,4 +1,4 @@
-import { getTokens, Position, Range } from '../parser/tokenizer';
+import { getTokens, Position, Range } from 'psl-parser';
 import { Diagnostic, DiagnosticSeverity, PslRule } from './api';
 
 export class TodoInfo extends PslRule {

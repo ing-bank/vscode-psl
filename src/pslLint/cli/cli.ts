@@ -4,7 +4,7 @@ import * as crypto from 'crypto';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as process from 'process';
-import { parseText } from '../../parser/parser';
+import { parseText } from 'psl-parser';
 import { getDiagnostics } from '../activate';
 import { Diagnostic, DiagnosticSeverity, ProfileComponent } from '../api';
 import { setConfig } from '../config';

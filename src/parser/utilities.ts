@@ -2,8 +2,8 @@ import * as fs from 'fs-extra';
 import * as jsonc from 'jsonc-parser';
 import * as path from 'path';
 import { FinderPaths } from './config';
-import { Member, MemberClass, Method, ParsedDocument, parseText, Property } from './parser';
-import { Position, Token, Type } from './tokenizer';
+import { Member, MemberClass, Method, ParsedDocument, parseText, Property } from 'psl-parser';
+import { Position, Token, Type } from 'psl-parser';
 
 export interface FinderResult {
 	fsPath: string;
@@ -411,12 +411,21 @@ export function findCallable(tokensOnLine: Token[], index: number) {
 	};
 }
 
-export function getLineAfter(method: Method): number {
-	return method.closeParen ? method.closeParen.position.line + 1 : method.id.position.line + 1;
-}
-
 export function getCommentsOnLine(parsedDocument: ParsedDocument, lineNumber: number): Token[] {
 	return parsedDocument.comments.filter(t => {
 		return t.position.line === lineNumber;
+	});
+}
+
+export function parseFile(sourcePath: string): Promise<ParsedDocument> {
+	return new Promise((resolve, reject) => {
+		fs.readFile(sourcePath, (err, data) => {
+			if (err) {
+				reject(err);
+			}
+			else {
+				resolve(parseText(data.toString()));
+			}
+		});
 	});
 }

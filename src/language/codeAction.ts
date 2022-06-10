@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { MemberDiagnostic } from '../language/codeQuality';
-import * as parser from '../parser/parser';
-import { getLineAfter } from '../parser/utilities';
+import * as parser from 'psl-parser';
 import { MethodDocumentation, MethodSeparator } from '../pslLint/methodDoc';
 
 function initializeAction(title: string, ...diagnostics: MemberDiagnostic[]) {
@@ -68,7 +67,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 				}
 				docText += terminator;
 
-				const textEdit = vscode.TextEdit.insert(new vscode.Position(getLineAfter(method), 0), docText);
+				const textEdit = vscode.TextEdit.insert(new vscode.Position(parser.getLineAfter(method), 0), docText);
 				documentationAction.edit.set(document.uri, [textEdit]);
 				actions.push(documentationAction);
 

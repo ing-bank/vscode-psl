@@ -8,7 +8,7 @@ import { getConfig, matchConfig } from './config';
 /**
  * Import rules here.
  */
-import { ParsedDocument } from '../parser/parser';
+import { ParsedDocument } from 'psl-parser';
 import {
 	MemberCamelCase, MemberLength, MemberLiteralCase,
 	MemberStartsWithV, PropertyIsDummy, PropertyIsDuplicate,

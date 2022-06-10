@@ -824,6 +824,6 @@ class Parser {
 	}
 }
 
-function getLineAfter(method: Method): number {
+export function getLineAfter(method: Method): number {
 	return method.closeParen ? method.closeParen.position.line + 1 : method.id.position.line + 1;
 }

@@ -1,4 +1,4 @@
-import { Member, MemberClass, Method, Property } from '../parser/parser';
+import { Member, MemberClass, Method, Property } from 'psl-parser';
 import {
 	Diagnostic, DiagnosticRelatedInformation, DiagnosticSeverity, MemberRule,
 	MethodRule, PropertyRule,

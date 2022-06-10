@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { Range } from '../parser/tokenizer';
+import { Range } from 'psl-parser';
 import { Diagnostic, DiagnosticSeverity, FileDefinitionRule } from './api';
 
 /**

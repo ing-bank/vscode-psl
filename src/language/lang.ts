@@ -2,8 +2,8 @@ import * as fs from 'fs-extra';
 import * as jsonc from 'jsonc-parser';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as parser from '../parser/parser';
-import { Token } from '../parser/tokenizer';
+import * as parser from 'psl-parser';
+import { Token } from 'psl-parser';
 import * as utils from '../parser/utilities';
 
 export interface Documentation {

@@ -1,5 +1,5 @@
-import { Declaration, Method, NON_TYPE_MODIFIERS } from '../parser/parser';
-import { getTokens } from '../parser/tokenizer';
+import { Declaration, Method, NON_TYPE_MODIFIERS } from 'psl-parser';
+import { getTokens } from 'psl-parser';
 import { Diagnostic, DiagnosticSeverity, MethodRule } from './api';
 
 export class MultiLineDeclare extends MethodRule {
