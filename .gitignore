@@ -1,10 +1,18 @@
+# Node and generic stuff
+node_modules/
 *.jrnl
 *.log
-out
-node_modules
-*.vsix
 .project
 .settings
-src/hostif/target/*
 .classpath
+
+# Project outputs etc.
+out/
+src/hostif/target/*
 src/pslLint/cli/lib/*
+
+# VSCode related stuff
+*.vsix
+
+# MacOS stuff
+.DS_Store

@@ -2,7 +2,7 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "1.11.4",
+  "version": "2.0.0-dev",
   "preview": true,
   "publisher": "ing-bank",
   "engines": {
@@ -789,10 +789,14 @@
     "compile": "tsc -p ./",
     "compile-lint": "tsc -p ./src/pslLint/cli",
     "compile-parser": "tsc -p ./src/parser",
+    "clean": "rm -rf out/",
     "lint": "tslint -c tslint.json --project .",
     "watch": "npm run compile -- -watch",
     "test": "jest"
   },
+  "workspaces": [
+    "modules/*"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/ing-bank/vscode-psl"
