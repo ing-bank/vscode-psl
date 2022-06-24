@@ -8,7 +8,9 @@
         "node_modules",
         "modules",
         "out",
-        "__tests__" // Test files can be run as `.ts` files with jest, no need to compile, can be ignored.
+        "__tests__",
+        "jest.config.ts"
+
     ],
     "references": [
         {"path": "./modules/psl-parser"}
