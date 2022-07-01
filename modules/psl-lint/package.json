@@ -1,0 +1,27 @@
+{
+	"name": "psl-lint",
+	"version": "2.0.0-dev",
+	"description": "A linter for the Profile Scripting Language",
+	"main": "./out/index.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ing-bank/vscode-psl"
+	},
+	"scripts": {
+		"compile": "tsc -p ./",
+		"clean": "rm -rf out/ tsconfig.tsbuildinfo",
+		"test": "jest"
+	},
+	"keywords": [
+		"psl",
+		"linter"
+	],
+	"license": "MIT",
+	"devDependencies": {
+		"@types/jest": "^28.1.3",
+		"jest": "^28.1.1",
+		"ts-jest": "^28.0.5",
+		"ts-node": "^10.8.1",
+		"typescript": "^4.7.3"
+	}
+}
