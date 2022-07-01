@@ -6,7 +6,7 @@ import * as path from 'path';
 import * as process from 'process';
 import { parseText } from 'psl-parser';
 import { getDiagnostics } from '../activate';
-import { Diagnostic, DiagnosticSeverity, ProfileComponent } from '../api';
+import { Diagnostic, DiagnosticSeverity, ProfileComponent } from 'psl-lint';
 import { setConfig } from '../config';
 
 interface CodeClimateIssue {

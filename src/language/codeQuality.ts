@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { BATCH_MODE, PSL_MODE, TRIG_MODE } from '../extension';
 import * as parser from 'psl-parser';
 import { getDiagnostics } from '../pslLint/activate';
-import * as api from '../pslLint/api';
+import * as api from 'psl-lint';
 import { getConfig, removeConfig, setConfig } from '../pslLint/config';
 import { PSLActionProvider } from './codeAction';
 

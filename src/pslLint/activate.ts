@@ -2,23 +2,20 @@ import * as path from 'path';
 import {
 	DeclarationRule, Diagnostic, FileDefinitionRule, MemberRule, MethodRule, ParameterRule,
 	ProfileComponent, ProfileComponentRule, PropertyRule, PslRule,
-} from './api';
+} from 'psl-lint';
 import { getConfig, matchConfig } from './config';
+import { ParsedDocument } from 'psl-parser';
 
 /**
  * Import rules here.
  */
-import { ParsedDocument } from 'psl-parser';
 import {
 	MemberCamelCase, MemberLength, MemberLiteralCase,
 	MemberStartsWithV, PropertyIsDummy, PropertyIsDuplicate,
-} from './elementsConventionChecker';
-import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from './methodDoc';
-import { MultiLineDeclare } from './multiLineDeclare';
-import { MethodParametersOnNewLine } from './parameters';
-import { RuntimeStart } from './runtime';
-import { TblColDocumentation } from './tblcolDoc';
-import { TodoInfo } from './todos';
+	MethodDocumentation, MethodSeparator, TwoEmptyLines,
+	MultiLineDeclare, MethodParametersOnNewLine,
+	RuntimeStart, TblColDocumentation, TodoInfo
+} from 'psl-lint';
 
 /**
  * Add new rules here to have them checked at the appropriate time.
