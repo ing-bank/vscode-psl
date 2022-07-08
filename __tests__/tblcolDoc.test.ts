@@ -1,6 +1,6 @@
-import * as api from '../src/pslLint/api';
-import { TblColDocumentation } from '../src/pslLint/tblcolDoc';
-import * as utils from './ruleUtils';
+import * as api from 'psl-lint';
+import { TblColDocumentation } from 'psl-lint';
+import * as utils from './utils/ruleUtils';
 
 function messageOnLine(lineNumber: number, allDiagnostics: api.Diagnostic[]): string {
 	const diagnosticsOnLine = utils.diagnosticsOnLine(lineNumber, allDiagnostics);

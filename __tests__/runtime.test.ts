@@ -1,6 +1,6 @@
-import * as api from '../src/pslLint/api';
-import { RuntimeStart } from '../src/pslLint/runtime';
-import * as utils from './ruleUtils';
+import * as api from 'psl-lint';
+import { RuntimeStart } from 'psl-lint';
+import * as utils from './utils/ruleUtils';
 
 describe('Parameter tests', () => {
 

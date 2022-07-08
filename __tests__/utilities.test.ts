@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { FinderPaths } from '../src/parser/config';
-import { MemberClass, ParsedDocument, parseFile } from '../src/parser/parser';
-import * as tokenizer from '../src/parser/tokenizer';
+import { MemberClass, ParsedDocument } from 'psl-parser';
+import * as tokenizer from 'psl-parser';
 import * as utilities from '../src/parser/utilities';
 
 function getTokens(str: string): tokenizer.Token[] {
@@ -140,8 +140,8 @@ describe('ParsedDocFinder', () => {
 		parentFilePath = path.join(filesDir, 'ZParent.PROC');
 		childFilePath = path.join(filesDir, 'ZChild.PROC');
 
-		parsedParent = await parseFile(parentFilePath);
-		parsedChild = await parseFile(childFilePath);
+		parsedParent = await utilities.parseFile(parentFilePath);
+		parsedChild = await utilities.parseFile(childFilePath);
 	});
 
 	test('Find dummy in child', async () => {

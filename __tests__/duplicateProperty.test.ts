@@ -1,6 +1,6 @@
-import * as api from '../src/pslLint/api';
-import { PropertyIsDuplicate } from '../src/pslLint/elementsConventionChecker';
-import * as utils from './ruleUtils';
+import * as api from 'psl-lint';
+import { PropertyIsDuplicate } from 'psl-lint';
+import * as utils from './utils/ruleUtils';
 
 describe('Parameter tests', () => {
 

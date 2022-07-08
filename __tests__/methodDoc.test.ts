@@ -1,6 +1,6 @@
-import * as api from '../src/pslLint/api';
-import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from '../src/pslLint/methodDoc';
-import * as utils from './ruleUtils';
+import * as api from 'psl-lint';
+import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from 'psl-lint';
+import * as utils from './utils/ruleUtils';
 
 function messageOnLine(lineNumber: number, allDiagnostics: api.Diagnostic[]): string {
 	const diagnosticsOnLine = utils.diagnosticsOnLine(lineNumber, allDiagnostics);

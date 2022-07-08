@@ -1,6 +1,6 @@
-import { MethodParametersOnNewLine } from '../src/pslLint/parameters';
-import * as api from '../src/pslLint/api';
-import * as utils from './ruleUtils';
+import { MethodParametersOnNewLine } from 'psl-lint';
+import * as api from 'psl-lint';
+import * as utils from './utils/ruleUtils';
 
 describe('Parameter tests', () => {
 

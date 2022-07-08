@@ -1,8 +1,8 @@
-import * as api from '../src/pslLint/api';
+import * as api from 'psl-lint';
 import {
 	MemberCamelCase, MemberLength,
-	MemberLiteralCase, MemberStartsWithV, PropertyIsDummy } from '../src/pslLint/elementsConventionChecker';
-import * as utils from './ruleUtils';
+	MemberLiteralCase, MemberStartsWithV, PropertyIsDummy } from 'psl-lint';
+import * as utils from './utils/ruleUtils';
 
 describe('Members tests', () => {
 	let literalDiagnostics: api.Diagnostic[] = [];
