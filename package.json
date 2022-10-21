@@ -2,7 +2,7 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "1.11.4",
+  "version": "1.20.0",
   "preview": true,
   "publisher": "ing-bank",
   "engines": {
@@ -56,6 +56,15 @@
         ],
         "extensions": [
           ".DAT"
+        ]
+      },
+      {
+        "id": "profileSerialData",
+        "aliases": [
+          "Profile Serialized Data Element"
+        ],
+        "extensions": [
+          ".serial"
         ]
       },
       {
@@ -163,6 +172,11 @@
         "editor.insertSpaces": false
       },
       "[profileData]": {
+        "editor.insertSpaces": false,
+        "editor.renderWhitespace": "boundary",
+        "diffEditor.ignoreTrimWhitespace": false
+      },
+      "[profileSerialData]": {
         "editor.insertSpaces": false,
         "editor.renderWhitespace": "boundary",
         "diffEditor.ignoreTrimWhitespace": false
@@ -326,6 +340,11 @@
           "group": "PSL.2"
         },
         {
+          "when": "resourceLangId == profileSerialData && !explorerResourceIsFolder",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
           "when": "resourceLangId == profileTable && !explorerResourceIsFolder",
           "command": "psl.refreshElement",
           "group": "PSL.2"
@@ -352,6 +371,11 @@
         },
         {
           "when": "resourceLangId == profileData && !explorerResourceIsFolder",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileSerialData && !explorerResourceIsFolder",
           "command": "psl.sendElement",
           "group": "PSL.2"
         },
@@ -432,6 +456,11 @@
           "group": "PSL.2"
         },
         {
+          "when": "resourceLangId == profileSerialData",
+          "command": "psl.refreshElement",
+          "group": "PSL.2"
+        },
+        {
           "when": "resourceLangId == profileTable",
           "command": "psl.refreshElement",
           "group": "PSL.2"
@@ -463,6 +492,11 @@
         },
         {
           "when": "resourceLangId == profileData",
+          "command": "psl.sendElement",
+          "group": "PSL.2"
+        },
+        {
+          "when": "resourceLangId == profileSerialData",
           "command": "psl.sendElement",
           "group": "PSL.2"
         },
@@ -564,6 +598,11 @@
         {
           "command": "psl.refreshElement",
           "group": "navigation@-205",
+          "when": "resourceLangId == profileSerialData"
+        },
+        {
+          "command": "psl.refreshElement",
+          "group": "navigation@-205",
           "when": "resourceLangId == profileBatch"
         },
         {
@@ -610,6 +649,11 @@
           "command": "psl.sendElement",
           "group": "navigation@-203",
           "when": "resourceLangId == profileData"
+        },
+        {
+          "command": "psl.sendElement",
+          "group": "navigation@-203",
+          "when": "resourceLangId == profileSerialData"
         },
         {
           "command": "psl.sendElement",

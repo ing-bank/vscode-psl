@@ -142,6 +142,9 @@ function canTestCompileFile(document: vscode.TextDocument, fsPath: string): bool
 		else if (vscode.languages.match(extension.DATA_MODE, document)) {
 			fileTypeDescription = "Data File"
 		}
+		else if (vscode.languages.match(extension.SERIAL_MODE, document)) {
+			fileTypeDescription = "Serialized Data";
+		}
 		else if (vscode.languages.match(extension.TBL_MODE, document)) {
 			fileTypeDescription = "Table Definition"
 		}
