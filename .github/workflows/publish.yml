@@ -1,1 +1,44 @@
-a
+# This workflow will build and publish the plugin on tag create
+
+name: Publish vscode-psl
+
+on:
+  push:
+    tags: 'vscode*'
+
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm install .
+    - run: npm run compile
+    - run: npm run compile-lint
+    - run: npm test
+  
+  publish:
+  
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm install .
+    - run: npm run compile
+    - run: npm run compile-lint
+    - run: npm test
