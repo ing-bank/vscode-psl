@@ -4,7 +4,7 @@ name: Publish vscode-psl
 
 on:
   push:
-    tags: 'vscode*'
+    tags: ['vscode*','test*']
 
 
 jobs:
