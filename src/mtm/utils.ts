@@ -24,6 +24,7 @@ export const extensionToDescription: { [key: string]: string } = {
 	'pslx': 'pslx File',
 	'pslxtra': 'pslxtra File',
 	'psql': 'PSQLScript',
+	'serial': 'Serialized Data',
 	'QRY': 'Query',
 	'RPT': 'Report',
 	'SCR': 'Screen',
