@@ -1,4 +1,3 @@
-import * as path from 'path';
 import { Declaration, Member, Method, Parameter, ParsedDocument, Property } from 'psl-parser';
 import { Position, Range } from 'psl-parser';
 
@@ -158,15 +157,15 @@ type GetTextMethod = (lineNumber: number) => string;
 export class ProfileComponent {
 
 	static isPsl(fsPath: string): boolean {
-		return path.extname(fsPath) === '.PROC'
-			|| path.extname(fsPath) === '.BATCH'
-			|| path.extname(fsPath) === '.TRIG'
-			|| path.extname(fsPath).toUpperCase() === '.PSL';
+		return getPathExtension(fsPath) === 'PROC'
+			|| getPathExtension(fsPath) === 'BATCH'
+			|| getPathExtension(fsPath) === 'TRIG'
+			|| getPathExtension(fsPath).toUpperCase() === 'PSL';
 	}
 
 	static isFileDefinition(fsPath: string): boolean {
-		return path.extname(fsPath) === '.TBL'
-			|| path.extname(fsPath) === '.COL';
+		return getPathExtension(fsPath) === 'TBL'
+			|| getPathExtension(fsPath) === 'COL';
 	}
 
 	static isProfileComponent(fsPath: string): boolean {
@@ -227,4 +226,11 @@ export class ProfileComponent {
 		}
 		return indexedDocument;
 	}
+}
+
+function getPathExtension(fsPath: string) {
+	const pieces: string[] = fsPath.split('.');
+	
+	return (pieces.length === 0) ? '' : pieces[pieces.length];
+
 }

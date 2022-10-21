@@ -15,18 +15,18 @@ export class TblColDocumentation extends FileDefinitionRule {
 		// Exit if no match found
 		if (!bracketMatch) return [];
 
-		const charcterOffset = bracketMatch.index;
+		const characterOffset = bracketMatch.index;
 		const endPos = this.profileComponent.textDocument.length;
-		const tblColDoc = this.profileComponent.textDocument.substring(charcterOffset + 1, endPos).trim();
+		const tblColDoc = this.profileComponent.textDocument.substring(characterOffset + 1, endPos).trim();
 
 		if (!tblColDoc) {
-			let message;
+			let message: string;
 
 			if (baseName.endsWith('TBL')) {
 				message = `Documentation missing for table definition "${baseName}".`;
 			}
 			else message = `Documentation missing for data item "${baseName}".`;
-			const position = this.profileComponent.positionAt(charcterOffset);
+			const position = this.profileComponent.positionAt(characterOffset);
 			const range = new Range(position, position);
 			diagnostics.push(addDiagnostic(range, message, this.ruleName));
 		}
