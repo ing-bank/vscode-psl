@@ -32,13 +32,21 @@ export function transform(config: Config): RegexConfig {
 	for (const pattern in config.include) {
 		if (config.include.hasOwnProperty(pattern)) {
 			const rules = config.include[pattern];
-			includes.push({ pattern: minimatch.makeRe(pattern), rules });
+			const regexpPattern = minimatch.makeRe(pattern)
+
+			if (!regexpPattern) throw new Error(`Invalid regexp patter ${pattern}`);
+
+			includes.push({ pattern: regexpPattern, rules });
 		}
 	}
 	for (const pattern in config.exclude) {
 		if (config.exclude.hasOwnProperty(pattern)) {
 			const rules = config.exclude[pattern];
-			excludes.push({ pattern: minimatch.makeRe(pattern), rules });
+			const regexpPattern = minimatch.makeRe(pattern)
+
+			if (!regexpPattern) throw new Error(`Invalid regexp patter ${pattern}`);
+
+			excludes.push({ pattern: regexpPattern, rules });
 		}
 	}
 	return { include: includes, exclude: excludes };
