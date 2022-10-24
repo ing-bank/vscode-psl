@@ -347,7 +347,7 @@ export class MtmConnection {
 
 function readFileAsync(file: string, options?: {encoding?: string, flag?: string}): Promise<Buffer | string> {
 	return new Promise((resolve, reject) => {
-		fs.readFile(file, options, (err, data) => {
+		fs.readFile(file, {encoding: null, flag: options.flag}, (err, data) => {
 			if (err) {
 				reject(err);
 			} else {
