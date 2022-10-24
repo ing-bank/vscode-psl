@@ -1,5 +1,5 @@
 import * as path from 'path';
-import * as request from 'request-light/lib/main';
+import { xhr }from 'request-light';
 import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -53,10 +53,10 @@ async function getMarkdownFromApi(pslText: string, fileName: string, documentati
 		const data: string = JSON.stringify({
 			sourceText: pslText,
 		});
-		const response = await request.xhr({
+		const response = await xhr({
 			data,
 			headers: {
-				'Content-Length': Buffer.byteLength(data),
+				'Content-Length': `${Buffer.byteLength(data)}`,
 				'Content-Type': 'application/json',
 			},
 			type: 'POST',

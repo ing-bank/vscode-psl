@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import * as commander from 'commander';
+import { Command } from 'commander';
 import * as crypto from 'crypto';
 import * as fs from 'fs-extra';
 import * as path from 'path';
@@ -177,14 +177,16 @@ function hashObject(object: any) {
 }
 
 function getCliArgs() {
-	commander
+	const command = new Command('psl-lint');
+	command
+		.argument('<fileList>')
 		.name('psl-lint')
 		.usage('<fileString>')
 		.option('-o, --output <output>', 'Name of output file')
 		.description('fileString    a ; delimited string of file paths')
 		.parse(process.argv);
-	return { fileString: commander.args[0], reportFileName: commander.output };
-}
+		return { fileString: command.args[0], reportFileName: command.getOptionValue('output') };
+	}
 
 (async function main() {
 	if (require.main !== module) {
