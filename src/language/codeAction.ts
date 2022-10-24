@@ -11,15 +11,28 @@ function initializeAction(title: string, ...diagnostics: MemberDiagnostic[]) {
 	return action;
 }
 
+/* NOTE:
+The CodeQualityActionContext is used in the provideCodeActions implementation of the
+PSLActionProvider. This interface has a list of MemberDiagnostics, which extend
+the vscode.Diagnostic interface. The provideCodeActions method expects an object that
+implements the vscode.CodeActionContext interface. Ths interface now also has a triggerKind
+and only property. These are not used currently, but this is fixing compilation errors.
+
+It might be worth revisiting all the custom interfaces that are extremely similar to
+exposed vscode interfaces.
+*/
 interface CodeQualityActionContext {
+	readonly triggerKind: vscode.CodeActionTriggerKind;
+	readonly only: vscode.CodeActionKind | undefined;
 	diagnostics: MemberDiagnostic[];
 }
 
 export class PSLActionProvider implements vscode.CodeActionProvider {
 	public async provideCodeActions(
 		document: vscode.TextDocument,
-		_range: vscode.Range,
+		_range: vscode.Range | vscode.Selection,
 		context: CodeQualityActionContext,
+		_token: vscode.CancellationToken
 	): Promise<vscode.CodeAction[]> {
 
 		if (context.diagnostics.length === 0) return;
