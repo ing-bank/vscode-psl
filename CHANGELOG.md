@@ -1,5 +1,14 @@
 # Change Log
-All notable changes to the "vscode-psl" extension will be documented in this file.
+
+All notable changes to the "vscode-psl" extension will be documented in this
+file.
+
+## v1.12.0
+
+* Update dependencies.
+* Implement support for the serialized data format.
+* Add snippet for `#PROPERTYDEF` directives.
+* Add default value for the date in the revision history snippet.
 
 ## v1.11.4
 
