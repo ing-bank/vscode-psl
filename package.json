@@ -6,7 +6,7 @@
   "preview": true,
   "publisher": "ing-bank",
   "engines": {
-    "vscode": "^1.23.0"
+    "vscode": "^1.72.2"
   },
   "categories": [
     "Programming Languages"
