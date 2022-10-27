@@ -158,7 +158,7 @@ export class MtmConnection {
 
 	private async _send(filename: string) {
 		let returnString: string;
-		let fileString: string = await readFileAsync(filename, {encoding: this.encoding}) as string;
+		let fileString: string = (await readFileAsync(filename, {encoding: this.encoding})).toString(this.encoding);
 		let fileContentLength: number = fileString.length;
 		let totalLoop: number = Math.ceil(fileContentLength / 1024);
 		let codeToken: string = '';
