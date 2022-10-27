@@ -1,318 +1,437 @@
 {
-	"name": "Profile Scripting Language",
-	"patterns": [
-		{
-			"include": "#section"
-		},
-		{
-			"include": "#methods"
-		},
-		{
-			"include": "#classes"
-		},
-		{
-			"include": "#accept"
-		},
-		{
-			"include": "#keywords"
-		},
-		{
-			"include": "#hovers"
-		},
-		{
-			"include": "#strings"
-		},
-		{
-			"include": "#comments"
-		},
-		{
-			"include": "#constants-and-special-vars"
-		}
-	],
-	"repository": {
-		"hovers": {
-			"patterns": [
-				{
-					"match": "^\\(parameter\\) (%?\\w+)",
-					"captures": {
-						"1": {
-							"name": "entity.name.class"
-						}
-					}
-				}
-			]
-		},
-		"methods": {
-			"patterns": [
-				{
-					"name": "entity.name.function.psl",
-					"match": "((?<=\\S\\.)[\\s\\n\\r]*[\\w]+)[\\s\\n\\r]*(?=\\(.*\\))"
-				},
-				{
-					"name": "entity.name.function.psl",
-					"match": "\\$\\$(%?[A-Za-z0-9]+)?"
-				},
-				{
-					"name": "entity.name.function.psl",
-					"match": "(?:\\b|(?<=_))([A-Za-z0-9]+)(?=\\^)"
-				},
-				{
-					"match": "(?=^\\S)(%?\\w+)\\s+(set|do|if|quit|for)\\b",
-					"captures": {
-						"1": {
-							"name": "entity.name.function.psl"
-						},
-						"2": {
-							"patterns": [
-								{
-									"include": "#keywords"
-								}
-							]
-						}
-					}
-				},
-				{
-					"match": "^((((%?\\w+)\\s+)*)(%?\\w+)\\s+)*(%?\\w+)\\b",
-					"captures": {
-						"2": {
-							"patterns": [
-								{
-									"include": "#keywords"
-								}
-							]
-						},
-						"5": {
-							"patterns": [
-								{
-									"include": "#keywords"
-								},
-								{
-									"match": "%?\\w+",
-									"name": "entity.name.class.psl"
-								}
-							]
-						},
-						"6": {
-							"name": "entity.name.function.psl"
-						}
-					}
-				}
-			]
-		},
-		"classes": {
-			"patterns": [
-				{
-					"name": "entity.name.class",
-					"match": "(?:\\b|(?<=_))(void|Boolean|ByteString|Class|Column|Date|Db|DbSet|Error|Host|Integer|IO|List|Number|Object|Primitive|PSL|PslColumnChange|PslJsonObject|Reference|ResultSet|Row|RowSet|Runtime|String|Time|DbsMakerCheckerDlgt|FwkAuthenticate|FwkHostSTF|FwkRestriction|FwkRestrictionOvr|PslDateDlgt|PslMapDlgt|PslMapPathsDlgt|PslNumberDlgt|DBARCHIVE|DbsFunc|DbsFuncUcls|DbsValueDescriptions|FwkErrorLogger|FwkErrorLogReport|FwkEvent|FwkInstCompile|FwkInstTypeInterface|FwkMessage|FwkNotification|FwkStringUtil|PbsPjiCore|PbsPjiProxyVerify|PslMap|PslMapPaths|PslUtAssert|PslUtTestCase|PslUtTestCase4Pbs|PslUtTestSuite|PslUtTestResult|PslUtPbsInterface|Record[A-Za-z0-9]*)(?=\\b|_)"
-				},
-				{
-					"name": "entity.name.class",
-					"match": "(?<=\\^)%?[A-Za-z0-9]+"
-				},
-				{
-					"match": "(^\\s+(type\\s*)(public\\s*|literal\\s*|private\\s*|static\\s*|final\\s*|new\\s*)*)(%?\\w+)?",
-					"captures": {
-						"1": {
-							"patterns": [
-								{
-									"include": "#keywords"
-								}
-							]
-						},
-						"4": {
-							"name": "entity.name.class.psl"
-						}
-					}
-				}
-			]
-		},
-		"constants-and-special-vars": {
-			"patterns": [
-				{
-					"name": "constant.language.psl",
-					"match": "(?:\\b|(?<=_))(true|false)(?=\\b|_)|^\\s+#\\w+"
-				},
-				{
-					"name": "constant.language.psl",
-					"match": "(%BatchExit|%BatchRestart|%CompanyName|%CurrentDate|%CurrentTime|%EffectiveDate|%Identifier|%ModuleName|%ProcessID|%SessionID|%SystemCurrency|%SystemDate|%UserClass|%UserDirectory|%UserID|%UserName|%UserStation)"
-				},
-				{
-					"name": "constant.numeric.integer.psl",
-					"match": "(?:\\b|(?<=_))[0-9]+(?=\\b|_)"
-				},
-				{
-					"name": "constant.numeric.decimal.psl",
-					"match": "(?:\\b|(?<=_))[0-9]*\\.[0-9]+(?=\\b|_)"
-				},
-				{
-					"match": "(?:\\b|(?<=_))(this|super)(?=\\b|_)",
-					"name": "variable.language.psl"
-				}
-			]
-		},
-		"keywords": {
-			"patterns": [
-				{
-					"name": "keyword.psl",
-					"match": "\\b(?<!\\.)(job|read|write)\\b"
-				},
-				{
-					"name": "storage.modifier.psl",
-					"match": "\\b(?<!\\.)(set|type|final|literal|new|private|readonly|protected|public|req|ret|static|super|kill|lock|unlock)\\b"
-				},
-				{
-					"name": "keyword.control.psl",
-					"match": "\\b(?<!\\.)(if|else|while|for|return|quit|do|catch|throw|halt|hang)\\b"
-				},
-				{
-					"name": "keyword.operator.psl",
-					"match": "\\_|\\.|\\'|\\^|\\+|\\-|\\*|\\;|\\=|\\<|\\>|\\!|\\[|\\b(?<!\\.)(and|not|or)\\b"
-				}
-			]
-		},
-		"comments": {
-			"patterns": [
-				{
-					"include": "#comments-inline"
-				},
-				{
-					"include": "#comments-block"
-				}
-			]
-		},
-		"comments-block": {
-			"begin": "/\\*",
-			"end": "\\*/",
-			"name": "comment.block.psl",
-			"captures": {
-				"0": {
-					"name": "punctuation.definition.comment.psl"
-				}
-			},
-			"patterns": [
-				{
-					"include": "#comments-inline"
-				},
-				{
-					"include": "#doc-params"
-				},
-				{
-					"include": "#todo"
-				}
-			]
-		},
-		"comments-inline": {
-			"begin": "//",
-			"beginCaptures": {
-				"0": {
-					"name": "punctuation.definition.comment.psl"
-				}
-			},
-			"end": "\\n",
-			"name": "comment.line.double-slash.psl",
-			"patterns": [
-				{
-					"include": "#doc-params"
-				},
-				{
-					"include": "#todo"
-				}
-			]
-		},
-		"accept": {
-			"match": "^\\s+(#ACCEPT)(.*)",
-			"captures": {
-				"1": {
-					"name": "constant.language.psl"
-				},
-				"2": {
-					"name": "comment.inline.psl"
-				}
-			}
-		},
-		"doc-params": {
-			"patterns": [
-				{
-					"match": "(@(param|publicnew|public|throws?))(\\s*)([A-Za-z\\-0-9%_\\.]+)",
-					"captures": {
-						"1": {
-							"name": "storage.type.class.jsdoc"
-						},
-						"4": {
-							"name": "variable.other.jsdoc"
-						}
-					}
-				},
-				{
-					"match": "@returns?",
-					"name": "storage.type.class.jsdoc"
-				}
-			]
-		},
-		"todo": {
-			"begin": "\\bTODO\\b",
-			"end": "(?=\\n|\\*/|/\\*|//)",
-			"name": "variable.other.jsdoc",
-			"patterns": [
-				{
-					"match": "@\\w+",
-					"name": "storage.type.class.jsdoc"
-				}
-			]
-		},
-		"section": {
-			"repository": {
-				"section-marker": {
-					"name": "comment.psl",
-					"begin": "^----------",
-					"end": "------ Section marker",
-					"patterns": [
-						{
-							"match": "\\w+",
-							"name": "entity.name.function.psl"
-						}
-					]
-				}
-			},
-			"patterns": [
-				{
-					"name": "comment.block.psl",
-					"begin": "^---------- REVHIST ------ Section marker",
-					"end": "^---------- OPEN\\s+------ Section marker",
-					"beginCaptures": {
-						"0": {
-							"patterns": [
-								{
-									"include": "#section-marker"
-								}
-							]
-						}
-					},
-					"endCaptures": {
-						"0": {
-							"patterns": [
-								{
-									"include": "#section-marker"
-								}
-							]
-						}
-					},
-					"patterns": [
-						{
-							"include": "#comments"
-						}
-					]
-				},
-				{
-					"include": "#section-marker"
-				}
-			]
-		},
-		"strings": {
-			"name": "string.quoted.double.psl",
-			"begin": "\"",
-			"end": "\""
-		}
-	},
-	"scopeName": "source.psl"
+    "comment": "Syntax highlighting for the Profile Scripting Langauge (PSL) and M",
+    "comment": " ",
+    "comment": "The order of the includes and mataches in the patterns is significant",
+    "comment": "The order of the repository entries is not and occur in alpabetic order.",
+    "comment": " ",
+    "comment": "Known issues:",
+    "comment": "  * A numeric label is rendered as constant.numeric.integer.psl instead of entity.name.function.psl",
+    "comment": "  * A type statement on a line with a label (i.e., no formal-list). is classified as entity.name.function.psl",
+    "comment": "  * A local method occurrence in a do statement is not recognized",
+    "comment": "  * A local method occurrence in a do statement is not recognized",
+
+    "name": "Profile Scripting Language",
+    "scopeName": "source.psl",
+    "patterns": [
+        { "include": "#comments",               "comment": "PSL comment-block, PSL comment-to-end-of-line, and M comment-to-end-of-line"},
+        { "include": "#accept-directive",       "comment": "#ACCEPT directive with all text following the directive considered comment"},
+        { "include": "#classdef-directive",     "comment": "#CLASSDEF directive with qualifiers"},
+        { "include": "#if-directive",           "comment": "#IF and #ELSEIF directives (followed by PSL code)"},
+        { "include": "#optimize-directive",     "comment": "#OPTIMIZE directive"},
+        { "include": "#option-directive",       "comment": "#OPTION directive"},
+        { "include": "#package-directive",      "comment": "#PACKAGE directive with root-package and optional sub-packages"},
+        { "include": "#propertydef-directive",  "comment": "#PROPERTYDEF directive with qualifiers"},
+        { "include": "#warn-directive",         "comment": "#INFO and #WARN directives"},
+        { "include": "#other-directive",        "comment": "#BYPASS, #ELSE, #END, #ENDBYPASS, and #ENDIF directives"},
+        { "include": "#method-declaration",     "comment": "method declaration (under construction)"},
+        { "include": "#statements",             "comment": "PSL statements"},
+        { "include": "#literals",               "comment": "Numeric literals and string literals"},
+        { "include": "#special-constructs",     "comment": "true/false, this/super, system keywords"},
+        { "include": "#modifiers",              "comment": "private, protected, literal, readonly, etc."},
+        { "include": "#name-in-context",        "comment": "class name, method name, proprty name, and variable name"}
+    ],
+    "repository": {
+        "accept-directive": {
+            "comment": "#ACCEPT PSL code generator directive. All text following the directive is rendered as comment.",
+            "match": "^\\s+(#ACCEPT)(.*)",
+            "captures": {
+                "1": { "name": "constant.language.codegeneratorDirective.accept.psl"},
+                "2": { "name": "comment.inline.psl"}
+            }
+        },
+        "class-names": {
+            "patterns": [
+                {   "comment": "Keyword 'void', PSL Language classes, and Record descendants.",
+                    "name": "support.class.language.psl",
+                    "match": "(?:\\b|(?<=_))(void|Boolean|ByteString|Class|Column|Date|Db|DbSet|Error|Host|Integer|IO|List|Number|Object|Primitive|PSL|PslColumnChange|PslJsonObject|Reference|ResultSet|Row|RowSet|Runtime|String|Time|DbsMakerCheckerDlgt|FwkAuthenticate|FwkHostSTF|FwkRestriction|FwkRestrictionOvr|PslDateDlgt|PslMapDlgt|PslMapPathsDlgt|PslNumberDlgt|DBARCHIVE|DbsFunc|DbsFuncUcls|DbsValueDescriptions|FwkErrorLogger|FwkErrorLogReport|FwkEvent|FwkInstCompile|FwkInstTypeInterface|FwkMessage|FwkNotification|FwkStringUtil|PbsPjiCore|PbsPjiProxyVerify|PslMap|PslMapPaths|PslUtAssert|PslUtTestCase|PslUtTestCase4Pbs|PslUtTestSuite|PslUtTestResult|PslUtPbsInterface|Record[A-Za-z0-9]*)(?=\\b|_)"
+                },
+                {   "comment": "All other names that occur when a class name is expected.",
+                    "name": "entity.name.class.psl",
+                    "match": "[%A-Za-z][A-Za-z0-9]*"
+                }
+            ]
+        },
+        "classdef-directive": {
+            "match": "^\\s+(#CLASSDEF)(\\s+)(.*)",
+            "captures": {
+                "1": { "name": "constant.language.classdef.psl"},
+                "3": {
+                    "patterns": [
+                        { "name": "keyword.other.classdef.psl", "match": "(extends|delimiter)"},
+                        { "name": "storage.modifier.visibility.psl", "match": "\\b(public)\\b"},
+                        { "include": "#class-names"}
+                    ]
+                }
+            }
+        },
+        "comments": {
+            "patterns": [
+                { "include": "#comments-inline-m"},
+                { "include": "#comments-inline-psl"},
+                { "include": "#comments-psldoc",  "comment": "This rule must occur *before* the rule for a (standard) comment block."},
+                { "include": "#comments-block"}
+            ]
+        },
+        "comments-block": {
+            "begin": "/\\*",
+            "end": "\\*/",
+            "name": "comment.block.psl",
+            "captures": {
+                "0": { "name": "punctuation.definition.comment.psl"}
+            },
+            "patterns": [
+                { "include": "#comments-inline-m"},
+                { "include": "#comments-inline-psl"},
+                { "include": "#doc-params"},
+                { "include": "#todo"}
+            ]
+        },
+        "comments-inline-m": {
+            "begin": ";",
+            "beginCaptures": {
+                "0": { "name": "punctuation.definition.comment.psl"}
+            },
+            "end": "\\n",
+            "name": "comment.line.semicolon.psl",
+            "patterns": [
+                { "include": "#doc-params"},
+                { "include": "#todo"}
+            ]
+        },
+        "comments-inline-psl": {
+            "begin": "//",
+            "beginCaptures": {
+                "0": { "name": "punctuation.definition.comment.psl"}
+            },
+            "end": "\\n",
+            "name": "comment.line.double-slash.psl",
+            "patterns": [
+                { "include": "#doc-params"},
+                { "include": "#todo"}
+            ]
+        },
+        "comments-psldoc": {
+            "begin": "/\\* *DOC *",
+            "end": "\\*\\* *ENDDOC *\\*/",
+            "name": "comment.block.documentation.psl",
+            "captures": {
+                "0": { "name": "punctuation.definition.comment.psl"}
+            },
+            "patterns": [
+                { "include": "#comments-inline-m"},
+                { "include": "#comments-inline-psl"},
+                { "include": "#doc-params"},
+                { "include": "#todo"}
+            ]
+        },
+        "doc-params": {
+            "patterns": [
+                {   "comment": "PSL DOC subsections with an identifier.",
+                    "match": "(@(args|param|publicnew|public|throws?))(\\s*)([A-Za-z\\-0-9%_\\.]+)",
+                    "captures": {
+                        "1": { "comment": "The PSL DOC subsection keyword.",
+                            "name": "markup.heading.jsdoc"
+                        },
+                        "4": { "comment": "The variable or error ID.",
+                            "name": "variable.other.jsdoc"
+                        }
+                    }
+                },
+                {   "comment": "PSL DOC subsections without an identifier.",
+                    "match": "@created|@return|@when?",
+                    "name": "markup.heading.jsdoc"
+                }
+            ]
+        },
+        "formal-list": {
+            "begin": "\\(",
+            "end": "\\)",
+            "name": "meta.function.formal-list.psl",
+            "patterns": [
+                {   "match": "(\\s*)(noreq\\s+|req\\s+|ret\\s+)?([%A-Za-z][A-Za-z0-9]*\\s+)?([%A-Za-z][A-Za-z0-9]*)",
+                    "captures": {
+                        "2": { "name": "storage.modifier.formal-list.psl"},
+                        "3": { "patterns": [
+                                { "include": "#class-names"}
+                            ]
+                        },
+                        "4": {"name": "variable.parameter.psl"}
+                    }
+                }
+            ]
+        },
+        "if-directive": {
+            "comment": "PSL code genertor directives that are followed by PSL code",
+            "match": "^\\s+(#IF|#ELSEIF)\\b(.*)",
+            "captures": {
+                "1": { "name": "constant.language.codeGeneratorDirective.psl"},
+                "2": { "patterns": [
+                    { "include": "#statements",  "comment": "Try statements prior to class names in case the line constains a label and statements."},
+                    { "include": "#literals",               "comment": "Numeric literals and string literals"},
+                    { "include": "#special-constructs",     "comment": "true/false, this/super, system keywords"},
+                    { "include": "#name-in-context",        "comment": "class name, method name, proprty name, and variable name"},
+                    { "include": "#comments-inline-m"},
+                    { "include": "#comments-inline-psl"}
+                ] }
+            }
+        },
+        "literals": {
+            "patterns": [
+                {   "comment": "Non-integer values",
+                    "name": "constant.numeric.decimal.psl",
+                    "match": "(?:\\b|(?<=_))[0-9]*\\.[0-9]+(?=\\b|_)"
+                },
+                {   "comment": "Integer values",
+                    "name": "constant.numeric.integer.psl",
+                    "match": "(?:\\b|(?<=_))[0-9]+(?=\\b|_)"
+                },
+                { "include": "#strings",  "comment": "PSL String (double quoted"}
+            ]
+        },
+        "method-declaration": {
+            "comment": "A method declaration starts in the first position of the line.",
+            "comment": "Unfortunately, there are many variations that we need to account for.",
+            "comment": "In its most extensive form it has the following components:",
+            "comment": "",
+            "comment": "* accessModifier storageModifier resultClass methodName ( formal-list ) // comment",
+            "comment": "",
+            "comment": "From a syntax highlighting perspective, only the methodName is required",
+            "comment": "and in an M routine the '// comment' can also be arbitrary M code.",
+            "comment": "",
+            "name": "meta.function",
+            "match": "^(((([%A-Za-z][A-Za-z0-9]*)\\s+)*)([%A-Za-z][A-Za-z0-9]*)\\s+)*([%A-Za-z][A-Za-z0-9]*)(.*)",
+            "captures": {
+                "2": { "patterns": [
+                    { "comment": "access modifier:",  "include": "#modifiers"},
+                    { "comment": "old style label:",  "name": "entity.name.function.psl", "match": "([0-9]+|[%A-Za-z][A-Za-z0-9]*)"}
+                ] },
+                "5": { "patterns": [
+                    { "include": "#modifiers"},
+                    { "include": "#statements",  "comment": "Try statements prior to class names in case the line constains a label and statements."},
+                    { "include": "#class-names"}
+                ] },
+                "6": { "name": "entity.name.function.psl"
+                },
+                "7": { "patterns": [
+                    { "include": "#comments-inline-m"},
+                    { "include": "#comments-inline-psl"},
+                    { "include": "#formal-list"},
+                    { "include": "#statements"},
+                    { "include": "#literals"}
+                ] }
+            }
+        },
+        "modifiers": {
+            "patterns": [
+                {   "comment": "storage modifiers",
+                    "name": "storage.modifier.psl",
+                    "match": "\\b(final|literal|readonly|static)\\b"
+                },
+                {   "comment": "visibility modifiers",
+                    "name": "storage.modifier.visibility.psl",
+                    "match": "\\b(public|protected|private)\\b"
+                }
+            ]
+        },
+       "name-in-context": { "comment": "try to guess the kind of name based on the surrounding characters",
+            "patterns": [
+                {   "comment": "$$name ==> method name",
+                    "name": "entity.name.function.psl",
+                    "match": "\\$\\$([%A-Za-z][A-Za-z0-9]*)"
+                },
+                {   "comment": "$select() PSL language function",
+                    "name": "support.function.psl",
+                    "match": "(\\$select)(?=\\()"
+                },
+                {   "comment": ".name( ==> a method name (or tree property)",
+                    "name": "entity.name.function.psl",
+                    "match": "(\\.[%A-Za-z][A-Za-z0-9]*)(?=\\()"
+                },
+                {   "comment": ".name ==> a property name (note that this must follow the check for method)",
+                    "name": "variable.other.propertydef.psl",
+                    "match": "(\\.[%A-Za-z][A-Za-z0-9]*)"
+                },
+                {   "comment": "^routine = class name)",
+                    "name": "entity.name.class.psl",
+                    "match": "(\\^[%A-Za-z][A-Za-z0-9]+)"
+                },
+                {   "comment": "name. ==> instance variable (or class name in case of static method orproperty)",
+                    "name": "variable.other.instanceOrStatic.psl",
+                    "match": "([%A-Za-z][A-Za-z0-9]+)(?=\\.)"
+                },
+                {   "comment": "name^ ==> method name",
+                    "name": "entity.name.function.psl",
+                    "match": "([%A-Za-z][A-Za-z0-9]+)(?=\\^)"
+                },
+                {   "comment": "Keyword 'ret' in actual parameter list",
+                    "name": "storage.modifier.actual-list.psl",
+                    "match": "\\bret\\s+"
+                },
+                {   "comment": "If nothing else matches, try if it is a PSL/M name",
+                    "name": "entity.name.unknown.psl",
+                    "match": "[%A-Z-a-z][A-Z-a-z0-9]*"
+                }
+            ]
+        },
+        "optimize-directive": {
+            "comment": "#OPTIMIZE directive",
+            "match": "^\\s+(#OPTIMIZE)(\\s+)(.*)",
+            "captures": {
+                "1": { "name": "constant.language.codeGeneratorDirective.optimize.psl"},
+                "3": { "patterns": [
+                        {"include": "#optimize-keywords"},
+                        {"match": "(ON|OFF)", "name": "constant.language.psl"}
+                ] }
+            }
+        },
+        "optimize-keywords": {
+            "comment": "Active and deprecated OPTIMIZE keywords",
+            "patterns": [
+                        {"match": "(CUVARLITERAL|OBJECTS)", "name": "keyword.other.optimize.psl"},
+                        {"match": "(FUNCTIONS)", "name": "invalid.keyword.other.optimize.psl"}
+                ]
+        },
+        "option-directive": {
+            "comment": "#OPTION directive",
+            "match": "^\\s+(#OPTION)(\\s+)(.*)",
+            "captures": {
+                "1": { "name": "constant.language.codeGeneratorDirective.option.psl"},
+                "3": { "patterns": [
+                        {"include": "#option-keywords"},
+                        {"match": "(ON|OFF)", "name": "constant.language.psl"}
+                ] }
+            }
+        },
+        "option-keywords": {
+            "comment": "Active and deprecated #OPTION keywords",
+            "patterns": [
+                        {"match": "(IncludePSL|ResultClass)", "name": "keyword.other.option-keyword.psl"},
+                        {"match": "(\\$GetEFD|AutoPublicERRM|nolink)", "name": "invalid.keyword.other.option-keyword.psl"}
+                ]
+        },
+        "other-directive": {
+            "comment": "PSL code genertor directives that stand alone. All text follwoing the directive is ignored (treated as comment).",
+            "match": "^\\s+(#BYPASS|#ELSE|#END|#ENDBYPASS|#ENDIF)\\b(.*)",
+            "captures": {
+                "1": { "name": "constant.language.codeGeneratorDirective.psl"},
+                "2": { "name":  "comment.inline.psl"}
+            }
+        },
+        "package-directive": {
+            "comment": "#PACKAGE directive, followed by root package and optionally subpackages",
+            "match": "^\\s+(#PACKAGE)(\\s+)([A-Za-z][A-Za-z0-9]*)(\\.[A-Za-z][A-Za-z0-9]*)*",
+            "captures": {
+                "1": { "name": "constant.language.codeGeneratorDirective.package.psl"},
+                "3": { "name": "entity.name.rootPackage.psl"},
+                "4": { "name": "entity.name.subPackage.psl"}
+            }
+        },
+        "propertydef-directive": {
+            "match": "^\\s+(#PROPERTYDEF)(\\s+)([%A-Za-z][A-Za-z0-9]*)(.*)",
+            "captures": {
+                "1": { "name": "constant.language.propertydef.psl"},
+                "3": { "name": "entity.name.other.property.psl"},
+                "4": {
+                    "patterns": [
+                        { "name": "keyword.other.propertydef.psl", "match": "(class|node|position)"},
+                        { "include": "#modifiers"},
+                        { "include": "#special-constructs"},
+                        { "include": "#literals"},
+                        { "include": "#class-names"}
+                    ]
+                }
+            }
+        },
+        "special-constructs": {
+            "patterns": [
+                {
+                    "name": "constant.language.psl",
+                    "match": "(?:\\b|(?<=_))(true|false)(?=\\b|_)"
+                },
+                {   "comment": "System Keywords that are constant within the PSL process",
+                    "name": "constant.language.systemkeyword.psl",
+                    "match": "(%ModuleName|%ProcessID|%UserDirectory|%UserName)"
+                },
+                {   "comment": "System Keywords that are variable within the PSL process but read-only",
+                    "name": "variable.language.systemkeyword.readonly.psl",
+                    "match": "(%CurrentDate|%CurrentTime)"
+                },
+                {   "comment": "System Keywords that are variable within the PSL process",
+                    "name": "variable.language.systemkeyword.readwrite.psl",
+                    "match": "(%BatchExit|%BatchRestart|%CompanyName|%EffectiveDate|%Identifier|%ProcessMode|%SessionID|%SystemCurrency|%SystemDate|%UserClass|%UserID|%UserStation)"
+                },
+                {
+                    "match": "(?:\\b|(?<=_))(this|super)(?=\\b|_)",
+                    "name": "variable.language.psl"
+                }
+            ]
+        },
+        "statements": {
+            "patterns": [
+                {   "comment": "Declaration statement:",
+                    "comment": "  * keyword 'type'",
+                    "comment": "  * modifiers 'public new', 'public', 'literal', and 'static'",
+                    "comment": "    Note that 'public new' must occur before 'public' !",
+                    "comment": "  * class name",
+                    "comment": "  * variable name",
+
+                    "match": "\\s+(type\\s*)(public\\s+new\\s*|public\\s*|literal\\s*|static\\s*)?(%?[A-Za-z0-9]+\\s+)(%?[A-Za-z0-9]+)?",
+                    "captures": {
+                        "1": { "name": "keyword.other.declaration.psl"},
+                        "2": { "name": "storage.modifier.scope.psl"},
+                        "3": { "patterns": [
+                                { "include": "#class-names"}
+                            ] },
+                        "4": { "name": "variable.other.psl"}
+                    }
+                },
+                {   "comment": "Control statements",
+                    "match": "\\b(?<!\\.)(catch|do|else|for|if|job|quit|return|throw|while)\\b",
+                    "name": "keyword.control.statement.psl"
+                },
+                {   "comment": "Other statements",
+                    "match": "\\b(?<!\\.)(halt|hang|kill|lock|set|unlock)\\b",
+                    "name": "keyword.other.statement.psl"
+                },
+                {   "comment": "Deprecated statements",
+                    "match": "\\b(?<!\\.)(close|open|read|use|write)\\b",
+                    "name": "invalid.deprecated.statement.psl"
+                }
+            ]
+        },
+        "strings": {
+            "name": "string.quoted.double.psl",
+            "begin": "\"",
+            "end": "\""
+        },
+        "todo": {
+            "begin": "\\bTODO\\b",
+            "end": "(?=\\n|\\*/|/\\*|//)",
+            "name": "variable.other.jsdoc",
+            "patterns": [
+                {
+                    "match": "@\\w+",
+                    "name": "storage.type.class.jsdoc"
+                }
+            ]
+        },
+        "warn-directive": {
+            "comment": "#WARN and #INFO directives",
+            "match": "^\\s+(#INFO|#WARN)(\\s+)(.*)",
+            "captures": {
+                "1": { "name": "constant.language.codeGeneratorDirective.psl"},
+                "3": { "patterns": [
+                        {"include": "#warn-group"},
+                        {"match": "(ON|OFF)", "name": "constant.language.psl"}
+                ] }
+            }
+        },
+        "warn-group": {
+            "comment": "WARN, INFO and ACCEPT groups",
+            "patterns": [
+                        {"match": "(ACCESS|BYPASS|DATABASE|DEAD|DEPRECATED|FUNCTION|GLOBAL|LENGTH|MISMATCH|PRECEDENCE|READ|RECEXISTS|SCOPE|SYNTAX|SYSVAR)", "name": "keyword.other.warnGroup.psl"},
+                        {"match": "(DYNAMIC|XECUTE)", "name": "invalid.keyword.warnGroup.security.psl"}
+                ]
+        }
+    }
 }
