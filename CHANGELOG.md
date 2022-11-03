@@ -5,7 +5,7 @@ file.
 
 ## v1.13.1
 
-* Fix buges introduced in Language highlight enhancements.
+* Fix bugs introduced in Language highlight enhancements.
 
 ## v1.13.0
 
