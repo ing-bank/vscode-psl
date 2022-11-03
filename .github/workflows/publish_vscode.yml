@@ -36,7 +36,13 @@ jobs:
         node-version: '16.x'
         cache: 'npm'
     - run: npm install .
-    - run: npm run compile && npm i -g vsce && vsce package
     - env:
           VSCODE_TOKEN: ${{ secrets.VSCODE_TOKEN_PUBLISH }}
-      run: vsce publish -p $VSCODE_TOKEN
+      if: ${{ contains(github.ref, '-rc') }}
+      run: npm run compile && npm i -g vsce && vsce package --pre-release && vsce publish --pre-release -p $VSCODE_TOKEN
+      name: Publish Pre-Release
+    - env:
+          VSCODE_TOKEN: ${{ secrets.VSCODE_TOKEN_PUBLISH }}
+      run: npm run compile && npm i -g vsce && vsce package && vsce publish -p $VSCODE_TOKEN
+      if: ${{ ! contains(github.ref, '-rc') }}
+      name: Publish Release
