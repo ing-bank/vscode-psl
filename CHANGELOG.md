@@ -5,6 +5,10 @@ file.
 
 ## v1.13.0
 
+* Fix buges introduced in Language highlight enhancements.
+
+## v1.13.0
+
 * Language highlight enhancements.
 
 ## v1.12.1
