@@ -3,7 +3,7 @@
 All notable changes to the "vscode-psl" extension will be documented in this
 file.
 
-## v1.13.0
+## v1.13.1
 
 * Fix buges introduced in Language highlight enhancements.
 
