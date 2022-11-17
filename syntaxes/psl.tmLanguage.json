@@ -5,8 +5,8 @@
     "comment": "The order of the repository entries is not and occur in alpabetic order.",
     "comment": " ",
     "comment": "Known issues:",
-    "comment": "  * A statement on a line with a non-numeric label (i.e., no formal-list). is classified as entity.name.function.psl",
-    "comment": "  * A local method occurrence in a do statement is not recognized",
+    "comment": "  * A statement on a line with a non-numeric label (i.e., no formal-list) is classified as entity.name.function.psl",
+    "comment": "  * A local method occurrence in a do statement is classified as entity.name.unknown.psl",
 
     "name": "Profile Scripting Language",
     "scopeName": "source.psl",
@@ -143,7 +143,7 @@
         "formal-parameter": {
             "name": "meta.function.formal-parameter.psl",
             "patterns": [
-        {   "match": "(\\s*)(noreq\\s+ret\\s+|noreq\\s+|req\\s+ret\\s+|req\\s+|ret\\s+)?([%A-Za-z][A-Za-z0-9]*\\s+)?([%A-Za-z][A-Za-z0-9]*)(\\((,?\\s*([%A-Za-z][A-Za-z0-9]*)\\s*)*\\))?",
+                {   "match": "(\\s*)(noreq\\s+ret\\s+|noreq\\s+|req\\s+ret\\s+|req\\s+|ret\\s+)?([%A-Za-z][A-Za-z0-9]*\\s+)?([%A-Za-z][A-Za-z0-9]*)(\\((,?\\s*([%A-Za-z][A-Za-z0-9]*)?\\s*)*\\))?",
                     "captures": {
                         "2": { "name": "storage.modifier.formal-argument.psl"},
                         "3": { "patterns": [
@@ -242,7 +242,8 @@
             },
             "end": "\\)",
             "patterns": [
-                    { "include": "#formal-parameter"}
+                    { "include": "#formal-parameter"},
+                    { "include": "#comments-inline-psl"}
                 ]
         },
         "modifiers": {
@@ -415,11 +416,12 @@
                     }
                 },
                 {   "comment": "Declaration statement - tree:",
-                    "comment": "  * keyword 'type'",
-                    "comment": "  * modifiers 'public new' and 'public'",
-                    "comment": "    Note that 'public new' must occur before 'public' !",
-                    "comment": "  * class name",
-                    "comment": "  * variable name",
+                    "comment": "  1. keyword 'type'",
+                    "comment": "  2. modifiers 'public new' and 'public'",
+                    "comment": "     Note that 'public new' must occur before 'public' !",
+                    "comment": "  3. class name",
+                    "comment": "  4. variable name",
+                    "comment": "  5. ( class name, ... )",
                     "match": "\\s+(type\\s*)(public\\s+new\\s*|public\\s*)?([%A-Za-z][A-Za-z0-9]*\\s+)([%A-Za-z][A-Za-z0-9]*(\\((,?\\s*([%A-Za-z][A-Za-z0-9]*)\\s*)*\\)))",
                     "captures": {
                         "1": { "name": "keyword.other.declaration.tree.psl"},
@@ -436,20 +438,44 @@
                         }
                     }
                 },
-               {   "comment": "Declaration statement - other:",
-                    "comment": "  * keyword 'type'",
-                    "comment": "  * modifiers 'public new', 'public', and 'literal'",
-                    "comment": "    Note that 'public new' must occur before 'public' !",
-                    "comment": "  * class name",
-                    "comment": "  * variable name",
-                    "match": "\\s+(type\\s+)(public\\s+new\\s+|public\\s+|literal\\s+)?([%A-Za-z][A-Za-z0-9]*\\s+)([%A-Za-z][A-Za-z0-9]*)",
+                {   "comment": "Declaration statement - deprecated tree:",
+                    "comment": "  1. keyword 'type'",
+                    "comment": "  2. modifiers 'public new', 'public', and 'literal'",
+                    "comment": "     Note that 'public new' must occur before 'public' !",
+                    "comment": "  3. class name",
+                    "comment": "  4. variable name",
+                    "comment": "  5. (,...)",
+                    "match": "\\s+(type\\s+)(public\\s+new\\s+|public\\s+|literal\\s+)?([%A-Za-z][A-Za-z0-9]*\\s+)([%A-Za-z][A-Za-z0-9]*)(\\((\\s*,?\\s*)*\\))",
                     "captures": {
                         "1": { "name": "keyword.other.declaration.other.psl"},
                         "2": { "name": "storage.modifier.scope.psl"},
                         "3": { "patterns": [
                                 { "include": "#class-names"}
                         ] },
-                        "4": { "name": "variable.other.psl"}
+                        "4": { "name": "variable.other.psl"},
+                        "5": { "name": "storage.modifier.deprecated.psl"}
+                    }
+                },
+                {   "comment": "Declaration statement - other:",
+                    "comment": "  1. keyword 'type'",
+                    "comment": "  2. modifiers 'public new', 'public', and 'literal'",
+                    "comment": "     Note that 'public new' must occur before 'public' !",
+                    "comment": "  3. class name",
+                    "comment": "  4. variable name",
+                    "comment": "  5. , variable name ...",
+                    "match": "\\s+(type\\s+)(public\\s+new\\s+|public\\s+|literal\\s+)?([%A-Za-z][A-Za-z0-9]*\\s+)([%A-Za-z][A-Za-z0-9]*)(((\\s*,)\\s*[%A-Za-z][A-Za-z0-9]*)*)",
+                    "captures": {
+                        "1": { "name": "keyword.other.declaration.other.psl"},
+                        "2": { "name": "storage.modifier.scope.psl"},
+                        "3": { "patterns": [
+                                { "include": "#class-names"}
+                        ] },
+                        "4": { "name": "variable.other.psl"},
+                        "5": { "patterns": [
+                                { "match": "[%A-Za-z][A-Za-z0-9]*",
+                                  "name": "variable.other.psl"
+                                }
+                        ] }
                     }
                 },
                 {   "comment": "Control statements",
