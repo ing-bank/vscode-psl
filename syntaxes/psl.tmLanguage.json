@@ -143,7 +143,7 @@
         "formal-parameter": {
             "name": "meta.function.formal-parameter.psl",
             "patterns": [
-                {   "match": "(\\s*)(noreq\\s+ret\\s+|noreq\\s+|req\\s+ret\\s+|req\\s+|ret\\s+)?([%A-Za-z][A-Za-z0-9]*\\s+)?([%A-Za-z][A-Za-z0-9]*)(\\((,?\\s*([%A-Za-z][A-Za-z0-9]*)?\\s*)*\\))?",
+                {   "match": "(\\s*)(req\\s+ret\\s+|req\\s+noret\\s+|req\\s+|ret\\s+|noret\\s+)?([%A-Za-z][A-Za-z0-9]*\\s+)?([%A-Za-z][A-Za-z0-9]*)(\\((,?\\s*([%A-Za-z][A-Za-z0-9]*)?\\s*)*\\))?",
                     "captures": {
                         "2": { "name": "storage.modifier.formal-argument.psl"},
                         "3": { "patterns": [
