@@ -5,6 +5,4 @@ node_modules
 *.vsix
 .project
 .settings
-src/hostif/target/*
 .classpath
-src/pslLint/cli/lib/*

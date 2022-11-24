@@ -135,7 +135,7 @@ describe('ParsedDocFinder', () => {
 	}
 
 	beforeAll(async () => {
-		filesDir = path.resolve('__tests__', 'files');
+		filesDir = path.resolve('test', 'files');
 
 		parentFilePath = path.join(filesDir, 'ZParent.PROC');
 		childFilePath = path.join(filesDir, 'ZChild.PROC');

@@ -25,8 +25,11 @@ If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
  - OS: [e.g. iOS]
- - vscode version: [e.g. 1.72.2]
- - vscode-psl version[e.g. 1.12.1]
+ - psl-parser version: [e.g. 1.72.2]
+ - node version[e.g. 1.12.1]
+
+**Error output**
+Add the error information available.
 
 **Additional context**
 Add any other context about the problem here.

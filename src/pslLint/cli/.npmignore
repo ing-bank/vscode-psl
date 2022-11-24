@@ -1,6 +1,0 @@
-*.ts
-!*.d.ts
-tsconfig.json
-*.tgz
-.npmrc*
-*.map
