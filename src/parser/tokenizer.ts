@@ -45,7 +45,7 @@ export class Token {
 		return this.type === Type.Alphanumeric;
 	}
 	isNumeric() {
-		return this.type === Type.Numeric;
+		return this.type === Type.Integer;
 	}
 	isLineComment() {
 		return this.type === Type.LineComment;
@@ -268,7 +268,7 @@ class Tokenizer {
 
 	parseCharacter(char: string): boolean {
 		if (this.tokenType === Type.Alphanumeric) {
-			if (this.charType === Type.Alphanumeric || this.charType === Type.Numeric) {
+			if (this.charType === Type.Alphanumeric || this.charType === Type.Integer) {
 				this.tokenValue = this.tokenValue + char;
 				this.parsed = true;
 				this.documentColumn++;
@@ -277,8 +277,8 @@ class Tokenizer {
 				this.finalizeToken(this.charType);
 				return true;
 			}
-		} else if (this.tokenType === Type.Numeric) {
-			if (this.charType === Type.Numeric) {
+		} else if (this.tokenType === Type.Integer) {
+			if (this.charType === Type.Integer) {
 				this.tokenValue = this.tokenValue + char;
 				this.parsed = true;
 				this.documentColumn++;
@@ -400,13 +400,13 @@ class Tokenizer {
 			this.documentColumn = 0;
 			this.finalizeToken(0);
 			return true;
-		} else if (this.tokenType > 10) { // all other token types
+		} else if (this.tokenType === -1) { // undefined
 			this.tokenValue = this.tokenValue + char;
 			this.parsed = true;
 			this.documentColumn++;
 			this.finalizeToken(0);
 			return true;
-		} else if (this.tokenType === -1) { // undefined
+		} else if (this.tokenType >= 0) { // all other token types
 			this.tokenValue = this.tokenValue + char;
 			this.parsed = true;
 			this.documentColumn++;
@@ -415,7 +415,6 @@ class Tokenizer {
 		}
 		return false;
 	}
-
 	finalizeToken(newType: number): void {
 		this.token = new Token(this.tokenType, this.tokenValue, this.tokenPosition);
 		this.tokenType = newType;
@@ -426,11 +425,19 @@ class Tokenizer {
 
 function getType(c: string): Type {
 	const charCode: number = c.charCodeAt(0);
+
+	if (charCode === 12313) {
+		return Type.Alphanumeric;
+	if (charCode === 9) {
+		return Type.Tab;
+	} else if (charCode === 10) {
+		return Type.LineFeed;
+	}
 	// Find a better way to incorporate the %
 	if (charCode >= 65 && charCode <= 90 || charCode >= 97 && charCode <= 122 || charCode === 37) {
 		return Type.Alphanumeric;
 	} else if (charCode >= 48 && charCode <= 57) {
-		return Type.Numeric;
+		return Type.Integer;
 	} else if (charCode === 34) {
 		return Type.DoubleQuotes;
 	} else if (charCode === 47) {
@@ -438,7 +445,7 @@ function getType(c: string): Type {
 	} else if (charCode === 9) {
 		return Type.Tab;
 	} else if (charCode === 10) {
-		return Type.NewLine;
+		return Type.LineFeed;
 	} else if (charCode === 32) {
 		return Type.Space;
 	} else if (charCode === 33) {
@@ -508,24 +515,107 @@ function getType(c: string): Type {
 }
 
 export const enum Type {
-	Alphanumeric = 1,
-	Numeric = 2,
-	LineComment = 3,
-	BlockComment = 4,
-	String = 5,
-	LineCommentInit = 6,
-	BlockCommentInit = 7,
-	BlockCommentTerm = 8,
-	DoubleQuotes = 9,
-	Slash = 10,
+	// Special case for an undefined token.
+	Undefined = -1,
 
-	Tab = 11,
-	NewLine = 13,
+	// Other negative numbers are reserved for composite tokens.
+	
+	//TODO: reg for Alphanumeric
+	/* 
+	Expression: RegExp('')  >> [%A-Za-z][A-Za-z0-9]* A-Z any Alpha character defined in unicode
+	Examples:
+		- %, %1, %A, %a, az12, a12, é12, ú13, josé
+	*/
+	// 
+	Alphanumeric = -2,
+
+	/* 
+	Expression: RegExp('^[0-9]*\.?[0-9]+$')
+	Examples:
+		- 0.5
+		- .1
+		- 10
+		- 10.56
+	*/
+	Number = -3,
+
+	/* 
+	Expression: RegExp('') 
+	Examples:
+		- //
+	*/
+	LineCommentInitPSL = -10,
+
+	/* 
+	Expression: RegExp('') TODO up to end of line
+	Examples:
+		- // Line comment
+		- //Line comment
+	*/
+	LineCommentPSL = -4,
+
+	/* 
+	Expression: RegExp('') TODO up to end of line
+	Examples:
+		- ;Line comment
+		- ; Line comment
+	*/
+	LineCommentMUMPS = -5,
+
+	/* 
+	Expression: RegExp('') TODO
+	Examples:
+		- /*
+	*/
+	BlockCommentInit = -6,
+
+	/* 
+	Expression: RegExp('') TODO
+	Examples:
+		- *\/
+	Note: 	'/' is escaped to prevent problems with terminator of
+			this block comment.
+	*/
+	BlockCommentTerm = -7,
+
+	/* 
+	Expression: Everything between BlockCommentInit and BlockCommentTerm
+	Examples:
+		- /* My block comment *\/
+		- /*
+		    My block comment
+		  *\/
+	Note: 	'/' is escaped to prevent problems with terminator of
+			this block comment.
+	*/
+	BlockComment = -8,
+
+	/* 
+	Expression: RegExp('') 
+	Examples:
+		- "Anything between double quotes"
+	*/
+	String = -9,
+
+	/* 
+	Expression: RegExp('') 
+	Examples:
+		- LineFeed
+		- CarriageReturn
+		- CarriageReturn LineFeed
+	*/
+	EndOfLine = -12,
+
+	// Non-negative numbers are reserved for unicode codepoints.
+	Tab = 9,
+	LineFeed = 10,
+	CarriageReturn = 13,
 	Space = 32,
 	ExclamationMark = 33,
+	DoubleQuotes = 34,
 	NumberSign = 35,
 	DollarSign = 36,
-	// PercentSign = 37,
+	PercentSign = 37,
 	Ampersand = 38,
 	SingleQuote = 39,
 	OpenParen = 40,
@@ -535,6 +625,7 @@ export const enum Type {
 	Comma = 44,
 	MinusSign = 45,
 	Period = 46,
+	ForwardSlash = 47,
 	Colon = 58,
 	SemiColon = 59,
 	LessThan = 60,
@@ -553,5 +644,4 @@ export const enum Type {
 	CloseBrace = 125,
 	Tilde = 126,
 
-	Undefined = -1,
-}
+	}

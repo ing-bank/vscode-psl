@@ -52,11 +52,13 @@ enum STORAGE_MODIFIERS {
 	STATIC = 'static',
 	NEW = 'new',
 	LITERAL = 'literal',
+	FINAL = 'final',
 }
 
 enum ACCESS_MODIFIERS {
 	PUBLIC = 'public',
 	PRIVATE = 'private',
+	PROTECTED = 'protected',
 }
 
 enum STATEMENT_KEYWORD {
