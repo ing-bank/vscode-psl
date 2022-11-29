@@ -3,6 +3,10 @@
 All notable changes to the "vscode-psl" extension will be documented in this
 file.
 
+## v1.13.3
+
+* Corrected highlight for storage modifier keywords in formal parameter rule.
+
 ## v1.13.2
 
 * Further enhancements in Language highlight.
