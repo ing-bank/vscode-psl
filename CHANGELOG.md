@@ -3,6 +3,10 @@
 All notable changes to the "vscode-psl" extension will be documented in this
 file.
 
+## v1.12.2
+
+* Update dependency json5 to 2.2.3
+
 ## v1.12.1
 
 * Fix of bug where `Buffer` was not decoded to a `string`.
