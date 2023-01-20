@@ -136,7 +136,15 @@ export interface PostCondition extends Node {
 export type Expression = Value | BinaryOperator | PostCondition | MultiSet;
 
 export interface Statement extends Node {
+	/**
+	 * The type of the statement, i.e. `do`, `if`, `set`, etc.
+	 * For the statement `set x = 1`, `set` is the action and `x = 1` is the expression.
+	 */
 	action: Token;
+	/**
+	 * The code following the `action`. For the statement `set x = 1`,
+	 * `set` is the action and `x = 1` is the expression.
+	 */
 	expressions: Expression[];
 	block?: Node;
 }
@@ -215,8 +223,8 @@ export class StatementParser {
 		let loadFunction: () => Expression | undefined;
 		let kind: SyntaxKind;
 
-		const loadSingleExpression = (): Statement => {
-			if (!this.next(true)) return { action, kind, expressions: [] };
+		const loadSingleExpression = (skipSpaces: boolean): Statement => {
+			if (!this.next(skipSpaces)) return { action, kind, expressions: [] };
 			const expression: Expression | undefined = loadFunction();
 			const expressions = expression ? [expression] : [];
 			return { kind, action, expressions };
@@ -247,7 +255,7 @@ export class StatementParser {
 			case STATEMENT_KEYWORD.CATCH:
 				loadFunction = () => this.parseExpression();
 				kind = SyntaxKind.CATCH_STATEMENT;
-				return loadCommaSeparatedExpressions();
+				return loadSingleExpression(true);
 
 			case STATEMENT_KEYWORD.FOR:
 				return this.parseForStatement();
@@ -255,17 +263,17 @@ export class StatementParser {
 			case STATEMENT_KEYWORD.QUIT:
 				loadFunction = () => this.parseExpression();
 				kind = SyntaxKind.QUIT_STATEMENT;
-				return loadCommaSeparatedExpressions();
+				return loadSingleExpression(false);
 
 			case STATEMENT_KEYWORD.RETURN:
 				loadFunction = () => this.parseExpression();
 				kind = SyntaxKind.RETURN_STATEMENT;
-				return loadSingleExpression();
+				return loadSingleExpression(true);
 
 			case STATEMENT_KEYWORD.WHILE:
 				loadFunction = () => this.parseExpression();
 				kind = SyntaxKind.WHILE_STATEMENT;
-				return loadSingleExpression();
+				return loadSingleExpression(true);
 
 			case STATEMENT_KEYWORD.TYPE:
 				return this.parseTypeStatement();
@@ -596,7 +604,7 @@ export class StatementParser {
 			return this.parseValue(operator);
 		}
 
-		if (value && this.activeToken && this.activeToken.isWhiteSpace()) this.next(true);
+		if (value && this.activeToken && this.activeToken.isWhiteSpace()) this.next();
 
 		return value;
 	}
