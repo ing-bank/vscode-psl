@@ -1,8 +1,8 @@
 {
-    "comment": "Syntax highlighting for the Profile Scripting Langauge (PSL) and M",
+    "comment": "Syntax highlighting for the Profile Scripting Language (PSL) and M",
     "comment": " ",
-    "comment": "The order of the includes and mataches in the patterns is significant",
-    "comment": "The order of the repository entries is not and occur in alpabetic order.",
+    "comment": "The order of the includes and matches in the patterns is significant",
+    "comment": "The order of the repository entries is not and occur in alphabetic order.",
     "comment": " ",
     "comment": "Known issues:",
     "comment": "  * A statement on a line with a non-numeric label (i.e., no formal-list) is classified as entity.name.function.psl",
@@ -27,7 +27,7 @@
         { "include": "#literals",               "comment": "Numeric literals and string literals"},
         { "include": "#special-constructs",     "comment": "true/false, this/super, system keywords"},
         { "include": "#modifiers",              "comment": "private, protected, literal, readonly, etc."},
-        { "include": "#name-in-context",        "comment": "class name, method name, proprty name, and variable name"}
+        { "include": "#name-in-context",        "comment": "class name, method name, property name, and variable name"}
     ],
     "repository": {
         "accept-directive": {
@@ -63,10 +63,48 @@
         },
         "comments": {
             "patterns": [
+                { "include": "#comments-section-marker"},
+                { "include": "#comments-section-marker-block"},
                 { "include": "#comments-inline-m"},
                 { "include": "#comments-inline-psl"},
                 { "include": "#comments-psldoc",  "comment": "This rule must occur *before* the rule for a (standard) comment block."},
                 { "include": "#comments-block"}
+            ]
+        },
+        "comments-section-marker": {
+            "begin": "^----------",
+            "end": "------ Section marker",
+            "name": "comment.batch.section",
+            "captures": {
+                "0": { "name": "punctuation.definition.comment.psl"}
+            },
+            "patterns": [
+                { "match": "\\w+", "name": "entity.name.function.psl" }
+            ]
+        },
+        "comments-section-marker-block": {
+            "begin": "^---------- REVHIST ------ Section marker",
+            "end": "^---------- OPEN\\s+------ Section marker",
+            "name": "comment.batch.section",
+            "beginCaptures": {
+                "0": { 
+                    "patterns": [
+                        { "include": "#comments-section-marker" }
+                    ]
+                }
+            },
+            "endCaptures": {
+                "0": { 
+                    "patterns": [
+                        { "include": "#comments-section-marker" }
+                    ]
+                }
+            },
+            "patterns": [
+                { "include": "#comments-inline-m"},
+                { "include": "#comments-inline-psl"},
+                { "include": "#doc-params"},
+                { "include": "#todo"}
             ]
         },
         "comments-block": {
@@ -161,15 +199,15 @@
             ]
         },
         "if-directive": {
-            "comment": "PSL code genertor directives that are followed by PSL code",
+            "comment": "PSL code generator directives that are followed by PSL code",
             "match": "^\\s+(#IF|#ELSEIF)\\b(.*)",
             "captures": {
                 "1": { "name": "constant.language.codeGeneratorDirective.psl"},
                 "2": { "patterns": [
-                    { "include": "#statements",  "comment": "Try statements prior to class names in case the line constains a label and statements."},
+                    { "include": "#statements",  "comment": "Try statements prior to class names in case the line contains a label and statements."},
                     { "include": "#literals",               "comment": "Numeric literals and string literals"},
                     { "include": "#special-constructs",     "comment": "true/false, this/super, system keywords"},
-                    { "include": "#name-in-context",        "comment": "class name, method name, proprty name, and variable name"},
+                    { "include": "#name-in-context",        "comment": "class name, method name, property name, and variable name"},
                     { "include": "#comments-inline-m"},
                     { "include": "#comments-inline-psl"}
                 ] }
@@ -195,10 +233,10 @@
                 ] },
                 "4": { "name": "entity.name.function.psl" },
                 "5": { "patterns": [
-                    { "include": "#statements",  "comment": "Try statements prior to class names in case the line constains a label and statements." },
+                    { "include": "#statements",  "comment": "Try statements prior to class names in case the line contains a label and statements." },
                     { "include": "#literals",               "comment": "Numeric literals and string literals"},
                     { "include": "#special-constructs",     "comment": "true/false, this/super, system keywords"},
-                    { "include": "#name-in-context",        "comment": "class name, method name, proprty name, and variable name"},
+                    { "include": "#name-in-context",        "comment": "class name, method name, property name, and variable name"},
                     { "include": "#comments-inline-m"},
                     { "include": "#comments-inline-psl"}
                 ]}
@@ -284,7 +322,7 @@
                     "comment": "they take precedence over other static methods or properties.",
                     "include": "#psl-language-class"
                 },
-                {   "comment": "name. ==> instance variable (or class name in case of static method orproperty)",
+                {   "comment": "name. ==> instance variable (or class name in case of static method or property)",
                     "name": "variable.other.instanceOrStatic.psl",
                     "match": "([%A-Za-z][A-Za-z0-9]*)(?=\\.)"
                 },
@@ -339,7 +377,7 @@
                 ]
         },
         "other-directive": {
-            "comment": "PSL code genertor directives that stand alone. All text follwoing the directive is ignored (treated as comment).",
+            "comment": "PSL code genertor directives that stand alone. All text following the directive is ignored (treated as comment).",
             "match": "^\\s+(#BYPASS|#ELSE|#END|#ENDBYPASS|#ENDIF)\\b(.*)",
             "captures": {
                 "1": { "name": "constant.language.codeGeneratorDirective.psl"},
