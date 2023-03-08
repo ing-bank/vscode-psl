@@ -26,6 +26,7 @@
         { "include": "#statements",             "comment": "PSL statements"},
         { "include": "#literals",               "comment": "Numeric literals and string literals"},
         { "include": "#special-constructs",     "comment": "true/false, this/super, system keywords"},
+        { "include": "#operators",              "comment": "binary and unary operators"},
         { "include": "#modifiers",              "comment": "private, protected, literal, readonly, etc."},
         { "include": "#name-in-context",        "comment": "class name, method name, property name, and variable name"}
     ],
@@ -63,8 +64,8 @@
         },
         "comments": {
             "patterns": [
-                { "include": "#comments-section-marker"},
                 { "include": "#comments-section-marker-block"},
+                { "include": "#comments-section-marker"},
                 { "include": "#comments-inline-m"},
                 { "include": "#comments-inline-psl"},
                 { "include": "#comments-psldoc",  "comment": "This rule must occur *before* the rule for a (standard) comment block."},
@@ -87,22 +88,20 @@
             "end": "^---------- OPEN\\s+------ Section marker",
             "name": "comment.batch.section",
             "beginCaptures": {
-                "0": { 
+                "0": {
                     "patterns": [
                         { "include": "#comments-section-marker" }
                     ]
                 }
             },
             "endCaptures": {
-                "0": { 
+                "0": {
                     "patterns": [
                         { "include": "#comments-section-marker" }
                     ]
                 }
             },
             "patterns": [
-                { "include": "#comments-inline-m"},
-                { "include": "#comments-inline-psl"},
                 { "include": "#doc-params"},
                 { "include": "#todo"}
             ]
@@ -115,8 +114,6 @@
                 "0": { "name": "punctuation.definition.comment.psl"}
             },
             "patterns": [
-                { "include": "#comments-inline-m"},
-                { "include": "#comments-inline-psl"},
                 { "include": "#doc-params"},
                 { "include": "#todo"}
             ]
@@ -204,10 +201,11 @@
             "captures": {
                 "1": { "name": "constant.language.codeGeneratorDirective.psl"},
                 "2": { "patterns": [
-                    { "include": "#statements",  "comment": "Try statements prior to class names in case the line contains a label and statements."},
-                    { "include": "#literals",               "comment": "Numeric literals and string literals"},
-                    { "include": "#special-constructs",     "comment": "true/false, this/super, system keywords"},
-                    { "include": "#name-in-context",        "comment": "class name, method name, property name, and variable name"},
+                    { "include": "#statements",         "comment": "Try statements prior to class names in case the line contains a label and statements."},
+                    { "include": "#literals",           "comment": "Numeric literals and string literals"},
+                    { "include": "#special-constructs", "comment": "true/false, this/super, system keywords"},
+                    { "include": "#operators",          "comment": "binary and unary operators"},
+                    { "include": "#name-in-context",    "comment": "class name, method name, proprty name, and variable name"},
                     { "include": "#comments-inline-m"},
                     { "include": "#comments-inline-psl"}
                 ] }
@@ -233,10 +231,11 @@
                 ] },
                 "4": { "name": "entity.name.function.psl" },
                 "5": { "patterns": [
-                    { "include": "#statements",  "comment": "Try statements prior to class names in case the line contains a label and statements." },
-                    { "include": "#literals",               "comment": "Numeric literals and string literals"},
-                    { "include": "#special-constructs",     "comment": "true/false, this/super, system keywords"},
-                    { "include": "#name-in-context",        "comment": "class name, method name, property name, and variable name"},
+                    { "include": "#statements",         "comment": "Try statements prior to class names in case the line contains a label and statements." },
+                    { "include": "#literals",           "comment": "Numeric literals and string literals"},
+                    { "include": "#special-constructs", "comment": "true/false, this/super, system keywords"},
+                    { "include": "#operators",          "comment": "binary and unary operators"},
+                    { "include": "#name-in-context",    "comment": "class name, method name, proprty name, and variable name"},
                     { "include": "#comments-inline-m"},
                     { "include": "#comments-inline-psl"}
                 ]}
@@ -340,6 +339,10 @@
                 }
             ]
         },
+        "operators": { "comment": "binary and unary operators",
+            "name": "keyword.operator.psl",
+            "match": "\\_|\\+|\\-|\\*|\\/|\\\\|\\#|\\<|\\=|\\>|\\!|\\&|\\?|\\'|(\\b(or|and|not)\\b)"
+        },
         "optimize-directive": {
             "comment": "#OPTIMIZE directive",
             "match": "^\\s+(#OPTIMIZE)(\\s+)(.*)",
@@ -377,7 +380,7 @@
                 ]
         },
         "other-directive": {
-            "comment": "PSL code genertor directives that stand alone. All text following the directive is ignored (treated as comment).",
+            "comment": "PSL code generator directives that stand alone. All text following the directive is ignored (treated as comment).",
             "match": "^\\s+(#BYPASS|#ELSE|#END|#ENDBYPASS|#ENDIF)\\b(.*)",
             "captures": {
                 "1": { "name": "constant.language.codeGeneratorDirective.psl"},
