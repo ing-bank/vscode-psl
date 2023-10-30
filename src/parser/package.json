@@ -8,14 +8,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/ing-bank/vscode-psl.git"
+        "url": "git+https://github.com/jarosm3/vscode-psl.git"
     },
     "author": "atiplea",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/ing-bank/vscode-psl/issues"
+        "url": "https://github.com/jarosm3/vscode-psl/issues"
     },
-    "homepage": "https://github.com/ing-bank/vscode-psl#readme",
+    "homepage": "https://github.com/jarosm3/vscode-psl#readme",
     "dependencies": {
         "fs-extra": "^5.0.0"
     }

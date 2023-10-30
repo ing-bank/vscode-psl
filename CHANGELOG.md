@@ -3,6 +3,10 @@
 All notable changes to the "vscode-psl" extension will be documented in this
 file.
 
+## v1.13.5
+
+* iso88592 support
+
 ## v1.13.4
 
 * Update the `json5` dependency to 2.2.3 and increment version numbers. Note

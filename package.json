@@ -2,9 +2,9 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "1.13.4",
+  "version": "1.13.5",
   "preview": true,
-  "publisher": "ing-bank",
+  "publisher": "jarosm3",
   "engines": {
     "vscode": "^1.72.2"
   },
@@ -839,7 +839,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ing-bank/vscode-psl"
+    "url": "https://github.com/jarosm3/vscode-psl"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
@@ -854,6 +854,7 @@
   },
   "dependencies": {
     "fs-extra": "^10.1.0",
+    "iconv-lite": "^0.6.3",
     "jsonc-parser": "^3.2.0",
     "minimatch": "^5.1.0",
     "request-light": "^0.5.8",

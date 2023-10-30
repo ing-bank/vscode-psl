@@ -1,6 +1,7 @@
 import HostSocket from './hostSocket';
 import * as utils from './utils';
 import * as fs from 'fs';
+import * as encode from '../common/encode';
 
 enum ServiceClass {
 	CONNECTION = 0,
@@ -158,7 +159,14 @@ export class MtmConnection {
 
 	private async _send(filename: string) {
 		let returnString: string;
-		let fileString: string = (await readFileAsync(filename, {encoding: this.encoding})).toString(this.encoding);
+		// orig: let fileString: string = (await readFileAsync(filename, {encoding: this.encoding})).toString(this.encoding);
+		let fileContent = await readFileAsync(filename);		
+		let fileString: string;
+		if (Buffer.isBuffer(fileContent)) {
+			fileString = encode.bufferToString(fileContent, this.encoding);
+		} else {
+			fileString = fileContent;
+		}
 		let fileContentLength: number = fileString.length;
 		let totalLoop: number = Math.ceil(fileContentLength / 1024);
 		let codeToken: string = '';

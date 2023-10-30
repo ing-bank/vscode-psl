@@ -49,7 +49,7 @@
 					"encoding": {
 						"type": "string",
 						"description": "Encoding to use in request/response. The default value is \"utf8\".",
-						"enum": ["ascii", "utf8", "ucs2", "base64", "latin1", "binary", "hex"]
+						"enum": ["ascii", "utf8", "ucs2", "base64", "latin1", "binary", "hex", "iso88592"]
 					}
 				}
 			}

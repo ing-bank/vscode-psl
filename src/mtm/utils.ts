@@ -1,5 +1,6 @@
 import * as os from 'os';
 import * as path from 'path';
+import * as encode from '../common/encode';
 
 interface FileDetails {
 	fileId: string
@@ -122,12 +123,15 @@ export function parseResponse(serviceClass: number, outputData: Buffer, encoding
 	returnArray = lv2vFormat(outputData);
 	returnArray = lv2vFormat(returnArray[1]);
 	returnArray = lv2vFormat(returnArray[1]);
-	returnString = returnArray[0].toString(encoding)
+	//orig: returnString = returnArray[0].toString(encoding)
+	returnString = encode.bufferToString(returnArray[0], encoding)
 	if (returnString === 'ER') {
-		throw returnArray.map(x => x.toString(encoding)).join('')
+		//orig: throw returnArray.map(x => x.toString(encoding)).join('')
+		throw returnArray.map(x => encode.bufferToString(x, encoding)).join('')
 	}
 	if (serviceClass === 5) {
-		returnString = returnArray[2].toString(encoding) + String.fromCharCode(0) + returnArray[3].toString(encoding)
+		//orig: returnString = returnArray[2].toString(encoding) + String.fromCharCode(0) + returnArray[3].toString(encoding)
+		returnString = encode.bufferToString(returnArray[2], encoding) + String.fromCharCode(0) + encode.bufferToString(returnArray[3], encoding)		
 	}
 	return returnString;
 }

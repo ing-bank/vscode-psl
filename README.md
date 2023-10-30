@@ -1,7 +1,7 @@
 # vscode-psl
 
 
-[![Build and Test CI](https://github.com/ing-bank/vscode-psl/actions/workflows/build_test_vscode.yml/badge.svg)](https://github.com/ing-bank/vscode-psl/actions/workflows/build_test_vscode.yml)
+[![Build and Test CI](https://github.com/jarosm3/vscode-psl/actions/workflows/build_test_vscode.yml/badge.svg)](https://github.com/jarosm3/vscode-psl/actions/workflows/build_test_vscode.yml)
 
 Profile Scripting Language functionality for Visual Studio Code.
 
