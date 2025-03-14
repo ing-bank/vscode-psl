@@ -3,6 +3,11 @@
 All notable changes to the "vscode-psl" extension will be documented in this
 file.
 
+## v1.15.0
+
+* Further enhancements to the PSL syntax highlighter.
+* Introduction of a MUMPS-dedicated syntax highlighter.
+
 ## v1.14.0
 
 * Syntax highlighting enhancements.
