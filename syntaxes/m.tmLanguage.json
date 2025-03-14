@@ -1,0 +1,586 @@
+{
+  "comment": "---",
+  "comment": "Syntax highlighting for MUMPS (M), supporting GT.M-specific constructs.",
+  "comment": "---",
+  "comment": "The order of the includes and matches in the patterns is significant. On the contrary, the order of",
+  "comment": "the repository entries is not: repository entries occur in alphabetic order.",
+  "comment": "---",
+  "comment": "KNOWN ISSUES",
+  "comment": " 1. All nth (n > 1) local label/subroutine occurrences in 'do' statements are wrongly classified as",
+  "comment": "    local variables (i.e., 'variable.other.local.m'). The same holds for the implicit invocation of a",
+  "comment": "    routine's label (i.e., '^ROUTINE') - all occurrences of such implicit invocations not immediately",
+  "comment": "    following a 'do' command get recognized as global variables (i.e., 'variable.other.global.m').",
+  "comment": "---",
+  
+  "name": "MUMPS",
+  
+  "scopeName": "source.m",
+  
+  "patterns": [
+      { 
+        "include": "#comments-inline",
+        "comment": "M single-line comments (comment-to-end-of-line)."
+      },
+      { 
+        "include": "#do-block",
+        "comment": "'do' block -> literal dot(s) specifying the current level of nesting"
+      },
+      { 
+        "include": "#subroutine-declaration",
+        "comment": "Subroutine declaration (i.e., label with parameters)."
+      },
+      { 
+        "include": "#label-declaration",
+        "comment": "Label declaration (i.e., identifier at the beginning of a line)."
+      },
+      { 
+        "include": "#commands",
+        "comment": "M commands (both standard and GT.M-specific)."
+      },
+      {
+        "include": "#functions",
+        "comment": "Intrinsic functions (both standard and GT.M-specific)."
+      },
+      {
+        "include": "#pattern-matching",
+        "comment": "---",
+        "comment": "Pattern matching (construct following the '?' operator).",
+        "comment": "---",
+        "comment": "Mind that the rule must precede '#literals'. Otherwise, subconstructs <repetition>(<alternation>)",
+        "comment": "would not be recognized as part of a pattern. Instead, the highlighter would assume <repetition>",
+        "comment": "to be a numeric constant and the parentheses wrapping the alternation expression to be symbols",
+        "comment": "used as brackets by the language (as defined in 'm-language-configuration.m').",
+        "comment": "---"
+      },
+      { 
+        "include": "#literals",
+        "comment": "Numeric literals and string literals."
+      },
+      {
+        "include": "#psl-stemming",
+        "comment": "Variables originating from read-write PSL special variables (e.g., %CO, %UCLS, %UID, etc.)."
+      },
+      { 
+        "include": "#special-variables",
+        "comment": "Intrinsic special variables (both standard and GT.M-specific)."
+      },
+      { 
+        "include": "#operators",
+        "comment": "Unary and binary operators."
+      },
+      { 
+        "include": "#name-in-context",
+        "comment": "E.g., pass-by-return in actual parameter list, label invocation, variable name, etc."
+      }
+  ],
+  
+  "repository": {
+
+      "commands": {
+          "comment": "---",
+          "comment": "M commands (both standard and GT.M-specific).",
+          "comment": "---",
+          "comment": "Ideally, a token specifying some command should not be immediately preceded (i.e., delimited by",
+          "comment": "a single blanck) by yet another command-designating token. If it were to be the case that this",
+          "comment": "restriction isn't imposed, the former would be mistaken for an argument of the latter. However,",
+          "comment": "enforcing this rule brings about a handful of technical complications:",
+          "comment": "---",
+          "comment": " 1. The regex engine does not allow for negative look-behind non-capture groups to contain",
+          "comment": "    capturing groups - i.e., it is not feasible to group all argument-accepting commands in a",
+          "comment": "    negative look-behind non-capturing group, and to easily account for all variations of the",
+          "comment": "    spelling of a command (e.g., 'DO' may also be written as 'D', 'd', 'Do', 'do' and 'dO').",
+          "comment": "---",
+          "comment": " 2. The possible existence of a post-conditional hinders the contextual determination of a",
+          "comment": "    token's syntactic group - e.g., by enforcing the rather naive rule exposed above, the token",
+          "comment": "    'q' in the expression 'w q' would be correctly classified as a local variable; however,",
+          "comment": "    slightly modifying the expression to 'w:1 q' misleads the highlighter to wrongly qualify the",
+          "comment": "    token as a command.",
+          "comment": "---",
+          "comment": " 3. Even if a correct implementation of the above-mentioned rule were to exist (including the",
+          "comment": "    check for post-conditionals), there would still exist some misleading corner cases that",
+          "comment": "    need to be accounted for. Consider the expression 'w s w'. Although both occurrences of the",
+          "comment": "    token 'w' should be identified as commands, the second 'w' doesn't actually comply with the",
+          "comment": "    putative rule for identifying the syntactic group. Since the argument of the first 'write'",
+          "comment": "    command (i.e., 's') corresponds to the abbreviation of a command (i.e., 'set'), the syntax",
+          "comment": "    highlighter would ignore the second occurrence of 'w' as it scanned the expression.",
+          "comment": "---",
+          "patterns": [
+              {
+                "name": "keyword.control.standard.m",
+                "comment": "Standard control commands.",
+                "match": "(?<=[ \t]\\.*)(?i)(B(REAK)?|DO?|E(LSE)?|F(OR)?|G(OTO)?|H(ALT)?|H(ANG)?|IF?|J(OB)?|Q(UIT)?|X(ECUTE)?)(?-i)(?=($|\\:|[ \t]))"
+              },
+              {
+                "name": "keyword.other.standard.c-tc.m",
+                "comment": "Other standard commands (CLOSE - TCOMMIT).",
+                "match": "(?<=[ \t]\\.*)(?i)(C(LOSE)?|K(ILL)?|L(OCK)?|M(ERGE)?|N(EW)?|O(PEN)?|R(EAD)?|S(ET)?|TC(OMMIT)?)(?-i)(?=($|\\:|[ \t]))"
+              },
+              {
+                "name": "keyword.other.standard.tr-w.m",
+                "comment": "Other standard commands (TRESTART - WRITE).",
+                "match": "(?<=[ \t]\\.*)(?i)(TRE(START)?|TRO(LLBACK)?|TS(TART)?|U(SE)?|V(IEW)?|W(RITE)?)(?-i)(?=($|\\:|[ \t]))"
+              },
+              {
+                "name": "keyword.control.gtm.m",
+                "comment": "GT.M-specific control commands.",
+                "match": "(?<=[ \t]\\.*)(?i)(ZB(REAK)?|ZC(ONTINUE)?|ZG(OTO)?|ZHALT|ZSY(STEM)?)(?-i)(?=($|\\:|[ \t]))"
+              },
+              {
+                "name": "keyword.other.gtm.za-zk.m",
+                "comment": "Other GT.M-specific commands (ZALLOCATE - ZKILL).",
+                "match": "(?<=[ \t]\\.*)(?i)(ZA(LLOCATE)?|ZCOM(PILE)?|ZD(EALLOCATE)?|ZED(IT)?|ZH(ELP)?|ZL(INK)?|ZK(ILL)?)(?-i)(?=($|\\:|[ \t]))"
+              },
+              {
+                "name": "keyword.other.gtm.zm-ztr.m",
+                "comment": "Other GT.M-specific commands (ZMESSAGE - ZTRIGGER).",
+                "match": "(?<=[ \t]\\.*)(?i)(ZM(ESSAGE)?|ZP(RINT)?|ZRUP(DATE)?|ZSH(OW)?|ZST(EP)?|ZTC(OMMIT)?|ZTR(IGGER)?)(?-i)(?=($|\\:|[ \t]))"
+              },
+              {
+                "name": "keyword.other.gtm.zts-zw.m",
+                "comment": "Other GT.M-specific commands (ZTSTART - ZWRITE).",
+                "match": "(?<=[ \t]\\.*)(?i)(ZTS(TART)?|ZWI(THDRAW)?|ZWR(ITE)?)(?-i)(?=($|\\:|[ \t]))"
+              }
+          ]
+      },
+      
+      "comments-inline": {
+          "name": "comment.line.semicolon.m",
+          "begin": ";",
+          "beginCaptures": {
+              "0": { "name": "punctuation.definition.comment.m"}
+          },
+          "end": "\\n"
+      },
+
+      "do-block": {
+          "name": "entity.other.doblock.m",
+          "comment": "'do' block -> literal dot(s) specifying the current level of nesting",
+          "begin": "^[ \t]+\\.+[ \t]*",
+          "end": "\n",
+          "patterns": [
+              { "include": "#comments-inline"},
+              { "include": "#commands"},
+              { "include": "#functions"},
+              { "include": "#pattern-matching"},
+              { "include": "#literals"},
+              { "include": "#psl-stemming"},
+              { "include": "#special-variables"},
+              { "include": "#operators"},
+              { "include": "#name-in-context"}
+          ]
+      },
+
+      "functions": {
+          "comment": "Intrinsic functions (both standard and GT.M-specific).",
+          "patterns": [
+              {
+                "name": "entity.name.function.intrinsic.standard.a-i.m",
+                "comment": "Standard intrinsic functions ($ASCII - $INCREMENT).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(A(SCII)?|C(HAR)?|D(ATA)?|E(XTRACT)?|F(IND)?|FN(UMBER)?|G(ET)?|I(NCR(EMENT)?)?))(?-i)(?=\\()",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.function.m"}
+                }
+              },
+              {
+                "name": "entity.name.function.intrinsic.standard.j-q.m",
+                "comment": "Standard intrinsic functions ($JUSTIFY - $QUERY).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(J(USTIFY)?|L(ENGTH)?|NA(ME)?|O(RDER)?|P(IECE)?|QL(ENGTH)?|QS(UBSCRIPT)?|Q(UERY)?))(?-i)(?=\\()",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.function.m"}
+                }
+              },
+              {
+                "name": "entity.name.function.intrinsic.standard.r-v.m",
+                "comment": "Standard intrinsic functions ($RANDOM - $VIEW).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(R(ANDOM)?|REPLACE|RE(VERSE)?|S(ELECT)?|ST(ACK)?|T(EXT)?|TR(ANSLATE)?|V(IEW)?))(?-i)(?=\\()",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.function.m"}
+                }
+              },
+              {
+                "name": "invalid.deprecated.function.intrinsic.standard.m",
+                "comemnt": "As '$NEXT()' has been removed from the standard in the MDC, you should use '$ORDER'.",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$N(EXT)?)(?-i)(?=\\()",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.function.m"}
+                }
+              },
+              {
+                "name": "entity.name.function.intrinsic.gtm.za-zbitc.m",
+                "comment": "GT.M-specific intrinsic functions ($ZHANDLE - $ZBITCOUNT).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZAH(ANDLE)?|ZA(SCII)?|ZATR(ANSFORM)?|ZAU(DITLOG)?|ZBITAND|ZBITCOUNT))(?-i)(?=\\()",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.function.m"}
+                }
+              },
+              {
+                "name": "entity.name.function.intrinsic.gtm.zbitf-zbitx.m",
+                "comment": "GT.M-specific intrinsic functions ($ZBITFIND - $ZBITXOR).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZBITFIND|ZBITGET|ZBITLEN|ZBITNOT|ZBITOR|ZBITSET|ZBITSTR|ZBITXOR))(?-i)(?=\\()",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.function.m"}
+                }
+              },
+              {
+                "name": "entity.name.function.intrinsic.gtm.zc-zf.m",
+                "comment": "GT.M-specific intrinsic functions ($ZCHAR - $ZFIND).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZCH(AR)?|ZCOL(LATE)?|ZCO(NVERT)?|ZDATA|ZD(ATE)?|ZE(XTRACT)?|ZF(IND)?))(?-i)(?=\\()",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.function.m"}
+                }
+              },
+              {
+                "name": "entity.name.function.intrinsic.gtm.zg-zpe.m",
+                "comment": "GT.M-specific intrinsic functions ($ZGETJPI - $ZPEEK).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZGETJPI|ZJOBEXAM|ZJ(USTIFY)?|ZL(ENGTH)?|ZM(ESSAGE)?|ZPARSE|ZPEEK))(?-i)(?=\\()",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.function.m"}
+                }
+              },
+              {
+                "name": "entity.name.function.intrinsic.gtm.zpi-zsi.m",
+                "comment": "GT.M-specific intrinsic functions ($ZPIECE - $ZSIGPROC).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZPI(ECE)?|ZP(REVIOUS)?|ZQGBLMOD|ZREPLACE|ZSOCKET|ZSYSLOG|ZSEARCH|ZSIGPROC))(?-i)(?=\\()",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.function.m"}
+                }
+              },
+              {
+                "name": "entity.name.function.intrinsic.gtm.zsu-zw.m",
+                "comment": "GT.M-specific intrinsic functions ($ZSUBSTR - $ZWRITE).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZSUB(STR)?|ZTR(ANSLATE)?|ZTRI(GGER)?|ZTRNLNM|ZW(IDTH)?|ZWR(ITE)?))(?-i)(?=\\()",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.function.m"}
+                }
+              }
+          ]
+      },
+
+      "label-declaration": {
+          "name": "meta.function.label.m",
+          "comment": "A label declaration starts in the first position of the line.",
+          "match": "^([%A-Za-z0-9][A-Za-z0-9]*)(?!\\()(\\:)?",
+          "captures": {
+              "1": { "name": "entity.name.function.label.m"},
+              "2": {
+                     "name": "storage.modifier.label.local.m",
+                     "comment": "---",
+                     "comment": "Literal colon delimiter causing the label to be treated as local. Local labels are",
+                     "comment": "available only during compilation, and inaccessible to other routines or to either",
+                     "comment": "indirection or 'XECUTE'.",
+                     "comment": "---"
+                   }
+          }
+      },
+
+      "literals": {
+          "patterns": [
+              { 
+                "name": "constant.numeric.decimal.m",
+                "comment": "---",
+                "comment": "Non-integer values.",
+                "comment": "---",
+                "comment": "Either <num>.<num> preceded by a word boundary or .<num> preceded by a non-word boundary.",
+                "comment": "By means of this, the rule is able to recognize both allowed formats for decimals even if",
+                "comment": "immediately preceded by an operator.",
+                "comment": "---",
+                "match": "((?<=\\b|_)[0-9]+|(?<=\\B|_))\\.[0-9]+(?=\\b|_)"
+              },
+              { 
+                "name": "constant.numeric.integer.m",
+                "comment": "Integer values.",
+                "match": "(?<=\\b|_)[0-9]+(?=\\b|_)"
+              },
+              {
+                "name": "constant.numeric.exp.m",
+                "comment": "Numeric values in the form of a mantissa and an exponent.",
+                "match": "((((?<=\\b|_)[0-9]+|(?<=\\B|_))\\.[0-9]+)|(?<=\\b|_)[0-9]+)E[0-9]+(?=\\b|_)"
+              },
+              {
+                "name": "string.quoted.double.m",
+                "comment": "M string (double quoted).",
+                "begin": "\"",
+                "end": "\""
+              }
+          ]
+      },
+
+      "name-in-context": {
+          "comment": "Guessing the kind of 'name' based on the surrounding characters.",
+          "patterns": [
+              { 
+                "name": "storage.modifier.actual-list.m",
+                "comment": "Literal dot signalling pass-by-return in actual parameter list.",
+                "match": "(?<=[\\(\\,])\\.(?=[%\"A-Za-z0-9][A-Za-z0-9]*)"
+              },
+              { 
+                "name": "entity.name.class.m",
+                "comment": "---",
+                "comment": "^name ==> routine name (both utilities and custom)",
+                "comment": "---",
+                "comment": "The allowed formats for routine names are:",
+                "comment": "  DO ^ROUTINENAME",
+                "comment": "  DO LABEL^ROUTINENAME",
+                "comment": "  $$[FUNC]^ROUTINENAME[(param1,...)]",
+                "comment": "---",
+                "comment": "Note that, currently, only the first occurence of a 'naked' routine reference (i.e.,",
+                "comment": "implicit invocation of a routine's label -> '^ROUTINENAME') in a 'do' statement actually",
+                "comment": "gets recognized as such.",
+                "comment": "---",
+                "match": "((?<=(?i)DO?(?-i) )|(?<=[\\%\\$A-Za-z0-9]))\\^[%A-Za-z][A-Za-z0-9]*"
+              },
+              { 
+                "comment": "^[|env1,...|]name ==> global variable",
+                "match": "(?<=\\B|\\_)(\\^)((\\|.+\\|)|(\\[.+\\]))?([%A-Za-z][A-Za-z0-9]*)",
+                "captures": {
+                    "1": { "name": "variable.other.global.m"},
+                    "2": { 
+                           "name": "entity.name.environment.m",
+                           "patterns": [
+                              { "include": "#functions"},
+                              { "include": "#pattern-matching"},
+                              { "include": "#literals"},
+                              { "inclide": "#psl-stemming"},
+                              { "include": "#special-variables"},
+                              { "include": "#operators"},
+                              { "include": "#name-in-context"}
+                           ]
+                         },
+                    "5": { "name": "variable.other.global.m"}
+                }
+              },
+              { 
+                "name": "variable.other.global.naked.m",
+                "comment": "^( ==> naked reference to global variable",
+                "match": "(?<=\\B|\\_)\\^(?=\\()"
+              },
+              { 
+                "name": "entity.name.function.subroutine.m",
+                "comment": "---",
+                "comment": "$$[name][^] ==> subroutine name (followed by '^ROUTINENAME' if non-local)",
+                "comment": "---",
+                "comment": "Look ahead positive (non-capturing group) for caret (i.e, '(?=\\^)'), since it already",
+                "comment": "belongs to the scope 'entity.name.class.m' (i.e., ^ROUTINENAME).",
+                "comment": "---",
+                "match": "(?<!^)\\$\\$([%A-Za-z][A-Za-z0-9]*)?(?=\\^?)"
+              },
+              { 
+                "comment": "---",
+                "comment": "name[+intexp]^ ==> label name (followed by '^ROUTINENAME')",
+                "comment": "---",
+                "comment": "Look ahead positive (non-capturing group) for caret (i.e, '(?=\\^)'), since it already",
+                "comment": "belongs to the scope 'entity.name.class.m' (i.e., ^ROUTINENAME).",
+                "comment": "---",
+                "match": "([%A-Za-z0-9][A-Za-z0-9]*)(\\+([0-9]+))?(?=\\^)",
+                "captures": {
+                    "1": { "name": "entity.name.function.label.m"},
+                    "3": { "name": "constant.numeric.integer.offset.m"}
+                }
+              },
+              { 
+                "comment": "---",
+                "comment": "do name, ... ==> invocation of local label/subroutine",
+                "comment": "---",
+                "comment": "Bear in mind that, currently, only the first reference to a local label/subroutine gets",
+                "comment": "recognized by the syntax highlighter. (Also, note that this assumes the first reference",
+                "comment": "within the 'do' statement to be to a local label/subroutine. If the first occurrence of a",
+                "comment": "local label/subroutine does not coincide with the first invocation within the statement,",
+                "comment": "the rule is skipped.)",
+                "comment": "---",
+                "match": "(?<=(?i)DO?(?-i)(\\:\\S+)? )([%A-Za-z][A-Za-z0-9]*)(\\+([0-9]+)|(?=\\())?",
+                "captures": {
+                    "2": { "name": "entity.name.function.m"},
+                    "4": { "name": "constant.numeric.integer.offset.m"}
+                }
+              },
+              { 
+                "name": "variable.other.local.m",
+                "comment": "Local variables (mind that it currently captures unsought entities).",
+                "match": "[%A-Za-z][A-Za-z0-9]*(?=\\(?)"
+              },
+              { 
+                "name": "entity.name.unknown.m",
+                "comment": "If nothing else matches... (currently, ineffectual).",
+                "match": "[%A-Z-a-z][A-Z-a-z0-9]*"
+              }
+          ]
+      },
+
+      "operators": {
+          "patterns": [
+              {
+                "name": "keyword.operator.m",
+                "comment": "Unary and binary operators.",
+                "match": "\\_|\\+|\\-|\\*|\\/|\\\\|\\#|\\<|\\=|\\>|\\!|\\&|\\?|\\'|\\[|\\]"
+              },
+              {
+                "name": "keyword.operator.indirection.m",
+                "comment": "Indirection \"operation\".",
+                "match": "\\@"
+              },
+              {
+                "name": "keyword.operator.postconditional.m",
+                "comment": "Post-conditional \"operation\".",
+                "match": "\\:"
+              }
+          ]
+      },
+
+      "pattern-matching": {
+          "name": "variable.other.pattern-matching.m",
+          "comment": "---",
+          "comment": "Pattern matching (construct following the '?' operator).",
+          "comment": "---",
+          "comment": "The whole pattern receives the same coloration by the highlighter. Although it would be nice to",
+          "comment": "differentiate distinct components of the pattern (e.g., repetition counts, pattern codes, etc.)",
+          "comment": "via highlighting, it is rather difficult (maybe, impossible) to assemble a regular expression",
+          "comment": "that differentially captures each distinct component of a pattern - only the last iteration of",
+          "comment": "a repeated captured group gets actually captured.",
+          "comment": "---",
+          "comment": "Moreover, note that there is currently no control over the contents of an alternation expression",
+          "comment": "(i.e., alternation expressions accept invalid patterns).",
+          "comment": "---",
+          "comment": "Nonetheless, for future reference, the BNF specification for M pattern constructs is:",
+          "comment": "<pattern> ::= <repetition-count>(<string>|<pattern-code>|<alternation>)",
+          "comment": "<repetition-count> ::= <digit>+|(<digit>*'.'<digit>*)",
+          "comment": "<string> ::= '\"'<any-character>*'\"'",
+          "comment": "<pattern-code> ::= ('a'|'A')|('c'|'C')|('e'|'E')|('l'|'L')|('n'|'N')|('p'|'P')|('u'|'U')",
+          "comment": "<alternation> ::= '('<pattern>(','<pattern>)*')'",
+          "comment": "---",
+          "match": "(?<=\\?)(([0-9]+|[0-9]*\\.[0-9]*)(\".*\"|\\(.{2,}\\)|(?i)[ACELNPU](?-i)))+",
+          "captures": {
+              "0": { "name": "markup.italic.pattern-matching.m"}
+          }
+      },
+
+      "psl-stemming": {
+          "comment": "---",
+          "comment": "PSL constant (i.e., %ModuleName, %ProcessID, %UserDirectory and %UserName) and read-only",
+          "comment": "(i.e., %CurrentDate and %CurrentTime) special variables are either directly mapped to an M",
+          "comment": "intrinsic special variable or attained via invoking an M function.",
+          "comment": "---",
+          "patterns": [
+              {
+                "name": "variable.other.systemkeyword.readwrite.m",
+                "comment": "---",
+                "comment": "System keywords that are variable within the PSL/M process.",
+                "comment": "---",
+                "comment": "%BatchExit -> vEXIT",
+                "comment": "%BatchRestart -> vRESTART",
+                "comment": "%CompanyName -> %CO",
+                "comment": "%EffectiveDate -> EFD",
+                "comment": "%Identifier -> %IDENT",
+                "comment": "%ProcessMode -> %O",
+                "comment": "%SessionID -> %TOKEN",
+                "comment": "%SystemCurrency -> %CRCD",
+                "comment": "%SystemDate -> TJD",
+                "comment": "%UserClass -> %UCLS",
+                "comment": "%UserID -> %UID",
+                "comment": "%UserStation -> TLO",
+                "comment": "---",
+                "match": "((?<=\\b|_)(vEXIT|vRESTART|EFD|TJD|TLO)|(?<=\\B|_)(%CO|%IDENT|%O|%TOKEN|%CRCD|%UCLS|%UID))(?=\\b|_)"
+              }
+          ]
+      },
+
+      "special-variables": {
+          "comment": "Intrinsic special variables (both standard and GT.M-specific).",
+          "patterns": [
+              {
+                "name": "variable.language.intrinsic.standard.d-p.m",
+                "comment": "Standard intrinsic special variables ($DEVICE - $PRINCIPAL).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(D(EVICE)?|EC(ODE)?|ES(TACK)?|ET(RAP)?|H(OROLOG)?|IO?|J(OB)?|K(EY)?|P(RINCIPAL)?))(?-i)(?=\\b|\\_)",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.variable.m"}
+                }
+              },
+              {
+                "name": "variable.language.intrinsic.standard.q-y.m",
+                "comment": "Standard intrinsic special variables ($QUIT - $Y).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(Q(UIT)?|R(EFERENCE)?|ST(ACK)?|S(TORAGE)?|SY(STEM)?|T(EST)?|TL(EVEL)?|TR(ESTART)?|X|Y))(?-i)(?=\\b|\\_)",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.variable.m"}
+                }
+              },
+              {
+                "name": "variable.language.intrinsic.gtm.za-zcm.m",
+                "comment": "GT.M-specific intrinsic special variables ($ZA - $ZCMDLINE).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZA|ZAL(LOCSTOR)?|ZAUD(IT)?|ZB|ZCH(SET)?|ZCL(OSE)?|ZDA(TEFORM)?|ZCM(DLINE)?))(?-i)(?=\\b|\\_)",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.variable.m"}
+                }
+              },
+              {
+                "name": "variable.language.intrinsic.gtm.zco-zg.m",
+                "comment": "GT.M-specific intrinsic special variables ($ZCOMPILE - $ZGBLDIR).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZCO(MPILE)?|ZC(STATUS)?|ZD(IR(ECTORY)?)?|ZED(IT)?|ZEOF?|ZE(RROR)?|ZG(BLDIR)?))(?-i)(?=\\b|\\_)",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.variable.m"}
+                }
+              },
+              {
+                "name": "variable.language.intrinsic.gtm.zh-zk.m",
+                "comment": "GT.M-specific intrinsic special variables ($ZHOROLOG - $ZKEY).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZH(OROLOG)?|ZICU(VER)?|ZINI(NTERRUPT)?|ZINT(ERRUPT)?|ZIO|ZJ(OB)?|ZKEY))(?-i)(?=\\b|\\_)",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.variable.m"}
+                }
+              },
+              {
+                "name": "variable.language.intrinsic.gtm.zl-zpi.m",
+                "comment": "GT.M-specific intrinsic special variables ($ZLEVEL - $ZPIN).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZL(EVEL)?|ZMALL(OCLIM)?|ZMAXTPTI(ME)?|ZMO(DE)?|ZONLN(RLBK)?|ZPATN(UMERIC)?|ZPIN))(?-i)(?=\\b|\\_)",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.variable.m"}
+                }
+              },
+              {
+                "name": "variable.language.intrinsic.gtm.zpo-zr.m",
+                "comment": "GT.M-specific intrinsic special variables ($ZPOSITION - $ZROUTINES).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZPOS(ITION)?|ZPOUT|ZPROM(PT)?|ZQ(UIT)?|ZRE(ALSTOR)?|ZREL(DATE)?|ZRO(UTINES)?))(?-i)(?=\\b|\\_)",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.variable.m"}
+                }
+              },
+              {
+                "name": "variable.language.intrinsic.gtm.zs-zti.m",
+                "comment": "GT.M-specific intrinsic special variables ($ZSOURCE - $ZTIMEOUT).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZSO(URCE)?|ZS(TATUS)?|ZST(EP)?|ZSTRP(LLIM)?|ZSY(STEM)?|ZTE(XIT)?|ZTIM(EOUT)?))(?-i)(?=\\b|\\_)",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.variable.m"}
+                }
+              },
+              {
+                "name": "variable.language.intrinsic.gtm.ztr-zy.m",
+                "comment": "GT.M-specific intrinsic special variables ($ZTRAP - $ZYERROR).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZT(RAP)?|ZUS(EDTOR)?|ZUT|ZV(ERSION)?|ZYER(ROR)?))(?-i)(?=\\b|\\_)",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.variable.m"}
+                }
+              },
+              {
+                "name": "variable.language.intrinsic.gtm.trigger.m",
+                "comment": "GT.M-specific intrinsic special variables (trigger operations).",
+                "match": "(?<!^)(?<=\\B|\\_)(?i)(\\$(ZTDA(TA)?|ZTDE(LIM)?|ZTL(EVEL)?|ZTNAME|ZTOL(DVAL)?|ZTRI(GGEROP)?|ZTS(LATE)?|ZTUP(DATE)?|ZTVA(LUE)?|ZTWO(RMHOLE)?))(?-i)(?=\\b|\\_)",
+                "captures": {
+                    "1": { "name": "markup.italic.intrinsic.variable.m"}
+                }
+              }
+          ]
+      },
+
+      "subroutine-declaration": {
+          "name": "meta.function.subroutine.m",
+          "comment": "---",
+          "comment": "A subroutine declaration is a label declaration with a formal parameter list. Like a label, it",
+          "comment": "starts in the first position of the line.",
+          "comment": "---",
+          "begin": "^([%A-Za-z][A-Za-z0-9]*)\\(",
+          "beginCaptures": {
+              "1": { "name": "entity.name.function.subroutine.m"}
+          },
+          "end": "\\)",
+          "patterns": [ { "name": "variable.parameter.m", "match": "[%A-Za-z][A-Za-z0-9]*"}]
+      }
+  }
+}

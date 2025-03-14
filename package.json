@@ -2,7 +2,7 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "1.13.4",
+  "version": "1.15.0",
   "preview": true,
   "publisher": "ing-bank",
   "engines": {
@@ -70,8 +70,8 @@
       {
         "id": "psl",
         "aliases": [
-          "Profile Scripting Language",
-          "psl"
+          "PSL",
+          "Profile Scripting Language"
         ],
         "extensions": [
           ".PROC",
@@ -79,6 +79,19 @@
           ".psl"
         ],
         "configuration": "./languages/psl-language-configuration.json"
+      },
+      {
+        "id": "m",
+        "aliases": [
+          "M",
+          "MUMPS",
+          "Mumps"
+        ],
+        "extensions": [
+          ".m",
+          ".M"
+        ],
+        "configuration": "./languages/m-language-configuration.json"
       },
       {
         "id": "profileBatch",
@@ -106,6 +119,11 @@
         "language": "psl",
         "scopeName": "source.psl",
         "path": "./syntaxes/psl.tmLanguage.json"
+      },
+      {
+        "language": "m",
+        "scopeName": "source.m",
+        "path": "./syntaxes/m.tmLanguage.json"
       },
       {
         "language": "profileBatch",
