@@ -1,23 +1,23 @@
 {
     "comment": "---",
-    "comment": "Syntax highlighting for the Profile Scripting Language (PSL) and M.",
+    "comment": "Syntax highlighting for the Profile Scripting Language (PSL).",
     "comment": "---",
     "comment": "The order of the includes and matches in the patterns is significant. On the contrary, the order of",
     "comment": "the repository entries is not: repository entries occur in alphabetic order.",
     "comment": "---",
     "comment": "SOLVED ISSUES [relative to the previous iteration]",
-    "comment": "  1. A statement on a line with a non-numeric label (i.e., no formal-list) is classified as",
-    "comment": "     'entity.name.function.psl'",
+    "comment": " 1. A statement on a line with a non-numeric label (i.e., no formal-list) is classified as",
+    "comment": "    'entity.name.function.psl'",
     "comment": "---",
     "comment": "KNOWN ISSUES",
-    "comment": "  1. In SCMs, nth (n > 1) local subroutine/label occurrences in 'do' statements are classified as",
-    "comment": "     'entity.name.unknown.psl'. [Adversity: only the last iteration of a repeated capturing group is",
-    "comment": "     actually captured.]",
-    "comment": "  2. Tokens are categorized as 'variable.other.psl' in contexts where they should be qualified as",
-    "comment": "     'entity.name.unknown.psl'. [Bear in mind that the latter was deprecated in favor of the former in",
-    "comment": "     the current iteration. The benefits of categorizing all currently unknown entities as variables",
-    "comment": "     most certainly exceed its costs: most occurrences of unknown entities throughout PSL code actually",
-    "comment": "     correspond to variables.]",
+    "comment": " 1. In SCMs, nth (n > 1) local subroutine/label occurrences in 'do' statements are classified as",
+    "comment": "    'variable.other.psl'. [Adversity: only the last iteration of a repeated capturing group is",
+    "comment": "    actually captured.]",
+    "comment": " 2. Tokens are categorized as 'variable.other.psl' in contexts where they should be qualified as",
+    "comment": "    'entity.name.unknown.psl'. [Bear in mind that the latter was deprecated in favor of the former in",
+    "comment": "    the current iteration. The benefits of categorizing all currently unknown entities as variables",
+    "comment": "    most certainly exceed its costs: most occurrences of unknown entities throughout PSL code actually",
+    "comment": "    correspond to variables.]",
     "comment": "---",
     
     "name": "Profile Scripting Language",
@@ -87,7 +87,7 @@
         },
         { 
           "include": "#special-constructs",
-          "comment": "I.e., true/false, this/super, system keywords."
+          "comment": "I.e., true/false, this/super, and system keywords."
         },
         { 
           "include": "#operators",
@@ -117,9 +117,11 @@
         "class-names": {
             "patterns": [
                 { "include": "#psl-language-class"},
-                { "name": "entity.name.class.psl",
+                { 
+                  "name": "entity.name.class.psl",
                   "comment": "All other names that occur when a class name is expected.",
-                  "match": "[%A-Za-z][A-Za-z0-9]*"}
+                  "match": "[%A-Za-z][A-Za-z0-9]*"
+                }
             ]
         },
   
@@ -145,8 +147,7 @@
                 { "include": "#comments-section-marker"},
                 { "include": "#comments-inline-m"},
                 { "include": "#comments-inline-psl"},
-                { "include": "#comments-psldoc",
-                  "comment": "This rule must occur *before* the rule for a (standard) comment block."},
+                { "include": "#comments-psldoc", "comment": "This rule must occur *before* '#comments-block'."},
                 { "include": "#comments-block"}
             ]
         },
@@ -203,34 +204,27 @@
         
         "comments-inline-m": {
             "name": "comment.line.semicolon.psl",
-            "comment": "---",
-            "comment": "1. Note that M-style comments are valid in PSL.",
-            "comment": "2. Do 'doc-params' make any sense in this context [single-line comment]?",
-            "comment": "---",
+            "comment": "Mind that M-style comments are valid in PSL.",
             "begin": ";",
             "beginCaptures": {
                 "0": { "name": "punctuation.definition.comment.psl"}
             },
             "end": "\\n",
             "patterns": [
-                { "include": "#doc-params"},
+                { "include": "#doc-params", "comment": "Possibly remove [?]"},
                 { "include": "#todo"}
             ]
         },
   
         "comments-inline-psl": {
             "name": "comment.line.double-slash.psl",
-            "comment": "---",
-            "comment": "Does including 'doc-params' in the list of patterns to be matched make any sense in this",
-            "comment": "context [single-line comment]?",
-            "comment": "---",
             "begin": "//",
             "beginCaptures": {
                 "0": { "name": "punctuation.definition.comment.psl"}
             },
             "end": "\\n",
             "patterns": [
-                { "include": "#doc-params"},
+                { "include": "#doc-params", "comment": "Possibly remove [?]"},
                 { "include": "#todo"}
             ]
         },
@@ -242,7 +236,7 @@
             "comment": "2. The 'DOC' block should also have a set of following dashes to create a clearly visible",
             "comment": "   break. While this is not required by the compiler to identify the documentation start, it",
             "comment": "   is required as part of the standard for readability.",
-            "comment": "3. It is assumed that both 'DOC' and 'ENDDOC' should be delimited by either spaces or tabs.",
+            "comment": "3. It is assumed that both 'DOC' and 'ENDDOC' must be delimited by either spaces or tabs.",
             "comment": "4. Is the existence of 'comments-psldoc' really beneficial in the context of syntax",
             "comment": "   highlighting? Although it provides an extra scope [maybe useful if inspecting editor tokens",
             "comment": "   and scopes?], it is still a subcategory of 'comments-block'.",
@@ -253,8 +247,8 @@
                 "0": { "name": "punctuation.definition.comment.psl"}
             },
             "patterns": [
-                { "include": "#comments-inline-m", "comment": "Is it really necessary?"},
-                { "include": "#comments-inline-psl", "comment": "Is it really necessary?"},
+                { "include": "#comments-inline-m", "comment": "Possibly remove [?]"},
+                { "include": "#comments-inline-psl", "comment": "Possibly remove [?]"},
                 { "include": "#doc-params"},
                 { "include": "#todo"}
             ]
@@ -262,10 +256,11 @@
   
         "doc-params": {
             "patterns": [
-                { "comment": "---",
+                {
+                  "comment": "---",
                   "comment": "PSL DOC subsections with an identifier.",
                   "comment": "---",
-                  "comment": "Visit the 'package-directive' subsection for the reasoning behing the optional group at",
+                  "comment": "Visit the 'package-directive' subsection for the reasoning behind the optional group at",
                   "comment": "the end of the regex.",
                   "comment": "---",
                   "match": "^[ \t]*(@(args|param|publicnew|public|throws)\\b)([ \t]+([A-Za-z\\-0-9%_\\.]+)[ \t]*)?",
@@ -275,9 +270,11 @@
                       "4": { "name": "variable.other.jsdoc", "comment": "The variable or error ID."}
                   }
                 },
-                { "name": "markup.heading.jsdoc",
+                {
+                  "name": "markup.heading.jsdoc",
                   "comment": "PSL DOC subsections without an identifier.",
-                  "match": "^[ \t]*@(created|return|when)\\b[ \t]*"}
+                  "match": "^[ \t]*@(created|return|when)\\b[ \t]*"
+                }
             ]
         },
   
@@ -296,7 +293,7 @@
             "comment": "PSL code generator directives that are followed by PSL code",
             "match": "^[ \t]+(#IF|#ELSEIF)\\b(.*)",
             "captures": {
-                "1": { "name": "constant.language.codeGeneratorDirective.psl"},
+                "1": { "name": "constant.language.codeGeneratorDirective.if.psl"},
                 "2": {
                     "patterns": [
                         { 
@@ -318,7 +315,7 @@
                           "include": "#statements",
                           "comment": "---",
                           "comment": "Try statements prior to class names if the line contains labels and statements.",
-                          "comment": "I.e., prioritize statements [the order of the 'includes' matters].",
+                          "comment": "I.e., prioritize statements [the order of the 'include' keys matters].",
                           "comment": "---"
                         },
                         { 
@@ -327,7 +324,7 @@
                         },
                         { 
                           "include": "#special-constructs",
-                          "comment": "I.e., true/false, this/super, system keywords."
+                          "comment": "I.e., true/false, this/super, and system keywords."
                         },
                         { 
                           "include": "#operators",
@@ -347,25 +344,24 @@
             "comment": "---",
             "comment": "A label declaration is a method declaration without a formal parameter list. Like a method,",
             "comment": "it starts in the first position of the line, but there are fewer variations that we need to",
-            "comment": "account for. In its most extensive form it only has the following components:",
+            "comment": "account for. In its most extensive form it only has the following components, such that",
+            "comment": "<accessModifier> below is restricted to 'public', 'protected', or 'private'.",
             "comment": "---",
             "comment": "* [accessModifier] labelName",
             "comment": "---",
-            "comment": "However, the following scenario also needs to be recognized [DOES IT ?]:",
-            "comment": "[Note that, as with method declarations, statements placed in the same line as the label",
-            "comment": "declaration should not be recognized as one of its components; every statement to the right",
-            "comment": "of the label declaration is considered to be (at least, part of) its body. Additionally, note",
-            "comment": "that the same reasoning does not apply to 'if-directive' specified above: everything to the",
-            "comment": "right of the token signalling the directive is actually part of it.]",
+            "comment": "However, the following scenario also needs to be recognized. [DOES IT ?] [Note that, as with",
+            "comment": "method declarations, statements placed in the same line as the label declaration should not be",
+            "comment": "recognized as one of its components; every statement to the right of the label declaration is",
+            "comment": "considered to be (at least, part of) its body. Additionally, note that the same reasoning does",
+            "comment": "not apply to 'if-directive' specified above: everything to the right of the token signalling",
+            "comment": "the directive is actually part of it.]",
             "comment": "---",
             "comment": "* labelName [statement(s)]",
-            "comment": "---",
-            "comment": "Only visibility/scope modifiers are allowed in label declarations.",
             "comment": "---",
             "match": "^((public|protected|private)[ \t]+)?([%A-Za-z0-9][A-Za-z0-9]*)",
             "captures": {
                 "2": { "name": "storage.modifier.visibility.psl", "comment": "Access modifiers."},
-                "3": { "name": "entity.name.function.psl", "comment": "Label followed by statement."}
+                "3": { "name": "entity.name.function.psl", "comment": "Label (possibly) followed by statement."}
             }
         },
   
@@ -382,8 +378,10 @@
                   "match": "(?<=\\b|_)[0-9]+(?=\\b|_)"
                 },
                 {
-                  "include": "#strings",
-                  "comment": "PSL String (double quoted)."
+                  "name": "string.quoted.double.psl",
+                  "comment": "PSL String (double quoted string).",
+                  "begin": "\"",
+                  "end": "\""
                 }
             ]
         },
@@ -399,11 +397,6 @@
             "comment": "---",
             "comment": "From a syntax highlighting perspective, only the 'resultClass' and 'methodName' components of",
             "comment": "the construct are required.",
-            "comment": "---",
-            "comment": "May repetition of groups 1 and 3 be avoided?",
-            "comment": "Replacing '(([a-z]+)[ \t]+)?(([a-z]+)[ \t]+)?' for '(([a-z]+)[ \t]+){0,2}' solely matches the",
-            "comment": "second modifier. Repeating a captured group only captures the last iteration. Capturing a",
-            "comment": "repeated group captures all iterations.",
             "comment": "---",
             "begin": "^(([a-z]+)[ \t]+)?(([a-z]+)[ \t]+)?([%A-Za-z][A-Za-z0-9]*)[ \t]+([%A-Za-z][A-Za-z0-9]*)\\(",
             "beginCaptures": {
@@ -551,7 +544,7 @@
         },
   
         "optimize-keywords": {
-            "comment": "Active and deprecated OPTIMIZE keywords",
+            "comment": "Active and deprecated #OPTIMIZE keywords",
             "patterns": [
                 { "name": "keyword.other.optimize.psl", "match": "\\b(CUVARLITERAL|OBJECTS)\\b"},
                 { "name": "invalid.keyword.other.optimize.psl", "match": "\\b(FUNCTIONS)\\b"}
@@ -589,18 +582,18 @@
         "other-directive": {
             "comment": "---",
             "comment": "PSL code generator directives that stand alone. All text following the directive is ignored",
-            "comment": "(i.e., treated as comment).",
+            "comment": "(i.e., treated as a comment).",
             "comment": "---",
             "match": "^[ \t]+(#BYPASS|#ELSE|#END|#ENDBYPASS|#ENDIF)\\b(.*)",
             "captures": {
-                "1": { "name": "constant.language.codeGeneratorDirective.psl"},
+                "1": { "name": "constant.language.codeGeneratorDirective.other.psl"},
                 "2": { "name": "comment.inline.psl"}
             }
         },
   
         "package-directive": {
             "comment": "---",
-            "comment": "#PACKAGE directive, followed by root package and (optionally) subpackages",
+            "comment": "#PACKAGE directive, followed by root package and (optionally) subpackages.",
             "comment": "---",
             "comment": "Grouping the whole expression following the directive token [i.e., '#PACKAGE'] as optional,",
             "comment": "allows for the latter to be recognized by the highlighter even if no text [including spaces]",
@@ -618,12 +611,12 @@
   
         "propertydef-directive": {
             "comment": "---",
-            "comment": "Visit the 'package-directive' subsection for the reasoning behing the optional group at the",
+            "comment": "Visit the 'package-directive' subsection for the reasoning behind the optional group at the",
             "comment": "end of the regex.",
             "comment": "---",
             "match": "^[ \t]+(#PROPERTYDEF)\\b(([ \t]+([%A-Za-z][A-Za-z0-9]*))(.*))?",
             "captures": {
-                "1": { "name": "constant.language.propertydef.psl"},
+                "1": { "name": "constant.language.codeGeneratorDirective.propertydef.psl"},
                 "4": { "name": "entity.name.other.property.psl"},
                 "5": {
                     "patterns": [
@@ -696,8 +689,9 @@
                   "comment": "---",
                   "comment": " 1. keyword 'type'",
                   "comment": " 2. modifiers 'public new' and 'public' [optional]",
-                  "comment": "    [note that 'public new' must occur before 'public'; otherwise, if the modifier",
-                  "comment": "    'public new' is used, 'new' will be taken as a class name]",
+                  "comment": "    [note that the modifier 'public new' must occur before 'public'; otherwise, the",
+                  "comment": "    token 'new' will be taken to be a class name any time 'public new' occurs in a type",
+                  "comment": "    declaration statement]",
                   "comment": " 3. <className>",
                   "comment": " 4. <variableName>",
                   "comment": " 5. (<className>, ...)",
@@ -780,29 +774,31 @@
                   "comment": "Deprecated statements",
                   "patterns": [
                       { 
-                        "name": "invalid.deprecated.statement.psl", 
-                        "match": "\\b(?<!\\.)(close|open|read|use)\\b"
+                        "name": "invalid.deprecated.statement.psl",
+                        "match": "\\b(?<!\\.)(?<!\\$\\$)(close|open|read|use)(?!\\^)\\b"
                       },
                       {
                         "name": "invalid.deprecated.statement.quit.psl",
                         "comment": "---",
                         "comment": "'quit' statement followed by non-whitespace characters [\\S+] except for comment",
-                        "comment": "initializers [either \\/ or \\;]. [Note that it supports post-conditionalization,",
-                        "comment": "although post-conditional expressions with more than one level of nesting do not",
-                        "comment": "get recognized as such. E.g., the expression 'quit:(a or b) foo' is identified as",
-                        "comment": "deprecated, whilst the expression 'quit:(a or (b and c)) foo' is not. Also, bear",
-                        "comment": "in mind that the 'ALTERmatch' below, although simpler and more concise, does not",
-                        "comment": "support parenthesized expressions in post-conditionals.]",
+                        "comment": "initializers [either \\/ or \\;]. [It currently solely supports post-conditionals",
+                        "comment": "which are both unquoted and unparenthesized. Allowing for the presence of either",
+                        "comment": "quotes or parentheses in a post-conditional opens up room for the utilization of",
+                        "comment": "white space in the expression, which could be mistakenly recognized by the syntax",
+                        "comment": "highlighter for a delimiter between the statement and its supposed argument. Given",
+                        "comment": "the present rule for the recognition of deprecated uses of the 'quit' statement,",
+                        "comment": "a full-fledged support for post-conditionalization would mislead the highlighter",
+                        "comment": "in cases such as 'quit:(e1 and e2)' or quit:$$func( \"arg\")', where the tokens",
+                        "comment": "'and' and '\"arg\")' would incorrectly be taken to be arguments of 'quit'.]",
                         "comment": "---",
-                        "ALTERmatch": "\\b(?<!\\.)quit(?=(\\:\\S*)? (?![\\/\\;])(?=\\S+))",
-                        "match": "\\b(?<!\\.)quit(?=(\\:([^\\(\n]*|\\([ \t%A-Za-z0-9]*\\)))? (?![\\/\\;])(?=\\S+))"
+                        "match": "\\b(?<!\\.)quit(?=(\\:[^\\(\"\\s]*)? (?![\\/\\;])(?=\\S+))"
                       }
                   ]
                 },
                 {
                   "name": "keyword.control.statement.psl",
                   "comment": "Control statements",
-                  "match": "\\b(?<!\\.)(catch|do|else|for|if|job|quit|return|throw|while)\\b"
+                  "match": "\\b(?<!\\.)(?<!\\$\\$)(catch|do|else|for|if|job|quit|return|throw|while)(?!\\^)\\b"
                 },
                 { 
                   "name": "keyword.other.statement.psl",
@@ -812,15 +808,9 @@
                   "comment": "Mind that the statement 'write' is obsolete only in the context of writing to files. In",
                   "comment": "PSL, there is no other way for outputing text to the screen.",
                   "comment": "---",
-                  "match": "\\b(?<!\\.)(halt|hang|kill|lock|set|type|unlock|write)\\b"
+                  "match": "\\b(?<!\\.)(?<!\\$\\$)(halt|hang|kill|lock|set|type|unlock|write)(?!\\^)\\b"
                 }
             ]
-        },
-  
-        "strings": {
-            "name": "string.quoted.double.psl",
-            "begin": "\"",
-            "end": "\""
         },
   
         "subroutine-declaration": {
@@ -861,10 +851,10 @@
         },
         
         "warn-directive": {
-            "comment": "#WARN and #INFO directives",
+            "comment": "#WARN and #INFO directives.",
             "match": "^[ \t]+(#INFO|#WARN)\\b(.*)",
             "captures": {
-                "1": { "name": "constant.language.codeGeneratorDirective.psl"},
+                "1": { "name": "constant.language.codeGeneratorDirective.warn.psl"},
                 "2": {
                     "patterns": [
                         {"include": "#warn-group"},
