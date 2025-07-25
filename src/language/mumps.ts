@@ -1,5 +1,5 @@
 import { EventEmitter, TextDocumentContentProvider, Uri, workspace } from 'vscode';
-import { ParsedDocument, parseText } from '../parser';
+import { ParsedDocument, parseText } from '@mischareitsma/psl-parser';
 
 export class MumpsVirtualDocument {
 

@@ -11,7 +11,7 @@ import { MumpsDocumentSymbolProvider, PSLDocumentSymbolProvider } from './pslDoc
 import { PSLHoverProvider } from './pslHoverProvider';
 import { PSLSignatureHelpProvider } from './pslSignature';
 import { PSLCompletionItemProvider } from './pslSuggest';
-import { setConfig, removeConfig } from '../parser/config';
+import { setConfig, removeConfig } from '@mischareitsma/psl-parser/config';
 
 export async function activate(context: vscode.ExtensionContext) {
 

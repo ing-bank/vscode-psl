@@ -1,4 +1,4 @@
-import {getTokens, Type} from '../src/parser/tokenizer';
+import {getTokens, Type} from '@mischareitsma/psl-parser/tokenizer';
 
 test('pipe token', () => {
 	let tokenizer = getTokens('|');

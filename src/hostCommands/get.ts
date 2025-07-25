@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as environment from '../common/environment';
 import { MumpsVirtualDocument } from '../language/mumps';
+import { extensionToDescription } from '@mischareitsma/profile-connector';
 
 const icon = utils.icons.GET;
 
@@ -22,7 +23,7 @@ export async function getElementHandler(context: utils.ExtensionCommandContext):
 		let input = await promptUserForComponent();
 		if (!input) return;
 		let extension = path.extname(input).replace('.', '');
-		let description = utils.extensionToDescription[extension]
+		let description = extensionToDescription[extension]
 		let filters: { [name: string]: string[] } = {}
 		filters[description] = [extension]
 		let currentFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(c.fsPath))
@@ -46,7 +47,7 @@ export async function getElementHandler(context: utils.ExtensionCommandContext):
 		let input = await promptUserForComponent();
 		if (!input) return;
 		let extension = path.extname(input).replace('.', '');
-		let description = utils.extensionToDescription[extension]
+		let description = extensionToDescription[extension]
 		let filters: { [name: string]: string[] } = {}
 		filters[description] = [extension]
 		let target
@@ -261,7 +262,7 @@ async function promptUserForComponent() {
 		prompt: 'Name of Component (with extension)', validateInput: (input: string) => {
 			if (!input) return;
 			let extension = path.extname(input) ? path.extname(input).replace('.', '') : 'No extension'
-			if (extension in utils.extensionToDescription) return '';
+			if (extension in extensionToDescription) return '';
 			return `Invalid extension (${extension})`;
 		}
 	};

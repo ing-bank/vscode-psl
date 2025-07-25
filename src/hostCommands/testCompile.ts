@@ -184,7 +184,8 @@ class PSLCompilerMessage {
 		else if (this.message.startsWith('%PSL-I-')) {
 			return vscode.DiagnosticSeverity.Information;
 		}
-		return -1;
+		// TODO: (Mischa Reitsma, 2025-07-25) Should we throw an error? There are more PSL severities. For now just Hint.
+		return vscode.DiagnosticSeverity.Hint;
 	}
 }
 

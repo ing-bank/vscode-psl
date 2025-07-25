@@ -1,5 +1,5 @@
-import * as parser from '../src/parser/parser';
-import * as tokenizer from '../src/parser/tokenizer';
+import * as parser from '@mischareitsma/psl-parser/parser';
+import * as tokenizer from '@mischareitsma/psl-parser/tokenizer';
 
 function getMethod(methodString: string): parser.Method | undefined {
 	const d = parser.parseText(methodString);

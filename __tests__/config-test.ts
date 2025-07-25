@@ -1,4 +1,4 @@
-import { Config, matchConfig, transform } from '../src/pslLint/config';
+import { Config, matchConfig, transform } from '@mischareitsma/psl-linter/config';
 
 const config: Config = {
 	exclude: {

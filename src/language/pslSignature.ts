@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { FinderPaths, getFinderPaths } from '../parser/config';
-import * as parser from '../parser/parser';
-import { Position, Token } from '../parser/tokenizer';
-import * as utils from '../parser/utilities';
+import { FinderPaths, getFinderPaths } from '@mischareitsma/psl-parser/config';
+import * as parser from '@mischareitsma/psl-parser/parser';
+import { Position, Token } from '@mischareitsma/psl-parser/tokenizer';
+import * as utils from '@mischareitsma/psl-parser/utilities';
 import * as lang from './lang';
 
 export class PSLSignatureHelpProvider implements vscode.SignatureHelpProvider {

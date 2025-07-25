@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as environment from '../common/environment';
-import { MtmConnection } from '../mtm/mtm';
+import { MtmConnection } from '@mischareitsma/profile-connector/mtm';
 import * as utils from './hostCommandUtils';
 import { displayCoverage, parseCoverageOutput, RoutineCoverage } from './pslUnitTest';
 

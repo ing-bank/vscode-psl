@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { FinderPaths, getFinderPaths } from '../parser/config';
-import * as parser from '../parser/parser';
-import * as utils from '../parser/utilities';
+import { FinderPaths, getFinderPaths } from '@mischareitsma/psl-parser/config';
+import * as parser from '@mischareitsma/psl-parser/parser';
+import * as utils from '@mischareitsma/psl-parser/utilities';
 import * as lang from './lang';
 
 export class PSLHoverProvider implements vscode.HoverProvider {

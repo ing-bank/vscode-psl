@@ -1,7 +1,7 @@
-import * as api from '../src/pslLint/api';
+import * as api from '@mischareitsma/psl-linter/api';
 import {
 	MemberCamelCase, MemberLength,
-	MemberLiteralCase, MemberStartsWithV, PropertyIsDummy } from '../src/pslLint/elementsConventionChecker';
+	MemberLiteralCase, MemberStartsWithV, PropertyIsDummy } from '@mischareitsma/psl-linter/elementsConventionChecker';
 import * as utils from './ruleUtils';
 
 describe('Members tests', () => {

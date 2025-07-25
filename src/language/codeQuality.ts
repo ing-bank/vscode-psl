@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import { BATCH_MODE, PSL_MODE, TRIG_MODE } from '../extension';
-import * as parser from '../parser/parser';
-import { getDiagnostics } from '../pslLint/activate';
-import * as api from '../pslLint/api';
-import { getConfig, removeConfig, setConfig } from '../pslLint/config';
+import * as parser from '@mischareitsma/psl-parser';
+import { getDiagnostics } from '@mischareitsma/psl-linter/activate';
+import * as api from '@mischareitsma/psl-linter/api';
+import { getConfig, removeConfig, setConfig } from '@mischareitsma/psl-linter/config';
 import { PSLActionProvider } from './codeAction';
 
 type lintOption = 'none' | 'all' | 'config' | true;

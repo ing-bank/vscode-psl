@@ -3,6 +3,12 @@
 All notable changes to the "vscode-psl" extension will be documented in this
 file.
 
+## v2.0.0
+
+* Use psl-linter, psl-parser and profile-connector npm packages and removed code
+  from this project.
+* Drop
+
 ## v1.13.4
 
 * Update the `json5` dependency to 2.2.3 and increment version numbers. Note
@@ -15,7 +21,7 @@ file.
 
 ## v1.13.2
 
-* Further enhancements in Language highlight.
+* Further enhancements in Language highlight
 
 ## v1.13.1
 

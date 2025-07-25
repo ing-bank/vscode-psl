@@ -1,8 +1,8 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { parseText } from '../src/parser/parser';
-import * as activate from '../src/pslLint/activate';
-import * as api from '../src/pslLint/api';
+import { parseText } from '@mischareitsma/psl-parser/parser';
+import * as activate from '@mischareitsma/psl-linter/activate';
+import * as api from '@mischareitsma/psl-linter/api';
 
 /**
  * Returns the specific diagnostics on a given line

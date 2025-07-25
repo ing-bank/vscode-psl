@@ -1,5 +1,5 @@
-import * as api from '../src/pslLint/api';
-import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from '../src/pslLint/methodDoc';
+import * as api from '@mischareitsma/psl-linter/api';
+import { MethodDocumentation, MethodSeparator, TwoEmptyLines } from '@mischareitsma/psl-linter/methodDoc';
 import * as utils from './ruleUtils';
 
 function messageOnLine(lineNumber: number, allDiagnostics: api.Diagnostic[]): string {

@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { MemberDiagnostic } from '../language/codeQuality';
-import * as parser from '../parser/parser';
-import { getLineAfter } from '../parser/utilities';
-import { MethodDocumentation, MethodSeparator } from '../pslLint/methodDoc';
+import * as parser from '@mischareitsma/psl-parser';
+import { getLineAfter } from '@mischareitsma/psl-parser/utilities';
+import { MethodDocumentation, MethodSeparator } from '@mischareitsma/psl-linter/methodDoc';
 
 function initializeAction(title: string, ...diagnostics: MemberDiagnostic[]) {
 	const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);

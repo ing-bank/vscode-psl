@@ -1,8 +1,8 @@
 import * as path from 'path';
-import { FinderPaths } from '../src/parser/config';
-import { MemberClass, ParsedDocument, parseFile } from '../src/parser/parser';
-import * as tokenizer from '../src/parser/tokenizer';
-import * as utilities from '../src/parser/utilities';
+import { FinderPaths } from '@mischareitsma/psl-parser/config';
+import { MemberClass, ParsedDocument, parseFile } from '@mischareitsma/psl-parser/parser';
+import * as tokenizer from '@mischareitsma/psl-parser/tokenizer';
+import * as utilities from '@mischareitsma/psl-parser/utilities';
 
 function getTokens(str: string): tokenizer.Token[] {
 	return [...tokenizer.getTokens(str)];

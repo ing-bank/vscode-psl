@@ -2,7 +2,7 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "1.13.4",
+  "version": "2.0.0-alpha0",
   "preview": true,
   "publisher": "ing-bank",
   "engines": {
@@ -830,12 +830,14 @@
     }
   },
   "scripts": {
+    "clean": "rimraf out/",
     "compile": "tsc -p ./",
     "compile-lint": "tsc -p ./src/pslLint/cli",
     "compile-parser": "tsc -p ./src/parser",
     "lint": "tslint -c tslint.json --project .",
     "watch": "npm run compile -- -watch",
-    "test": "jest"
+    "test": "jest",
+    "vsix": "npm run clean && npm run compile && npx vsce package"
   },
   "repository": {
     "type": "git",
@@ -847,12 +849,17 @@
     "@types/minimatch": "^5.1.2",
     "@types/node": "^18.11.4",
     "@types/vscode": "^1.72.0",
+    "@vscode/vsce": "^3.6.0",
     "jest": "^29.2.1",
+    "rimraf": "^6.0.1",
     "ts-jest": "^29.0.3",
     "tslint": "^5.20.1",
     "typescript": "^4.8.4"
   },
   "dependencies": {
+    "@mischareitsma/profile-connector": "^0.0.1-alpha1",
+    "@mischareitsma/psl-linter": "^0.1.0-alpha0",
+    "@mischareitsma/psl-parser": "^0.1.0-alpha1",
     "fs-extra": "^10.1.0",
     "jsonc-parser": "^3.2.0",
     "minimatch": "^5.1.0",

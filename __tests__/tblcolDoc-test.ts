@@ -1,5 +1,5 @@
-import * as api from '../src/pslLint/api';
-import { TblColDocumentation } from '../src/pslLint/tblcolDoc';
+import * as api from '@mischareitsma/psl-linter/api';
+import { TblColDocumentation } from '@mischareitsma/psl-linter/tblcolDoc';
 import * as utils from './ruleUtils';
 
 function messageOnLine(lineNumber: number, allDiagnostics: api.Diagnostic[]): string {

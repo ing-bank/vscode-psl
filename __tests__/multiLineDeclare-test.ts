@@ -1,5 +1,5 @@
-import * as api from '../src/pslLint/api';
-import { MultiLineDeclare } from '../src/pslLint/multiLineDeclare';
+import * as api from '@mischareitsma/psl-linter/api';
+import { MultiLineDeclare } from '@mischareitsma/psl-linter/multiLineDeclare';
 import * as utils from './ruleUtils';
 
 describe('Parameter tests', () => {
