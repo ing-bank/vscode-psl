@@ -5,6 +5,7 @@
   "version": "2.0.0-alpha0",
   "preview": true,
   "publisher": "ing-bank",
+  "type": "module",
   "engines": {
     "vscode": "^1.72.2"
   },
@@ -26,7 +27,7 @@
     "onCommand:psl.runPSL",
     "onCommand:psl.launchHostTerminal"
   ],
-  "main": "./out/src/extension",
+  "main": "./dist/extension.cjs",
   "contributes": {
     "languages": [
       {
@@ -845,14 +846,12 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
-    "@types/jest": "^29.2.0",
     "@types/minimatch": "^5.1.2",
     "@types/node": "^18.11.4",
     "@types/vscode": "^1.72.0",
     "@vscode/vsce": "^3.6.0",
-    "jest": "^29.2.1",
+    "esbuild": "^0.25.10",
     "rimraf": "^6.0.1",
-    "ts-jest": "^29.0.3",
     "tslint": "^5.20.1",
     "typescript": "^4.8.4"
   },
