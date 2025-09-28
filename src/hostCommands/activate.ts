@@ -32,6 +32,7 @@ const PROFILE_ELEMENTS = [
 	'.QRY',
 	'.RPT',
 	'.SCR',
+	'.serial',
 ];
 
 export function activate(context: vscode.ExtensionContext) {

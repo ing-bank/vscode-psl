@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as vscode from 'vscode';
 
-import { MtmConnection } from '@mischareitsma/profile-connector/mtm.ts';
+import { MtmConnection } from '@mischareitsma/profile-connector/mtm.js';
 
 import * as environment from '../common/environment.ts';
 

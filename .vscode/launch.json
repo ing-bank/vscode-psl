@@ -27,58 +27,11 @@
             "args": [
                 "--extensionDevelopmentPath=${workspaceRoot}"
             ],
-            "stopOnEntry": false,
             "sourceMaps": true,
             "outFiles": [
-                "${workspaceRoot}/out/src/**/*.js"
+                "${workspaceRoot}/dist/*.cjs"
             ],
-            "preLaunchTask": "watch"
-        },
-        {
-            "name": "Debug CLI",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceRoot}/src/pslLint/cli/lib/pslLint/cli/cli.js",
-            "args": [
-                "."
-            ],
-            "stopOnEntry": false,
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/src/pslLint/cli/lib/**/*.js"
-            ],
-            "preLaunchTask": "watch"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Debug Tests",
-            "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
-            "args": [
-                "--runInBand"
-            ],
-            "internalConsoleOptions": "openOnSessionStart",
-            "outFiles": [
-                "${workspaceRoot}/out/**/*"
-            ],
-            "preLaunchTask": "watch"
-        },
-        {
-            "name": "Launch Tests",
-            "type": "extensionHost",
-            "request": "launch",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "${workspaceRoot}/test/dataqwik/procedure/test.PROC",
-                "--extensionDevelopmentPath=${workspaceRoot}",
-                "--extensionTestsPath=${workspaceRoot}/out/test"
-            ],
-            "stopOnEntry": false,
-            "sourceMaps": true,
-            "outFiles": [
-                "${workspaceRoot}/out/test/**/*.js"
-            ],
-            "preLaunchTask": "watch"
+            "preLaunchTask": "npm: compile"
         }
     ]
 }

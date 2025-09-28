@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import { setConfig, removeConfig } from '@mischareitsma/psl-parser/config.ts';
+import { setConfig, removeConfig } from '@mischareitsma/psl-parser/config.js';
 
 import { BATCH_MODE, DATA_MODE, PSL_MODE, TRIG_MODE } from '../extension.ts';
 import * as codeQuality from './codeQuality.ts';

@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-import * as parser from '@mischareitsma/psl-parser/parser.ts';
+import * as parser from '@mischareitsma/psl-parser/parser.js';
 
 import { PSL_MODE } from '../extension.ts';
 

@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 
-import { FinderPaths, getFinderPaths } from '@mischareitsma/psl-parser/config.ts';
-import * as parser from '@mischareitsma/psl-parser/parser.ts';
-import { Position, Token } from '@mischareitsma/psl-parser/tokenizer.ts';
-import * as utils from '@mischareitsma/psl-parser/utilities.ts';
+import { FinderPaths, getFinderPaths } from '@mischareitsma/psl-parser/config.js';
+import * as parser from '@mischareitsma/psl-parser/parser.js';
+import { Position, Token } from '@mischareitsma/psl-parser/tokenizer.js';
+import * as utils from '@mischareitsma/psl-parser/utilities.js';
 
 import * as lang from './lang.ts';
 

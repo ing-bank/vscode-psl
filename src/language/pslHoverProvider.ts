@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
-import { FinderPaths, getFinderPaths } from '@mischareitsma/psl-parser/config.ts';
-import * as parser from '@mischareitsma/psl-parser/parser.ts';
-import * as utils from '@mischareitsma/psl-parser/utilities.ts';
+import { FinderPaths, getFinderPaths } from '@mischareitsma/psl-parser/config.js';
+import * as parser from '@mischareitsma/psl-parser/parser.js';
+import * as utils from '@mischareitsma/psl-parser/utilities.js';
 
 import * as lang from './lang.ts';
 

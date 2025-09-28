@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "watch",
-            "command": "npm run watch --loglevel silent",
+            "command": "npm run watch",
             "type": "shell",
             "group": {
                 "kind": "build",
