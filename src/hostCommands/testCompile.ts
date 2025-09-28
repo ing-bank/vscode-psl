@@ -1,10 +1,12 @@
-import * as vscode from 'vscode';
-import * as utils from './hostCommandUtils';
-import * as path from 'path';
+import * as path from 'node:path';
+
 import * as fs from 'fs-extra';
-import { PSLDiagnostic } from '../common/diagnostics';
-import * as extension from '../extension';
-import * as environment from '../common/environment';
+import * as vscode from 'vscode';
+
+import * as utils from './hostCommandUtils.ts';
+import { PSLDiagnostic } from '../common/diagnostics.ts';
+import * as extension from '../extension.ts';
+import * as environment from '../common/environment.ts';
 
 const icon = utils.icons.TEST;
 

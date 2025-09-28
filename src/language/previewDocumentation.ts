@@ -1,4 +1,5 @@
-import * as path from 'path';
+import * as path from 'node:path';
+
 import { xhr }from 'request-light';
 import * as vscode from 'vscode';
 

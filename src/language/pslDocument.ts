@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
-import * as parser from '@mischareitsma/psl-parser/parser';
-import { getVirtualDocument } from './mumps';
+
+import * as parser from '@mischareitsma/psl-parser/parser.ts';
+
+import { getVirtualDocument } from './mumps.ts';
 
 export class PSLDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
 

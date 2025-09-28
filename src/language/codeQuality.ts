@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
-import { BATCH_MODE, PSL_MODE, TRIG_MODE } from '../extension';
-import * as parser from '@mischareitsma/psl-parser';
-import { getDiagnostics } from '@mischareitsma/psl-linter/activate';
-import * as api from '@mischareitsma/psl-linter/api';
-import { getConfig, removeConfig, setConfig } from '@mischareitsma/psl-linter/config';
-import { PSLActionProvider } from './codeAction';
 
+import { parseText, Member } from '@mischareitsma/psl-parser/parser.ts';
+import { getDiagnostics } from '@mischareitsma/psl-linter/activate.ts';
+import * as api from '@mischareitsma/psl-linter/api.ts';
+import { getConfig, removeConfig, setConfig } from '@mischareitsma/psl-linter/config.ts';
+
+import { BATCH_MODE, PSL_MODE, TRIG_MODE } from '../extension.ts';
+import { PSLActionProvider } from './codeAction.ts';
 type lintOption = 'none' | 'all' | 'config' | true;
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -71,7 +72,7 @@ async function pslLintConfigurationWatchers(context: vscode.ExtensionContext) {
 }
 
 export class MemberDiagnostic extends vscode.Diagnostic {
-	member: parser.Member;
+	member: Member;
 	ruleName: string;
 }
 
@@ -110,7 +111,7 @@ function lint(
 ) {
 	const profileComponent: api.ProfileComponent = prepareDocument(textDocument);
 	const parsedDocument = api.ProfileComponent.isPsl(profileComponent.fsPath) ?
-		parser.parseText(textDocument.getText()) : undefined;
+		parseText(textDocument.getText()) : undefined;
 	const diagnostics = getDiagnostics(profileComponent, parsedDocument, useConfig);
 	const memberDiagnostics = transform(diagnostics, textDocument.uri);
 	process.nextTick(() => {

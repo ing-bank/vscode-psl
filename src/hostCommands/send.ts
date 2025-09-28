@@ -1,8 +1,10 @@
-import * as vscode from 'vscode';
-import * as utils from './hostCommandUtils';
-import * as path from 'path';
+import * as path from 'node:path';
+
 import * as fs from 'fs-extra';
-import * as environment from '../common/environment';
+import * as vscode from 'vscode';
+
+import * as utils from './hostCommandUtils.ts';
+import * as environment from '../common/environment.ts';
 
 const icon = utils.icons.SEND;
 

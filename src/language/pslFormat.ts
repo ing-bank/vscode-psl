@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
-import * as parser from '@mischareitsma/psl-parser/parser';
-import { PSL_MODE } from '../extension';
+
+import * as parser from '@mischareitsma/psl-parser/parser.ts';
+
+import { PSL_MODE } from '../extension.ts';
 
 export function activate(context: vscode.ExtensionContext) {
 

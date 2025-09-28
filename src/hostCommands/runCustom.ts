@@ -1,10 +1,13 @@
+import * as path from 'node:path';
+
 import * as fs from 'fs-extra';
-import * as path from 'path';
 import * as vscode from 'vscode';
-import * as environment from '../common/environment';
-import { MtmConnection } from '@mischareitsma/profile-connector/mtm';
-import * as utils from './hostCommandUtils';
-import { displayCoverage, parseCoverageOutput, RoutineCoverage } from './pslUnitTest';
+
+import { MtmConnection } from '@mischareitsma/profile-connector/mtm.js';
+
+import * as environment from '../common/environment.ts';
+import * as utils from './hostCommandUtils.ts';
+import { displayCoverage, parseCoverageOutput, RoutineCoverage } from './pslUnitTest.ts';
 
 const icon = utils.icons.RUN;
 

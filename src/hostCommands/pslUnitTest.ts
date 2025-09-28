@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import { EnvironmentConfig } from '../common/environment';
-import { getVirtualDocument, MumpsVirtualDocument, onDidDeleteVirtualMumps } from '../language/mumps';
-import { getConnection } from './hostCommandUtils';
+
+import { EnvironmentConfig } from '../common/environment.ts';
+import { getVirtualDocument, MumpsVirtualDocument, onDidDeleteVirtualMumps } from '../language/mumps.ts';
+import { getConnection } from './hostCommandUtils.ts';
 
 export interface RoutineCoverage {
 	methods: MethodCoverage[];

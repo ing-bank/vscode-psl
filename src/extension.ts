@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 
-import * as terminal from './common/terminal';
-import * as hostEnvironment from './common/environment';
-import * as hostCommands from './hostCommands/activate';
-import * as languageFeatures from './language/activate';
+import * as terminal from './common/terminal.ts';
+import * as hostEnvironment from './common/environment.ts';
+import * as hostCommands from './hostCommands/activate.ts';
+import * as languageFeatures from './language/activate.ts';
 
 export const PSL_MODE: vscode.DocumentFilter = { language: 'psl', scheme: 'file' };
 export const BATCH_MODE: vscode.DocumentFilter = { language: 'profileBatch', scheme: 'file' };

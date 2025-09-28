@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
-import { MemberDiagnostic } from '../language/codeQuality';
-import * as parser from '@mischareitsma/psl-parser';
-import { getLineAfter } from '@mischareitsma/psl-parser/utilities';
-import { MethodDocumentation, MethodSeparator } from '@mischareitsma/psl-linter/methodDoc';
+
+import { Method } from '@mischareitsma/psl-parser/parser.ts';
+import { getLineAfter } from '@mischareitsma/psl-parser/utilities.ts';
+import { MethodDocumentation, MethodSeparator } from '@mischareitsma/psl-linter/methodDoc.ts';
+
+import { MemberDiagnostic } from '../language/codeQuality.ts';
 
 function initializeAction(title: string, ...diagnostics: MemberDiagnostic[]) {
 	const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
@@ -47,7 +49,7 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 		for (const diagnostic of context.diagnostics) {
 			if (!diagnostic.member) continue;
 
-			const method = diagnostic.member as parser.Method;
+			const method = diagnostic.member as Method;
 
 			if (diagnostic.ruleName === MethodSeparator.name) {
 				const separatorAction = initializeAction('Add separator.', diagnostic);

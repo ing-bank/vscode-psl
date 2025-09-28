@@ -1,8 +1,9 @@
-import * as vscode from 'vscode';
+import * as os from 'node:os';
+import * as path from 'node:path';
+
 import * as fs from 'fs-extra';
-import * as path from 'path';
 import * as jsonc from 'jsonc-parser';
-import * as os from 'os';
+import * as vscode from 'vscode';
 
 const configEnvCommand = 'psl.configureEnvironment';
 

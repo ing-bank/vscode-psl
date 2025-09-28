@@ -1,7 +1,9 @@
 import * as fs from 'fs-extra';
 import * as vscode from 'vscode';
-import * as environment from '../common/environment';
-import { MtmConnection } from '@mischareitsma/profile-connector/mtm';
+
+import { MtmConnection } from '@mischareitsma/profile-connector/mtm.ts';
+
+import * as environment from '../common/environment.ts';
 
 const outputChannel = vscode.window.createOutputChannel('Profile Host');
 

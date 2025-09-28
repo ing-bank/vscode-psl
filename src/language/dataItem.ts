@@ -1,7 +1,8 @@
-import * as path from 'path';
-import * as vscode from 'vscode';
-import * as jsonc from 'jsonc-parser';
+import * as path from 'node:path';
+
 import * as fs from 'fs-extra'
+import * as jsonc from 'jsonc-parser';
+import * as vscode from 'vscode';
 
 function getEnvBase(fileName: string) {
 	return vscode.workspace.getWorkspaceFolder(vscode.Uri.file(fileName)).uri.fsPath

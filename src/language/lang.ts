@@ -1,10 +1,12 @@
+import * as path from 'node:path';
+
 import * as fs from 'fs-extra';
 import * as jsonc from 'jsonc-parser';
-import * as path from 'path';
 import * as vscode from 'vscode';
-import * as parser from '@mischareitsma/psl-parser/parser';
-import { Token } from '@mischareitsma/psl-parser/tokenizer';
-import * as utils from '@mischareitsma/psl-parser/utilities';
+
+import * as parser from '@mischareitsma/psl-parser/parser.ts';
+import { Token } from '@mischareitsma/psl-parser/tokenizer.ts';
+import * as utils from '@mischareitsma/psl-parser/utilities.ts';
 
 export interface Documentation {
 	code: string;

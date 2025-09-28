@@ -1,17 +1,17 @@
 import * as vscode from 'vscode';
 
-import { BATCH_MODE, DATA_MODE, PSL_MODE, TRIG_MODE } from '../extension';
+import { setConfig, removeConfig } from '@mischareitsma/psl-parser/config.ts';
 
-import * as codeQuality from './codeQuality';
-import { DataDocumentHighlightProvider, DataHoverProvider } from './dataItem';
-import { MumpsDocumentProvider, MumpsVirtualDocument } from './mumps';
-import * as previewDocumentation from './previewDocumentation';
-import { PSLDefinitionProvider } from './pslDefinitionProvider';
-import { MumpsDocumentSymbolProvider, PSLDocumentSymbolProvider } from './pslDocument';
-import { PSLHoverProvider } from './pslHoverProvider';
-import { PSLSignatureHelpProvider } from './pslSignature';
-import { PSLCompletionItemProvider } from './pslSuggest';
-import { setConfig, removeConfig } from '@mischareitsma/psl-parser/config';
+import { BATCH_MODE, DATA_MODE, PSL_MODE, TRIG_MODE } from '../extension.ts';
+import * as codeQuality from './codeQuality.ts';
+import { DataDocumentHighlightProvider, DataHoverProvider } from './dataItem.ts';
+import { MumpsDocumentProvider, MumpsVirtualDocument } from './mumps.ts';
+import * as previewDocumentation from './previewDocumentation.ts';
+import { PSLDefinitionProvider } from './pslDefinitionProvider.ts';
+import { MumpsDocumentSymbolProvider, PSLDocumentSymbolProvider } from './pslDocument.ts';
+import { PSLHoverProvider } from './pslHoverProvider.ts';
+import { PSLSignatureHelpProvider } from './pslSignature.ts';
+import { PSLCompletionItemProvider } from './pslSuggest.ts';
 
 export async function activate(context: vscode.ExtensionContext) {
 

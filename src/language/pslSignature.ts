@@ -1,9 +1,11 @@
 import * as vscode from 'vscode';
-import { FinderPaths, getFinderPaths } from '@mischareitsma/psl-parser/config';
-import * as parser from '@mischareitsma/psl-parser/parser';
-import { Position, Token } from '@mischareitsma/psl-parser/tokenizer';
-import * as utils from '@mischareitsma/psl-parser/utilities';
-import * as lang from './lang';
+
+import { FinderPaths, getFinderPaths } from '@mischareitsma/psl-parser/config.ts';
+import * as parser from '@mischareitsma/psl-parser/parser.ts';
+import { Position, Token } from '@mischareitsma/psl-parser/tokenizer.ts';
+import * as utils from '@mischareitsma/psl-parser/utilities.ts';
+
+import * as lang from './lang.ts';
 
 export class PSLSignatureHelpProvider implements vscode.SignatureHelpProvider {
 	public async provideSignatureHelp(document: vscode.TextDocument, position: vscode.Position): Promise<vscode.SignatureHelp> {

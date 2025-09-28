@@ -1,17 +1,17 @@
-import * as path from 'path';
+import * as path from 'node:path';
+
 import * as vscode from 'vscode';
 
-import { compileAndLinkHandler } from './compileAndLink';
-import { getElementHandler, getTableHandler } from './get';
-
-import { refreshElementHandler, refreshTableHandler } from './refresh';
-import { runPSLHandler } from './run';
+import { compileAndLinkHandler } from './compileAndLink.ts';
+import { getElementHandler, getTableHandler } from './get.ts';
+import { refreshElementHandler, refreshTableHandler } from './refresh.ts';
+import { runPSLHandler } from './run.ts';
 import {
 	coverageContext, registerCustomRunContext, runCoverageHandler,
 	runTestHandler, testContext,
-} from './runCustom';
-import { sendElementHandler, sendTableHandler } from './send';
-import { testCompileHandler } from './testCompile';
+} from './runCustom.ts';
+import { sendElementHandler, sendTableHandler } from './send.ts';
+import { testCompileHandler } from './testCompile.ts';
 
 const PROFILE_ELEMENTS = [
 	'.FKY',

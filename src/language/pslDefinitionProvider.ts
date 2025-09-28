@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
-import { FinderPaths, getFinderPaths } from '@mischareitsma/psl-parser/config';
-import * as parser from '@mischareitsma/psl-parser/parser';
-import * as utils from '@mischareitsma/psl-parser/utilities';
-import * as lang from './lang';
+
+import { FinderPaths, getFinderPaths } from '@mischareitsma/psl-parser/config.ts';
+import * as parser from '@mischareitsma/psl-parser/parser.ts';
+import * as utils from '@mischareitsma/psl-parser/utilities.ts';
+
+import * as lang from './lang.ts';
 
 export class PSLDefinitionProvider implements vscode.DefinitionProvider {
 
