@@ -4,9 +4,9 @@ import * as fs from 'fs-extra';
 import * as jsonc from 'jsonc-parser';
 import * as vscode from 'vscode';
 
-import * as parser from '@mischareitsma/psl-parser/parser.js';
-import { Token } from '@mischareitsma/psl-parser/tokenizer.js';
-import * as utils from '@mischareitsma/psl-parser/utilities.js';
+import * as parser from '@profile-psl/psl-parser/parser.js';
+import { Token } from '@profile-psl/psl-parser/tokenizer.js';
+import * as utils from '@profile-psl/psl-parser/utilities.js';
 
 export interface Documentation {
 	code: string;

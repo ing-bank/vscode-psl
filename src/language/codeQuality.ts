@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 
-import { parseText, Member } from '@mischareitsma/psl-parser/parser.js';
-import { getDiagnostics } from '@mischareitsma/psl-linter/activate.js';
-import * as api from '@mischareitsma/psl-linter/api.js';
-import { getConfig, removeConfig, setConfig } from '@mischareitsma/psl-linter/config.js';
+import { parseText, Member } from '@profile-psl/psl-parser/parser.js';
+import { getDiagnostics } from '@profile-psl/psl-linter/activate.js';
+import * as api from '@profile-psl/psl-linter/api.js';
+import { getConfig, removeConfig, setConfig } from '@profile-psl/psl-linter/config.js';
 
 import { BATCH_MODE, PSL_MODE, TRIG_MODE } from '../extension.ts';
 import { PSLActionProvider } from './codeAction.ts';

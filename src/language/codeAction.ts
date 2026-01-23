@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
-import { Method } from '@mischareitsma/psl-parser/parser.js';
-import { getLineAfter } from '@mischareitsma/psl-parser/utilities.js';
-import { MethodDocumentation, MethodSeparator } from '@mischareitsma/psl-linter/methodDoc.js';
+import { Method } from '@profile-psl/psl-parser/parser.js';
+import { getLineAfter } from '@profile-psl/psl-parser/utilities.js';
+import { MethodDocumentation, MethodSeparator } from '@profile-psl/psl-linter/methodDoc.js';
 
 import { MemberDiagnostic } from '../language/codeQuality.ts';
 

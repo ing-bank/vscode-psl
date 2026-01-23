@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import * as fs from 'fs-extra';
 import * as vscode from 'vscode';
 
-import { extensionToDescription } from '@mischareitsma/profile-connector/utils.js';
+import { extensionToDescription } from '@profile-psl/profile-connector/utils.js';
 
 import * as utils from './hostCommandUtils.ts';
 import * as environment from '../common/environment.ts';

@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import * as fs from 'fs-extra';
 import * as vscode from 'vscode';
 
-import { MtmConnection } from '@mischareitsma/profile-connector/mtm.js';
+import { MtmConnection } from '@profile-psl/profile-connector/mtm.js';
 
 import * as environment from '../common/environment.ts';
 import * as utils from './hostCommandUtils.ts';
