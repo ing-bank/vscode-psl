@@ -1,22 +1,23 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-import { setConfig, removeConfig } from '@profile-psl/psl-parser/config.js';
+import { setConfig, removeConfig } from "@profile-psl/psl-parser/config.js";
 
-import { BATCH_MODE, DATA_MODE, PSL_MODE, TRIG_MODE } from '../extension.ts';
-import * as codeQuality from './codeQuality.ts';
-import { DataDocumentHighlightProvider, DataHoverProvider } from './dataItem.ts';
-import { MumpsDocumentProvider, MumpsVirtualDocument } from './mumps.ts';
-import * as previewDocumentation from './previewDocumentation.ts';
-import { PSLDefinitionProvider } from './pslDefinitionProvider.ts';
-import { MumpsDocumentSymbolProvider, PSLDocumentSymbolProvider } from './pslDocument.ts';
-import { PSLHoverProvider } from './pslHoverProvider.ts';
-import { PSLSignatureHelpProvider } from './pslSignature.ts';
-import { PSLCompletionItemProvider } from './pslSuggest.ts';
+import { BATCH_MODE, DATA_MODE, PSL_MODE, TRIG_MODE } from "../extension.ts";
+import * as codeQuality from "./codeQuality.ts";
+import { DataDocumentHighlightProvider, DataHoverProvider } from "./dataItem.ts";
+import { MumpsDocumentProvider, MumpsVirtualDocument } from "./mumps.ts";
+import * as previewDocumentation from "./previewDocumentation.ts";
+import { PSLDefinitionProvider } from "./pslDefinitionProvider.ts";
+import { MumpsDocumentSymbolProvider, PSLDocumentSymbolProvider } from "./pslDocument.ts";
+import { PSLHoverProvider } from "./pslHoverProvider.ts";
+import { PSLSignatureHelpProvider } from "./pslSignature.ts";
+import { PSLCompletionItemProvider } from "./pslSuggest.ts";
 
 export async function activate(context: vscode.ExtensionContext) {
 
 	const PSL_MODES = [PSL_MODE, BATCH_MODE, TRIG_MODE];
-	const MUMPS_MODES: vscode.DocumentFilter[] = Object.values(MumpsVirtualDocument.schemes).map(scheme => ({ scheme }));
+	const MUMPS_MODES: vscode.DocumentFilter[] = Object.values(MumpsVirtualDocument.schemes)
+		.map(scheme => ({ scheme }));
 
 	context.subscriptions.push(
 		// Data Hovers
@@ -39,12 +40,12 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			// Completion Items
 			vscode.languages.registerCompletionItemProvider(
-				pslMode, new PSLCompletionItemProvider(), '.',
+				pslMode, new PSLCompletionItemProvider(), ".",
 			),
 
 			// Signature Help
 			vscode.languages.registerSignatureHelpProvider(
-				pslMode, new PSLSignatureHelpProvider(), '(', ',',
+				pslMode, new PSLSignatureHelpProvider(), "(", ",",
 			),
 
 			// Go-to Definitions
@@ -79,14 +80,16 @@ export async function activate(context: vscode.ExtensionContext) {
 	previewDocumentation.activate(context);
 
 	// Language Configuration
-	const wordPattern = /(-?\d*\.\d[a-zA-Z0-9\%\#]*)|([^\`\~\!\@\^\&\*\(\)\-\=\+\[\{\]\}\\\|\"\;\:\'\'\,\.\<\>\/\?\s_]+)/g;
-	vscode.languages.setLanguageConfiguration('psl', { wordPattern });
-	vscode.languages.setLanguageConfiguration('profileBatch', { wordPattern });
-	vscode.languages.setLanguageConfiguration('profileTrigger', { wordPattern });
+	// TODO: (Mischa Reitsma, 2026-01-24) This pattern flags many useless escapes that would also bring back the line length, check if this can be done (write some tests for the pattern)
+	// eslint-disable-next-line no-useless-escape, @stylistic/max-len
+	const wordPattern = /(-?\d*\.\d[a-zA-Z0-9\%\#]*)|([^\`\~\!\@\^\&\*\(\)\-\=\+\[\{\]\}\\\|\"\;\:\"\"\,\.\<\>\/\?\s_]+)/g;
+	vscode.languages.setLanguageConfiguration("psl", { wordPattern });
+	vscode.languages.setLanguageConfiguration("profileBatch", { wordPattern });
+	vscode.languages.setLanguageConfiguration("profileTrigger", { wordPattern });
 }
 
 export function previewEnabled(uri: vscode.Uri) {
-	return vscode.workspace.getConfiguration('psl', uri).get('previewFeatures');
+	return vscode.workspace.getConfiguration("psl", uri).get("previewFeatures");
 }
 
 async function projectActivate(context: vscode.ExtensionContext) {
@@ -98,7 +101,7 @@ async function projectActivate(context: vscode.ExtensionContext) {
 	}
 	return Promise.all(
 		vscode.workspace.workspaceFolders
-			.map(workspace => new vscode.RelativePattern(workspace, 'profile-project.json'))
+			.map(workspace => new vscode.RelativePattern(workspace, "profile-project.json"))
 			.map(async pattern => {
 				const watcher = vscode.workspace.createFileSystemWatcher(pattern);
 				context.subscriptions.push(watcher.onDidChange(uri => {

@@ -1,13 +1,13 @@
-import * as os from 'node:os';
-import * as path from 'node:path';
+import * as os from "node:os";
+import * as path from "node:path";
 
-import * as fs from 'fs-extra';
-import * as jsonc from 'jsonc-parser';
-import * as vscode from 'vscode';
+import * as fs from "fs-extra";
+import * as jsonc from "jsonc-parser";
+import * as vscode from "vscode";
 
-const configEnvCommand = 'psl.configureEnvironment';
+const configEnvCommand = "psl.configureEnvironment";
 
-const LOCAL_ENV_DIR = path.join('.vscode', 'environment.json');
+const LOCAL_ENV_DIR = path.join(".vscode", "environment.json");
 
 const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 900);
 statusBar.command = configEnvCommand;
@@ -23,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(statusBar);
 
 	context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor((e) => changeTextEditorHandler(e)));
-	changeTextEditorHandler(vscode.window.activeTextEditor)
+	changeTextEditorHandler(vscode.window.activeTextEditor);
 
 }
 
@@ -54,38 +54,55 @@ export async function workspaceQuickPick(): Promise<WorkspaceQuickPick | undefin
 	try {
 		await GlobalFile.read();
 	}
-	catch (e) {
-		let defaultConfig: GlobalConfig = { environments: [{ name: '', host: '', port: 0, user: '', password: '', sshLogin: '', serverType: 'SCA$IBS', encoding: 'utf8' }] }
+	catch {
+		const defaultConfig: GlobalConfig = {
+			environments: [
+				{
+					name: "",
+					host: "",
+					port: 0,
+					user: "",
+					password: "",
+					sshLogin: "",
+					serverType: "SCA$IBS",
+					encoding: "utf8"
+				}
+			]
+		};
 		await GlobalFile.write(defaultConfig);
 		await GlobalFile.show();
 		return;
 	}
 	if (!vscode.workspace.workspaceFolders) return;
-	let workspaceFolders = vscode.workspace.workspaceFolders;
-	let items: WorkspaceQuickPick[] = await Promise.all(workspaceFolders.map(async folder => {
-		let name;
+	const workspaceFolders = vscode.workspace.workspaceFolders;
+	const items: WorkspaceQuickPick[] = await Promise.all(workspaceFolders.map(async folder => {
+		let name: string;
 		try {
-			let envObjects = await new WorkspaceFile(folder.uri.fsPath).environmentObjects;
+			const envObjects = await new WorkspaceFile(folder.uri.fsPath).environmentObjects;
 			if (envObjects.length === 1) {
-				name = '\u00a0 \u00a0 $(server) ' + envObjects[0].name
+				name = "\u00a0 \u00a0 $(server) " + envObjects[0].name;
 			}
 			else if (envObjects.length > 1) {
-				name = '\u00a0 \u00a0 $(server) ' + envObjects.map(e => e.name).join(', ')
+				name = "\u00a0 \u00a0 $(server) " + envObjects.map(e => e.name).join(", ");
 			}
 			else {
-				name = '\u00a0 \u00a0 Not configured';
+				name = "\u00a0 \u00a0 Not configured";
 			}
 		}
-		catch (e) {
-			name = '\u00a0 \u00a0 Not configured';
+		catch {
+			name = "\u00a0 \u00a0 Not configured";
 		}
-		let item: WorkspaceQuickPick = { label: '$(file-directory) ' + folder.name, description: folder.uri.fsPath, detail: name, fsPath: folder.uri.fsPath }
-		return item;
+		return {
+			label: "$(file-directory) " + folder.name,
+			description: folder.uri.fsPath,
+			detail: name,
+			fsPath: folder.uri.fsPath
+		};
 	}));
 	if (items.length === 1) return items[0];
-	let configureEnvironments = '\u270E Edit Environments...';
-	items.push({ label: configureEnvironments, description: '', fsPath: '' });
-	let choice = await vscode.window.showQuickPick(items, { placeHolder: 'Select a Workspace.' })
+	const configureEnvironments = "\u270E Edit Environments...";
+	items.push({ label: configureEnvironments, description: "", fsPath: "" });
+	const choice = await vscode.window.showQuickPick(items, { placeHolder: "Select a Workspace." });
 	if (!choice) return;
 	if (choice.label === configureEnvironments) {
 		await GlobalFile.show();
@@ -95,27 +112,35 @@ export async function workspaceQuickPick(): Promise<WorkspaceQuickPick | undefin
 }
 
 async function configureEnvironmentHandler() {
-	let workspace = await workspaceQuickPick();
+	const workspace = await workspaceQuickPick();
 	if (!workspace) return;
 	environmentQuickPick(new WorkspaceFile(workspace.fsPath));
 }
 
 async function environmentQuickPick(workspaceFile: WorkspaceFile) {
 	let choice = undefined;
-	let workspaceEnvironments;
+	let workspaceEnvironments: WorkspaceEnvironments;
 	let globalConfig: GlobalConfig;
-	let names;
+	let names: string[];
 	try {
 		globalConfig = await GlobalFile.read();
 	}
 	catch (e) {
 		if (e === GlobalFile.INVALID_CONFIG) {
-				await GlobalFile.show();
+			await GlobalFile.show();
 		}
-		else {
-			
-		}
-		let defaultConfig: GlobalConfig = { environments: [{ name: '', host: '', port: 0, user: '', password: '', sshLogin: '' }] }
+
+		const defaultConfig: GlobalConfig = {
+			environments: [
+				{ name: "",
+					host: "",
+					port: 0,
+					user: "",
+					password: "",
+					sshLogin: ""
+				}
+			]
+		};
 		await GlobalFile.write(defaultConfig);
 		await GlobalFile.show();
 		return;
@@ -123,27 +148,30 @@ async function environmentQuickPick(workspaceFile: WorkspaceFile) {
 
 	try {
 		workspaceEnvironments = await workspaceFile.environment;
-		names = workspaceEnvironments.names
+		names = workspaceEnvironments.names;
 	}
-	catch (e) {
-		await workspaceFile.writeLocalEnv({'names': []});
+	catch {
+		await workspaceFile.writeLocalEnv({"names": []});
 		workspaceEnvironments = await workspaceFile.environment;
 		names = workspaceEnvironments.names;
 	}
 	do {
-		let items: vscode.QuickPickItem[] = globalConfig.environments.map(env => {
+		const items: vscode.QuickPickItem[] = globalConfig.environments.map(env => {
 			if (names.indexOf(env.name) > -1) {
-				return { label: `${env.name}`, description: '✔' }
+				return { label: `${env.name}`, description: "✔" };
 			}
-			return { label: `${env.name}`, description: '' }
-		})
-		let configureEnvironments = '\u270E Edit Environments...';
-		let back = '\u21a9 Back to Workspaces';
-		items.push({ label: configureEnvironments, description: '' })
+			return { label: `${env.name}`, description: "" };
+		});
+		const configureEnvironments = "\u270E Edit Environments...";
+		const back = "\u21a9 Back to Workspaces";
+		items.push({ label: configureEnvironments, description: "" });
 		if (vscode.workspace.workspaceFolders.length > 1) {
-			items.push({ label: back, description: '' })
+			items.push({ label: back, description: "" });
 		}
-		choice = await vscode.window.showQuickPick(items, { placeHolder: `Enable environments for ${workspaceFile.workspaceFolder.name}` });
+		choice = await vscode.window.showQuickPick(
+			items,
+			{ placeHolder: `Enable environments for ${workspaceFile.workspaceFolder.name}` }
+		);
 		if (choice) {
 			if (choice.label === configureEnvironments) {
 				GlobalFile.show();
@@ -153,11 +181,13 @@ async function environmentQuickPick(workspaceFile: WorkspaceFile) {
 				configureEnvironmentHandler();
 				break;
 			}
-			let index = names.indexOf(choice.label);
+			const index = names.indexOf(choice.label);
 			if (index > -1) {
 				names.splice(index, 1);
 			}
-			else names.push(choice.label);
+			else {
+				names.push(choice.label);
+			}
 			workspaceFile.writeLocalEnv(workspaceEnvironments);
 		}
 	} while (choice);
@@ -165,26 +195,25 @@ async function environmentQuickPick(workspaceFile: WorkspaceFile) {
 }
 
 async function changeTextEditorHandler(textEditor: vscode.TextEditor | undefined) {
-	let configureEnvironmentText = '$(server) Configure Environments';
+	const configureEnvironmentText = "$(server) Configure Environments";
 	try {
-		let workspaceFile = new WorkspaceFile(textEditor.document.fileName);
-		let workspaceEnvironments = await workspaceFile.environment
+		const workspaceFile = new WorkspaceFile(textEditor.document.fileName);
+		const workspaceEnvironments = await workspaceFile.environment;
 		if (workspaceEnvironments.names.length === 0) {
 			statusBar.text = configureEnvironmentText;
 		}
 		else if (workspaceEnvironments.names.length === 1) {
-			statusBar.text = '$(server) ' + workspaceEnvironments.names[0];
+			statusBar.text = "$(server) " + workspaceEnvironments.names[0];
 		}
 		else {
-			statusBar.text = '$(server) ' + workspaceEnvironments.names.length + ' environments';
+			statusBar.text = "$(server) " + workspaceEnvironments.names.length + " environments";
 		}
 	}
-	catch (e) {
+	catch {
 		statusBar.text = configureEnvironmentText;
 	}
 	statusBar.show();
 }
-
 
 
 export interface LaunchQuickPick extends vscode.QuickPickItem {
@@ -211,7 +240,7 @@ export class WorkspaceFile {
 	/**
 	 * Contents of local environment.json
 	 */
-	private _enviornment: WorkspaceEnvironments = undefined;
+	private _environment: WorkspaceEnvironments = undefined;
 
 	/**
 	 * Environment configurations from global environments.json
@@ -226,13 +255,13 @@ export class WorkspaceFile {
 		this.fsPath = fsPath;
 
 		if (!fsPath) {
-			this.environmentPath = '';
+			this.environmentPath = "";
 			return;
 		}
 
 		this.workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(fsPath));
 		if (!this.workspaceFolder) {
-			this.environmentPath = '';
+			this.environmentPath = "";
 		}
 		else {
 			this.environmentPath = path.join(this.workspaceFolder.uri.fsPath, LOCAL_ENV_DIR);
@@ -249,8 +278,8 @@ export class WorkspaceFile {
 	}
 
 	private async getEnvironmentObjects() {
-		let environment = await this.environment;
-		let globalEnv = await this.getEnvironmentFromGlobalConfig(environment.names);
+		const environment = await this.environment;
+		const globalEnv = await this.getEnvironmentFromGlobalConfig(environment.names);
 		this._environmentObjects = globalEnv;
 		return this._environmentObjects;
 	}
@@ -260,10 +289,10 @@ export class WorkspaceFile {
 	 * @param nameArray An array of names to match the names of configurations in the GlobalConfig.
 	 */
 	private async getEnvironmentFromGlobalConfig(nameArray: string[]): Promise<EnvironmentConfig[]> {
-		let allEnvs = (await GlobalFile.read()).environments;
-		let ret: EnvironmentConfig[] = []
-		for (let name of nameArray) {
-			for (let env of allEnvs) {
+		const allEnvs = (await GlobalFile.read()).environments;
+		const ret: EnvironmentConfig[] = [];
+		for (const name of nameArray) {
+			for (const env of allEnvs) {
 				if (env.name === name) {
 					ret.push(env);
 				}
@@ -276,21 +305,21 @@ export class WorkspaceFile {
 	 * Contents of local environment.json
 	 */
 	get environment(): Promise<WorkspaceEnvironments> {
-		if (this._enviornment) return Promise.resolve(this._enviornment);
+		if (this._environment) return Promise.resolve(this._environment);
 		return fs.readFile(this.environmentPath).then(async file => {
-			let localEnvironment: WorkspaceEnvironments = jsonc.parse(file.toString());
+			const localEnvironment: WorkspaceEnvironments = jsonc.parse(file.toString());
 			if (!localEnvironment.names || !Array.isArray(localEnvironment.names)) {
-				throw new Error('Local environment.json is not properly configured.');
+				throw new Error("Local environment.json is not properly configured.");
 			}
-			this._enviornment = localEnvironment;
+			this._environment = localEnvironment;
 			return localEnvironment;
-		})
+		});
 	}
 
 	async writeLocalEnv(newLocalEnv: WorkspaceEnvironments) {
 		// TODO prune names
 		await fs.ensureFile(this.environmentPath);
-		await fs.writeFile(this.environmentPath, JSON.stringify(newLocalEnv, null, '\t'));
+		await fs.writeFile(this.environmentPath, JSON.stringify(newLocalEnv, null, "\t"));
 	}
 }
 
@@ -300,23 +329,28 @@ export class GlobalFile {
 	 * Path to the global config file
 	 */
 	private static readonly path = (() => {
-		const envFileName = 'environments.json';
-		const appdata = process.env.APPDATA || (process.platform === 'darwin' ? process.env.HOME + '/Library/Application Support' : '/var/local');
+		const envFileName = "environments.json";
+		const appdata = (
+			process.env.APPDATA ||
+			process.platform === "darwin" ?
+				process.env.HOME + "/Library/Application Support"
+				: "/var/local"
+		);
 		let channelPath: string;
-		if (vscode.env.appName.indexOf('Insiders') > 0) {
-			channelPath = 'Code - Insiders';
+		if (vscode.env.appName.indexOf("Insiders") > 0) {
+			channelPath = "Code - Insiders";
 		} else {
-			channelPath = 'Code';
+			channelPath = "Code";
 		}
-		let envPath = path.join(appdata, channelPath, 'User', envFileName);
+		let envPath = path.join(appdata, channelPath, "User", envFileName);
 		// in linux, it may not work with /var/local, then try to use /home/myuser/.config
-		if ((process.platform === 'linux') && (!fs.existsSync(envPath))) {
-			envPath = path.join(os.homedir(), '.config/', channelPath, 'User', envFileName);
+		if ((process.platform === "linux") && (!fs.existsSync(envPath))) {
+			envPath = path.join(os.homedir(), ".config/", channelPath, "User", envFileName);
 		}
 		return envPath;
 	})();
 
-	static readonly INVALID_CONFIG = new Error('Missing environments in global config.');
+	static readonly INVALID_CONFIG = new Error("Missing environments in global config.");
 
 	/**
 	 * Reads and returns the contents of the file.
@@ -324,7 +358,7 @@ export class GlobalFile {
 	 * @throws An error if parsing fails or if improperly formatted.
 	 */
 	static async read(): Promise<GlobalConfig> {
-		let globalConfig = jsonc.parse((await fs.readFile(this.path)).toString());
+		const globalConfig = jsonc.parse((await fs.readFile(this.path)).toString());
 		if (!globalConfig.environments) throw this.INVALID_CONFIG;
 		return globalConfig;
 	}
@@ -336,7 +370,7 @@ export class GlobalFile {
 	 */
 	static async write(newGlobalConfig: GlobalConfig) {
 		await fs.ensureFile(this.path);
-		await fs.writeFile(this.path, JSON.stringify(newGlobalConfig, null, '\t'));
+		await fs.writeFile(this.path, JSON.stringify(newGlobalConfig, null, "\t"));
 	}
 
 	/**

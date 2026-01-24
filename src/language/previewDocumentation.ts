@@ -1,12 +1,12 @@
-import * as path from 'node:path';
+import * as path from "node:path";
 
-import { xhr }from 'request-light';
-import * as vscode from 'vscode';
+import { xhr }from "request-light";
+import * as vscode from "vscode";
 
 export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerTextEditorCommand(
-			'psl.previewDocumentation',
+			"psl.previewDocumentation",
 			preparePreview,
 		),
 	);
@@ -14,20 +14,20 @@ export function activate(context: vscode.ExtensionContext) {
 	checkForDocumentationServer();
 
 	vscode.workspace.onDidChangeConfiguration(event => {
-		if (!event.affectsConfiguration('psl')) return;
+		if (!event.affectsConfiguration("psl")) return;
 		checkForDocumentationServer();
 	});
 }
 
 function checkForDocumentationServer(): string {
-	const documentationServer: string = vscode.workspace.getConfiguration('psl', null).get('documentationServer');
+	const documentationServer: string = vscode.workspace.getConfiguration("psl", null).get("documentationServer");
 	if (documentationServer) {
-		vscode.commands.executeCommand('setContext', 'psl.hasDocumentationServer', true);
+		vscode.commands.executeCommand("setContext", "psl.hasDocumentationServer", true);
 		return documentationServer;
 	}
 	else {
-		vscode.commands.executeCommand('setContext', 'psl.hasDocumentationServer', false);
-		return '';
+		vscode.commands.executeCommand("setContext", "psl.hasDocumentationServer", false);
+		return "";
 	}
 }
 
@@ -45,8 +45,8 @@ async function preparePreview(textEditor: vscode.TextEditor) {
 }
 
 async function showPreview(markdown: string) {
-	const untitledDoc = await vscode.workspace.openTextDocument({ language: 'markdown', content: markdown });
-	vscode.commands.executeCommand('markdown.showPreview', untitledDoc.uri);
+	const untitledDoc = await vscode.workspace.openTextDocument({ language: "markdown", content: markdown });
+	vscode.commands.executeCommand("markdown.showPreview", untitledDoc.uri);
 }
 
 async function getMarkdownFromApi(pslText: string, fileName: string, documentationServer: string) {
@@ -57,16 +57,16 @@ async function getMarkdownFromApi(pslText: string, fileName: string, documentati
 		const response = await xhr({
 			data,
 			headers: {
-				'Content-Length': `${Buffer.byteLength(data)}`,
-				'Content-Type': 'application/json',
+				"Content-Length": `${Buffer.byteLength(data)}`,
+				"Content-Type": "application/json",
 			},
-			type: 'POST',
+			type: "POST",
 			url: documentationServer + fileName,
 		});
 		return response.responseText;
 	}
 	catch (e) {
 		vscode.window.showErrorMessage(e.responseText);
-		return '';
+		return "";
 	}
 }

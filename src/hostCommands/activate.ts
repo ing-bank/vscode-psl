@@ -1,38 +1,38 @@
-import * as path from 'node:path';
+import * as path from "node:path";
 
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-import { compileAndLinkHandler } from './compileAndLink.ts';
-import { getElementHandler, getTableHandler } from './get.ts';
-import { refreshElementHandler, refreshTableHandler } from './refresh.ts';
-import { runPSLHandler } from './run.ts';
+import { compileAndLinkHandler } from "./compileAndLink.ts";
+import { getElementHandler, getTableHandler } from "./get.ts";
+import { refreshElementHandler, refreshTableHandler } from "./refresh.ts";
+import { runPSLHandler } from "./run.ts";
 import {
 	coverageContext, registerCustomRunContext, runCoverageHandler,
 	runTestHandler, testContext,
-} from './runCustom.ts';
-import { sendElementHandler, sendTableHandler } from './send.ts';
-import { testCompileHandler } from './testCompile.ts';
+} from "./runCustom.ts";
+import { sendElementHandler, sendTableHandler } from "./send.ts";
+import { testCompileHandler } from "./testCompile.ts";
 
 const PROFILE_ELEMENTS = [
-	'.FKY',
-	'.G',
-	'.IDX',
-	'.JFD',
-	'.M',
-	'.m',
-	'.PPL',
-	'.properties',
-	'.PROPERTIES',
-	'.PSLX',
-	'.pslx',
-	'.PSLXTRA',
-	'.pslxtra',
-	'.PSQL',
-	'.psql',
-	'.QRY',
-	'.RPT',
-	'.SCR',
-	'.serial',
+	".FKY",
+	".G",
+	".IDX",
+	".JFD",
+	".M",
+	".m",
+	".PPL",
+	".properties",
+	".PROPERTIES",
+	".PSLX",
+	".pslx",
+	".PSLXTRA",
+	".pslxtra",
+	".PSQL",
+	".psql",
+	".QRY",
+	".RPT",
+	".SCR",
+	".serial",
 ];
 
 export function activate(context: vscode.ExtensionContext) {
@@ -41,17 +41,17 @@ export function activate(context: vscode.ExtensionContext) {
 	registerCustomRunContext();
 
 	const commands = [
-		{ id: 'psl.getElement', callback: getElementHandler },
-		{ id: 'psl.getTable', callback: getTableHandler },
-		{ id: 'psl.refreshElement', callback: refreshElementHandler },
-		{ id: 'psl.sendElement', callback: sendElementHandler },
-		{ id: 'psl.testCompile', callback: testCompileHandler },
-		{ id: 'psl.compileAndLink', callback: compileAndLinkHandler },
-		{ id: 'psl.runPSL', callback: runPSLHandler },
-		{ id: 'psl.sendTable', callback: sendTableHandler },
-		{ id: 'psl.refreshTable', callback: refreshTableHandler },
+		{ id: "psl.getElement", callback: getElementHandler },
+		{ id: "psl.getTable", callback: getTableHandler },
+		{ id: "psl.refreshElement", callback: refreshElementHandler },
+		{ id: "psl.sendElement", callback: sendElementHandler },
+		{ id: "psl.testCompile", callback: testCompileHandler },
+		{ id: "psl.compileAndLink", callback: compileAndLinkHandler },
+		{ id: "psl.runPSL", callback: runPSLHandler },
+		{ id: "psl.sendTable", callback: sendTableHandler },
+		{ id: "psl.refreshTable", callback: refreshTableHandler },
 		// Custom commands
-		// { id: 'psl.getCompiledCode', callback: getCompiledCodeHandler },
+		// { id: "psl.getCompiledCode", callback: getCompiledCodeHandler },
 		{ id: `psl.${testContext.command}`, callback: runTestHandler },
 		{ id: `psl.${coverageContext.command}`, callback: runCoverageHandler },
 	];
@@ -75,5 +75,5 @@ function setIsProfileElementContext(textEditor: vscode.TextEditor) {
 	if (textEditor) {
 		isElement = PROFILE_ELEMENTS.indexOf(path.extname(textEditor.document.fileName)) >= 0;
 	}
-	vscode.commands.executeCommand('setContext', 'psl.isProfileElement', isElement);
+	vscode.commands.executeCommand("setContext", "psl.isProfileElement", isElement);
 }

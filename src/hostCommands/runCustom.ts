@@ -1,13 +1,13 @@
-import * as path from 'node:path';
+import * as path from "node:path";
 
-import * as fs from 'fs-extra';
-import * as vscode from 'vscode';
+import * as fs from "fs-extra";
+import * as vscode from "vscode";
 
-import { MtmConnection } from '@profile-psl/profile-connector/mtm.js';
+import { MtmConnection } from "@profile-psl/profile-connector/mtm.js";
 
-import * as environment from '../common/environment.ts';
-import * as utils from './hostCommandUtils.ts';
-import { displayCoverage, parseCoverageOutput, RoutineCoverage } from './pslUnitTest.ts';
+import * as environment from "../common/environment.ts";
+import * as utils from "./hostCommandUtils.ts";
+import { displayCoverage, parseCoverageOutput, RoutineCoverage } from "./pslUnitTest.ts";
 
 const icon = utils.icons.RUN;
 
@@ -17,13 +17,13 @@ interface CustomRunContext {
 }
 
 export const testContext: CustomRunContext = {
-	command: 'runTest',
-	contextKey: 'psl.runTestContext',
+	command: "runTest",
+	contextKey: "psl.runTestContext",
 };
 
 export const coverageContext: CustomRunContext = {
-	command: 'runCoverage',
-	contextKey: 'psl.runCoverageContext',
+	command: "runCoverage",
+	contextKey: "psl.runCoverageContext",
 };
 
 const customRunContexts = [testContext, coverageContext];
@@ -48,7 +48,13 @@ async function handle(context: utils.ExtensionCommandContext, runContext?: Custo
 		return runPSL(c.fsPath, runContext).catch(() => { });
 	}
 	else if (c.mode === utils.ContextMode.DIRECTORY) {
-		const files = await vscode.window.showOpenDialog({ defaultUri: vscode.Uri.file(c.fsPath), canSelectMany: true, openLabel: 'Run PSL' });
+		const files = await vscode.window.showOpenDialog(
+			{
+				defaultUri: vscode.Uri.file(c.fsPath),
+				canSelectMany: true,
+				openLabel: "Run PSL"
+			}
+		);
 		if (!files) return;
 		for (const fsPath of files.map(file => file.fsPath)) {
 			await runPSL(fsPath, runContext).catch(() => { });
@@ -58,7 +64,13 @@ async function handle(context: utils.ExtensionCommandContext, runContext?: Custo
 		const quickPick = await environment.workspaceQuickPick();
 		if (!quickPick) return;
 		const chosenEnv = quickPick;
-		const files = await vscode.window.showOpenDialog({ defaultUri: vscode.Uri.file(chosenEnv.fsPath), canSelectMany: true, openLabel: 'Run PSL' });
+		const files = await vscode.window.showOpenDialog(
+			{
+				defaultUri: vscode.Uri.file(chosenEnv.fsPath),
+				canSelectMany: true,
+				openLabel: "Run PSL"
+			}
+		);
 		if (!files) return;
 		for (const fsPath of files.map(file => file.fsPath)) {
 			await runPSL(fsPath, runContext).catch(() => { });
@@ -77,7 +89,7 @@ async function runPSL(fsPath: string, runContext: CustomRunContext) {
 	try {
 		envs = await utils.getEnvironment(fsPath);
 	}
-	catch (e) {
+	catch {
 		utils.logger.error(`${utils.icons.ERROR} ${icon} Invalid environment configuration.`);
 		return;
 	}
@@ -101,7 +113,7 @@ async function runPSL(fsPath: string, runContext: CustomRunContext) {
 }
 
 function getFromConfiguration(uri: vscode.Uri, runContext: CustomRunContext): CustomTaskConfig | undefined {
-	const configs = vscode.workspace.getConfiguration('psl', uri).get<CustomTaskConfig[]>('customTasks');
+	const configs = vscode.workspace.getConfiguration("psl", uri).get<CustomTaskConfig[]>("customTasks");
 	const config = configs.find(c => c.command === runContext.command);
 	if (!config || !config.mrpcID || !config.request) {
 		return undefined;
@@ -120,7 +132,7 @@ export function setCustomRunContext(textEditor: vscode.TextEditor) {
 		if (textEditor) {
 			if (getFromConfiguration(textEditor.document.uri, context)) showCommand = true;
 		}
-		vscode.commands.executeCommand('setContext', context.contextKey, showCommand);
+		vscode.commands.executeCommand("setContext", context.contextKey, showCommand);
 	}
 }
 
@@ -143,11 +155,13 @@ async function runCustom(
 				label: documentCoverage.name,
 			};
 		});
-		vscode.window.showQuickPick(items, { canPickMany: true, placeHolder: 'Show coverage', ignoreFocusOut: true })
-			.then(choices => {
-				if (!choices || !choices.length) return;
-				displayCoverage(choices.map(x => x.documentCoverage), env, path.basename(fsPath));
-			});
+		vscode.window.showQuickPick(
+			items,
+			{ canPickMany: true, placeHolder: "Show coverage", ignoreFocusOut: true }
+		).then(choices => {
+			if (!choices || !choices.length) return;
+			displayCoverage(choices.map(x => x.documentCoverage), env, path.basename(fsPath));
+		});
 	}
 	return parsedOutput.output;
 }

@@ -1,8 +1,8 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-import { EnvironmentConfig } from '../common/environment.ts';
-import { getVirtualDocument, MumpsVirtualDocument, onDidDeleteVirtualMumps } from '../language/mumps.ts';
-import { getConnection } from './hostCommandUtils.ts';
+import { EnvironmentConfig } from "../common/environment.ts";
+import { getVirtualDocument, MumpsVirtualDocument, onDidDeleteVirtualMumps } from "../language/mumps.ts";
+import { getConnection } from "./hostCommandUtils.ts";
 
 export interface RoutineCoverage {
 	methods: MethodCoverage[];
@@ -37,7 +37,7 @@ interface ParsedOutput {
 	documents: RoutineCoverage[];
 }
 
-const diagnosticCollection = vscode.languages.createDiagnosticCollection('psl-test');
+const diagnosticCollection = vscode.languages.createDiagnosticCollection("psl-test");
 
 const coverageScheme = MumpsVirtualDocument.schemes.coverage;
 
@@ -50,8 +50,8 @@ function createDecoration(backgroundKey: string, rulerKey: string) {
 		rangeBehavior: vscode.DecorationRangeBehavior.ClosedOpen,
 	});
 }
-const notCovered = createDecoration('diffEditor.removedTextBackground', 'editorOverviewRuler.errorForeground');
-const covered = createDecoration('diffEditor.insertedTextBackground', 'diffEditor.insertedTextBackground');
+const notCovered = createDecoration("diffEditor.removedTextBackground", "editorOverviewRuler.errorForeground");
+const covered = createDecoration("diffEditor.insertedTextBackground", "diffEditor.insertedTextBackground");
 
 onDidDeleteVirtualMumps(uri => {
 	if (uri.scheme === coverageScheme) {
@@ -167,8 +167,14 @@ function setCoverageDecorations(textEditor: vscode.TextEditor) {
 			}
 		}
 	});
-	textEditor.setDecorations(notCovered, notCoveredLines.map(line => new vscode.Range(line, 0, line, Number.MAX_VALUE)));
-	textEditor.setDecorations(covered, coveredLines.map(line => new vscode.Range(line, 0, line, Number.MAX_VALUE)));
+	textEditor.setDecorations(
+		notCovered,
+		notCoveredLines.map(line => new vscode.Range(line, 0, line, Number.MAX_VALUE))
+	);
+	textEditor.setDecorations(
+		covered,
+		coveredLines.map(line => new vscode.Range(line, 0, line, Number.MAX_VALUE))
+	);
 }
 
 /**
@@ -180,8 +186,8 @@ export function parseCoverageOutput(input: string): ParsedOutput {
 		output: input,
 	};
 
-	const begin = '#BeginCoverageInfo';
-	const end = '#EndCoverageInfo';
+	const begin = "#BeginCoverageInfo";
+	const end = "#EndCoverageInfo";
 
 	if (!input.includes(begin) && !input.includes(end)) {
 		return parsed;
@@ -197,7 +203,7 @@ export function parseCoverageOutput(input: string): ParsedOutput {
 	const match = output.match(/\d+\.\d+% - \w+/g);
 	if (!match) return parsed;
 
-	match.forEach(l => routinesToPercentages.set((l.split(' - ')[1]), l.split(' - ')[0]));
+	match.forEach(l => routinesToPercentages.set((l.split(" - ")[1]), l.split(" - ")[0]));
 
 	parsed.documents = extractDocumentCoverage(split2[0], routinesToPercentages);
 
@@ -208,19 +214,27 @@ function extractDocumentCoverage(codeOutput: string, routinesToPercentages: Map<
 	const splitOutput = codeOutput.split(/\r?\n/).filter(x => x).map(x => x.trim());
 
 	const documents: RoutineCoverage[] = [];
-	let documentCoverage: RoutineCoverage = { coverage: '', methods: [], name: '' };
+	let documentCoverage: RoutineCoverage = { coverage: "", methods: [], name: "" };
 	const initialize = (routineName: string) => {
-		documentCoverage = { name: routineName, methods: [], coverage: routinesToPercentages.get(routineName) || '' };
+		documentCoverage = {
+			name: routineName,
+			methods: [],
+			coverage: routinesToPercentages.get(routineName) || ""
+		};
 		documents.push(documentCoverage);
 	};
 
 	for (const line of splitOutput) {
 		if (line.match(/^9\|.*/)) {
-			initialize(line.split('|')[1]);
+			initialize(line.split("|")[1]);
 		}
 		else if (line.match(/^1/)) {
 			documentCoverage.methods.push(
-				{ name: line.split('|')[1], coverageSequence: line.split('|')[2].split('').map(s => ({ indicator: Number(s) })) },
+				{
+					name: line.split("|")[1],
+					coverageSequence: line.split("|")[2].split("")
+						.map(s => ( { indicator: Number(s) } ))
+				},
 			);
 		}
 	}
