@@ -330,12 +330,11 @@ export class GlobalFile {
 	 */
 	private static readonly path = (() => {
 		const envFileName = "environments.json";
-		const appdata = (
-			process.env.APPDATA ||
-			process.platform === "darwin" ?
-				process.env.HOME + "/Library/Application Support"
-				: "/var/local"
-		);
+		const appdata = process.env.APPDATA ||
+			( process.platform === "darwin" ?
+				process.env.HOME + "/Library/Application Support" :
+				"/var/local"
+			);
 		let channelPath: string;
 		if (vscode.env.appName.indexOf("Insiders") > 0) {
 			channelPath = "Code - Insiders";
