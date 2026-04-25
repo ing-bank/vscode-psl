@@ -1,6 +1,8 @@
-import * as vscode from 'vscode';
-import * as parser from '../parser/parser';
-import { getVirtualDocument } from './mumps';
+import * as vscode from "vscode";
+
+import * as parser from "@profile-psl/psl-parser/parser.js";
+
+import { getVirtualDocument } from "./mumps.ts";
 
 export class PSLDocumentSymbolProvider implements vscode.DocumentSymbolProvider {
 
@@ -14,10 +16,18 @@ export class PSLDocumentSymbolProvider implements vscode.DocumentSymbolProvider 
 			parsedDoc.properties.forEach(property => {
 				const propertyNameToken = property.id;
 				const name = propertyNameToken.value;
-				const containerName = '';
+				const containerName = "";
 				const position = propertyNameToken.position;
-				const location = new vscode.Location(document.uri, new vscode.Position(position.line, position.character));
-				symbols.push(new vscode.SymbolInformation(name, vscode.SymbolKind.Property, containerName, location));
+				const location = new vscode.Location(
+					document.uri,
+					new vscode.Position(position.line, position.character)
+				);
+				symbols.push(new vscode.SymbolInformation(
+					name,
+					vscode.SymbolKind.Property,
+					containerName,
+					location
+				));
 			});
 			resolve(symbols);
 		});
@@ -48,7 +58,7 @@ export class MumpsDocumentSymbolProvider implements vscode.DocumentSymbolProvide
 function createMethodSymbol(method: parser.Method, document: vscode.TextDocument) {
 	const methodToken = method.id;
 	const name = methodToken.value;
-	const containerName = '';
+	const containerName = "";
 
 	const startPosition = new vscode.Position(methodToken.position.line, 0);
 

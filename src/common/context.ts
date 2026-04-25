@@ -1,5 +1,5 @@
-import * as vscode from 'vscode';
-import * as fsExtra from 'fs-extra';
+import * as vscode from "vscode";
+import * as fsExtra from "fs-extra";
 
 export const enum ContextMode {
 	FILE = 1,
@@ -16,10 +16,13 @@ export interface HostCommandContext {
 	mode: ContextMode;
 }
 
-export function getFullContext(context: ExtensionCommandContext | undefined, useActiveTextEditor?: boolean): HostCommandContext {
-	let fsPath: string = '';
+export function getFullContext(
+	context: ExtensionCommandContext | undefined,
+	useActiveTextEditor?: boolean
+): HostCommandContext {
+	let fsPath: string = "";
 	let mode: ContextMode;
-	let activeTextEditor = vscode.window.activeTextEditor;
+	const activeTextEditor = vscode.window.activeTextEditor;
 
 	if (context) {
 		fsPath = context.fsPath;

@@ -2,16 +2,19 @@
     "compilerOptions": {
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "moduleResolution": "node",
-        "module": "commonjs",
-        "target": "es6",
+        "moduleResolution": "nodenext",
+        "module": "nodenext",
+        "target": "esnext",
         "outDir": "out",
+        "esModuleInterop": true,
         "lib": [
-            "es6"
+            "esnext"
         ],
         "inlineSourceMap": true,
         "rootDir": ".",
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "noEmit": true,
+        "allowImportingTsExtensions": true
     },
     "exclude": [
         "node_modules"

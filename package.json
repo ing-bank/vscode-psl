@@ -2,11 +2,12 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "1.13.4",
-  "preview": true,
+  "version": "2.0.0-rc0",
+  "preview": false,
   "publisher": "ing-bank",
+  "type": "module",
   "engines": {
-    "vscode": "^1.72.2"
+    "vscode": "^1.104.0"
   },
   "categories": [
     "Programming Languages"
@@ -26,7 +27,7 @@
     "onCommand:psl.runPSL",
     "onCommand:psl.launchHostTerminal"
   ],
-  "main": "./out/src/extension",
+  "main": "./dist/extension.cjs",
   "contributes": {
     "languages": [
       {
@@ -830,46 +831,44 @@
     }
   },
   "scripts": {
-    "compile": "tsc -p ./",
-    "compile-lint": "tsc -p ./src/pslLint/cli",
-    "compile-parser": "tsc -p ./src/parser",
-    "lint": "tslint -c tslint.json --project .",
-    "watch": "npm run compile -- -watch",
-    "test": "jest"
+    "clean": "rimraf dist/",
+    "check-types": "tsc --noEmit -p ./tsconfig.json",
+    "bundle": "node ./esbuild.cjs",
+    "compile": "npm run check-types && npm run bundle",
+    "build": "npm run bundle -- --production",
+    "prebuild": "npm run check-types && npm run lint && npm run test",
+    "lint": "npx eslint .",
+    "watch:check-types": "npm run check-types -- --watch",
+    "watch:build": "npm run bundle -- --watch",
+    "watch": "npm run watch:check-types & npm run watch:build",
+    "test": "echo \"Not implemented :-(\"",
+    "vsix": "npm run clean && npm run build && npx vsce package"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/ing-bank/vscode-psl"
   },
   "devDependencies": {
-    "@types/fs-extra": "^9.0.13",
-    "@types/jest": "^29.2.0",
-    "@types/minimatch": "^5.1.2",
-    "@types/node": "^18.11.4",
-    "@types/vscode": "^1.72.0",
-    "jest": "^29.2.1",
-    "ts-jest": "^29.0.3",
-    "tslint": "^5.20.1",
-    "typescript": "^4.8.4"
+    "@eslint/js": "^9.39.2",
+    "@stylistic/eslint-plugin": "^5.7.1",
+    "@types/fs-extra": "^11.0.4",
+    "@types/minimatch": "^6.0.0",
+    "@types/node": "^24.5.2",
+    "@types/vscode": "^1.104.0",
+    "@vscode/vsce": "^2.25.0",
+    "esbuild": "^0.25.10",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.53.1"
   },
   "dependencies": {
-    "fs-extra": "^10.1.0",
-    "jsonc-parser": "^3.2.0",
-    "minimatch": "^5.1.0",
-    "request-light": "^0.5.8",
-    "vscode-json-languageservice": "^5.1.1"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": ".*?/__tests__/.*-test(\\.ts|\\.js)",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json",
-      "jsx"
-    ]
+    "@profile-psl/profile-connector": "^0.0.1",
+    "@profile-psl/psl-linter": "^2.0.0",
+    "@profile-psl/psl-parser": "^0.1.0",
+    "fs-extra": "^11.3.2",
+    "jsonc-parser": "^3.3.1",
+    "minimatch": "^10.0.3",
+    "request-light": "^0.8.0",
+    "vscode-json-languageservice": "^5.6.1"
   }
 }

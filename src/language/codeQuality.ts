@@ -1,18 +1,19 @@
-import * as vscode from 'vscode';
-import { BATCH_MODE, PSL_MODE, TRIG_MODE } from '../extension';
-import * as parser from '../parser/parser';
-import { getDiagnostics } from '../pslLint/activate';
-import * as api from '../pslLint/api';
-import { getConfig, removeConfig, setConfig } from '../pslLint/config';
-import { PSLActionProvider } from './codeAction';
+import * as vscode from "vscode";
 
-type lintOption = 'none' | 'all' | 'config' | true;
+import { parseText, Member } from "@profile-psl/psl-parser/parser.js";
+import { getDiagnostics } from "@profile-psl/psl-linter/activate.js";
+import * as api from "@profile-psl/psl-linter/api.js";
+import { getConfig, removeConfig, setConfig } from "@profile-psl/psl-linter/config.js";
+
+import { BATCH_MODE, PSL_MODE, TRIG_MODE } from "../extension.ts";
+import { PSLActionProvider } from "./codeAction.ts";
+type lintOption = "none" | "all" | "config" | true;
 
 export async function activate(context: vscode.ExtensionContext) {
 
 	await pslLintConfigurationWatchers(context);
 
-	const lintDiagnostics = vscode.languages.createDiagnosticCollection('psl-lint');
+	const lintDiagnostics = vscode.languages.createDiagnosticCollection("psl-lint");
 	context.subscriptions.push(lintDiagnostics);
 
 	// initial token
@@ -52,7 +53,7 @@ export async function activate(context: vscode.ExtensionContext) {
 async function pslLintConfigurationWatchers(context: vscode.ExtensionContext) {
 	return Promise.all(
 		vscode.workspace.workspaceFolders
-			.map(workspace => new vscode.RelativePattern(workspace, 'psl-lint.json'))
+			.map(workspace => new vscode.RelativePattern(workspace, "psl-lint.json"))
 			.map(async pattern => {
 				const watcher = vscode.workspace.createFileSystemWatcher(pattern);
 				context.subscriptions.push(watcher.onDidChange(uri => {
@@ -71,7 +72,7 @@ async function pslLintConfigurationWatchers(context: vscode.ExtensionContext) {
 }
 
 export class MemberDiagnostic extends vscode.Diagnostic {
-	member: parser.Member;
+	member: Member;
 	ruleName: string;
 }
 
@@ -82,16 +83,16 @@ function prepareRules(
 ) {
 	if (!api.ProfileComponent.isProfileComponent(textDocument.fileName)) return;
 
-	const lintConfigValue: lintOption = vscode.workspace.getConfiguration('psl', textDocument.uri).get('lint');
+	const lintConfigValue: lintOption = vscode.workspace.getConfiguration("psl", textDocument.uri).get("lint");
 
 	let useConfig = false;
-	if (lintConfigValue === 'config') {
+	if (lintConfigValue === "config") {
 		// check if config exist first
 		const config = getConfig(textDocument.uri.fsPath);
 		if (!config) return;
 		useConfig = true;
 	}
-	else if (lintConfigValue !== 'all' && lintConfigValue !== true) {
+	else if (lintConfigValue !== "all" && lintConfigValue !== true) {
 		lintDiagnostics.clear();
 		return;
 	}
@@ -110,7 +111,7 @@ function lint(
 ) {
 	const profileComponent: api.ProfileComponent = prepareDocument(textDocument);
 	const parsedDocument = api.ProfileComponent.isPsl(profileComponent.fsPath) ?
-		parser.parseText(textDocument.getText()) : undefined;
+		parseText(textDocument.getText()) : undefined;
 	const diagnostics = getDiagnostics(profileComponent, parsedDocument, useConfig);
 	const memberDiagnostics = transform(diagnostics, textDocument.uri);
 	process.nextTick(() => {
@@ -122,7 +123,11 @@ function lint(
 
 function prepareDocument(textDocument: vscode.TextDocument) {
 	const getTextAtLine = (n: number) => textDocument.lineAt(n).text;
-	const profileComponent = new api.ProfileComponent(textDocument.uri.fsPath, textDocument.getText(), getTextAtLine);
+	const profileComponent = new api.ProfileComponent(
+		textDocument.uri.fsPath,
+		textDocument.getText(),
+		getTextAtLine
+	);
 	return profileComponent;
 }
 
@@ -130,7 +135,11 @@ function transform(diagnostics: api.Diagnostic[], uri: vscode.Uri): MemberDiagno
 	return diagnostics.map(pslLintDiagnostic => {
 		const r = pslLintDiagnostic.range;
 		const vscodeRange = new vscode.Range(r.start.line, r.start.character, r.end.line, r.end.character);
-		const memberDiagnostic = new MemberDiagnostic(vscodeRange, pslLintDiagnostic.message, pslLintDiagnostic.severity);
+		const memberDiagnostic = new MemberDiagnostic(
+			vscodeRange,
+			pslLintDiagnostic.message,
+			pslLintDiagnostic.severity
+		);
 		memberDiagnostic.source = pslLintDiagnostic.source;
 		memberDiagnostic.code = pslLintDiagnostic.code;
 		memberDiagnostic.ruleName = pslLintDiagnostic.ruleName;

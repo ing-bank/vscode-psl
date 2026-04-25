@@ -1,8 +1,10 @@
-import * as vscode from 'vscode';
-import { MemberDiagnostic } from '../language/codeQuality';
-import * as parser from '../parser/parser';
-import { getLineAfter } from '../parser/utilities';
-import { MethodDocumentation, MethodSeparator } from '../pslLint/methodDoc';
+import * as vscode from "vscode";
+
+import { Method } from "@profile-psl/psl-parser/parser.js";
+import { getLineAfter } from "@profile-psl/psl-parser/utilities.js";
+import { MethodDocumentation, MethodSeparator } from "@profile-psl/psl-linter/methodDoc.js";
+
+import { MemberDiagnostic } from "../language/codeQuality.ts";
 
 function initializeAction(title: string, ...diagnostics: MemberDiagnostic[]) {
 	const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
@@ -27,34 +29,40 @@ interface CodeQualityActionContext {
 	diagnostics: MemberDiagnostic[];
 }
 
+const SEPARATOR: string = "// ---------------------------------------------------------------------";
+const DOC_BLOCK_START = "/* DOC -----------------------------------------------------------------";
+const DOC_BLOCK_END = "** ENDDOC */";
+
 export class PSLActionProvider implements vscode.CodeActionProvider {
 	public async provideCodeActions(
 		document: vscode.TextDocument,
 		_range: vscode.Range | vscode.Selection,
 		context: CodeQualityActionContext,
+		// TODO: (Mischa Reitsma, 2026-01-24) Implement cancel functionality
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		_token: vscode.CancellationToken
 	): Promise<vscode.CodeAction[]> {
 
 		if (context.diagnostics.length === 0) return;
 
-		const newLine = document.eol === vscode.EndOfLine.LF ? '\n' : '\r\n';
+		const newLine = document.eol === vscode.EndOfLine.LF ? "\n" : "\r\n";
 		const actions: vscode.CodeAction[] = [];
 		const allDiagnostics: MemberDiagnostic[] = [];
 		const allTextEdits: Array<{ edit: vscode.TextEdit, priority: number }> = [];
 
-		const fixAll: vscode.CodeAction = initializeAction('Fix all.');
+		const fixAll: vscode.CodeAction = initializeAction("Fix all.");
 
 		for (const diagnostic of context.diagnostics) {
 			if (!diagnostic.member) continue;
 
-			const method = diagnostic.member as parser.Method;
+			const method = diagnostic.member as Method;
 
 			if (diagnostic.ruleName === MethodSeparator.name) {
-				const separatorAction = initializeAction('Add separator.', diagnostic);
+				const separatorAction = initializeAction("Add separator.", diagnostic);
 
 				const textEdit = vscode.TextEdit.insert(
 					new vscode.Position(method.id.position.line - 1, Number.MAX_VALUE),
-					`${newLine}\t// ---------------------------------------------------------------------`,
+					`${newLine}\t${SEPARATOR}`,
 				);
 
 				separatorAction.edit.set(document.uri, [textEdit]);
@@ -65,23 +73,30 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 			}
 
 			if (diagnostic.ruleName === MethodDocumentation.name) {
-				const documentationAction = initializeAction('Add documentation block.', diagnostic);
+				const documentationAction = initializeAction("Add documentation block.", diagnostic);
 
-				let docText = `\t/* DOC -----------------------------------------------------------------${newLine}\t`
+				let docText = `\t${DOC_BLOCK_START}${newLine}\t`
 					+ `TODO: description of label ${method.id.value}${newLine}${newLine}`;
-				const terminator = `\t** ENDDOC */${newLine}`;
+				const terminator = `\t${DOC_BLOCK_END}${newLine}`;
 				if (method.parameters.length > 0) {
 					const spacing = method.parameters.slice().sort((p1, p2): number => {
 						return p2.id.value.length - p1.id.value.length;
 					})[0].id.value.length + 2;
 
 					docText += method.parameters.map(p => {
-						return `\t@param ${p.id.value}${' '.repeat(spacing - p.id.value.length)}TODO: description of param ${p.id.value}`;
+						return (
+							`\t@param ${p.id.value}` +
+							`${" ".repeat(spacing - p.id.value.length)}` +
+							`TODO: description of param ${p.id.value}`
+						);
 					}).join(`${newLine}${newLine}`) + `${newLine}`;
 				}
 				docText += terminator;
 
-				const textEdit = vscode.TextEdit.insert(new vscode.Position(getLineAfter(method), 0), docText);
+				const textEdit = vscode.TextEdit.insert(
+					new vscode.Position(getLineAfter(method), 0),
+					docText
+				);
 				documentationAction.edit.set(document.uri, [textEdit]);
 				actions.push(documentationAction);
 
@@ -91,7 +106,10 @@ export class PSLActionProvider implements vscode.CodeActionProvider {
 			}
 		}
 		if (actions.length > 1) {
-			fixAll.edit.set(document.uri, allTextEdits.sort((a, b) => a.priority - b.priority).map(edits => edits.edit));
+			fixAll.edit.set(
+				document.uri,
+				allTextEdits.sort((a, b) => a.priority - b.priority).map(edits => edits.edit)
+			);
 			fixAll.diagnostics = allDiagnostics;
 			actions.push(fixAll);
 		}

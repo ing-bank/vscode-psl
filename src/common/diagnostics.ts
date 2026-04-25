@@ -1,13 +1,13 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
 export class PSLDiagnostic {
 
 	static diagnosticCollections: vscode.DiagnosticCollection[] = [];
 
 	static setDiagnostics(pslDiagnostics: PSLDiagnostic[], envName: string, fsPath: string) {
-		let diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
+		const diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
 		pslDiagnostics.forEach(pslDiagnostic => {
-			let canonicalFile = vscode.Uri.file(pslDiagnostic.file).toString();
+			const canonicalFile = vscode.Uri.file(pslDiagnostic.file).toString();
 			let diagnostics = diagnosticMap.get(canonicalFile);
 			pslDiagnostic.diagnostic.source = envName;
 			if (!diagnostics) { diagnostics = []; }
@@ -19,8 +19,7 @@ export class PSLDiagnostic {
 		if (!collection)  {
 			collection = this.registerCollection(envName);
 		}
-		let uri = vscode.Uri.file(fsPath);
-		collection.delete(uri);
+		collection.delete(vscode.Uri.file(fsPath));
 		diagnosticMap.forEach((diags, file) => {
 			collection.set(vscode.Uri.parse(file), diags);
 
@@ -28,11 +27,10 @@ export class PSLDiagnostic {
 	}
 
 	static registerCollection(envName: string): vscode.DiagnosticCollection {
-		let collection = vscode.languages.createDiagnosticCollection(envName);
+		const collection = vscode.languages.createDiagnosticCollection(envName);
 		vscode.workspace.onDidCloseTextDocument((textDocument) => {
-			let uri = textDocument.uri;
-			collection.delete(uri);
-		})
+			collection.delete(textDocument.uri);
+		});
 		this.diagnosticCollections.push(collection);
 		return collection;
 	}

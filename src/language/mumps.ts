@@ -1,11 +1,12 @@
-import { EventEmitter, TextDocumentContentProvider, Uri, workspace } from 'vscode';
-import { ParsedDocument, parseText } from '../parser';
+import { EventEmitter, TextDocumentContentProvider, Uri, workspace } from "vscode";
+
+import { ParsedDocument, parseText } from "@profile-psl/psl-parser/parser.js";
 
 export class MumpsVirtualDocument {
 
 	static readonly schemes = {
-		compiled: 'compiledMumps',
-		coverage: 'coverageMumps',
+		compiled: "compiledMumps",
+		coverage: "coverageMumps",
 	};
 
 	readonly parsedDocument: ParsedDocument;

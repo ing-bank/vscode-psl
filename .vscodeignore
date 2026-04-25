@@ -1,16 +1,16 @@
-.vscode/**
-.vscode-test/**
-out/test/**
-test/**
-src/**
-**/*.map
+# directories:
+__test__
+.github
+.vscode
+node_modules
+out/
+src/
+
+# Files:
 .gitignore
+.travis.yml
+.vscodeignore
 tsconfig.json
-vsc-extension-quickstart.md
-*.html
+esbuild.cjs
+tslin.json
 *.vsix
-*.pyc
-!src/python/**
-python_scripts/**
-images/**
-package-lock.json

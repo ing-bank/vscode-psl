@@ -1,28 +1,28 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
 export async function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
-			'psl.stepIn', stepIn,
+			"psl.stepIn", stepIn,
 		),
 	);
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
-			'psl.stepOut', stepOut,
+			"psl.stepOut", stepOut,
 		),
 	);
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
-			'psl.stepOver', stepOver,
+			"psl.stepOver", stepOver,
 		),
 	);
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand(
-			'psl.sendToHostTerminal', sendToHostTerminal,
+			"psl.sendToHostTerminal", sendToHostTerminal,
 		),
 	);
 	terminalSendSettings();
@@ -31,13 +31,13 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 async function terminalSendSettings() {
-	const pslTerminalCommands = ['psl.stepIn', 'psl.stepOut', 'psl.stepOver', 'psl.sendToHostTerminal'];
-	const terminalSettings = vscode.workspace.getConfiguration('terminal');
-	const commandsToSkip: string[] | undefined = terminalSettings.get('integrated.commandsToSkipShell');
+	const pslTerminalCommands = ["psl.stepIn", "psl.stepOut", "psl.stepOver", "psl.sendToHostTerminal"];
+	const terminalSettings = vscode.workspace.getConfiguration("terminal");
+	const commandsToSkip: string[] | undefined = terminalSettings.get("integrated.commandsToSkipShell");
 	if (commandsToSkip) {
 		const merged = commandsToSkip.concat(pslTerminalCommands);
 		const filteredMerge = merged.filter((item, pos) => merged.indexOf(item) === pos);
-		terminalSettings.update('integrated.commandsToSkipShell', filteredMerge, true);
+		terminalSettings.update("integrated.commandsToSkipShell", filteredMerge, true);
 	}
 }
 
@@ -67,13 +67,13 @@ function terminalSend(text: string) {
 
 function configureGtmDebug(context: vscode.ExtensionContext) {
 	const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 901);
-	const commandName = 'psl.setGtmDebug';
-	let gtmDebug = vscode.workspace.getConfiguration('psl').get('gtmDebugEnabled');
+	const commandName = "psl.setGtmDebug";
+	let gtmDebug = vscode.workspace.getConfiguration("psl").get("gtmDebugEnabled");
 
 	const set = () => {
 		if (gtmDebug) showInformation(context);
-		statusBar.text = `GT.M Debug ${gtmDebug ? '$(check)' : '$(circle-slash)'}`;
-		vscode.commands.executeCommand('setContext', 'psl.gtmDebug', gtmDebug);
+		statusBar.text = `GT.M Debug ${gtmDebug ? "$(check)" : "$(circle-slash)"}`;
+		vscode.commands.executeCommand("setContext", "psl.gtmDebug", gtmDebug);
 	};
 
 	set();
@@ -87,25 +87,25 @@ function configureGtmDebug(context: vscode.ExtensionContext) {
 	);
 
 	vscode.workspace.onDidChangeConfiguration(event => {
-		if (event.affectsConfiguration('psl.gtmDebugEnabled')) {
+		if (event.affectsConfiguration("psl.gtmDebugEnabled")) {
 			gtmDebug = true;
 			set();
 		}
 	});
 
 	statusBar.command = commandName;
-	statusBar.tooltip = 'GT.M Debug hotkeys';
+	statusBar.tooltip = "GT.M Debug hotkeys";
 	statusBar.show();
 }
 
 async function showInformation(context: vscode.ExtensionContext) {
-	const doNotShow = context.globalState.get('gtmDebugShow');
+	const doNotShow = context.globalState.get("gtmDebugShow");
 	if (doNotShow) return;
 	const response = await vscode.window.showInformationMessage(
-		'INTO Ctrl+Q | OVER Ctrl+W | OUTOF Ctrl+E',
-		'Do not show again',
+		"INTO Ctrl+Q | OVER Ctrl+W | OUTOF Ctrl+E",
+		"Do not show again",
 	);
 	if (response) {
-		context.globalState.update('gtmDebugShow', true);
+		context.globalState.update("gtmDebugShow", true);
 	}
 }

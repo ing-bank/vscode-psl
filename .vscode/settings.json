@@ -6,5 +6,10 @@
     "search.exclude": {
         "out": true // set this to false to include "out" folder in search results
     },
-    "editor.rulers": [120] // Recommended typescript ruler
+    "[typescript]": {
+        "editor.rulers": [120], // Recommended typescript ruler
+        "editor.tabSize": 8,
+        "editor.insertSpaces": false
+    },
+    
 }

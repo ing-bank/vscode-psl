@@ -1,34 +1,35 @@
-import * as fs from 'fs-extra';
-import * as vscode from 'vscode';
-export { extensionToDescription } from '../mtm/utils';
-import * as environment from '../common/environment';
-import { MtmConnection } from '../mtm/mtm';
+import * as fs from "fs-extra";
+import * as vscode from "vscode";
 
-const outputChannel = vscode.window.createOutputChannel('Profile Host');
+import { MtmConnection } from "@profile-psl/profile-connector/mtm.js";
+
+import * as environment from "../common/environment.ts";
+
+const outputChannel = vscode.window.createOutputChannel("Profile Host");
 
 export const logger = {
 	error: (message: string) => {
 		outputChannel.show(true);
-		outputChannel.appendLine(`[ERR!][${new Date().toTimeString().split(' ')[0]}]    ${message.trim()}\n`);
+		outputChannel.appendLine(`[ERR!][${new Date().toTimeString().split(" ")[0]}]    ${message.trim()}\n`);
 	},
 	info: (message: string, hide?: boolean) => {
 		if (!hide) outputChannel.show(true);
-		outputChannel.appendLine(`[INFO][${new Date().toTimeString().split(' ')[0]}]    ${message.trim()}\n`);
+		outputChannel.appendLine(`[INFO][${new Date().toTimeString().split(" ")[0]}]    ${message.trim()}\n`);
 	},
 
 };
 
 export const enum icons {
-	ERROR = '❌',
-	GET = '⇩',
-	LINK = '🔗',
-	REFRESH = '🔃',
-	RUN = '▶',
-	SEND = '⇧',
-	SUCCESS = '✔',
-	TEST = '⚙',
-	WAIT = '…',
-	WARN = '⚠',
+	ERROR = "❌",
+	GET = "⇩",
+	LINK = "🔗",
+	REFRESH = "🔃",
+	RUN = "▶",
+	SEND = "⇧",
+	SUCCESS = "✔",
+	TEST = "⚙",
+	WAIT = "…",
+	WARN = "⚠",
 }
 
 export const enum ContextMode {
@@ -38,8 +39,8 @@ export const enum ContextMode {
 }
 
 const enum NEWLINE_SETTING {
-	ALWAYS = 'always',
-	NEVER = 'never',
+	ALWAYS = "always",
+	NEVER = "never",
 }
 
 export interface ExtensionCommandContext {
@@ -53,7 +54,7 @@ export interface HostCommandContext {
 }
 
 export function getFullContext(context: ExtensionCommandContext | undefined): HostCommandContext {
-	let fsPath: string = '';
+	let fsPath: string = "";
 	let mode: ContextMode;
 	const activeTextEditor = vscode.window.activeTextEditor;
 	if (context && context.dialog) {
@@ -76,7 +77,7 @@ export function getFullContext(context: ExtensionCommandContext | undefined): Ho
 	}
 }
 
-export async function executeWithProgress(message: string, task: () => Promise<any>) {
+export async function executeWithProgress(message: string, task: () => Promise<void>) {
 	return vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: message }, async () => {
 		await task();
 		return;
@@ -100,7 +101,7 @@ export async function getEnvironment(fsPath: string): Promise<environment.Enviro
 		});
 		return envs;
 	}
-	catch (e) {
+	catch {
 		const workspaceFolder = workspaceFile.workspaceFolder;
 		if (workspaceFolder) {
 			throw new Error(`Invalid configuration for Workspace Folder ${workspaceFolder.name}`);
@@ -109,24 +110,31 @@ export async function getEnvironment(fsPath: string): Promise<environment.Enviro
 	}
 }
 
-export async function getCommandenvConfigQuickPick(envs: environment.EnvironmentConfig[]): Promise<environment.EnvironmentConfig | undefined> {
+export async function getCommandenvConfigQuickPick(
+	envs: environment.EnvironmentConfig[]
+): Promise<environment.EnvironmentConfig | undefined> {
 	const items: environment.LaunchQuickPick[] = envs.map(env => {
-		return { label: env.name, description: '', env };
+		return { label: env.name, description: "", env };
 	});
 	if (items.length === 1) return items[0].env;
-	const choice = await vscode.window.showQuickPick(items, { placeHolder: 'Select environment to get from.' });
+	const choice = await vscode.window.showQuickPick(items, { placeHolder: "Select environment to get from." });
 	if (!choice) return undefined;
 	return choice.env;
 }
 
 export function writeFileWithSettings(fsPath: string, output: string): Promise<void> {
-	const trailingNewline: NEWLINE_SETTING = vscode.workspace.getConfiguration('psl', vscode.Uri.file(fsPath)).get('trailingNewline');
+	
+	const trailingNewline: NEWLINE_SETTING = vscode.workspace.getConfiguration(
+		"psl",
+		vscode.Uri.file(fsPath)
+	).get("trailingNewline");
+	
 	switch (trailingNewline) {
 		case NEWLINE_SETTING.ALWAYS:
-			if (!output.endsWith('\n')) output += detectNewline(output);
+			if (!output.endsWith("\n")) output += detectNewline(output);
 			break;
 		case NEWLINE_SETTING.NEVER:
-			output = output.replace(/(\r?\n)+$/, '');
+			output = output.replace(/(\r?\n)+$/, "");
 			break;
 		default:
 			break;
@@ -141,14 +149,14 @@ function detectNewline(output: string) {
 	const newlines = (output.match(/(?:\r?\n)/g) || []);
 
 	if (newlines.length === 0) {
-		return '\n';
+		return "\n";
 	}
 
 	const crlfCount = newlines.filter(el => {
-		return el === '\r\n';
+		return el === "\r\n";
 	}).length;
 
 	const lfCount = newlines.length - crlfCount;
 
-	return crlfCount > lfCount ? '\r\n' : '\n';
+	return crlfCount > lfCount ? "\r\n" : "\n";
 }

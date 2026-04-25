@@ -1,8 +1,10 @@
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import * as vscode from 'vscode';
-import * as environment from '../common/environment';
-import * as utils from './hostCommandUtils';
+import * as path from "node:path";
+
+import * as fs from "fs-extra";
+import * as vscode from "vscode";
+
+import * as environment from "../common/environment.ts";
+import * as utils from "./hostCommandUtils.ts";
 
 const icon = utils.icons.RUN;
 
@@ -16,7 +18,13 @@ async function handle(context: utils.ExtensionCommandContext): Promise<void> {
 		return runPSL(c.fsPath).catch(() => { });
 	}
 	else if (c.mode === utils.ContextMode.DIRECTORY) {
-		const files = await vscode.window.showOpenDialog({ defaultUri: vscode.Uri.file(c.fsPath), canSelectMany: true, openLabel: 'Run PSL' });
+		const files = await vscode.window.showOpenDialog(
+			{
+				defaultUri: vscode.Uri.file(c.fsPath),
+				canSelectMany: true,
+				openLabel: "Run PSL"
+			}
+		);
 		if (!files) return;
 		for (const fsPath of files.map(file => file.fsPath)) {
 			await runPSL(fsPath).catch(() => { });
@@ -26,7 +34,13 @@ async function handle(context: utils.ExtensionCommandContext): Promise<void> {
 		const quickPick = await environment.workspaceQuickPick();
 		if (!quickPick) return;
 		const chosenEnv = quickPick;
-		const files = await vscode.window.showOpenDialog({ defaultUri: vscode.Uri.file(chosenEnv.fsPath), canSelectMany: true, openLabel: 'Run PSL' });
+		const files = await vscode.window.showOpenDialog(
+			{
+				defaultUri: vscode.Uri.file(chosenEnv.fsPath),
+				canSelectMany: true,
+				openLabel: "Run PSL"
+			}
+		);
 		if (!files) return;
 		for (const fsPath of files.map(file => file.fsPath)) {
 			await runPSL(fsPath).catch(() => { });
@@ -43,7 +57,7 @@ async function runPSL(fsPath: string) {
 	try {
 		envs = await utils.getEnvironment(fsPath);
 	}
-	catch (e) {
+	catch {
 		utils.logger.error(`${utils.icons.ERROR} ${icon} Invalid environment configuration.`);
 		return;
 	}
