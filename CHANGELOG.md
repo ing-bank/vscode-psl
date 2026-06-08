@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
 ## [v2.0.0]
 
 ### Changed
@@ -15,6 +17,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   this format. Note that not all the release have tags. Releases without tags
   will link to the diff between the first release before and after that release
   that have a tag. No dates are added behind releases that do not have a tag.
+* Added a custom menu item "Generate Markdown from PSL". The custom logic
+  must be implemented in your Profile instance. Then it can be called
+  by adding this configuration to your `settings.json`:
+
+  ```json
+  "psl.customTasks": [
+      {
+          "command": "generateMarkdown",
+          "mrpcID": "^ZMRPC121",
+          "request": "PSLMARKDOWN"
+      }
+  ]
+  ```
+  
+  The `command` names are fixed, but the `mrpcID` and `request` fields can match
+  your implementation.
 
 ## [v1.13.4]
 
@@ -73,18 +91,18 @@ change (versioned `0.0.1`).
 
 ```json
 {
-	"version": "0.0.1",
-	"parentProjects": [
-		"profile-application",
-		"profile-framework"
-	],
-	"pslSources": [
-		"dataqwik/procedure/",
-		"psl/"
-	],
-	"fileDefinitionSources": [
-		"dataqwik/table/"
-	]
+    "version": "0.0.1",
+    "parentProjects": [
+        "profile-application",
+        "profile-framework"
+    ],
+    "pslSources": [
+        "dataqwik/procedure/",
+        "psl/"
+    ],
+    "fileDefinitionSources": [
+        "dataqwik/table/"
+    ]
 }
 ```
 
@@ -122,16 +140,16 @@ by adding this configuration to your `settings.json`:
 
 ```json
 "psl.customTasks": [
-	{
-		"command": "runCoverage",
-		"mrpcID": "^ZMRPC121",
-		"request": "PSLRUNTESTC"
-	},
-	{
-		"command": "runTest",
-		"mrpcID": "^ZMRPC121",
-		"request": "PSLRUNTEST"
-	}
+    {
+        "command": "runCoverage",
+        "mrpcID": "^ZMRPC121",
+        "request": "PSLRUNTESTC"
+    },
+    {
+        "command": "runTest",
+        "mrpcID": "^ZMRPC121",
+        "request": "PSLRUNTEST"
+    }
 ]
 ```
 
@@ -140,7 +158,7 @@ your implementation.
 
 Other changes include:
 
-* Adds rule for "PropertyIsDuplicate" from psl-lint 
+* Adds rule for "PropertyIsDuplicate" from psl-lint
   (thanks [@Thirurakshan](https://github.com/Thirurakshan))
 * Properly scope preview configuration to resource
 * Change batch section icon
@@ -212,13 +230,13 @@ not be checked. Here is an example layout:
 
 ```json
 {
-	"version": 1,
-	"include": {
-		"Z*": ["*"],
-		"*.psl": ["*"],
-		"*": ["TodoInfo"]
-	},
-	"exclude": {}
+    "version": 1,
+    "include": {
+        "Z*": ["*"],
+        "*.psl": ["*"],
+        "*": ["TodoInfo"]
+    },
+    "exclude": {}
 }
 ```
 
@@ -227,14 +245,14 @@ applied to these files. All files will have the TodoInfo rule applied to them.
 
 These are the current rules:
 
-- TodoInfo
-- MemberCamelCase
-- MemberLength
-- MemberStartsWithV
-- MethodDocumentation
-- MethodSeparator
-- MethodParametersOnNewLine
-- PropertyLiteralCase
+* TodoInfo
+* MemberCamelCase
+* MemberLength
+* MemberStartsWithV
+* MethodDocumentation
+* MethodSeparator
+* MethodParametersOnNewLine
+* PropertyLiteralCase
 
 Additionally, this version also introduces Completion Items with Suggestions as
 another preview feature for the PSL language.
@@ -246,8 +264,8 @@ Restart after configuring to enable.
 
 Preview features include:
 
-- Hover and go-to definitions.
-- Actions for missing separator and documentation on methods.
+* Hover and go-to definitions.
+* Actions for missing separator and documentation on methods.
 
 ## [v1.1.0] - 2018-05-08
 
@@ -255,26 +273,28 @@ Implementation of the psl-lint code quality checker. Enable it by adding the
 setting `"psl.lint" : true` to your settings.json.
 
 ## [v1.0.1]
+
 Fix a small bug where the Configure Environments button does not update
 properly.
 
 ## [v1.0.0] - 2018-02-21
+
 Promote to 1.0.0 stable. Introduces language support.
 
-- Tokenizer and parser
-- Data item support
-- Outlines for PSL entities
-- Record completion items
-- Fixes to environment configuration interface
+* Tokenizer and parser
+* Data item support
+* Outlines for PSL entities
+* Record completion items
+* Fixes to environment configuration interface
 
 ## [v0.0.1]
 
 Initial publication.
 
-- Get/Refresh, Send, Run, Test Compile, and Compile and Link.
-- Multi-environment configurations
-- Terminal support
-- PSL and table item syntax coloring
+* Get/Refresh, Send, Run, Test Compile, and Compile and Link.
+* Multi-environment configurations
+* Terminal support
+* PSL and table item syntax coloring
 
 [Unreleased]: https://github.com/ing-bank/vscode-psl/compare/v2.0.0...HEAD
 [v2.0.0]: https://github.com/ing-bank/vscode-psl/compare/vscode-v1.13.3-rc1...v2.0.0

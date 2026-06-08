@@ -1,6 +1,5 @@
 # vscode-psl
 
-
 [![Build and Test CI](https://github.com/ing-bank/vscode-psl/actions/workflows/build_test_vscode.yml/badge.svg)](https://github.com/ing-bank/vscode-psl/actions/workflows/build_test_vscode.yml)
 
 Profile Scripting Language functionality for Visual Studio Code.
@@ -11,7 +10,7 @@ Profile Scripting Language functionality for Visual Studio Code.
 
 ## Environment Configuration
 
-Locate the button at the bottom-right corner titled `Configure Environments`. If the button is not visible, use the Command Palette (<kbd>F1</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) to find the `PSL: Configure Environment` command. A JSON object of the following form will appear:
+Locate the button at the bottom-right corner titled `Configure Environments`. If the button is not visible, use the Command Palette (`F1` or `Ctrl`+`Shift`+`P`) to find the `PSL: Configure Environment` command. A JSON object of the following form will appear:
 
 ```json
 {
@@ -38,7 +37,7 @@ Once the global configuration is saved, environments can be activated by using t
 
 ## Host Communication
 
-Commands to communicate with the Host via MRPC121 can be executed via the Command Pallette (<kbd>F1</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>), icons at the top-right corner of the document, right-clicking the document, or right-clicking the file in the Explorer sidebar.
+Commands to communicate with the Host via MRPC121 can be executed via the Command Pallette (`F1` or `Ctrl`+`Shift`+`P`), icons at the top-right corner of the document, right-clicking the document, or right-clicking the file in the Explorer sidebar.
 
 * `Compile and Link`: Compiles and links PSL or tables
 * `Get Element from Host`: Gets a new element
@@ -49,28 +48,29 @@ Commands to communicate with the Host via MRPC121 can be executed via the Comman
 * `Table Refresh from Host`: Fetches all elements related to an existing table element
 * `Table Send to Host`: Sends all existing elements related to the table
 * `Test Compile`: Test compiles PSL
+* `Generate Markdown from PSL`: Generates markdown documentation for a PSL element
 
 > Please note that the Host Communication is done *asynchronously*, meaning that vscode will not require you to wait to finish one action before you start another. This may have unintended consequences if you do not wait. For example, you must wait for sending to finish before you compile and link.
 
 ### Getting New Elements
 
-Two commands `Get Element from Host` and `Table Get from Host` will allow you to get new elements from the Host. When activating the commands from the editor, the element(s) will try to be placed according to this table: 
+Two commands `Get Element from Host` and `Table Get from Host` will allow you to get new elements from the Host. When activating the commands from the editor, the element(s) will try to be placed according to this table:
 
-|Type | Directory |
-|---|---|
-BATCH | `dataqwik/batch/` |
-DAT | `data/` |
-FKY | `dataqwik/foreign_key/` |
-IDX | `dataqwik/index/` |
-JFD | `dataqwik/journal/` |
-m | `routine/` |
-PROC | `dataqwik/procedure/` |
-properties | `property/` |
-QRY | `dataqwik/query/` |
-RPT | `dataqwik/report/` |
-SCR | `dataqwik/screen/` |
-table files (TBL and COL) | `dataqwik/table/{table_name}/` |
-TRIG | `dataqwik/trigger/` |
+| Type | Directory |
+| --- | --- |
+| BATCH | `dataqwik/batch/` |
+| DAT | `data/` |
+| FKY | `dataqwik/foreign_key/` |
+| IDX | `dataqwik/index/` |
+| JFD | `dataqwik/journal/` |
+| m | `routine/` |
+| PROC | `dataqwik/procedure/` |
+| properties | `property/` |
+| QRY | `dataqwik/query/` |
+| RPT | `dataqwik/report/` |
+| SCR | `dataqwik/screen/` |
+| table files (TBL and COL) | `dataqwik/table/{table_name}/` |
+| TRIG | `dataqwik/trigger/` |
 
 If an element is not in the table, a prompt will ask where it should be saved.
 
@@ -82,7 +82,7 @@ These two commands behave differently when they are used in the Explorer sidebar
 
 When editing a TBL or COL, the commands `Table Refresh from Host` and `Table Send to Host` are present.
 
-The "Send" command will act on all existing elements of that table in the project at once, while the "Refresh" command will fetch all elements related to the table from the Host, even elements not present in the project. 
+The "Send" command will act on all existing elements of that table in the project at once, while the "Refresh" command will fetch all elements related to the table from the Host, even elements not present in the project.
 
 `Compile and Link` is also available, allowing you to "Rebuild Data Item Control Files".
 
@@ -97,7 +97,7 @@ Basic language features also exist for files written in PSL, data configuration,
 These features include:
 
 * Syntax coloring
-* Property and Label outline for PSL files (access by <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> or by enabling the built-in outline).
+* Property and Label outline for PSL files (access by `Ctrl`+`Shift`+`O` or by enabling the built-in outline).
 * Code Completion, Hovers, and Go-To Definitions.
 * Highlighting and Hover information for editing data configuration files
 * Code snippets for loops, comments, and table/column definitions, etc.
@@ -106,7 +106,7 @@ These features include:
 
 This extension includes support for checking PSL against common coding standards. The setting `psl.lint` is by default set to `config`, meaning the linting module will activate upon finding a `psl-lint.json` configuration file. Here is a sample:
 
-```
+``` json
 {
     "version": 1,
     "include": {
@@ -127,9 +127,9 @@ Within `include` and `exclude` are mappings from filename patterns to Rules. The
 
 The extension can be configured to help you debug in the Integrated Terminal with the following actions:
 
-* Step In (<kbd>Ctrl</kbd>+<kbd>Q</kbd>): `ZSTEP INTO:"W $ZPOS ZP @$ZPOS B"`
-* Step Over (<kbd>Ctrl</kbd>+<kbd>W</kbd>): `ZSTEP OVER:"W $ZPOS ZP @$ZPOS B"`
-* Step Out (<kbd>Ctrl</kbd>+<kbd>E</kbd>): `ZSTEP OUTOF:"W $ZPOS ZP @$ZPOS B"`
+* Step In (`Ctrl`+`Q`): `ZSTEP INTO:"W $ZPOS ZP @$ZPOS B"`
+* Step Over (`Ctrl`+`W`): `ZSTEP OVER:"W $ZPOS ZP @$ZPOS B"`
+* Step Out (`Ctrl`+`E`): `ZSTEP OUTOF:"W $ZPOS ZP @$ZPOS B"`
 
 By toggling the status bar item "GT.M Debug", the extension can send the text to your active Integrated Terminal. The default values are presented above, but can be customized to your liking.
 
@@ -137,7 +137,7 @@ The setting `psl.gtmDebugEnabled` can be set to `true` to keep "GT.M Debug" on b
 
 You may even define custom sequences using the `psl.sendToHostTerminal` command. `key` and `args` are completely configurable. You can add as many of these configurations as you would like to your `keybindings.json`:
 
-```
+``` json
 {
     "key": "ctrl+1",
     "args": "d ^DRV\n1\nxxx",
@@ -161,6 +161,6 @@ If you would like to join the development of this extension, you will need to in
 
 Once you clone the project, from the command line in the root of this project, run `npm install`.
 
-For ideas on features to implement, visit the below link:
+For ideas on features to implement, visit [vscode language-support]:
 
-https://code.visualstudio.com/docs/extensions/language-support
+[vscode language-support]: https://code.visualstudio.com/docs/extensions/language-support

@@ -291,6 +291,15 @@
         "command": "psl.previewDocumentation",
         "title": "Preview Documentation",
         "category": "PSL"
+      },
+      {
+        "command": "psl.generateMarkdown",
+        "title": "Generate Markdown from PSL",
+        "category": "PSL",
+        "icon": {
+          "dark": "icons/dark/book.svg",
+          "light": "icons/light/book.svg"
+        }
       }
     ],
     "menus": {
@@ -331,6 +340,11 @@
           "group": "PSL.2"
         },
         {
+          "when": "explorerResourceIsFolder",
+          "command": "psl.generateMarkdown",
+          "group": "PSL.2"
+        },
+        {
           "when": "resourceLangId == psl && !explorerResourceIsFolder",
           "command": "psl.refreshElement",
           "group": "PSL.2"
@@ -438,6 +452,11 @@
         {
           "when": "resourceLangId == profileColumn && !explorerResourceIsFolder",
           "command": "psl.refreshTable",
+          "group": "PSL.1"
+        },
+        {
+          "when": "resourceLangId == psl && !explorerResourceIsFolder",
+          "command": "psl.generateMarkdown",
           "group": "PSL.1"
         },
         {
@@ -583,9 +602,19 @@
           "when": "resourceLangId == profileColumn",
           "command": "psl.refreshTable",
           "group": "PSL.1"
+        },
+        {
+          "when": "resourceLangId == psl",
+          "command": "psl.generateMarkdown",
+          "group": "PSL.1"
         }
       ],
       "editor/title": [
+        {
+          "command": "psl.generateMarkdown",
+          "group": "navigation@-207",
+          "when": "resourceLangId == psl"
+        },
         {
           "command": "psl.previewDocumentation",
           "group": "navigation@-206",
@@ -714,6 +743,11 @@
           "group": "PSL"
         },
         {
+          "when": "resourceLangId == psl",
+          "command": "psl.generateMarkdown",
+          "group": "PSL"
+        },
+        {
           "when": "resourceLangId == profileColumn",
           "command": "psl.refreshTable",
           "group": "PSL"
@@ -788,11 +822,13 @@
                 "type": "string",
                 "enum": [
                   "runTest",
-                  "runCoverage"
+                  "runCoverage",
+                  "generateMarkdown"
                 ],
                 "enumDescriptions": [
                   "A command for running tests via PslUtTestCase.",
-                  "A command for running tests with coverage output."
+                  "A command for running tests with coverage output.",
+                  "A command for generating markdown documentation from PSL files."
                 ]
               },
               "mrpcID": {

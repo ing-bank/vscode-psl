@@ -30,6 +30,7 @@ export const enum icons {
 	TEST = "⚙",
 	WAIT = "…",
 	WARN = "⚠",
+	MARKDOWN = "📖",
 }
 
 export const enum ContextMode {
