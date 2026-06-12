@@ -7,8 +7,8 @@ import { getElementHandler, getTableHandler } from "./get.ts";
 import { refreshElementHandler, refreshTableHandler } from "./refresh.ts";
 import { runPSLHandler } from "./run.ts";
 import {
-	coverageContext, registerCustomRunContext, runCoverageHandler,
-	runTestHandler, testContext,
+	coverageContext, markdownContext, registerCustomRunContext, runCoverageHandler,
+	runMarkdownHandler, runTestHandler, testContext
 } from "./runCustom.ts";
 import { sendElementHandler, sendTableHandler } from "./send.ts";
 import { testCompileHandler } from "./testCompile.ts";
@@ -54,6 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
 		// { id: "psl.getCompiledCode", callback: getCompiledCodeHandler },
 		{ id: `psl.${testContext.command}`, callback: runTestHandler },
 		{ id: `psl.${coverageContext.command}`, callback: runCoverageHandler },
+		{ id: `psl.${markdownContext.command}`, callback: runMarkdownHandler },
 	];
 
 	for (const command of commands) {

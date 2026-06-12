@@ -2,6 +2,7 @@ import * as path from "node:path";
 
 import * as fs from "fs-extra";
 import * as vscode from "vscode";
+import { getMarkdownFile } from "./get.ts";
 
 import { MtmConnection } from "@profile-psl/profile-connector/mtm.js";
 
@@ -21,6 +22,11 @@ export const testContext: CustomRunContext = {
 	contextKey: "psl.runTestContext",
 };
 
+export const markdownContext: CustomRunContext = {
+	command: "generateMarkdown",
+	contextKey: "psl.generateMarkdown",
+};
+
 export const coverageContext: CustomRunContext = {
 	command: "runCoverage",
 	contextKey: "psl.runCoverageContext",
@@ -36,6 +42,10 @@ interface CustomTaskConfig {
 
 export async function runTestHandler(context: utils.ExtensionCommandContext): Promise<void> {
 	handle(context, testContext);
+}
+
+export async function runMarkdownHandler(context: utils.ExtensionCommandContext): Promise<void> {
+	handle(context, markdownContext);
 }
 
 export async function runCoverageHandler(context: utils.ExtensionCommandContext): Promise<void> {
@@ -100,11 +110,21 @@ async function runPSL(fsPath: string, runContext: CustomRunContext) {
 	const promises = [];
 	for (const env of envs) {
 		promises.push(utils.executeWithProgress(`${icon} ${path.basename(fsPath)} RUN`, async () => {
-			utils.logger.info(`${utils.icons.WAIT} ${icon} ${path.basename(fsPath)} RUN in ${env.name}`);
 			const connection = await utils.getConnection(env);
-			const output = await runCustom(connection, fsPath, config, env);
-			connection.close();
-			utils.logger.info(output.trim());
+			if (config.request === "PSLMARKDOWN") {
+				await connection.send(fsPath);
+				utils.logger.info(`${utils.icons.WAIT} ${utils.icons.MARKDOWN} 
+					Generating ${path.basename(fsPath).split(".")[0]+".md"} from ${env.name}`);
+				const output = await connection.runCustom(fsPath, config.mrpcID, config.request);
+				await getMarkdownFile(fsPath, output.trim());
+			}
+			else {
+				utils.logger.info(`${utils.icons.WAIT} ${icon} 
+					${path.basename(fsPath)} RUN in ${env.name}`);
+				const output = await runCustom(connection, fsPath, config, env);
+				connection.close();
+				utils.logger.info(output.trim());
+			}
 		}).catch((e: Error) => {
 			utils.logger.error(`${utils.icons.ERROR} ${icon} error in ${env.name} ${e.message}`);
 		}));

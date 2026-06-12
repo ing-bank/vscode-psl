@@ -168,6 +168,46 @@ export async function getCompiledCodeHandler(context: utils.ExtensionCommandCont
 	return;
 }
 
+export async function getMarkdownFile(fsPath: string, contents: string): Promise<void>  {
+	let env: environment.EnvironmentConfig;
+	return utils.executeWithProgress(`${icon} ${path.basename(fsPath)} MARKDOWN`, async () => {
+		let envs: environment.EnvironmentConfig[];
+		try {
+			envs = await utils.getEnvironment(fsPath);
+		}
+		catch {
+			utils.logger.error(`${utils.icons.ERROR} ${icon} Invalid environment configuration.`);
+			return;
+		}
+		if (envs.length === 0) {
+			utils.logger.error(`${utils.icons.ERROR} ${icon} No environments selected.`);
+			return;
+		}
+		const choice = await utils.getCommandenvConfigQuickPick(envs);
+		if (!choice) return;
+		env = choice;
+		const currentFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(fsPath));
+		const markdownFile = path.join(currentFolder.uri.fsPath,
+			".configurations/markdown/tmp" , path.basename(fsPath).split(".")[0]+".md");
+		await fs.ensureDir(path.dirname(markdownFile));
+		await utils.writeFileWithSettings(markdownFile, contents);
+		utils.logger.info(
+			`${utils.icons.SUCCESS} ${utils.icons.MARKDOWN} 
+			${path.basename(fsPath).split(".")[0]+".md"} generation from ${env.name} succeeded`
+		);
+		const doc = await vscode.workspace.openTextDocument(markdownFile);
+		await doc.save();
+		await vscode.window.showTextDocument(doc);
+	}).catch((e: Error) => {
+		if (env && env.name) {
+			utils.logger.error(`${utils.icons.ERROR} ${icon} error in ${env.name} ${e.message}`);
+		}
+		else {
+			utils.logger.error(`${utils.icons.ERROR} ${icon} ${e.message}`);
+		}
+	});
+}
+
 async function getCompiledCode(fsPath: string) {
 	if (!fs.statSync(fsPath).isFile()) return;
 	let env: environment.EnvironmentConfig;
