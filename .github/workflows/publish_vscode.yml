@@ -11,7 +11,7 @@ jobs:
     name: Build and test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v7
     - name: Use Node.js
       uses: actions/setup-node@v6
       with:
@@ -25,11 +25,11 @@ jobs:
     name: Publish vscode-psl
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Use Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '16.x'
+        node-version: '24.x'
         cache: 'npm'
     - run: npm install .
     - env:
@@ -39,6 +39,6 @@ jobs:
       name: Publish Pre-Release
     - env:
           VSCODE_TOKEN: ${{ secrets.VSCODE_TOKEN_PUBLISH }}
-      run: npm run build && npm i -g vsce && vsce package && vsce publish -p $VSCODE_TOKEN
       if: ${{ ! contains(github.ref, '-rc') }}
+      run: npm run build && npm i -g vsce && vsce package && vsce publish -p $VSCODE_TOKEN
       name: Publish Release

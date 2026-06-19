@@ -891,15 +891,15 @@
     "@types/minimatch": "^6.0.0",
     "@types/node": "^24.5.2",
     "@types/vscode": "^1.104.0",
-    "@vscode/vsce": "^2.25.0",
+    "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.25.10",
     "rimraf": "^6.0.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.53.1"
   },
   "dependencies": {
-    "@profile-psl/profile-connector": "^0.0.1",
-    "@profile-psl/psl-linter": "^2.0.0",
+    "@profile-psl/profile-connector": "^0.1.0",
+    "@profile-psl/psl-linter": "^2.1.0",
     "@profile-psl/psl-parser": "^0.1.0",
     "fs-extra": "^11.3.2",
     "jsonc-parser": "^3.3.1",
