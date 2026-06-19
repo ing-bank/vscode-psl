@@ -35,10 +35,10 @@ jobs:
     - env:
           VSCODE_TOKEN: ${{ secrets.VSCODE_TOKEN_PUBLISH }}
       if: ${{ contains(github.ref, '-rc') }}
-      run: npm run build && npm i -g vsce && vsce package --pre-release && vsce publish --pre-release -p $VSCODE_TOKEN
+      run: npm run build && npx @vscode/vsce package --pre-release && npx @vscode/vsce publish --pre-release -p $VSCODE_TOKEN
       name: Publish Pre-Release
     - env:
           VSCODE_TOKEN: ${{ secrets.VSCODE_TOKEN_PUBLISH }}
       if: ${{ ! contains(github.ref, '-rc') }}
-      run: npm run build && npm i -g vsce && vsce package && vsce publish -p $VSCODE_TOKEN
+      run: npm run build && npx @vscode/vsce package && npx @vscode/vsce publish -p $VSCODE_TOKEN
       name: Publish Release
