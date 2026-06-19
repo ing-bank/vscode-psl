@@ -892,7 +892,7 @@
     "@types/node": "^24.5.2",
     "@types/vscode": "^1.104.0",
     "@vscode/vsce": "^3.9.2",
-    "esbuild": "^0.25.10",
+    "esbuild": "^0.28.1",
     "rimraf": "^6.0.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.53.1"
