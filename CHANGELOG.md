@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [v2.0.0]
+## [v2.0.1]
+
+* Removed serial from profile elements in activate.ts to remove duplicate
+  refresh and and send to host menus in serial files.
+
+## [v2.0.0] - 2026-06-19
 
 ### Changed
 
@@ -296,7 +301,8 @@ Initial publication.
 * Terminal support
 * PSL and table item syntax coloring
 
-[Unreleased]: https://github.com/ing-bank/vscode-psl/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/ing-bank/vscode-psl/compare/v2.0.1...HEAD
+[v2.0.1]: https://github.com/ing-bank/vscode-psl/compare/vscode-v2.0.0...v2.0.1
 [v2.0.0]: https://github.com/ing-bank/vscode-psl/compare/vscode-v1.13.3-rc1...v2.0.0
 [v1.13.4]: https://github.com/ing-bank/vscode-psl/compare/vscode-v1.13.3-rc1...v2.0.0
 [v1.13.3]: https://github.com/ing-bank/vscode-psl/compare/vscode-v1.13.2-rc0...vscode-v1.13.3-rc1
