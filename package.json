@@ -2,7 +2,7 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "preview": false,
   "publisher": "ing-bank",
   "type": "module",
