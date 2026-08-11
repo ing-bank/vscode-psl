@@ -2,7 +2,7 @@
   "name": "vscode-psl",
   "displayName": "vscode-psl",
   "description": "Profile Scripting Language support",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "preview": false,
   "publisher": "ing-bank",
   "type": "module",
@@ -897,7 +897,7 @@
     "typescript-eslint": "^8.53.1"
   },
   "dependencies": {
-    "@profile-psl/profile-connector": "^0.1.0",
+    "@profile-psl/profile-connector": "^0.1.1",
     "@profile-psl/psl-linter": "^2.1.0",
     "@profile-psl/psl-parser": "^0.1.0",
     "fs-extra": "^11.3.2",
